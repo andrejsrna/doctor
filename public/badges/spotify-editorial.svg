@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+  <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="4"/>
+  <path d="M44 32c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12zm-4 0c0 4.418-3.582 8-8 8s-8-3.582-8-8 3.582-8 8-8 8 3.582 8 8z"/>
+  <text x="32" y="56" text-anchor="middle" font-size="8" fill="currentColor">EDITORIAL</text>
+</svg> 

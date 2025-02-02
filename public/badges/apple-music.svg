@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="white ">
+  <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 8c11.046 0 20 8.954 20 20s-8.954 20-20 20S12 43.046 12 32s8.954-20 20-20z"/>
+  <path d="M36 24v12c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4c.73 0 1.41.19 2 .53V24h2z"/>
+  <text x="32" y="56" text-anchor="middle" font-size="8" fill="currentColor">PARTNER</text>
+</svg> 

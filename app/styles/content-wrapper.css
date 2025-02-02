@@ -1,0 +1,9 @@
+.content-wrapper a {
+  color: theme('colors.purple.500');
+  text-decoration: underline;
+  transition: all 0.2s ease-in-out;
+}
+
+.content-wrapper a:hover {
+  color: theme('colors.pink.500');
+} 

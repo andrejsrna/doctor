@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+  <path d="M32 4L8 16v16c0 8.837 7.163 16 16 16h16c8.837 0 16-7.163 16-16V16L32 4z"/>
+  <path d="M28 36l-8-8 4-4 4 4 12-12 4 4-16 16z" fill="white"/>
+  <text x="32" y="56" text-anchor="middle" font-size="8" fill="currentColor">QUALITY</text>
+</svg> 
