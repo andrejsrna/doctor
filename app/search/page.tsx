@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
@@ -31,7 +31,7 @@ interface WPPost {
   date: string
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const urlQuery = searchParams.get('q') || ''
   const [query, setQuery] = useState(urlQuery)
@@ -207,5 +207,17 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-purple-500">Loading...</div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 } 
