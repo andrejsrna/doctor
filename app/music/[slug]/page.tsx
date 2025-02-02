@@ -15,6 +15,7 @@ import SubscribeCTA from '@/app/components/SubscribeCTA'
 import AudioPreview from '@/app/components/AudioPreview'
 import Reactions from '@/app/components/Reactions'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
+import ReactPixel from 'react-facebook-pixel'
 
 interface Release {
   id: number
@@ -62,6 +63,31 @@ interface StreamingLink {
   color: string
   bgColor: string
   priority?: number
+}
+
+interface GoogleAnalytics {
+  gtag: (command: string, action: string, params: object) => void;
+}
+
+const trackStreamingClick = (platform: string) => {
+  // Facebook Pixel tracking
+  ReactPixel.track('Purchase', {
+    content_name: platform,
+    content_type: 'streaming_click',
+    content_category: 'Music'
+  })
+
+  // Google Analytics tracking
+  if (typeof window !== 'undefined') {
+    const w = window as unknown as Window & GoogleAnalytics;
+    if (w.gtag) {
+      w.gtag('event', 'streaming_click', {
+        event_category: 'Music',
+        event_label: platform,
+        value: 1
+      })
+    }
+  }
 }
 
 export default function ReleasePage({ params }: PageProps) {
@@ -276,6 +302,7 @@ export default function ReleasePage({ params }: PageProps) {
                         href={platform.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackStreamingClick(platform.name)}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.03 }}
@@ -331,6 +358,7 @@ export default function ReleasePage({ params }: PageProps) {
                         href={platform.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackStreamingClick(platform.name)}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.05 }}
