@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
 interface RequestBody {
   name: string
   email: string
+  subject: string
   message: string
   token: string
 }
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
 
     if (!verificationData.success) {
       return NextResponse.json(
-        { message: 'Invalid security token' },
+        { message: 'Invalid security check' },
         { status: 400 }
       )
     }
@@ -51,17 +52,23 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: process.env.SMTP_USER,
-      subject: 'New Contact Form Submission',
+      replyTo: formData.email,
+      subject: `Contact Form: ${formData.subject}`,
       text: `
 Name: ${formData.name}
 Email: ${formData.email}
-Message: ${formData.message}
+Subject: ${formData.subject}
+
+Message:
+${formData.message}
       `,
       html: `
 <h2>New Contact Form Submission</h2>
 <p><strong>Name:</strong> ${formData.name}</p>
 <p><strong>Email:</strong> ${formData.email}</p>
-<p><strong>Message:</strong> ${formData.message}</p>
+<p><strong>Subject:</strong> ${formData.subject}</p>
+<p><strong>Message:</strong></p>
+<p>${formData.message.replace(/\n/g, '<br>')}</p>
       `
     })
 
@@ -72,7 +79,7 @@ Message: ${formData.message}
   } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json(
-      { message: 'Failed to process request' },
+      { message: 'Failed to send message' },
       { status: 500 }
     )
   }
