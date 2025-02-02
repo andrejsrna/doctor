@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { FaMusic } from 'react-icons/fa'
 
 interface Post {
   id: number
@@ -199,40 +200,41 @@ export default function MusicPage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[600px] w-full flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <Image
-          src="/music-bg.jpeg" // Make sure to add your preferred background image
-          alt="DnB Doctor Music Background"
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/70" />
-        
-        {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-5xl md:text-6xl font-bold mb-6"
-          >
-            DnB Doctor <span className="text-purple-500">Releases</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl md:text-2xl text-gray-300 mb-8"
-          >
-            Explore our collection of cutting-edge drum and bass releases.
-          </motion.p>
+            {/* Hero Section with Parallax Effect */}
+            <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/music-bg.jpeg"
+            alt="DnB Doctor Music Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
         </div>
-      </section>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 text-center px-4"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm"
+          >
+            <FaMusic className="w-16 h-16 text-purple-500" />
+          </motion.div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
+            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
+            DnB Doctor Releases
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
+            Explore our collection of cutting-edge drum and bass releases.
+          </p>
+        </motion.div>
+      </div>
 
       {/* Releases Section */}
       <section className="py-20 px-4 relative">
@@ -240,14 +242,6 @@ export default function MusicPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            Pick Your Sonic <span className="text-purple-500">Masterpieces</span>
-          </motion.h2>
 
           {/* Filter Controls */}
           <div className="mb-8 flex flex-col md:flex-row gap-4">

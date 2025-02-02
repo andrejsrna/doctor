@@ -40,7 +40,7 @@ export default function NewsletterPage() {
   }
 
   return (
-    <section className="py-32 px-4 relative min-h-screen overflow-hidden">
+    <section className="py-24 px-4 relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
           src="/newsletter.jpeg"
@@ -53,19 +53,25 @@ export default function NewsletterPage() {
       </div>
       
       <div className="max-w-3xl mx-auto relative z-10">
-        <motion.div 
+        
+      <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="relative z-10 text-center px-4"
         >
-          <div className="inline-block p-4 bg-purple-500/20 rounded-full mb-6">
-            <FaEnvelope className="w-12 h-12 text-purple-500" />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent 
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm"
+          >
+            <FaEnvelope className="w-16 h-16 text-purple-500" />
+          </motion.div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
             bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
             Join Our Newsletter
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
             Stay up to date with the latest releases, exclusive content, and special announcements 
             from DnB Doctor.
           </p>
