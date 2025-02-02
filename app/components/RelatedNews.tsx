@@ -18,7 +18,7 @@ export default function RelatedNews({ currentPostId }: { currentPostId: number }
   useEffect(() => {
     const fetchRelatedPosts = async () => {
       try {
-        const response = await fetch('https://dnbdoctor.com/wp-json/wp/v2/news?per_page=3')
+        const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/news?per_page=3')
         const data = await response.json()
         setPosts(data.filter((post: NewsPost) => post.id !== currentPostId))
       } catch (error) {

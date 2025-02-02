@@ -75,7 +75,7 @@ export default function ReleasePage({ params }: PageProps) {
     const fetchRelease = async () => {
       try {
         const response = await fetch(
-          `https://dnbdoctor.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
         )
         const data = await response.json()
         if (data.length > 0) {
@@ -84,7 +84,7 @@ export default function ReleasePage({ params }: PageProps) {
 
           if (data[0].acf?.preview) {
             const attachmentResponse = await fetch(
-              `https://dnbdoctor.com/wp-json/wp/v2/media/${data[0].acf.preview}`
+              `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${data[0].acf.preview}`
             )
             if (attachmentResponse.ok) {
               const attachment = await attachmentResponse.json()

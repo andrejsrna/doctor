@@ -40,7 +40,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
       try {
         // First fetch tag ID
         const tagsResponse = await fetch(
-          `https://dnbdoctor.com/wp-json/wp/v2/tags?search=${encodeURIComponent(artistName)}`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/tags?search=${encodeURIComponent(artistName)}`
         )
         const tags = await tagsResponse.json()
         
@@ -51,7 +51,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
 
         // Then fetch posts with that tag ID
         const response = await fetch(
-          `https://dnbdoctor.com/wp-json/wp/v2/posts?tags=${tags[0].id}&_embed`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?tags=${tags[0].id}&_embed`
         )
         if (!response.ok) throw new Error('Failed to fetch posts')
         
@@ -63,7 +63,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
           filteredPosts.map(async (post: Post) => {
             if (post.acf?.preview) {
               const attachmentResponse = await fetch(
-                `https://dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
+                `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
               )
               if (attachmentResponse.ok) {
                 const attachment = await attachmentResponse.json()

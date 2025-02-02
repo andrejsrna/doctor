@@ -32,7 +32,7 @@ export default function BioLinksPage() {
     try {
       const types = ['bio_links', 'posts', 'news']
       const fetchPromises = types.map(type =>
-        fetch(`https://dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}`)
+        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}`)
           .then(res => {
             // Store total pages info
             const total = res.headers.get('X-WP-TotalPages')

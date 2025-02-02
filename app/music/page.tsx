@@ -52,7 +52,7 @@ export default function MusicPage() {
   const fetchPosts = async (page: number) => {
     try {
       const response = await fetch(
-        `https://dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=${postsPerPage}&page=${page}`
+        `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=${postsPerPage}&page=${page}`
       )
       const data = await response.json()
       
@@ -66,7 +66,7 @@ export default function MusicPage() {
           if (post.acf?.preview) {
             try {
               const attachmentResponse = await fetch(
-                `https://dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
+                `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
               )
               if (attachmentResponse.ok) {
                 const attachment = await attachmentResponse.json()

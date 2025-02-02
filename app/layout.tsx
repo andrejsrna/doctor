@@ -64,48 +64,7 @@ export const metadata: Metadata = {
   },
   other: {
     'schema:graph': [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: 'DnB Doctor',
-        url: 'https://dnbdoctor.com',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://dnbdoctor.com/logo.png',
-        },
-        sameAs: [
-          'https://soundcloud.com/dnbdoctor',
-          'https://www.youtube.com/@dnbdoctor1',
-          'https://open.spotify.com/artist/1669888444',
-        ],
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'DnB Doctor',
-        url: 'https://dnbdoctor.com',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://dnbdoctor.com/search?q={search_term_string}'
-          },
-          'query-input': 'required name=search_term_string'
-        }
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'MusicGroup',
-        name: 'DnB Doctor',
-        url: 'https://dnbdoctor.com',
-        genre: ['Neurofunk', 'Drum and Bass', 'Electronic'],
-        image: 'https://dnbdoctor.com/logo.png',
-        sameAs: [
-          'https://soundcloud.com/dnbdoctor',
-          'https://www.youtube.com/@dnbdoctor1',
-          'https://open.spotify.com/artist/1669888444',
-        ],
-      }
+
     ]
   }
 };

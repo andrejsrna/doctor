@@ -1,4 +1,4 @@
-const API_URL = 'https://dnbdoctor.com/wp-json/wp/v2'
+const API_URL = 'https://admin.dnbdoctor.com/wp-json/wp/v2'
 
 export async function fetchAPI(path: string, options = {}) {
   const defaultOptions = {

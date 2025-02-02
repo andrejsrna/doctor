@@ -12,7 +12,7 @@ export async function generateMetadata(
   
   try {
     const response = await fetch(
-      'https://dnbdoctor.com/wp-json/wp/v2/posts?' + new URLSearchParams({
+      'https://admin.dnbdoctor.com/wp-json/wp/v2/posts?' + new URLSearchParams({
         slug,
         _embed: '1'
       }),

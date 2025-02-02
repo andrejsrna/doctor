@@ -30,7 +30,7 @@ export default function NewsPage() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('https://dnbdoctor.com/wp-json/wp/v2/news')
+      const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/news')
       const data = await response.json()
       setPosts(data)
     } catch (error) {

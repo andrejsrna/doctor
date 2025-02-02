@@ -46,7 +46,7 @@ export default function ArtistsPage() {
 
   const fetchArtists = async () => {
     try {
-      const response = await fetch('https://dnbdoctor.com/wp-json/wp/v2/artists?_embed')
+      const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/artists?_embed')
       if (!response.ok) {
         throw new Error('Failed to fetch artists')
       }

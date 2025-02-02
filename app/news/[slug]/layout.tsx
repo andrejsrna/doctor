@@ -5,20 +5,10 @@ interface LayoutProps {
   params: Promise<{ slug: string }>
 }
 
-// Helper function to format date
-const formatDate = (date: string) => {
-  return new Date(date).toISOString()
-}
-
-// Helper to get clean text from HTML
-const stripHtml = (html: string) => {
-  return html.replace(/<[^>]*>/g, '')
-}
-
 async function getPostData(slug: string) {
   try {
     const response = await fetch(
-      `https://dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed`,
+      `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed`,
       { next: { revalidate: 3600 } }
     )
     const posts = await response.json()
@@ -72,10 +62,6 @@ export async function generateMetadata(
     alternates: {
       canonical: newsUrl,
     },
-    // Schema.org structured data for news article
-    verification: {
-      'google-site-verification': process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
-    },
     other: {
       'og:article:published_time': datePublished,
       'og:article:modified_time': dateModified,
@@ -85,34 +71,6 @@ export async function generateMetadata(
       'article:published_time': datePublished,
       'article:modified_time': dateModified,
       'schema:graph': [
-        {
-          '@context': 'https://schema.org',
-          '@type': 'NewsArticle',
-          headline: title,
-          description,
-          image: imageUrl || '/default-news.jpg',
-          datePublished,
-          dateModified,
-          author: {
-            '@type': 'Organization',
-            name: 'DnB Doctor',
-            url: 'https://dnbdoctor.com'
-          },
-          publisher: {
-            '@type': 'Organization',
-            name: 'DnB Doctor',
-            logo: {
-              '@type': 'ImageObject',
-              url: 'https://dnbdoctor.com/logo.png'
-            }
-          },
-          mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': newsUrl
-          },
-          articleSection: 'Music News',
-          keywords: ['Neurofunk', 'Drum and Bass', 'Electronic Music', 'Music News'],
-        }
       ]
     }
   }

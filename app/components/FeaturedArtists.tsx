@@ -39,7 +39,7 @@ export default function FeaturedArtists() {
     const fetchArtists = async () => {
       try {
         const response = await fetch(
-          'https://dnbdoctor.com/wp-json/wp/v2/artists?per_page=3&orderby=date&featured=1&_embed',
+          'https://admin.dnbdoctor.com/wp-json/wp/v2/artists?per_page=3&orderby=date&featured=1&_embed',
           { next: { revalidate: 3600 } }
         )
         const data = await response.json()

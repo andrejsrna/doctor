@@ -43,7 +43,7 @@ export default function LatestMusic() {
     async function fetchPosts() {
       try {
         const response = await fetch(
-          'https://dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=6'
+          'https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=6'
         )
         const data = await response.json()
         console.log('Fetched posts:', data)
@@ -54,7 +54,7 @@ export default function LatestMusic() {
             if (post.acf?.preview) {
               try {
                 const attachmentResponse = await fetch(
-                  `https://dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
+                  `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
                 )
                 if (attachmentResponse.ok) {
                   const attachment = await attachmentResponse.json()

@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://dnbdoctor.com/wp-json/mlds/v1';
+const API_BASE_URL = 'https://admin.dnbdoctor.com/wp-json/mlds/v1';
 
 interface TrackInfo {
   id: number;
