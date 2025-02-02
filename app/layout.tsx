@@ -4,7 +4,7 @@ import Navigation from "./components/Navigation";
 import "./globals.css";
 import Footer from './components/Footer'
 import './styles/content-wrapper.css'
-import CookieConsent from './components/CookieConsent'
+import CookieConsent from "./components/CookieConsent";
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
@@ -77,18 +77,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        {/* Facebook Pixel - Noscript */}
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: 'none' }}
-            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FB_PIXEL_ID}&ev=PageView&noscript=1`}
-            alt=""
-          />
-        </noscript>
-      </head>
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
       >

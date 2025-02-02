@@ -1,36 +1,48 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Cookies from 'js-cookie'
-import ReactPixel from 'react-facebook-pixel'
 
-interface CookieSettings {
+type CookieSettings = {
   analytics: boolean
   marketing: boolean
 }
 
+const COOKIE_CONSENT_KEY = 'cookie-consent'
+const COOKIE_EXPIRY_DAYS = 365
+
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
-  const applyCookieSettings = useCallback((settings: CookieSettings) => {
-    // Handle Google Analytics
+  // Optimalizovaná funkcia pre správu analytických nástrojov
+  const handleAnalyticsTools = (settings: CookieSettings) => {
+    if (typeof window === 'undefined') return
+
+    // Google Analytics
+    const gaKey = `ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`
     if (settings.analytics) {
-      window[`ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`] = false
+      window[gaKey] = false
     } else {
-      window[`ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`] = true
-      Cookies.remove('_ga')
-      Cookies.remove('_gat')
-      Cookies.remove('_gid')
+      window[gaKey] = true
+      const cookies = ['_ga', '_gat', '_gid']
+      cookies.forEach(cookie => Cookies.remove(cookie))
     }
 
-    // Handle Facebook Pixel
+    // Facebook Pixel
     if (settings.marketing) {
-      initializeFacebookPixel()
-      ReactPixel.grantConsent()
-      ReactPixel.pageView()
+      // Lazy load Facebook Pixel
+      import('react-facebook-pixel').then((ReactPixel) => {
+        const options = {
+          autoConfig: true,
+          debug: process.env.NODE_ENV !== 'production',
+        }
+        ReactPixel.default.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID as string, undefined, options)
+        ReactPixel.default.grantConsent()
+        ReactPixel.default.pageView()
+      })
     } else {
-      ReactPixel.revokeConsent()
       // Remove FB pixel cookies
       Object.keys(Cookies.get()).forEach(cookieName => {
         if (cookieName.startsWith('_fb') || cookieName.startsWith('fb')) {
@@ -38,47 +50,35 @@ export default function CookieConsent() {
         }
       })
     }
-  }, [])
+  }
 
   useEffect(() => {
-    // Check if user has already made a choice
-    const consent = Cookies.get('cookie-consent')
+    setIsMounted(true)
+    const consent = Cookies.get(COOKIE_CONSENT_KEY)
+    
     if (!consent) {
       setIsVisible(true)
     } else {
-      // If consent exists, apply saved settings
-      const savedSettings = JSON.parse(consent) as CookieSettings
-      applyCookieSettings(savedSettings)
+      try {
+        const savedSettings = JSON.parse(consent) as CookieSettings
+        handleAnalyticsTools(savedSettings)
+      } catch (error) {
+        console.error('Error parsing cookie consent:', error)
+        setIsVisible(true)
+      }
     }
-  }, [applyCookieSettings])
-
-  const initializeFacebookPixel = () => {
-    const options = {
-      autoConfig: true,
-      debug: process.env.NODE_ENV !== 'production',
-    }
-    ReactPixel.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID as string, undefined, options)
-  }
-
-  const handleAcceptAll = () => {
-    const newSettings = { analytics: true, marketing: true }
-    saveConsent(newSettings)
-  }
-
-  const handleRejectAll = () => {
-    const newSettings = { analytics: false, marketing: false }
-    saveConsent(newSettings)
-  }
+  }, [])
 
   const saveConsent = (settings: CookieSettings) => {
-    // Save settings in cookie (expires in 365 days)
-    Cookies.set('cookie-consent', JSON.stringify(settings), { expires: 365 })
-    
-    applyCookieSettings(settings)
+    Cookies.set(COOKIE_CONSENT_KEY, JSON.stringify(settings), { 
+      expires: COOKIE_EXPIRY_DAYS,
+      sameSite: 'strict'
+    })
+    handleAnalyticsTools(settings)
     setIsVisible(false)
   }
 
-  if (!isVisible) return null
+  if (!isMounted || !isVisible) return null
 
   return (
     <motion.div
@@ -102,14 +102,14 @@ export default function CookieConsent() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={handleRejectAll}
+              onClick={() => saveConsent({ analytics: false, marketing: false })}
               className="px-6 py-2 text-sm font-medium text-white hover:bg-white/10 
                 border border-white/20 rounded-lg transition-colors"
             >
               Reject All
             </button>
             <button
-              onClick={handleAcceptAll}
+              onClick={() => saveConsent({ analytics: true, marketing: true })}
               className="px-6 py-2 text-sm font-medium text-white bg-purple-600 
                 hover:bg-purple-700 rounded-lg transition-colors"
             >
