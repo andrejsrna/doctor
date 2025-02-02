@@ -14,7 +14,7 @@ const shareButtons: ShareButton[] = [
   {
     name: 'Facebook',
     icon: FaFacebook,
-    shareUrl: (url, title) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    shareUrl: (url, title) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
     color: 'hover:text-blue-500'
   },
   {
