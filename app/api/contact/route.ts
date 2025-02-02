@@ -47,8 +47,23 @@ export async function POST(request: Request) {
       )
     }
 
-    // Process the form data (e.g., send email, save to database, etc.)
-    // Add your form processing logic here
+    // Send email
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: process.env.SMTP_USER,
+      subject: 'New Contact Form Submission',
+      text: `
+Name: ${formData.name}
+Email: ${formData.email}
+Message: ${formData.message}
+      `,
+      html: `
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> ${formData.name}</p>
+<p><strong>Email:</strong> ${formData.email}</p>
+<p><strong>Message:</strong> ${formData.message}</p>
+      `
+    })
 
     return NextResponse.json(
       { message: 'Message sent successfully' },

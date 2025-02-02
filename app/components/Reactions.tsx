@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa'
 
 interface ReactionsProps {
@@ -14,20 +14,12 @@ interface ReactionCounts {
   dislikes: number
 }
 
-interface ReactionResponse {
-  likes: number
-  dislikes: number
-  message?: string
-  updated_field?: 'like' | 'dislike'
-  new_value?: number
-}
 
 export default function Reactions({ postId }: ReactionsProps) {
   const [counts, setCounts] = useState<ReactionCounts>({ likes: 0, dislikes: 0 })
   const [userReaction, setUserReaction] = useState<'like' | 'dislike' | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -97,6 +89,12 @@ export default function Reactions({ postId }: ReactionsProps) {
 
   return (
     <div className="space-y-4">
+      {error && (
+        <div className="text-red-500 text-center text-sm">
+          {error}
+        </div>
+      )}
+      
       <h3 className="text-xl font-semibold text-center text-purple-500">
         What do you think?
       </h3>
