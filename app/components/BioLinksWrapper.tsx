@@ -1,3 +1,5 @@
+'use client'
+
 import dynamic from 'next/dynamic'
 
 // Create a static loading component
@@ -15,11 +17,6 @@ const BioLinks = dynamic(() => import('@/app/components/BioLinks'), {
   loading: LoadingComponent,
 })
 
-// Create a client wrapper component
-const BioLinksWrapper = () => (
-  <BioLinks />
-)
-
-export default function BioPage() {
-  return <BioLinksWrapper />
-}
+export default function BioLinksWrapper() {
+  return <BioLinks />
+} 
