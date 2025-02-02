@@ -1,4 +1,4 @@
 interface Window {
-  fbq: any;
+  fbq: (...args: unknown[]) => void;
   'ga-disable-UA-XXXXX-Y': boolean;
 } 
