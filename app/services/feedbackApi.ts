@@ -43,7 +43,6 @@ export const feedbackApi = {
         // Ignore missing token error
         if (data.message?.includes('token')) {
           // Continue without token
-          console.log('Token not provided, continuing...');
         } else {
           throw new Error(data.message || 'Failed to get track information');
         }

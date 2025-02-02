@@ -67,7 +67,7 @@ export default function MusicPage() {
     if (currentPage > 1) {
       fetchPosts(currentPage, selectedCategory, searchQuery)
     }
-  }, [currentPage])
+  }, [currentPage, selectedCategory, searchQuery])
 
   useEffect(() => {
     fetchCategories()
