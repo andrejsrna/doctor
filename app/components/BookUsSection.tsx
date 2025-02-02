@@ -105,9 +105,20 @@ export default function BookUsSection() {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-              
+              <div className="absolute z-10 bottom-0 left-0 right-0 bg-black/70 p-3 text-sm text-center">
+               
+                <Link 
+                  href="https://www.instagram.com/greenland__dnb/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-400 hover:text-green-300 transition-colors"
+                >
+                  Crowd at the event Green Land OA in Tešedíkovo @ IG
+                </Link>
+              </div>
+
               {/* Stats */}
-              <div className="absolute bottom-0 left-0 right-0 p-8 grid grid-cols-2 gap-8">
+              <div className="absolute bottom-10 left-0 right-0 p-8 grid grid-cols-2 gap-8">
                 <div>
                   <div className="text-3xl font-bold text-purple-500">50+</div>
                   <div className="text-gray-300">Events Done</div>

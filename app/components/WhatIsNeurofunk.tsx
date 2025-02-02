@@ -35,6 +35,18 @@ export default function WhatIsNeurofunk() {
               />
               <div className="absolute inset-0 bg-green-500/20 mix-blend-overlay" />
               
+              {/* Image Caption */}
+              <div className="absolute z-10 bottom-0 left-0 right-0 bg-black/70 p-3 text-sm text-center">
+                <Link 
+                  href="https://www.instagram.com/moor_door_music/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-400 hover:text-green-300 transition-colors"
+                >
+                  Asana playing at moor.door.music event in Prague @ IG
+                </Link>
+              </div>
+              
               {/* Animated Border */}
               <motion.div
                 className="absolute inset-0 border border-green-500/30"
