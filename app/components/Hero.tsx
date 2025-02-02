@@ -167,10 +167,13 @@ export default function Hero() {
               className="relative group px-8 py-3 rounded-full overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                window.open('https://dnbdoctor.com/music', '_blank')
+              }}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-green-500 via-purple-500 to-pink-500 group-hover:opacity-80 transition-opacity" />
               <span className="relative text-white font-medium flex items-center gap-2">
-                <Link href="/music">Enter Laboratory</Link>
+                Enter Laboratory
                 <motion.span
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -184,10 +187,13 @@ export default function Hero() {
               className="relative group px-8 py-3 rounded-full overflow-hidden border border-green-500/30"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                window.open('https://dnbdoctor.com/submit-demo', '_blank')
+              }}
             >
               <span className="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-colors" />
               <span className="relative text-green-500 font-medium">
-                <Link href="/submit-demo">Submit Sample</Link>
+                Submit Sample
               </span>
             </motion.button>
           </motion.div>
