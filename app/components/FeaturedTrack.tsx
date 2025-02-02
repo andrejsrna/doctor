@@ -183,7 +183,7 @@ export default function FeaturedTrack() {
     <section className="py-20 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-      <div className="absolute inset-0 bg-[url('/grid.png')] opacity-20" />
+      <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-20" />
       <div className="absolute -top-1/2 left-1/2 transform -translate-x-1/2 w-[1000px] h-[1000px] bg-purple-500/10 rounded-full blur-3xl" />
       
       <div className="max-w-7xl mx-auto px-4 relative z-10">

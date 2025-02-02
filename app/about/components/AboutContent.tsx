@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { FaHeadphones, FaMusic, FaUsers, FaNewspaper } from 'react-icons/fa'
 import SubscribeCTA from '../../components/SubscribeCTA'
 import Link from 'next/link'
+import Gallery from '@/app/components/Gallery'
 
 export default function AboutContent() {
   return (
@@ -171,8 +172,15 @@ export default function AboutContent() {
         </div>
       </section>
 
+      <Gallery />
+
       {/* Newsletter Section */}
-      <SubscribeCTA />
+
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <SubscribeCTA />
+        </div>
+      </section>
     </div>
   )
 } 
