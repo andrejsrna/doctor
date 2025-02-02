@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 interface RequestBody {
   name: string
@@ -37,52 +38,40 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send email using Brevo API
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': process.env.BREVO_API_KEY!,
+    // Configure SMTP transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-      body: JSON.stringify({
-        sender: {
-          name: 'DnB Doctor Contact Form',
-          email: 'noreply@dnbdoctor.com'
-        },
-        to: [{
-          email: process.env.ADMIN_EMAIL,
-          name: 'DnB Doctor'
-        }],
-        replyTo: {
-          email: formData.email,
-          name: formData.name
-        },
-        subject: `Contact Form: ${formData.subject}`,
-        htmlContent: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Subject:</strong> ${formData.subject}</p>
-          <p><strong>Message:</strong></p>
-          <p>${formData.message.replace(/\n/g, '<br>')}</p>
-        `,
-        textContent: `
+    })
+
+    // Send email
+    await transporter.sendMail({
+      from: `"DnB Doctor Contact Form" <${process.env.SMTP_FROM}>`,
+      to: process.env.ADMIN_EMAIL,
+      replyTo: `"${formData.name}" <${formData.email}>`,
+      subject: `Contact Form: ${formData.subject}`,
+      text: `
 Name: ${formData.name}
 Email: ${formData.email}
 Subject: ${formData.subject}
 
 Message:
 ${formData.message}
-        `
-      })
+      `,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${formData.name}</p>
+        <p><strong>Email:</strong> ${formData.email}</p>
+        <p><strong>Subject:</strong> ${formData.subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${formData.message.replace(/\n/g, '<br>')}</p>
+      `
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('Brevo API error:', error)
-      throw new Error('Failed to send email')
-    }
 
     return NextResponse.json(
       { message: 'Message sent successfully' },

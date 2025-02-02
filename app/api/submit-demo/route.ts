@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 interface RequestBody {
   email: string
@@ -37,55 +38,24 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send to Fluent Forms
-    const fluentResponse = await fetch('https://admin.dnbdoctor.com/wp-json/fluentform/v1/test-submit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    // Configure SMTP transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-      body: JSON.stringify({
-        form_id: 1,
-        data: { 
-          ...formData
-        }
-      })
     })
 
-    if (!fluentResponse.ok) {
-      throw new Error('Failed to submit to Fluent Forms')
-    }
-
-    // Send notification email using Brevo API
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': process.env.BREVO_API_KEY!,
-      },
-      body: JSON.stringify({
-        sender: {
-          name: 'DnB Doctor Demo Submission',
-          email: 'noreply@dnbdoctor.com'
-        },
-        to: [{
-          email: process.env.ADMIN_EMAIL,
-          name: 'DnB Doctor'
-        }],
-        replyTo: {
-          email: formData.email,
-          name: formData.artistName
-        },
-        subject: 'New Demo Submission',
-        htmlContent: `
-          <h2>New Demo Submission</h2>
-          <p><strong>Artist Name:</strong> ${formData.artistName}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Genre:</strong> ${formData.genre}</p>
-          <p><strong>Track Link:</strong> <a href="${formData.subject}">${formData.subject}</a></p>
-          <p>Please review at your earliest convenience.</p>
-        `,
-        textContent: `
+    // Send email
+    await transporter.sendMail({
+      from: `"DnB Doctor Demo Submission" <${process.env.SMTP_FROM}>`,
+      to: process.env.ADMIN_EMAIL,
+      replyTo: `"${formData.artistName}" <${formData.email}>`,
+      subject: 'New Demo Submission',
+      text: `
 New demo submission received:
 
 Artist Name: ${formData.artistName}
@@ -94,15 +64,16 @@ Genre: ${formData.genre}
 Track Link: ${formData.subject}
 
 Please review at your earliest convenience.
-        `
-      })
+      `,
+      html: `
+        <h2>New Demo Submission</h2>
+        <p><strong>Artist Name:</strong> ${formData.artistName}</p>
+        <p><strong>Email:</strong> ${formData.email}</p>
+        <p><strong>Genre:</strong> ${formData.genre}</p>
+        <p><strong>Track Link:</strong> <a href="${formData.subject}">${formData.subject}</a></p>
+        <p>Please review at your earliest convenience.</p>
+      `
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('Brevo API error:', error)
-      throw new Error('Failed to send email notification')
-    }
 
     return NextResponse.json(
       { message: 'Demo submitted successfully' },
