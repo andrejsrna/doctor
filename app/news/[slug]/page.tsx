@@ -6,7 +6,6 @@ import { use } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import SubscribeCTA from '../../components/SubscribeCTA'
-import DisqusComments from '@/app/components/DisqusComments'
 
 interface NewsPost {
   id: number
@@ -36,7 +35,7 @@ export default function NewsPostPage({ params }: PageProps) {
     const fetchPost = async () => {
       try {
         const response = await fetch(
-          `https://dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}`
         )
         const data = await response.json()
         if (data.length > 0) {
@@ -120,14 +119,6 @@ export default function NewsPostPage({ params }: PageProps) {
           className="prose prose-invert prose-purple max-w-none"
           dangerouslySetInnerHTML={{ __html: post.content.rendered }}
         />
-
-        <div className="mt-12">
-          <DisqusComments
-            url={`https://dnbdoctor.com/news/${slug}`}
-            identifier={post.id.toString()}
-            title={post.title.rendered}
-          />
-        </div>
 
         {/* Add SocialShare at the bottom */}
         <div className="mt-12">

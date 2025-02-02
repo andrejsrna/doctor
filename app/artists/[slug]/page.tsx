@@ -46,24 +46,24 @@ export default function ArtistPage({ params }: PageProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const fetchArtist = async () => {
+      try {
+        const response = await fetch(
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/artists?slug=${slug}&_embed`
+        )
+        const data = await response.json()
+        if (data.length > 0) {
+          setArtist(data[0])
+        }
+      } catch (error) {
+        console.error('Error fetching artist:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     fetchArtist()
   }, [slug])
-
-  const fetchArtist = async () => {
-    try {
-      const response = await fetch(
-        `https://dnbdoctor.com/wp-json/wp/v2/artists?slug=${slug}&_embed`
-      )
-      const data = await response.json()
-      if (data.length > 0) {
-        setArtist(data[0])
-      }
-    } catch (error) {
-      console.error('Error fetching artist:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const getImageUrl = () => {
     const media = artist?._embedded?.['wp:featuredmedia']?.[0]
