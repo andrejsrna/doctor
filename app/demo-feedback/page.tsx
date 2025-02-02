@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
@@ -16,7 +16,7 @@ interface TrackInfo {
   cover_url?: string
 }
 
-export default function FeedbackForm() {
+function DemoFeedbackContent() {
   const searchParams = useSearchParams()
   const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null)
   const [loading, setLoading] = useState(true)
@@ -256,5 +256,17 @@ export default function FeedbackForm() {
         </motion.div>
       </div>
     </section>
+  )
+}
+
+export default function FeedbackForm() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-purple-500">Loading...</div>
+      </div>
+    }>
+      <DemoFeedbackContent />
+    </Suspense>
   )
 } 
