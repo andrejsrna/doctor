@@ -207,7 +207,7 @@ export default function Hero() {
         >
           <div className="absolute inset-0 rounded-3xl overflow-hidden">
             <Image
-              src="/doctor.jpeg"
+              src="/doctor.webp"
               alt="DnB Doctor"
               fill
               className="object-cover object-center"
