@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FaMusic } from 'react-icons/fa'
+import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
 
 interface Post {
   id: number
@@ -44,100 +45,45 @@ interface Category {
 }
 
 export default function MusicPage() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [playingId, setPlayingId] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
+  const [playingId, setPlayingId] = useState<number | null>(null)
   const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
-  const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
-  const postsPerPage = 12
-  const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const postsPerPage = 12
 
+  // Use SWR hooks with caching
+  const { data: postsData, isLoading: postsLoading } = useLatestPosts(postsPerPage, currentPage, selectedCategory, searchQuery)
+  const { data: categories = [] } = useCategories()
+  
+  const posts = useMemo(() => postsData?.posts || [], [postsData?.posts])
+  const totalPages = postsData?.totalPages || 1
+
+  const previewIds = useMemo(() => 
+    posts.map((post: Post) => post.acf?.preview).filter(Boolean) || [], 
+    [posts]
+  )
+  const { data: previews } = useMultipleMediaPreviews(previewIds)
+
+  // Update previewUrls when previews change
   useEffect(() => {
-    // Reset posts and current page when filters change
-    setPosts([])
-    setCurrentPage(1)
-    fetchPosts(1, selectedCategory, searchQuery)
-  }, [selectedCategory, searchQuery])
-
-  useEffect(() => {
-    if (currentPage > 1) {
-      fetchPosts(currentPage, selectedCategory, searchQuery)
-    }
-  }, [currentPage, selectedCategory, searchQuery])
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
-
-  const fetchPosts = async (page: number, category: string, search: string) => {
-    try {
-      let url = `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=${postsPerPage}&page=${page}`
-      
-      if (category) {
-        url += `&categories=${category}`
-      }
-      
-      if (search) {
-        url += `&search=${encodeURIComponent(search)}`
-      }
-
-      const response = await fetch(url)
-      const data = await response.json()
-      
-      if (data.length < postsPerPage) {
-        setHasMore(false)
-      } else {
-        setHasMore(true)
-      }
-
-      // Fetch preview URLs for each post
-      const updatedPosts = await Promise.all(
-        data.map(async (post: Post) => {
-          if (post.acf?.preview) {
-            try {
-              const attachmentResponse = await fetch(
-                `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
-              )
-              if (attachmentResponse.ok) {
-                const attachment = await attachmentResponse.json()
-                setPreviewUrls(prev => ({
-                  ...prev,
-                  [post.id]: attachment.source_url
-                }))
-              }
-            } catch (error) {
-              console.error(`Error fetching preview for post ${post.id}:`, error)
-            }
-          }
-          return post
-        })
-      )
-      
-      if (page === 1) {
-        setPosts(updatedPosts)
-      } else {
-        setPosts(prev => [...prev, ...updatedPosts])
-      }
-    } catch (error) {
-      console.error('Error fetching posts:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Update audio elements when preview URLs change
-  useEffect(() => {
-    posts.forEach(post => {
-      const audioElement = document.getElementById(`audio-${post.id}`) as HTMLAudioElement
-      if (audioElement && previewUrls[post.id]) {
-        audioElement.src = previewUrls[post.id]
+    if (!posts || !previews) return
+    
+    const newPreviewUrls: Record<number, string> = {}
+    posts.forEach((post: Post) => {
+      if (post.acf?.preview && previews[post.acf.preview]) {
+        newPreviewUrls[post.id] = previews[post.acf.preview]
       }
     })
-  }, [previewUrls, posts])
+
+    setPreviewUrls(newPreviewUrls)
+  }, [posts, previews])
+
+  const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedCategory, searchQuery])
 
   const getImageUrl = (post: Post) => {
     const media = post._embedded?.['wp:featuredmedia']?.[0]
@@ -149,7 +95,7 @@ export default function MusicPage() {
   }
 
   const handlePlay = async (postId: number) => {
-    if (!posts.find(post => post.id === postId)?.acf?.preview) {
+    if (!posts?.find((post: Post) => post.id === postId)?.acf?.preview) {
       setAudioErrors(prev => ({
         ...prev,
         [postId]: 'No preview available'
@@ -188,16 +134,6 @@ export default function MusicPage() {
     }
   }
 
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/categories')
-      const data = await response.json()
-      setCategories(data)
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    }
-  }
-
   return (
     <>
             {/* Hero Section with Parallax Effect */}
@@ -214,7 +150,7 @@ export default function MusicPage() {
         </div>
         
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4"
         >
@@ -249,13 +185,12 @@ export default function MusicPage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => {
-                  setIsLoading(true)
                   setSelectedCategory(e.target.value)
                 }}
                 className="w-full px-4 py-3 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
               >
                 <option value="">All Categories</option>
-                {categories.map((category) => (
+                {categories.map((category: Category) => (
                   <option key={category.id} value={category.id.toString()}>
                     {category.name}
                   </option>
@@ -268,7 +203,6 @@ export default function MusicPage() {
                 placeholder="Search releases..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setIsLoading(true)
                   setSearchQuery(e.target.value)
                 }}
                 className="w-full px-4 py-3 rounded-lg bg-black/50 border border-white/10 text-white focus:border-purple-500 focus:outline-none"
@@ -277,10 +211,10 @@ export default function MusicPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post, index) => (
+            {posts?.map((post: Post, index: number) => (
               <motion.article
                 key={post.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 1, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
@@ -368,31 +302,38 @@ export default function MusicPage() {
             ))}
           </div>
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-8">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white rounded-lg"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white rounded-lg"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
           {/* Show message when no results */}
-          {posts.length === 0 && !isLoading && (
+          {posts?.length === 0 && !postsLoading && (
             <div className="text-center text-gray-400 py-12">
               No releases found matching your criteria
             </div>
           )}
 
-          {/* Load More Button */}
-          {hasMore && !isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center mt-12"
-            >
-              <button
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                className="px-8 py-3 rounded-full bg-purple-500 hover:bg-purple-600 text-white font-medium transition-colors uppercase tracking-wider"
-              >
-                Load More
-              </button>
-            </motion.div>
-          )}
-
           {/* Loading State */}
-          {isLoading && (
+          {postsLoading && (
             <div className="min-h-[400px] flex items-center justify-center">
               <div className="animate-pulse text-purple-500">Loading...</div>
             </div>

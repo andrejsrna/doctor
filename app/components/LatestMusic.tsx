@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useLatestPosts, useMultipleMediaPreviews } from '../hooks/useWordPress'
+import { useRouter } from 'next/navigation'
 
 interface Post {
   id: number
@@ -33,65 +35,31 @@ interface Post {
 }
 
 export default function LatestMusic() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+  const { data } = useLatestPosts(6)
+  const posts = useMemo(() => data?.posts || [], [data?.posts])
   const [playingId, setPlayingId] = useState<number | null>(null)
   const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
 
+  const previewIds = useMemo(() => 
+    posts.map((post: Post) => post.acf?.preview).filter(Boolean) || [], 
+    [posts]
+  )
+  const { data: previews } = useMultipleMediaPreviews(previewIds)
+
   useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const response = await fetch(
-          'https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=6'
-        )
-        const data = await response.json()
-        console.log('Fetched posts:', data)
-
-        // Fetch preview URLs for each post
-        const updatedPosts = await Promise.all(
-          data.map(async (post: Post) => {
-            if (post.acf?.preview) {
-              try {
-                const attachmentResponse = await fetch(
-                  `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
-                )
-                if (attachmentResponse.ok) {
-                  const attachment = await attachmentResponse.json()
-                  console.log(`Audio URL for post ${post.id}:`, attachment.source_url)
-                  setPreviewUrls(prev => ({
-                    ...prev,
-                    [post.id]: attachment.source_url
-                  }))
-                }
-              } catch (error) {
-                console.error(`Error fetching preview for post ${post.id}:`, error)
-              }
-            }
-            return post
-          })
-        )
-
-        setPosts(updatedPosts)
-      } catch (error) {
-        console.error('Error fetching posts:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPosts()
-  }, [])
-
-  // Update the audio element source
-  useEffect(() => {
-    posts.forEach(post => {
-      const audioElement = document.getElementById(`audio-${post.id}`) as HTMLAudioElement
-      if (audioElement && previewUrls[post.id]) {
-        audioElement.src = previewUrls[post.id]
+    if (!posts || !previews) return
+    
+    const newPreviewUrls: Record<number, string> = {}
+    posts.forEach((post: Post) => {
+      if (post.acf?.preview && previews[post.acf.preview]) {
+        newPreviewUrls[post.id] = previews[post.acf.preview]
       }
     })
-  }, [previewUrls, posts])
+
+    setPreviewUrls(newPreviewUrls)
+  }, [posts, previews])
 
   // Helper function to get the best available image URL
   const getImageUrl = (post: Post) => {
@@ -104,7 +72,7 @@ export default function LatestMusic() {
   }
 
   const handlePlay = async (postId: number) => {
-    if (!posts.find(post => post.id === postId)?.acf?.preview) {
+    if (!posts.find((post: Post) => post.id === postId)?.acf?.preview) {
       setAudioErrors(prev => ({
         ...prev,
         [postId]: 'No preview available'
@@ -146,13 +114,6 @@ export default function LatestMusic() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="animate-pulse text-purple-500">Loading...</div>
-      </div>
-    )
-  }
 
   return (
     <section className="py-20 px-4 relative">
@@ -161,7 +122,7 @@ export default function LatestMusic() {
       
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold mb-12 text-center"
@@ -170,10 +131,10 @@ export default function LatestMusic() {
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post, index) => (
+          {posts?.map((post: Post, index: number) => (
             <motion.article
               key={post.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 1, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
@@ -265,7 +226,7 @@ export default function LatestMusic() {
         </div>
       </div>
       <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="space-x-4 flex justify-center mt-10"
@@ -274,10 +235,11 @@ export default function LatestMusic() {
               className="relative group px-8 py-3 rounded-full overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/music')}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-green-500 via-purple-500 to-pink-500 group-hover:opacity-80 transition-opacity" />
               <span className="relative text-white font-medium flex items-center gap-2">
-                <Link href="/music">Show More</Link>
+               Show More
                 <motion.span
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}

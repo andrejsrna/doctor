@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { use } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -16,41 +16,8 @@ import AudioPreview from '@/app/components/AudioPreview'
 import Reactions from '@/app/components/Reactions'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import ReactPixel from 'react-facebook-pixel'
+import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
 
-interface Release {
-  id: number
-  title: {
-    rendered: string
-  }
-  content: {
-    rendered: string
-  }
-  _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url?: string
-      media_details?: {
-        sizes?: {
-          full?: {
-            source_url?: string
-          }
-        }
-      }
-    }>
-  }
-  acf?: {
-    spotify?: string
-    beatport?: string
-    deezer?: string
-    junodownload?: string
-    soundcloud?: string
-    youtube_music?: string
-    bandcamp?: string
-    tidal?: string
-    amazon?: string
-    apple_music?: string
-    preview?: string
-  }
-}
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -92,64 +59,21 @@ const trackStreamingClick = (platform: string) => {
 
 export default function ReleasePage({ params }: PageProps) {
   const { slug } = use(params)
-  const [release, setRelease] = useState<Release | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: release, isLoading } = useSingleRelease(slug)
+  const { data: previewUrl } = useReleasePreview(release?.acf?.preview || null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState<string>('')
 
-  useEffect(() => {
-    const fetchRelease = async () => {
-      try {
-        const response = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
-        )
-        const data = await response.json()
-        if (data.length > 0) {
-          console.log('Release data:', data[0])
-          console.log('Preview ID:', data[0].acf?.preview)
+  if (isLoading) {
+    return <div className="animate-pulse text-purple-500">Loading...</div>
+  }
 
-          if (data[0].acf?.preview) {
-            const attachmentResponse = await fetch(
-              `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${data[0].acf.preview}`
-            )
-            if (attachmentResponse.ok) {
-              const attachment = await attachmentResponse.json()
-              console.log('Audio URL to load:', attachment.source_url)
-              setPreviewUrl(attachment.source_url)
-            }
-          }
-
-          setRelease(data[0])
-        }
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchRelease()
-  }, [slug])
+  if (!release) {
+    return <div className="text-red-500">Release not found</div>
+  }
 
   const getImageUrl = () => {
     const media = release?._embedded?.['wp:featuredmedia']?.[0]
     return media?.source_url || media?.media_details?.sizes?.full?.source_url
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-purple-500">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!release) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">Release not found</div>
-      </div>
-    )
   }
 
   const streamingLinks: StreamingLink[] = [
