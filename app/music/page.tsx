@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -51,6 +51,7 @@ export default function MusicPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const postsPerPage = 12
+  const sectionRef = useRef<HTMLElement>(null)
 
   // Use SWR hooks with caching
   const { data: postsData, isLoading: postsLoading } = useLatestPosts(postsPerPage, currentPage, selectedCategory, searchQuery)
@@ -84,6 +85,12 @@ export default function MusicPage() {
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedCategory, searchQuery])
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [currentPage, selectedCategory, searchQuery])
 
   const getImageUrl = (post: Post) => {
     const media = post._embedded?.['wp:featuredmedia']?.[0]
@@ -173,7 +180,7 @@ export default function MusicPage() {
       </div>
 
       {/* Releases Section */}
-      <section className="py-20 px-4 relative">
+      <section className="py-20 px-4 relative" ref={sectionRef}>
         {/* Section Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         
@@ -305,20 +312,34 @@ export default function MusicPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
+              {/* Previous Button */}
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors
+                  ${currentPage === 1 ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
               >
                 Previous
               </button>
-              <span className="px-4 py-2">
-                Page {currentPage} of {totalPages}
-              </span>
+
+              {/* Page Numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-4 py-2 rounded-lg transition-colors
+                    ${currentPage === page ? 'bg-purple-700 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300'}`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* Next Button */}
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-purple-300 text-white rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors
+                  ${currentPage === totalPages ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600 text-white'}`}
               >
                 Next
               </button>

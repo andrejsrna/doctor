@@ -53,7 +53,6 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
       })
 
       wavesurfer.current.on('ready', () => {
-        console.log('WaveSurfer ready')
         setIsReady(true)
         setError(null)
         wavesurfer.current?.setVolume(volume)
