@@ -210,7 +210,9 @@ export default function ReleasePage({ params }: PageProps) {
                           e.preventDefault();
                           trackStreamingClick(platform.name);
                           setTimeout(() => {
-                            window.open(platform.url, '_blank', 'noopener,noreferrer');
+                            if (typeof window !== 'undefined') {
+                              window.open(platform.url, '_blank', 'noopener,noreferrer');
+                            }
                           }, 100);
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -272,7 +274,9 @@ export default function ReleasePage({ params }: PageProps) {
                           e.preventDefault();
                           trackStreamingClick(platform.name);
                           setTimeout(() => {
-                            window.open(platform.url, '_blank', 'noopener,noreferrer');
+                            if (typeof window !== 'undefined') {
+                              window.open(platform.url, '_blank', 'noopener,noreferrer');
+                            }
                           }, 100);
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}

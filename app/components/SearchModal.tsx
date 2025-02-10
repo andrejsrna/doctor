@@ -124,8 +124,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleEscape)
+      return () => window.removeEventListener('keydown', handleEscape)
+    }
   }, [onClose])
 
   const getPostUrl = (result: SearchResult) => {
