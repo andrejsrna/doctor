@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { use } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -37,15 +37,16 @@ interface GoogleAnalytics {
 }
 
 const trackStreamingClick = (platform: string) => {
-  // Facebook Pixel tracking
-  ReactPixel.track('Purchase', {
-    content_name: platform,
-    content_type: 'streaming_click',
-    content_category: 'Music'
-  })
-
-  // Google Analytics tracking
+  // Ensure this code runs only in the browser
   if (typeof window !== 'undefined') {
+    // Facebook Pixel tracking
+    ReactPixel.track('Purchase', {
+      content_name: platform,
+      content_type: 'streaming_click',
+      content_category: 'Music'
+    })
+
+    // Google Analytics tracking
     const w = window as unknown as Window & GoogleAnalytics;
     if (w.gtag) {
       w.gtag('event', 'streaming_click', {
@@ -62,6 +63,10 @@ export default function ReleasePage({ params }: PageProps) {
   const { data: release, isLoading } = useSingleRelease(slug)
   const { data: previewUrl } = useReleasePreview(release?.acf?.preview || null)
   const [isPlaying, setIsPlaying] = useState(false)
+
+  useEffect(() => {
+    // Any client-side logic that needs to run on component mount
+  }, [])
 
   if (isLoading) {
     return <div className="animate-pulse text-purple-500">Loading...</div>
