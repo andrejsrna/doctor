@@ -38,41 +38,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   generateEtags: true,
   
-    webpack: (config, { dev, isServer }) => {
-      // Production optimizations
-      if (!dev && !isServer) {
-        config.optimization.splitChunks = {
-          chunks: 'all',
-          minSize: 20000,
-          maxSize: 244000,
-          minChunks: 1,
-          maxAsyncRequests: 30,
-          maxInitialRequests: 30,
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            framework: {
-              chunks: 'all',
-              name: 'framework',
-              test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            lib: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module: { context: string }) {
-                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)?.[1] || 'unknown'
-                return `npm.${packageName?.replace('@', '')}`
-              },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-            },
-          },
-        }
-      }
-      return config
-    },
 
   images: {
     domains: ["dnbdoctor.com"],
