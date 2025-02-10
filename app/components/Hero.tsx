@@ -19,6 +19,19 @@ const STATIC_TENTACLES = Array(12).fill(null).map((_, i) => ({
   d: `M ${-10 + (i * 10)} 110 Q 50 50 ${110 + (i * 10)} -10`
 }))
 
+// Modify the button click handlers to be safe for SSR
+const handleLabClick = () => {
+  if (typeof window !== 'undefined') {
+    window.open('https://dnbdoctor.com/music', '_blank')
+  }
+}
+
+const handleDemoClick = () => {
+  if (typeof window !== 'undefined') {
+    window.open('https://dnbdoctor.com/submit-demo', '_blank')
+  }
+}
+
 export default function Hero() {
   const [isMounted, setIsMounted] = useState(false)
 
@@ -166,9 +179,7 @@ export default function Hero() {
               className="relative group px-8 py-3 rounded-full overflow-hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                window.open('https://dnbdoctor.com/music', '_blank')
-              }}
+              onClick={handleLabClick}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-green-500 via-purple-500 to-pink-500 group-hover:opacity-80 transition-opacity" />
               <span className="relative text-white font-medium flex items-center gap-2">
@@ -186,9 +197,7 @@ export default function Hero() {
               className="relative group px-8 py-3 rounded-full overflow-hidden border border-green-500/30"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                window.open('https://dnbdoctor.com/submit-demo', '_blank')
-              }}
+              onClick={handleDemoClick}
             >
               <span className="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-colors" />
               <span className="relative text-green-500 font-medium">

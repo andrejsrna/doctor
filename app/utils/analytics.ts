@@ -1,3 +1,4 @@
+'use client'
 import ReactPixel from 'react-facebook-pixel';
 
 interface GoogleAnalytics {
@@ -5,7 +6,7 @@ interface GoogleAnalytics {
 }
 
 export const initializeAnalytics = () => {
-  if (typeof window === 'undefined') return;
+  if (typeof global?.window === 'undefined') return;
   
   try {
     ReactPixel.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID || '');
@@ -15,7 +16,7 @@ export const initializeAnalytics = () => {
 };
 
 export const trackStreamingClick = (platform: string) => {
-  if (typeof window === 'undefined') return;
+  if (typeof global?.window === 'undefined') return;
 
   try {
     // Facebook Pixel
