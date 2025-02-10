@@ -40,7 +40,9 @@ export default function ReleasePage({ params }: PageProps) {
   const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-     initializeAnalytics();
+    if (typeof window !== 'undefined') {
+      initializeAnalytics();
+    }
   }, [])
 
   if (isLoading) {
@@ -208,12 +210,13 @@ export default function ReleasePage({ params }: PageProps) {
                         rel="noopener noreferrer"
                         onClick={(e) => {
                           e.preventDefault();
+                          if (typeof window !== 'undefined') {
+                          trackStreamingClick(platform.name);
                           setTimeout(() => {
-                            if (typeof window !== 'undefined') {
-                              trackStreamingClick(platform.name);
                               window?.open(platform.url, '_blank', 'noopener,noreferrer');
                             }
-                          }, 100);
+                          , 100);
+                          }
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -272,12 +275,13 @@ export default function ReleasePage({ params }: PageProps) {
                         rel="noopener noreferrer"
                         onClick={(e) => {
                           e.preventDefault();
-                          setTimeout(() => {
-                            if (typeof window !== 'undefined') {
-                              trackStreamingClick(platform.name);
+                          if (typeof window !== 'undefined') {
+                            trackStreamingClick(platform.name);
+                            setTimeout(() => {
                               window?.open(platform.url, '_blank', 'noopener,noreferrer');
                             }
-                          }, 100);
+                          , 100);
+                          }
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
