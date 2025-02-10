@@ -16,7 +16,7 @@ import AudioPreview from '@/app/components/AudioPreview'
 import Reactions from '@/app/components/Reactions'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
-import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
+//import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
 
 
 interface PageProps {
@@ -40,9 +40,7 @@ export default function ReleasePage({ params }: PageProps) {
   const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      initializeAnalytics();
-    }
+   // initializeAnalytics();
   }, [])
 
   if (isLoading) {
@@ -210,13 +208,12 @@ export default function ReleasePage({ params }: PageProps) {
                         rel="noopener noreferrer"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (typeof window !== 'undefined') {
-                          trackStreamingClick(platform.name);
+                          //trackStreamingClick(platform.name);
                           setTimeout(() => {
+                            if (typeof window !== 'undefined') {
                               window?.open(platform.url, '_blank', 'noopener,noreferrer');
                             }
-                          , 100);
-                          }
+                          }, 100);
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -275,13 +272,12 @@ export default function ReleasePage({ params }: PageProps) {
                         rel="noopener noreferrer"
                         onClick={(e) => {
                           e.preventDefault();
-                          if (typeof window !== 'undefined') {
-                            trackStreamingClick(platform.name);
-                            setTimeout(() => {
+                          //trackStreamingClick(platform.name);
+                          setTimeout(() => {
+                            if (typeof window !== 'undefined') {
                               window?.open(platform.url, '_blank', 'noopener,noreferrer');
                             }
-                          , 100);
-                          }
+                          }, 100);
                         }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
