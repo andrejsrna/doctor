@@ -15,8 +15,8 @@ import SubscribeCTA from '@/app/components/SubscribeCTA'
 import AudioPreview from '@/app/components/AudioPreview'
 import Reactions from '@/app/components/Reactions'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
-import ReactPixel from 'react-facebook-pixel'
 import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
+import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
 
 
 interface PageProps {
@@ -32,31 +32,6 @@ interface StreamingLink {
   priority?: number
 }
 
-interface GoogleAnalytics {
-  gtag: (command: string, action: string, params: object) => void;
-}
-
-const trackStreamingClick = (platform: string) => {
-  // Ensure this code runs only in the browser
-  if (typeof window !== 'undefined') {
-    // Facebook Pixel tracking
-    ReactPixel.track('Purchase', {
-      content_name: platform,
-      content_type: 'streaming_click',
-      content_category: 'Music'
-    })
-
-    // Google Analytics tracking
-    const w = window as unknown as Window & GoogleAnalytics;
-    if (w.gtag) {
-      w.gtag('event', 'streaming_click', {
-        event_category: 'Music',
-        event_label: platform,
-        value: 1
-      })
-    }
-  }
-}
 
 export default function ReleasePage({ params }: PageProps) {
   const { slug } = use(params)
@@ -65,7 +40,7 @@ export default function ReleasePage({ params }: PageProps) {
   const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-    // Any client-side logic that needs to run on component mount
+    initializeAnalytics();
   }, [])
 
   if (isLoading) {
@@ -231,7 +206,13 @@ export default function ReleasePage({ params }: PageProps) {
                         href={platform.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={() => trackStreamingClick(platform.name)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          trackStreamingClick(platform.name);
+                          setTimeout(() => {
+                            window.open(platform.url, '_blank', 'noopener,noreferrer');
+                          }, 100);
+                        }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.03 }}
@@ -287,7 +268,13 @@ export default function ReleasePage({ params }: PageProps) {
                         href={platform.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={() => trackStreamingClick(platform.name)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          trackStreamingClick(platform.name);
+                          setTimeout(() => {
+                            window.open(platform.url, '_blank', 'noopener,noreferrer');
+                          }, 100);
+                        }}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         whileHover={{ scale: 1.05 }}
