@@ -80,11 +80,19 @@ export default function Navigation() {
   // Handle scroll events and mounting
   useEffect(() => {
     setIsMounted(true)
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+    
+    // Only add scroll listener on client side
+    if (typeof window !== 'undefined') {
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 50)
+      }
+      
+      // Initial check
+      handleScroll()
+      
+      window.addEventListener('scroll', handleScroll)
+      return () => window.removeEventListener('scroll', handleScroll)
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const menuItems = [
