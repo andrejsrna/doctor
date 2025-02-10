@@ -160,7 +160,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="space-x-4"
+            className="space-x-4 flex flex-col md:flex-row md:space-y-0 space-y-4" 
           >
             <motion.button 
               className="relative group px-8 py-3 rounded-full overflow-hidden"
@@ -212,6 +212,7 @@ export default function Hero() {
               fill
               className="object-cover object-center"
               priority
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             {/* Glowing overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />

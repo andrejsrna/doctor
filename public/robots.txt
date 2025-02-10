@@ -1,4 +1,6 @@
 User-agent: *
-Allow: /
+Disallow: /private/
+Disallow: /temp/
+Allow: /public/
 
 Sitemap: https://dnbdoctor.com/sitemap.xml 

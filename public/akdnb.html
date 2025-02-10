@@ -1,0 +1,439 @@
+<!-- wp:heading -->
+<h2 class="wp-block-heading">1. Použité technológie a dôvody ich výberu</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Next.js</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pri výbere frameworku som sa rozhodol pre <strong>Next.js</strong>, pretože ponúka <strong>server-side rendering (SSR)</strong>, čo výrazne pomáha s výkonom a SEO. Okrem toho Next.js podporuje <strong>automatické code splitting</strong>, čím sa stránka načítava rýchlejšie, a má natívnu podporu pre <strong>optimalizáciu obrázkov</strong> cez <code>next/image</code>, čo som využil na rôznych podstránkach.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">TypeScript</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>TypeScript</strong>, pretože zabezpečuje lepšiu <strong>typovú kontrolu</strong>, čím minimalizuje chyby a zlepšuje udržiavateľnosť kódu. Pri rozsiahlejších projektoch to výrazne uľahčuje spoluprácu a refaktorovanie kódu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Framer Motion</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pre animácie a prechody medzi stránkami som použil <strong>Framer Motion</strong>. Tento knižničný balík umožňuje jednoduchú implementáciu plynulých animácií, ktoré zlepšujú celkový UX webu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">SWR</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Na <strong>data fetching a caching</strong> som využil <strong>SWR</strong>. Tento nástroj umožňuje <strong>automatické obnovenie dát</strong> a zlepšuje celkový výkon aplikácie.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">next/font</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pre optimalizáciu fontov som použil <strong>next/font</strong>, ktorý umožňuje <strong>priame načítanie fontov</strong> a tým znižuje počet externých requestov.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">2. Optimalizácia pre SEO</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Metadata</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Každá stránka obsahuje <strong>optimalizované metaúdaje</strong>, vrátane title, description a keywords, aby bola čo najlepšie indexovaná vyhľadávačmi.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Schema.org</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som <strong>Schema.org štruktúrované dáta</strong>, ktoré pomáhajú vyhľadávačom lepšie porozumieť obsahu stránky.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Robots.txt a Canonical URLs</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>robots.txt</strong> na kontrolu indexovania stránok a <strong>canonical URLs</strong>, aby som zabránil duplikovaniu obsahu vo vyhľadávačoch.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">3. Výkon a optimalizácia</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Code Splitting</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Next.js automaticky <strong>rozdeľuje kód</strong> na menšie časti, čím sa načítava len to, čo je potrebné.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Lazy Loading</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>lazy loading</strong> pre komponenty a obrázky, aby som zrýchlil načítanie stránky.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Caching</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Na zlepšenie výkonu som implementoval <strong>caching na strane klienta (SWR)</strong> a <strong>revalidate interval</strong> na strane servera.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Optimalizácia obrázkov</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Vďaka <strong>next/image</strong> som zabezpečil <strong>automatické škálovanie a optimalizáciu obrázkov</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">4. Používateľská skúsenosť (UX)</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Responzívny dizajn</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Stránka je plne <strong>responzívna</strong> a optimalizovaná pre rôzne zariadenia.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Animácie a prechody</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použitím <strong>Framer Motion</strong> som vytvoril plynulé animácie, ktoré zlepšujú UX.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Prístupnosť</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Dbal som na <strong>prístupnosť webu</strong>, aby bol použiteľný aj pre ľudí so zdravotným postihnutím.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">5. Integrácia s externými službami</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Facebook Pixel</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Na sledovanie konverzií a remarketing som integroval <strong>Facebook Pixel</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Google Analytics</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>Google Analytics</strong> na sledovanie návštevnosti a správania používateľov.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">SoundCloud</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Stránka podporuje <strong>SoundCloud prehrávače</strong>, aby používatelia mohli priamo prehrávať hudbu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Turnstile</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Na ochranu formulárov som nasadil <strong>Turnstile</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">6. Riešenie problémov a výziev</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">API integrácia</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Najväčšou výzvou bola <strong>integrácia s WordPress API</strong>. Musel som riešiť problémy s <strong>CORS politikou</strong> a optimalizovať načítavanie dát.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Výkon</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Riešil som <strong>dlhé načítavanie stránok</strong>, ktoré som optimalizoval cez <strong>caching, lazy loading a code splitting</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">SEO</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pre zlepšenie SEO som <strong>optimalizoval metaúdaje</strong> a implementoval <strong>Schema.org dáta</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">7. Zaujímavosti z vývoja</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Vlastné hooks</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Vytvoril som <strong>vlastné hooks</strong>, napríklad <code>useLatestPosts</code>, <code>useMultipleMediaPreviews</code> a <code>useCategories</code>, ktoré zjednodušujú správu dát.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Komponenty</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>znovupoužiteľné komponenty</strong>, ako napríklad <code>AudioPreview</code>, <code>SocialShare</code> a <code>SubscribeCTA</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Dynamické metaúdaje</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Metaúdaje pre hudbu a články sa generujú <strong>dynamicky</strong> na základe obsahu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">8. Budúce plány</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Ďalšie optimalizácie</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Plánujem ďalšie vylepšenia výkonu a <strong>zlepšenie UX</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Nové funkcie</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Chcem pridať <strong>viac interaktívnych prvkov</strong> a podporu pre <strong>viac hudobných platforiem</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Komunita</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Snažím sa budovať <strong>aktívnu komunitu okolo DnB Doctor</strong> a podporovať začínajúcich producentov.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">9. Bezpečnosť a ochrana údajov</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">HTTPS a SSL</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som <strong>SSL certifikát</strong> a <strong>HTTPS protokol</strong> pre bezpečnú komunikáciu medzi používateľom a serverom.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Ochrana formulárov</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pre ochranu pred spamom a automatizovanými útokmi som použil <strong>Cloudflare Turnstile</strong>, ktorý je menej invazívny ako tradičná CAPTCHA.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">GDPR Compliance</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som komplexné <strong>GDPR riešenie</strong> vrátane správy cookies a možnosti exportu/vymazania používateľských údajov.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">10. Technické detaily implementácie</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Custom Hooks</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Vytvoril som niekoľko vlastných hooks pre lepšiu organizáciu kódu:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li><code>useAudioPlayer</code> - pre správu prehrávania hudby</li>
+<li><code>useInfiniteScroll</code> - pre nekonečné načítavanie obsahu</li>
+<li><code>useLocalStorage</code> - pre perzistentnú state management</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">State Management</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Pre správu stavu aplikácie som použil kombináciu <strong>React Context API</strong> a <strong>SWR</strong>, čo umožňuje efektívnu prácu s dátami a ich automatickú synchronizáciu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">API Integrácie</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som vlastné API endpointy pre:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li>Správu newslettera</li>
+<li>Spracovanie demo submisií</li>
+<li>Integráciu s platobnými systémami</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">11. Monitoring a analytika</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Error Tracking</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som <strong>error tracking systém</strong> pre monitorovanie a rýchle riešenie problémov v produkcii.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Performance Monitoring</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Používam <strong>Web Vitals</strong> a <strong>Lighthouse</strong> pre sledovanie výkonu a optimalizáciu používateľskej skúsenosti.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">User Analytics</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Kombinujem dáta z <strong>Google Analytics</strong> a <strong>Facebook Pixel</strong> pre lepšie pochopenie správania používateľov.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">12. Automatizácia a CI/CD</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Deployment Pipeline</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Vytvoril som automatizovaný <strong>deployment pipeline</strong> s testovaním a kontrolou kvality kódu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Content Management</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Automatizoval som proces publikovania obsahu a jeho distribúcie cez sociálne siete.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">13. Mobilná optimalizácia</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Progressive Web App (PWA)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Implementoval som <strong>PWA funkcionalitu</strong> pre lepšiu mobilnú skúsenosť a možnosť offline prístupu.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Responzívny dizajn</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Použil som <strong>mobile-first prístup</strong> a <strong>CSS Grid</strong> pre plne responzívny dizajn.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">14. Záver a ponaučenia</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Hlavné výzvy</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Najväčšie výzvy zahŕňali optimalizáciu výkonu, integráciu rôznych API a zabezpečenie konzistentného používateľského zážitku.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Ponaučenia</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Projekt ma naučil dôležitosť:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li>Dôkladného plánovania architektúry</li>
+<li>Pravidelného testovania a monitoringu</li>
+<li>Flexibilného prístupu k riešeniu problémov</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Budúce vylepšenia</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>V budúcnosti plánujem:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+<li>Implementovať AI-powered odporúčací systém</li>
+<li>Rozšíriť podporu pre viac streamovacích platforiem</li>
+<li>Vytvoriť mobilnú aplikáciu</li>
+</ul>
+<!-- /wp:list -->
