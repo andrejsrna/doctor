@@ -143,7 +143,7 @@ export default function AboutContent() {
               },
               {
                 name: "Christopher",
-                role: "Talent Scout",
+                role: "Talent Scout", 
                 image: "/christopher.jpeg" // Add team member images
               },
               {
