@@ -100,7 +100,8 @@ export default function ReleasePage({ params }: PageProps) {
       url: release?.acf?.youtube_music, 
       icon: FaYoutube, 
       color: 'text-red-400',
-      bgColor: 'bg-red-500/10 hover:bg-red-500/20'
+      bgColor: 'bg-red-500/10 hover:bg-red-500/20',
+      priority: 3
     },
     { 
       name: 'Bandcamp', 
