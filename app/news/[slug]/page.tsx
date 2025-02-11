@@ -6,6 +6,7 @@ import { use } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import SubscribeCTA from '../../components/SubscribeCTA'
+import Comments from '@/app/components/Comments'
 
 interface NewsPost {
   id: number
@@ -127,6 +128,11 @@ export default function NewsPostPage({ params }: PageProps) {
             title={post.title.rendered}
           />
         </div>
+
+        <Comments 
+          slug={slug}
+          title={post.title.rendered}
+        />
 
         {/* Add SubscribeCTA */}
         <SubscribeCTA />

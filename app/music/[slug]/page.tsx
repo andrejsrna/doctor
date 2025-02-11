@@ -13,9 +13,9 @@ import SocialShare from '../../components/SocialShare'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import SubscribeCTA from '@/app/components/SubscribeCTA'
 import AudioPreview from '@/app/components/AudioPreview'
-import Reactions from '@/app/components/Reactions'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
+import Comments from '@/app/components/Comments'
 //import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
 
 
@@ -311,9 +311,9 @@ export default function ReleasePage({ params }: PageProps) {
             </motion.div>
 
             {/* Reactions */}
-            <Reactions 
-              postId={release.id} 
-              postType="post"
+            <Comments 
+              slug={slug}
+              title={release.title.rendered}
             />
 
             {/* Social Share */}

@@ -13,6 +13,7 @@
   "dependencies": {
     "@marsidev/react-turnstile": "^1.1.0",
     "@types/js-cookie": "^3.0.6",
+    "disqus-react": "^1.1.5",
     "framer-motion": "^12.0.6",
     "js-cookie": "^3.0.5",
     "next": "15.1.6",
