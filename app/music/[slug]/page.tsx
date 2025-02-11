@@ -5,10 +5,9 @@ import { use } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { 
-  FaSpotify, FaBandcamp, FaAmazon, FaYoutube, FaSoundcloud,
-  FaApple
+  FaSpotify, FaAmazon, FaYoutube, FaSoundcloud,
+  FaApple, FaDeezer, FaDownload
 } from 'react-icons/fa'
-import { FaDeezer} from 'react-icons/fa'
 import SocialShare from '../../components/SocialShare'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import SubscribeCTA from '@/app/components/SubscribeCTA'
@@ -104,11 +103,12 @@ export default function ReleasePage({ params }: PageProps) {
       priority: 3
     },
     { 
-      name: 'Bandcamp', 
-      url: release?.acf?.bandcamp, 
-      icon: FaBandcamp, 
+      name: 'JunoDownload', 
+      url: release?.acf?.junodownload, 
+      icon: FaDownload, 
       color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20'
+      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20',
+      priority: 1
     },
     { 
       name: 'Tidal', 
