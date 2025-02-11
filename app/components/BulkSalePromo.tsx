@@ -17,7 +17,7 @@ export default function BulkSalePromo() {
           <div className="bg-green-500/20 rounded-lg p-2">
             <FaPercent className="w-5 h-5 text-green-500" />
           </div>
-          <div>
+          <div className="flex flex-col p-2 mt-4">
             <h3 className="text-lg font-semibold text-green-400">
               Bulk Sale Available
             </h3>
