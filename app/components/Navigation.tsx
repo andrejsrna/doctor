@@ -99,6 +99,7 @@ export default function Navigation() {
     { title: 'Music', href: '/music' },
     { title: 'Artists', href: '/artists' },
     { title: 'News', href: '/news' },
+    { title: 'About', href: '/about' },
     { title: 'Newsletter', href: '/newsletter' },
     { title: 'Submit demo', href: '/submit-demo' },
   ]

@@ -40,7 +40,6 @@ const nextConfig: NextConfig = {
   
 
   images: {
-    domains: ["dnbdoctor.com"],
       remotePatterns: [
       {
         protocol: 'https',
