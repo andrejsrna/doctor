@@ -7,6 +7,7 @@ import Image from 'next/image'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import { FaSoundcloud, FaSpotify, FaFacebook, FaInstagram } from 'react-icons/fa'
 import ArtistContactCTA from '@/app/components/ArtistContactCTA'
+import RelatedNews from '@/app/components/RelatedNews'
 
 interface Artist {
   id: number
@@ -187,6 +188,10 @@ export default function ArtistPage({ params }: PageProps) {
             artistName={artist.title.rendered}
             currentPostId={artist.id}
           />
+          <RelatedNews 
+            currentPostId={artist.id}
+            relatedBy={artist.title.rendered}
+            />
         </article>
       </section>
       
