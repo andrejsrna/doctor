@@ -49,7 +49,7 @@ export default function SocialShare({ url, title }: { url: string; title: string
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-6"
         >
-          <h2 className="text-2xl font-bold text-purple-500">Share This Release</h2>
+          <h2 className="text-2xl font-bold text-purple-500">Share This</h2>
           <div className="flex justify-center gap-4">
             {shareButtons.map((button, index) => (
               <motion.a
