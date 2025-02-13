@@ -15,6 +15,7 @@ import AudioPreview from '@/app/components/AudioPreview'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
 import Comments from '@/app/components/Comments'
+import RelatedNews from '@/app/components/RelatedNews'
 //import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
 
 
@@ -328,6 +329,12 @@ export default function ReleasePage({ params }: PageProps) {
               artistName={release.title.rendered.split(' ')[0]}
               currentPostId={release.id}
             />
+
+            <RelatedNews 
+            currentPostId={release.id}
+            relatedBy={release.title.rendered}
+            />
+
 
             {/* Subscribe CTA */}
             <SubscribeCTA />

@@ -12,13 +12,28 @@ interface NewsPost {
   slug: string
 }
 
-export default function RelatedNews({ currentPostId }: { currentPostId: number }) {
+export default function RelatedNews({ 
+  currentPostId, 
+  relatedBy = '' 
+}: { 
+  currentPostId: number
+  relatedBy?: string 
+}) {
   const [posts, setPosts] = useState<NewsPost[]>([])
 
   useEffect(() => {
     const fetchRelatedPosts = async () => {
       try {
-        const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/news?per_page=3')
+        const baseUrl = 'https://admin.dnbdoctor.com/wp-json/wp/v2/news'
+        const queryParams = new URLSearchParams({
+          per_page: '3'
+        })
+        
+        if (relatedBy) {
+          queryParams.append('search', relatedBy.split(' ')[0])
+        }
+
+        const response = await fetch(`${baseUrl}?${queryParams.toString()}`)
         const data = await response.json()
         setPosts(data.filter((post: NewsPost) => post.id !== currentPostId))
       } catch (error) {
@@ -27,7 +42,7 @@ export default function RelatedNews({ currentPostId }: { currentPostId: number }
     }
 
     fetchRelatedPosts()
-  }, [currentPostId])
+  }, [currentPostId, relatedBy])
 
   if (posts.length === 0) return null
 

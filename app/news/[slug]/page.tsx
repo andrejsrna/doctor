@@ -7,6 +7,8 @@ import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import SubscribeCTA from '../../components/SubscribeCTA'
 import Comments from '@/app/components/Comments'
+import Image from 'next/image'
+import MoreFromArtist from '@/app/components/MoreFromArtist'
 
 interface NewsPost {
   id: number
@@ -20,7 +22,24 @@ interface NewsPost {
   }
   acf: {
     scsc: string // SoundCloud iframe code
+    artist: number
   }
+  meta: {
+    _related_artist: string
+  }
+  _embedded?: {
+    'wp:featuredmedia'?: [{
+      source_url: string
+      media_details?: {
+        sizes?: {
+          full?: {
+            source_url: string
+          }
+        }
+      }
+    }]
+  }
+  related_artist: string
 }
 
 interface PageProps {
@@ -31,16 +50,35 @@ export default function NewsPostPage({ params }: PageProps) {
   const { slug } = use(params)
   const [post, setPost] = useState<NewsPost | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [artistName, setArtistName] = useState<string>('')
+
+  const fetchArtistName = async (artistId: number) => {
+    try {
+      const response = await fetch(
+        `https://admin.dnbdoctor.com/wp-json/wp/v2/artists/${artistId}`
+      )
+      const data = await response.json()
+      return data.title.rendered
+    } catch (error) {
+      console.error('Error fetching artist:', error)
+      return ''
+    }
+  }
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
         const response = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed&_fields=id,date,title,content,meta,acf,_embedded`
         )
         const data = await response.json()
         if (data.length > 0) {
+          console.log('Post data:', data[0])
           setPost(data[0])
+          if (data[0].acf?.artist) {
+            const name = await fetchArtistName(data[0].acf.artist)
+            setArtistName(name)
+          }
         }
       } catch (error) {
         console.error('Error fetching post:', error)
@@ -58,6 +96,11 @@ export default function NewsPostPage({ params }: PageProps) {
       month: 'long',
       day: 'numeric'
     })
+  }
+
+  const getImageUrl = () => {
+    const media = post?._embedded?.['wp:featuredmedia']?.[0]
+    return media?.source_url || media?.media_details?.sizes?.full?.source_url
   }
 
   if (isLoading) {
@@ -80,6 +123,23 @@ export default function NewsPostPage({ params }: PageProps) {
     <section className="py-32 px-4 relative min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
+      {getImageUrl() && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative w-full max-w-4xl mx-auto mb-12 aspect-[21/9] rounded-2xl overflow-hidden"
+        >
+          <Image
+            src={getImageUrl()!}
+            alt={post?.title.rendered || ''}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        </motion.div>
+      )}
+
       <article className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <motion.header 
@@ -112,27 +172,30 @@ export default function NewsPostPage({ params }: PageProps) {
           </motion.div>
         )}
 
-        {/* Content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="prose prose-invert prose-purple max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content.rendered }}
+          dangerouslySetInnerHTML={{__html: post.content.rendered || ''}}
         />
 
-        {/* Add SocialShare at the bottom */}
-        <div className="mt-12">
           <SocialShare 
             url={`https://dnbdoctor.com/news/${slug}`}
             title={post.title.rendered}
           />
-        </div>
 
         <Comments 
           slug={slug}
           title={post.title.rendered}
         />
+
+        {artistName && artistName !== '' && (
+          <MoreFromArtist 
+            artistName={artistName}
+            currentPostId={post.id} 
+          /> 
+        )}
 
         {/* Add SubscribeCTA */}
         <SubscribeCTA />
