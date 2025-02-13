@@ -69,7 +69,7 @@ export default function NewsPostPage({ params }: PageProps) {
     const fetchPost = async () => {
       try {
         const response = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed&_fields=id,date,title,content,meta,acf,_embedded`
+          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed`
         )
         const data = await response.json()
         if (data.length > 0) {
