@@ -6,7 +6,8 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { 
   FaSpotify, FaAmazon, FaYoutube, FaSoundcloud,
-  FaApple, FaDeezer, FaDownload
+  FaApple, FaDeezer, FaDownload,
+  FaBandcamp
 } from 'react-icons/fa'
 import SocialShare from '../../components/SocialShare'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
@@ -125,6 +126,21 @@ export default function ReleasePage({ params }: PageProps) {
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-500/10 hover:bg-yellow-500/20'
     },
+    { 
+      name: 'Bandcamp', 
+      url: release?.acf?.bandcamp, 
+      icon: FaBandcamp, 
+      color: 'text-pink-400',
+      bgColor: 'bg-pink-500/10 hover:bg-pink-500/20',
+      priority: 3
+    },
+    { 
+      name: 'iTunes', 
+      url: release?.acf?.itunes, 
+      icon: FaApple, 
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20'
+    }
   ]
 
   return (
