@@ -60,11 +60,14 @@ export default function CookieConsent() {
       setIsVisible(true)
     } else {
       try {
-        const savedSettings = JSON.parse(consent) as CookieSettings
-        handleAnalyticsTools(savedSettings)
+        const savedSettings = consent === 'refused' 
+          ? { analytics: false, marketing: false } 
+          : JSON.parse(consent) as CookieSettings;
+        handleAnalyticsTools(savedSettings);
       } catch (error) {
-        console.error('Error parsing cookie consent:', error)
-        setIsVisible(true)
+        console.error('Error parsing cookie consent:', error);
+        // Set default values if parsing fails
+        handleAnalyticsTools({ analytics: false, marketing: false });
       }
     }
   }, [])

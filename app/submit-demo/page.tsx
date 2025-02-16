@@ -11,6 +11,8 @@ interface FormData {
   subject: string
   artistName: string
   genre: string
+  acceptGuidelines: boolean
+  acceptPrivacy: boolean
 }
 
 const features = [
@@ -36,7 +38,9 @@ export default function SubmitDemoPage() {
     email: '',
     subject: '',
     artistName: '',
-    genre: ''
+    genre: '',
+    acceptGuidelines: false,
+    acceptPrivacy: false
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
@@ -78,7 +82,9 @@ export default function SubmitDemoPage() {
         email: '',
         subject: '',
         artistName: '',
-        genre: ''
+        genre: '',
+        acceptGuidelines: false,
+        acceptPrivacy: false
       })
       setToken(null)
       // @ts-expect-error: Turnstile types are not perfect
@@ -90,9 +96,10 @@ export default function SubmitDemoPage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     }))
   }
 
@@ -376,6 +383,56 @@ export default function SubmitDemoPage() {
                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
                         transition-colors focus:ring-2 focus:ring-purple-500/20"
                     />
+                  </div>
+
+                  <div>
+                    <div className="flex items-start gap-2 mb-6">
+                      <input
+                        type="checkbox"
+                        id="acceptGuidelines"
+                        name="acceptGuidelines"
+                        checked={formData.acceptGuidelines}
+                        onChange={handleChange}
+                        required
+                        className="mt-1.5"
+                      />
+                      <label htmlFor="acceptGuidelines" className="text-sm text-gray-300">
+                        I have read and followed the{' '}
+                        <a 
+                          href="/guidelines" 
+                          target="_blank"
+                          rel="noopener noreferrer" 
+                          className="text-purple-500 hover:text-purple-400 underline"
+                        >
+                          submission guidelines
+                        </a>
+                        . My demo meets all the requirements. *
+                      </label>
+                    </div>
+
+                    <div className="flex items-start gap-2 mb-6">
+                      <input
+                        type="checkbox"
+                        id="acceptPrivacy"
+                        name="acceptPrivacy"
+                        checked={formData.acceptPrivacy}
+                        onChange={handleChange}
+                        required
+                        className="mt-1.5"
+                      />
+                      <label htmlFor="acceptPrivacy" className="text-sm text-gray-300">
+                        I agree to the{' '}
+                        <a 
+                          href="/privacy-policy" 
+                          target="_blank"
+                          rel="noopener noreferrer" 
+                          className="text-purple-500 hover:text-purple-400 underline"
+                        >
+                          privacy policy
+                        </a>
+                        . *
+                      </label>
+                    </div>
                   </div>
                 </div>
 
