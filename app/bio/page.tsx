@@ -33,14 +33,23 @@ export default function BioLinksPage() {
     try {
       const types = ['bio_links', 'posts', 'news']
       const fetchPromises = types.map(type =>
-        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}`)
-          .then(res => {
+        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}&_embed`)
+          .then(async res => {
+            // Check if the response is ok
+            if (!res.ok) {
+              // If response is not ok, return empty array instead of throwing
+              console.warn(`No data for ${type} on page ${pageNum}`)
+              return []
+            }
+            
             // Store total pages info
             const total = res.headers.get('X-WP-TotalPages')
             if (total && pageNum >= parseInt(total)) {
               setHasMore(false)
             }
-            return res.json()
+            
+            const data = await res.json()
+            return data
           })
           .then(posts => {
             if (!Array.isArray(posts)) {
@@ -49,28 +58,35 @@ export default function BioLinksPage() {
             }
             return posts.map(post => ({
               ...post,
-              type: type.replace(/s$/, '')
+              type
             }))
           })
           .catch(error => {
             console.error(`Error fetching ${type}:`, error)
-            return []
+            return [] // Return empty array on error
           })
       )
 
       const results = await Promise.all(fetchPromises)
       const allPosts = results.flat()
 
-      // Sort by date, newest first
-      const sortedPosts = allPosts.sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
+      // Only process if we have posts
+      if (allPosts.length > 0) {
+        // Sort by date, newest first
+        const sortedPosts = allPosts.sort((a, b) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        )
 
-      if (pageNum === 1) {
-        setPosts(sortedPosts)
-      } else {
-        setPosts(prev => [...prev, ...sortedPosts])
+        if (pageNum === 1) {
+          setPosts(sortedPosts)
+        } else {
+          setPosts(prev => [...prev, ...sortedPosts])
+        }
+      } else if (pageNum > 1) {
+        // If we got no posts on a page after the first, we've reached the end
+        setHasMore(false)
       }
+      
     } catch (error) {
       console.error('Error fetching posts:', error)
     } finally {
@@ -103,7 +119,7 @@ export default function BioLinksPage() {
 
     // Otherwise use internal routing
     switch (post.type) {
-      case 'news':
+      case 'new':
         return `/news/${post.slug}`
       case 'post':
         return `/music/${post.slug}`
