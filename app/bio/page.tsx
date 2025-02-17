@@ -32,8 +32,11 @@ export default function BioLinksPage() {
   const fetchPosts = async (pageNum: number) => {
     try {
       const types = ['bio_links', 'posts', 'news']
-      const fetchPromises = types.map(type =>
-        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}&_embed`)
+      const fetchPromises = types.map(type => {
+        // Keep the original type name for the API request
+        const embedParam = '&_embed'  // Simplified since it's the same for all types
+        
+        return fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}${embedParam}`)
           .then(async res => {
             // Check if the response is ok
             if (!res.ok) {
@@ -56,16 +59,17 @@ export default function BioLinksPage() {
               console.warn(`Invalid response for type ${type}:`, posts)
               return []
             }
+            // Store the original type without modification
             return posts.map(post => ({
               ...post,
-              type
+              type: type === 'posts' ? 'post' : type === 'news' ? 'news' : 'bio_link'
             }))
           })
           .catch(error => {
             console.error(`Error fetching ${type}:`, error)
-            return [] // Return empty array on error
+            return []
           })
-      )
+      })
 
       const results = await Promise.all(fetchPromises)
       const allPosts = results.flat()
@@ -112,6 +116,8 @@ export default function BioLinksPage() {
   }
 
   const getPostUrl = (post: Post) => {
+    console.log('Post type:', post.type, 'Slug:', post.slug) // Add this for debugging
+
     // If it's a bio link with url, use that
     if (post.type === 'bio_link' && post.acf?.url) {
       return post.acf.url
@@ -119,11 +125,12 @@ export default function BioLinksPage() {
 
     // Otherwise use internal routing
     switch (post.type) {
-      case 'new':
+      case 'news':
         return `/news/${post.slug}`
       case 'post':
         return `/music/${post.slug}`
       default:
+        console.warn('Unknown post type:', post.type) // Add this for debugging
         return '#'
     }
   }
