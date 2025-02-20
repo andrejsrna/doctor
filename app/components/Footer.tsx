@@ -250,7 +250,7 @@ export default function Footer() {
           viewport={{ once: true }}
           className="relative z-10 mt-16 pt-8 border-t border-green-500/20 text-center text-gray-400"
         >
-          <p>© {new Date().getFullYear()} DnB Doctor. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} DnB Doctor. All rights reserved. <Link href="https://synthbit.cz" className="text-green-500 hover:text-green-400 underline">SynthBit, s.r.o.</Link></p>
         </motion.div>
       </div>
     </footer>
