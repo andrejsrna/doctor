@@ -6,7 +6,6 @@ import { use } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import SubscribeCTA from '../../components/SubscribeCTA'
-import Comments from '@/app/components/Comments'
 import Image from 'next/image'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 
@@ -184,11 +183,6 @@ export default function NewsPostPage({ params }: PageProps) {
             url={`https://dnbdoctor.com/news/${slug}`}
             title={post.title.rendered}
           />
-
-        <Comments 
-          slug={slug}
-          title={post.title.rendered}
-        />
 
         {artistName && artistName !== '' && (
           <MoreFromArtist 

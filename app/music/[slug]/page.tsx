@@ -15,7 +15,6 @@ import SubscribeCTA from '@/app/components/SubscribeCTA'
 import AudioPreview from '@/app/components/AudioPreview'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import { useSingleRelease, useReleasePreview } from '@/app/hooks/useWordPress'
-import Comments from '@/app/components/Comments'
 import RelatedNews from '@/app/components/RelatedNews'
 //import { initializeAnalytics, trackStreamingClick } from '@/app/utils/analytics'
 
@@ -327,12 +326,6 @@ export default function ReleasePage({ params }: PageProps) {
               {/* Bulk Sale Promo */}
               <BulkSalePromo />
             </motion.div>
-
-            {/* Reactions */}
-            <Comments 
-              slug={slug}
-              title={release.title.rendered}
-            />
 
             {/* Social Share */}
             <SocialShare 
