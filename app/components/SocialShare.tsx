@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaFacebook, FaTwitter, FaLink, FaWhatsapp } from 'react-icons/fa'
+import { FaFacebook, FaLink, FaWhatsapp } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 
 interface ShareButton {
   name: string
@@ -18,8 +19,8 @@ const shareButtons: ShareButton[] = [
     color: 'hover:text-blue-500'
   },
   {
-    name: 'Twitter',
-    icon: FaTwitter,
+    name: 'X',
+    icon: FaXTwitter,
     shareUrl: (url, title) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
     color: 'hover:text-sky-500'
   },
@@ -44,7 +45,7 @@ export default function SocialShare({ url, title }: { url: string; title: string
   return (
     <div className="py-12">
       <div className="max-w-7xl mx-auto px-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-6"
@@ -60,25 +61,29 @@ export default function SocialShare({ url, title }: { url: string; title: string
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className={`p-6 rounded-full bg-white/5 border-2 border-white/10 ${button.color} 
-                  hover:bg-white/10 hover:scale-110 transition-all duration-300 group backdrop-blur-sm`}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-5 rounded-full bg-white/10 border border-purple-500/30 ${button.color}
+                  hover:bg-white/20 hover:border-purple-500/50 transition-all duration-300 group backdrop-blur-sm`}
               >
-                <button.icon size={32} className="transition-transform group-hover:scale-110" />
+                <button.icon size={28} className="transition-transform group-hover:scale-105" />
               </motion.a>
             ))}
             <motion.button
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleCopyLink}
-              className="p-6 rounded-full bg-white/5 border-2 border-white/10 hover:text-purple-500 
-                hover:bg-white/10 hover:scale-110 transition-all duration-300 group backdrop-blur-sm"
+              className="p-5 rounded-full bg-white/10 border border-purple-500/30 hover:text-purple-400
+                hover:bg-white/20 hover:border-purple-500/50 transition-all duration-300 group backdrop-blur-sm"
             >
-              <FaLink size={32} className="transition-transform group-hover:scale-110" />
+              <FaLink size={28} className="transition-transform group-hover:scale-105" />
             </motion.button>
           </div>
         </motion.div>
       </div>
     </div>
   )
-} 
+}

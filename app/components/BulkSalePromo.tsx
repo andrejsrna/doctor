@@ -9,25 +9,31 @@ export default function BulkSalePromo() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-r from-green-500/10 to-purple-500/10 rounded-xl p-4 
-        border border-green-500/20 hover:border-green-500/30 transition-all"
+      className="rounded-xl overflow-hidden border border-purple-500/30
+                 hover:border-purple-500/50 transition-all group
+                 hover:shadow-xl hover:shadow-purple-500/10"
     >
-      <Link href="/bulk-sale" className="flex items-center justify-between">
+      <Link href="/bulk-sale"
+            className="flex items-center justify-between p-6
+                       bg-gradient-to-r from-purple-600/80 to-pink-600/80
+                       hover:from-purple-600/90 hover:to-pink-600/90
+                       transition-all duration-300"
+      >
         <div className="flex items-center gap-4">
-          <div className="bg-green-500/20 rounded-lg p-2">
-            <FaPercent className="w-5 h-5 text-green-500" />
+          <div className="bg-purple-500/30 rounded-lg p-3 flex-shrink-0">
+            <FaPercent className="w-6 h-6 text-purple-300" />
           </div>
-          <div className="flex flex-col p-2 mt-4">
-            <h3 className="text-lg font-semibold text-green-400">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-semibold text-purple-200">
               Bulk Sale Available
             </h3>
-            <p className="text-sm text-gray-400">
-              Get 35% off on bulk purchases
+            <p className="text-sm text-gray-300">
+              Save 35% on multiple track purchases!
             </p>
           </div>
         </div>
         <motion.div
-          className="text-green-500"
+          className="text-purple-300 group-hover:text-purple-200 transition-colors"
           whileHover={{ x: 5 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
@@ -38,4 +44,4 @@ export default function BulkSalePromo() {
       </Link>
     </motion.div>
   )
-} 
+}
