@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import MoreFromArtist from '@/app/components/MoreFromArtist'
 import { motion } from 'framer-motion'
-import { use } from 'react'
+import parse, { DOMNode, domToReact, Element } from 'html-react-parser'
+import Image from 'next/image'
+import { use, useEffect, useState } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import SubscribeCTA from '../../components/SubscribeCTA'
-import Image from 'next/image'
-import MoreFromArtist from '@/app/components/MoreFromArtist'
 
 interface NewsPost {
   id: number
@@ -121,7 +121,7 @@ export default function NewsPostPage({ params }: PageProps) {
   return (
     <section className="py-32 px-4 relative min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-      
+
       {getImageUrl() && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -141,7 +141,7 @@ export default function NewsPostPage({ params }: PageProps) {
 
       <article className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
-        <motion.header 
+        <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
@@ -149,8 +149,8 @@ export default function NewsPostPage({ params }: PageProps) {
           <time className="text-purple-500 font-medium">
             {formatDate(post.date)}
           </time>
-          <h1 
-            className="text-4xl md:text-6xl font-bold mt-4 bg-clip-text text-transparent 
+          <h1
+            className="text-4xl md:text-6xl font-bold mt-4 bg-clip-text text-transparent
               bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
             dangerouslySetInnerHTML={{ __html: post.title.rendered }}
           />
@@ -164,31 +164,76 @@ export default function NewsPostPage({ params }: PageProps) {
             transition={{ delay: 0.2 }}
             className="mb-12 rounded-xl overflow-hidden bg-black/30 border border-white/5 p-6"
           >
-            <div 
+            <div
               className="w-full h-[166px]"
               dangerouslySetInnerHTML={{ __html: post.acf.scsc }}
             />
           </motion.div>
         )}
 
+        {/* Content using html-react-parser */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="prose prose-invert prose-purple max-w-none"
-          dangerouslySetInnerHTML={{__html: post.content.rendered || ''}}
-        />
+        >
+          {parse(post.content.rendered || '', {
+            replace: (domNode) => {
+              if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
+                const { src, alt, width, height } = domNode.attribs;
 
-          <SocialShare 
+                // Basic validation
+                if (!src || !width || !height) {
+                  // Optionally return null or a placeholder if essential attributes are missing
+                  return <></>;
+                }
+
+                // Convert width/height to numbers
+                const imgWidth = parseInt(width, 10);
+                const imgHeight = parseInt(height, 10);
+
+                if (isNaN(imgWidth) || isNaN(imgHeight)) {
+                   return <></>; // Skip if width/height are not valid numbers
+                }
+
+                return (
+                  <div className="my-6"> {/* Add margin around the image container */}
+                    <Image
+                      src={src}
+                      alt={alt || 'Post image'} // Provide default alt text
+                      width={imgWidth}
+                      height={imgHeight}
+                      className="rounded-lg shadow-md w-full h-auto" // Ensure image is responsive and styled
+                      priority // Add priority prop to disable lazy loading
+                      // Add sizes attribute if needed for further optimization,
+                      // but Next.js handles basic responsiveness well with width/height
+                    />
+                  </div>
+                );
+              } else if (domNode instanceof Element && domNode.name === 'figure') {
+                // Handle figure elements: render its children using domToReact
+                // Cast children to DOMNode[] to satisfy parser types
+                // No need for nested replace here as the main replace handles the img inside
+                return <>{domToReact(domNode.children as DOMNode[])}</>;
+              }
+              // Keep default rendering for other elements (return undefined or null)
+              // Return undefined to let the parser handle the node default way
+              return undefined;
+            }
+          })}
+        </motion.div>
+
+          <SocialShare
             url={`https://dnbdoctor.com/news/${slug}`}
             title={post.title.rendered}
           />
 
         {artistName && artistName !== '' && (
-          <MoreFromArtist 
+          <MoreFromArtist
             artistName={artistName}
-            currentPostId={post.id} 
-          /> 
+            currentPostId={post.id}
+          />
         )}
 
         {/* Add SubscribeCTA */}
@@ -199,4 +244,4 @@ export default function NewsPostPage({ params }: PageProps) {
       </article>
     </section>
   )
-} 
+}
