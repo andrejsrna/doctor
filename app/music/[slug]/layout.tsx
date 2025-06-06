@@ -23,7 +23,7 @@ export async function generateMetadata(
 
     // Helper function to decode HTML entities
     const decodeHtmlEntities = (text: string) => {
-      const entities: { [key: string]: string } = {
+      const namedEntities: { [key: string]: string } = {
         '&amp;': '&',
         '&lt;': '<',
         '&gt;': '>',
@@ -39,9 +39,13 @@ export async function generateMetadata(
         '&trade;': '™'
       }
       
-      return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => {
-        return entities[entity] || entity
-      })
+      return text
+        // Handle named entities
+        .replace(/&[a-zA-Z]+;/g, (entity) => namedEntities[entity] || entity)
+        // Handle numeric entities like &#8211;
+        .replace(/&#(\d+);/g, (match, num) => String.fromCharCode(parseInt(num, 10)))
+        // Handle hex entities like &#x2013;
+        .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
     }
     
     const rawTitle = release?.title?.rendered || 'Music Release'
