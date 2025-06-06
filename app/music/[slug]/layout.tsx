@@ -21,8 +21,34 @@ export async function generateMetadata(
     const data = await response.json()
     const release = data[0]
 
-    const title = release?.title?.rendered || 'Music Release'
-    const description = release?.excerpt?.rendered?.replace(/<[^>]*>/g, '') || 'Check out this release on DnB Doctor'
+    // Helper function to decode HTML entities
+    const decodeHtmlEntities = (text: string) => {
+      const entities: { [key: string]: string } = {
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#39;': "'",
+        '&apos;': "'",
+        '&nbsp;': ' ',
+        '&mdash;': '—',
+        '&ndash;': '–',
+        '&hellip;': '…',
+        '&copy;': '©',
+        '&reg;': '®',
+        '&trade;': '™'
+      }
+      
+      return text.replace(/&[a-zA-Z0-9#]+;/g, (entity) => {
+        return entities[entity] || entity
+      })
+    }
+    
+    const rawTitle = release?.title?.rendered || 'Music Release'
+    const title = decodeHtmlEntities(rawTitle)
+    
+    const rawDescription = release?.excerpt?.rendered?.replace(/<[^>]*>/g, '') || 'Check out this release on DnB Doctor'
+    const description = decodeHtmlEntities(rawDescription)
     const releaseUrl = `https://dnbdoctor.com/music/${slug}`
     const imageUrl = release?._embedded?.['wp:featuredmedia']?.[0]?.source_url
 
