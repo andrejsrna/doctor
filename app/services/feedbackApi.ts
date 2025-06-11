@@ -32,35 +32,58 @@ export const feedbackApi = {
         url.searchParams.append('token', token);
       }
       
+      console.log('Fetching track info from:', url.toString());
+      
       const response = await fetch(url.toString());
-      const data = await response.json();
+      
+      console.log('API Response status:', response.status);
+      console.log('API Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      let data;
+      try {
+        data = await response.json();
+        console.log('API Response data:', data);
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        const textResponse = await response.text();
+        console.log('Raw response:', textResponse);
+        throw new Error('API returned invalid JSON response');
+      }
       
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Track not found');
+          throw new Error('Track not found - please check if the track ID exists');
         }
         
         // Ignore missing token error
         if (data.message?.includes('token')) {
-          // Continue without token
+          console.warn('Token issue detected, continuing without token');
         } else {
-          throw new Error(data.message || 'Failed to get track information');
+          throw new Error(data.message || `API error: ${response.status} ${response.statusText}`);
         }
       }
       
       if (!data) {
-        throw new Error('No track data received');
+        throw new Error('No track data received from API');
+      }
+      
+      if (!data.track_id || !data.title || !data.url) {
+        console.error('Incomplete track data:', data);
+        throw new Error('Incomplete track data received from API');
       }
       
       return {
         id: data.track_id,
         title: data.title,
         url: data.url,
-        artist: data.artist || '', // fallback ak API nevracia artist
+        artist: data.artist || '', 
         cover_url: data.cover_url
       };
     } catch (error) {
       console.error('Error fetching track info:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Unable to connect to API server. Please check your internet connection.');
+      }
       throw error instanceof Error ? error : new Error('Failed to get track information');
     }
   },

@@ -147,6 +147,11 @@ export default function AboutContent() {
                 image: "/christopher.jpeg" // Add team member images
               },
               {
+                name: "Jaroslav",
+                role: "Creative strategist",
+                image: "/jaroslav.jpeg" // Add team member images
+              },
+              {
                 name: "Your Name Here",
                 role: "Suggest Your Own Role",
                 image: "/avatar.jpeg" // Add team member images
