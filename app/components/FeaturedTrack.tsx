@@ -60,18 +60,9 @@ export default function FeaturedTrack() {
 
   const fetchRandomPost = async () => {
     try {
-      // First, get total number of posts
-      const countResponse = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/posts?per_page=1')
-      const totalPosts = parseInt(countResponse.headers.get('X-WP-Total') || '0')
-      
-      if (totalPosts === 0) return
-
-      // Get a random offset
-      const randomOffset = Math.floor(Math.random() * totalPosts)
-      
-      // Fetch one random post
+      // Fetch the latest post
       const response = await fetch(
-        `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=1&offset=${randomOffset}`
+        `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=1`
       )
       const [data] = await response.json()
       
@@ -88,8 +79,6 @@ export default function FeaturedTrack() {
           console.error('Error fetching preview:', error)
         }
       }
-
-     
 
       setPost(data)
     } catch (error) {
@@ -183,8 +172,39 @@ export default function FeaturedTrack() {
     <section className="py-20 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-      <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-20" />
-      <div className="absolute -top-1/2 left-1/2 transform -translate-x-1/2 w-[1000px] h-[1000px] bg-purple-500/10 rounded-full blur-3xl" />
+      
+      {/* Animated Grid Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `linear-gradient(to right, rgba(168,85,247,0.1) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgba(168,85,247,0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px',
+          animation: 'grid-move 20s linear infinite'
+        }} />
+      </div>
+
+      {/* Floating Infection Particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-purple-500/30 animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${5 + Math.random() * 5}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Moving Infection Spots */}
+      <div className="absolute inset-0">
+        <div className="absolute -top-1/2 left-1/2 transform -translate-x-1/2 w-[1000px] h-[1000px] bg-gradient-radial from-purple-500/20 via-purple-500/5 to-transparent rounded-full animate-pulse-slow" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl animate-blob" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
+      </div>
       
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         <motion.h2 
@@ -193,7 +213,7 @@ export default function FeaturedTrack() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold mb-16 text-center"
         >
-          Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300">Track</span>
+          Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300">Infection</span>
         </motion.h2>
 
         <div className="relative">
@@ -308,6 +328,35 @@ export default function FeaturedTrack() {
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes grid-move {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(50px); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        .animate-float {
+          animation: float 5s ease-in-out infinite;
+        }
+        .animate-pulse-slow {
+          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        @keyframes blob {
+          0% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+      `}</style>
     </section>
   )
 } 
