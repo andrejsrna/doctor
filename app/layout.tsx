@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Rajdhani } from "next/font/google";
+import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
 import "./globals.css";
 import Footer from './components/Footer'
 import './styles/content-wrapper.css'
 import CookieConsent from "./components/CookieConsent";
 
-const rajdhani = Rajdhani({
+const rajdhani = Share_Tech({
   variable: "--font-rajdhani",
-  subsets: ["latin-ext"],
-  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {

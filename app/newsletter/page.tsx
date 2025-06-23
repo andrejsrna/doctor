@@ -45,7 +45,7 @@ export default function NewsletterPage() {
       {/* Background with animated overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/newsletter.jpeg"
+          src="/newsletter1.jpeg"
           alt="Newsletter Background"
           fill
           className="object-cover opacity-20"
@@ -61,22 +61,13 @@ export default function NewsletterPage() {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm
-              border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
-          >
-            <FaEnvelope className="w-16 h-16 text-purple-500 animate-pulse" />
-          </motion.div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
-            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
-            Join Our Newsletter
+          <h1 className={`text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
+            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500}`}>
+            Spread the Infection
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-            Stay up to date with the latest releases, exclusive content, and special announcements 
-            from DnB Doctor.
+            Join our growing horde of bass cultists. Get infected with exclusive releases, mutated content, 
+            and viral announcements from the DnB Doctor&apos;s laboratory.
           </p>
         </motion.div>
 
@@ -92,7 +83,7 @@ export default function NewsletterPage() {
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                 <FaEnvelope className="w-4 h-4 text-purple-500" />
-                Email Address
+                Infection Vector (Email)
               </label>
               <div className="relative">
                 <input
@@ -100,7 +91,7 @@ export default function NewsletterPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  placeholder="Enter your transmission frequency"
                   disabled={status === 'loading'}
                   required
                   className="w-full px-6 py-3 rounded-full bg-black/50 border border-purple-500/30 
@@ -132,7 +123,7 @@ export default function NewsletterPage() {
               </div>
               <label htmlFor="privacy" className="ml-3 text-sm text-gray-300 flex items-center gap-2">
                 <FaLock className="w-4 h-4 text-purple-500" />
-                I agree to the{' '}
+                <span className="mr-1">I accept the terms of infection and the</span>
                 <Link 
                   href="/privacy-policy" 
                   className="text-purple-500 hover:text-purple-400 underline"
@@ -153,7 +144,7 @@ export default function NewsletterPage() {
                 {status === 'loading' ? (
                   <>
                     <FaSpinner className="w-5 h-5 animate-spin" />
-                    <span>Infecting...</span>
+                    <span>Spreading Infection...</span>
                   </>
                 ) : (
                   <>
