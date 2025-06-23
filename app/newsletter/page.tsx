@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FaEnvelope, FaCheck } from 'react-icons/fa'
+import { FaEnvelope, FaCheck, FaSpinner, FaSkull, FaLock, FaTimesCircle } from 'react-icons/fa'
 import { subscriberApi } from '../services/subscriberApi'
 import Image from 'next/image'
+import Button from '../components/Button'
 
 export default function NewsletterPage() {
   const [email, setEmail] = useState('')
@@ -30,17 +31,18 @@ export default function NewsletterPage() {
         group: 'Customers_final'
       })
       setStatus('success')
-      setMessage('Thanks for subscribing!')
+      setMessage('Successfully infected! Welcome to the horde!')
       setEmail('')
       setAcceptedPrivacy(false)
     } catch (error) {
       setStatus('error')
-      setMessage(error instanceof Error ? error.message : 'Failed to subscribe')
+      setMessage(error instanceof Error ? error.message : 'Infection failed. Please try again.')
     }
   }
 
   return (
     <section className="py-24 px-4 relative min-h-screen overflow-hidden">
+      {/* Background with animated overlay */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/newsletter.jpeg"
@@ -50,11 +52,11 @@ export default function NewsletterPage() {
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent animate-pulse" />
       </div>
       
       <div className="max-w-3xl mx-auto relative z-10">
-        
-      <motion.div 
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4"
@@ -63,9 +65,10 @@ export default function NewsletterPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm"
+            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm
+              border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
           >
-            <FaEnvelope className="w-16 h-16 text-purple-500" />
+            <FaEnvelope className="w-16 h-16 text-purple-500 animate-pulse" />
           </motion.div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
             bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
@@ -81,25 +84,36 @@ export default function NewsletterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-black/30 border border-white/5 rounded-2xl p-8 md:p-12 backdrop-blur-sm"
+          className="bg-black/30 border border-purple-500/30 hover:border-purple-500/40 
+            rounded-2xl p-8 md:p-12 backdrop-blur-sm transition-all duration-300
+            hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                <FaEnvelope className="w-4 h-4 text-purple-500" />
                 Email Address
               </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                disabled={status === 'loading'}
-                required
-                className="w-full px-6 py-3 rounded-full bg-black/50 border border-purple-500/30 
-                  text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                  transition-colors disabled:opacity-50"
-              />
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  disabled={status === 'loading'}
+                  required
+                  className="w-full px-6 py-3 rounded-full bg-black/50 border border-purple-500/30 
+                    text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
+                    transition-all duration-300 disabled:opacity-50 hover:border-purple-500/50"
+                />
+                {status === 'success' && (
+                  <FaCheck className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500" />
+                )}
+                {status === 'error' && (
+                  <FaTimesCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500" />
+                )}
+              </div>
             </div>
 
             <div className="flex items-start">
@@ -111,11 +125,13 @@ export default function NewsletterPage() {
                   onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                   disabled={status === 'loading'}
                   className="w-4 h-4 rounded border-purple-500/30 bg-black/50 
-                    text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
+                    text-purple-500 focus:ring-purple-500 focus:ring-offset-0
+                    hover:border-purple-500/50 transition-all duration-300"
                   required
                 />
               </div>
-              <label htmlFor="privacy" className="ml-3 text-sm text-gray-300">
+              <label htmlFor="privacy" className="ml-3 text-sm text-gray-300 flex items-center gap-2">
+                <FaLock className="w-4 h-4 text-purple-500" />
                 I agree to the{' '}
                 <Link 
                   href="/privacy-policy" 
@@ -127,40 +143,60 @@ export default function NewsletterPage() {
               </label>
             </div>
 
-            <button 
-              type="submit"
-              disabled={status === 'loading' || !acceptedPrivacy}
-              className="w-full px-8 py-3 rounded-full bg-purple-500 text-white font-medium 
-                hover:bg-purple-600 transition-colors disabled:opacity-50 
-                disabled:hover:bg-purple-500 flex items-center justify-center gap-2"
-            >
-              {status === 'loading' ? (
-                'Subscribing...'
-              ) : (
-                <>
-                  Subscribe <FaCheck className="w-4 h-4" />
-                </>
-              )}
-            </button>
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <Button
+                onClick={(e) => handleSubmit(e)}
+                disabled={status === 'loading' || !acceptedPrivacy}
+                variant="infected"
+                className="w-full group"
+              >
+                {status === 'loading' ? (
+                  <>
+                    <FaSpinner className="w-5 h-5 animate-spin" />
+                    <span>Infecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaSkull className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" />
+                    <span>Join the Horde</span>
+                  </>
+                )}
+              </Button>
+            </motion.div>
           </form>
 
           {message && (
-            <motion.p 
+            <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`mt-4 text-center ${status === 'error' ? 'text-red-500' : 'text-green-500'}`}
+              className={`mt-4 p-4 rounded-lg border ${
+                status === 'error' 
+                  ? 'border-red-500/30 bg-red-500/10 text-red-500' 
+                  : 'border-green-500/30 bg-green-500/10 text-green-500'
+              }`}
             >
-              {message}
-            </motion.p>
+              <p className="flex items-center justify-center gap-2">
+                {status === 'error' ? (
+                  <FaTimesCircle className="w-4 h-4" />
+                ) : (
+                  <FaCheck className="w-4 h-4" />
+                )}
+                {message}
+              </p>
+            </motion.div>
           )}
 
-          <div className="mt-8 text-center text-sm text-gray-400">
-            <Link 
-              href="/unsub" 
-              className="hover:text-purple-400 transition-colors underline"
-            >
-              Want to unsubscribe?
-            </Link>
+          <div className="mt-8 text-center">
+            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
+              <Button
+                href="/unsub"
+                variant="decayed"
+                className="group text-sm"
+              >
+                <FaTimesCircle className="w-4 h-4 transform group-hover:rotate-90 transition-transform duration-300" />
+                <span>Unsubscribe</span>
+              </Button>
+            </motion.div>
           </div>
         </motion.div>
       </div>

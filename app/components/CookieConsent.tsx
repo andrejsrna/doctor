@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Cookies from 'js-cookie'
+import { FaSkull, FaSyringe, FaShieldVirus } from 'react-icons/fa'
+import Button from './Button'
 
 type CookieSettings = {
   analytics: boolean
@@ -88,36 +90,64 @@ export default function CookieConsent() {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-0 left-0 right-0 z-[201] bg-black/95 backdrop-blur-xl p-6"
+      className="fixed bottom-0 left-0 right-0 z-[201] bg-black/95 backdrop-blur-xl border-t border-purple-500/20"
     >
-      <div className="container mx-auto max-w-4xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-white mb-2">
-              We value your privacy
-            </h3>
-            <p className="text-gray-300 text-sm">
+      <div className="container mx-auto max-w-4xl p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex-1 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-purple-500/20 border border-purple-500/30">
+                <FaShieldVirus className="w-5 h-5 text-purple-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-white">
+                We value your privacy
+              </h3>
+            </div>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-gray-300 text-sm"
+            >
               We use cookies to enhance your browsing experience, serve personalized content, 
               and analyze our traffic. By clicking &quot;Accept All&quot;, you consent to our use of 
-              cookies. Visit our <a href="/terms" className="text-purple-500 hover:text-purple-400">
-              Privacy Policy</a> to learn more.
-            </p>
+              cookies. Visit our{' '}
+              <a 
+                href="/terms" 
+                className="text-purple-500 hover:text-pink-500 transition-colors duration-300 underline"
+              >
+                Privacy Policy
+              </a>
+              {' '}to learn more.
+            </motion.p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => saveConsent({ analytics: false, marketing: false })}
-              className="px-6 py-2 text-sm font-medium text-white hover:bg-white/10 
-                border border-white/20 rounded-lg transition-colors"
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="w-full sm:w-auto"
             >
-              Reject All
-            </button>
-            <button
-              onClick={() => saveConsent({ analytics: true, marketing: true })}
-              className="px-6 py-2 text-sm font-medium text-white bg-purple-600 
-                hover:bg-purple-700 rounded-lg transition-colors"
+              <Button
+                onClick={() => saveConsent({ analytics: false, marketing: false })}
+                variant="decayed"
+                className="w-full sm:w-auto group"
+              >
+                <FaSkull className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+                <span>Reject All</span>
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="w-full sm:w-auto"
             >
-              Accept All
-            </button>
+              <Button
+                onClick={() => saveConsent({ analytics: true, marketing: true })}
+                variant="infected"
+                className="w-full sm:w-auto group"
+              >
+                <FaSyringe className="w-5 h-5 mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
+                <span>Accept All</span>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </div>

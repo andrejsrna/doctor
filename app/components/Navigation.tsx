@@ -7,52 +7,34 @@ import { useState, useEffect } from 'react'
 import StreamingModal from './StreamingModal'
 import { IoSearchOutline } from 'react-icons/io5'
 import SearchModal from './SearchModal'
+import Button from './Button'
 
 const ListenNowButton = ({ setIsModalOpen }: { 
   isModalOpen: boolean
   setIsModalOpen: (open: boolean) => void 
 }) => {
   return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="relative group px-6 py-2 rounded-full overflow-hidden"
+    <Button
+      variant="infected"
       onClick={() => setIsModalOpen(true)}
+      className="group"
     >
-      {/* Animated background */}
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-r from-[#00FF00] via-[#9900FF] to-[#00FF00] 
-          group-hover:from-[#00FF00] group-hover:via-[#9900FF] group-hover:to-[#00FF00]
-          after:absolute after:inset-0 after:bg-black/10"
-        animate={{
-          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+      <motion.span
+        animate={{ 
+          rotate: [0, -15, 15, -15, 0],
+          scale: [1, 1.2, 1, 1.2, 1]
         }}
         transition={{
-          duration: 5,
+          duration: 2,
           repeat: Infinity,
-          ease: 'linear'
+          repeatDelay: 1
         }}
-        style={{
-          backgroundSize: '200% 200%'
-        }}
-      />
-      
-      {/* Button content with glow effect */}
-      <span className="relative flex items-center gap-2 text-white font-medium 
-        drop-shadow-[0_0_8px_rgba(0,255,0,0.5)]">
-        <motion.span
-          animate={{ rotate: [0, 15, -15, 0] }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 3
-          }}
-        >
-          🎧
-        </motion.span>
-        Listen Now
-      </span>
-    </motion.button>
+        className="mr-2"
+      >
+        🎧
+      </motion.span>
+      Listen Now
+    </Button>
   )
 }
 

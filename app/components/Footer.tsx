@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FaFacebook, FaInstagram, FaYoutube, FaNewspaper } from 'react-icons/fa'
+import { FaFacebook, FaInstagram, FaYoutube, FaNewspaper, FaSyringe, FaSkull } from 'react-icons/fa'
 import { useState, useEffect } from 'react'
 import { subscriberApi } from '../services/subscriberApi'
+import Button from './Button'
 
 const socialLinks = [
   {
@@ -105,6 +106,7 @@ export default function Footer() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.1, rotate: 12 }}
                   className={`text-gray-400 ${link.hoverColor} transition-colors`}
                 >
                   <link.icon className="w-6 h-6" />
@@ -117,6 +119,7 @@ export default function Footer() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
+                whileHover={{ scale: 1.1, rotate: 12 }}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
                 <FaNewspaper className="w-6 h-6" />
@@ -141,18 +144,26 @@ export default function Footer() {
               viewport={{ once: true }}
               className="flex flex-col space-y-3"
             >
-              <Link href="/about" className="text-gray-400 hover:text-green-500 transition-colors">
-                About Us
-              </Link>
-              <Link href="/contact" className="text-gray-400 hover:text-green-500 transition-colors">
-                Contact
-              </Link>
-              <Link href="/privacy-policy" className="text-gray-400 hover:text-green-500 transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-green-500 transition-colors">
-                Terms & Conditions
-              </Link>
+              {[
+                { href: '/about', text: 'About Us' },
+                { href: '/contact', text: 'Contact' },
+                { href: '/privacy-policy', text: 'Privacy Policy' },
+                { href: '/terms', text: 'Terms & Conditions' }
+              ].map((link) => (
+                <motion.div
+                  key={link.href}
+                  whileHover={{ x: 10 }}
+                  className="group w-fit"
+                >
+                  <Link 
+                    href={link.href} 
+                    className="text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                    {link.text}
+                  </Link>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
 
@@ -182,27 +193,40 @@ export default function Footer() {
               onSubmit={handleSubmit}
             >
               <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  disabled={status === 'loading'}
-                  required
-                  className="flex-1 bg-black/50 border border-green-500/30 rounded-full px-4 py-2 
-                    text-white placeholder-gray-500 focus:outline-none focus:border-green-500 
-                    transition-colors disabled:opacity-50"
-                />
-                <button 
-                  type="submit"
-                  disabled={status === 'loading' || !acceptedPrivacy}
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 
-                    text-white font-medium hover:from-green-600 hover:to-green-700 
-                    transition-colors disabled:opacity-50 disabled:hover:from-green-500 
-                    disabled:hover:to-green-600"
-                >
-                  {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
-                </button>
+                <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    disabled={status === 'loading'}
+                    required
+                    className="w-full bg-black/50 border border-green-500/30 rounded-full px-4 py-2 
+                      text-white placeholder-gray-500 focus:outline-none focus:border-green-500 
+                      transition-all duration-300 disabled:opacity-50 hover:border-green-500/50
+                      focus:ring-2 focus:ring-green-500/20"
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }}>
+                  <Button
+                    type="submit"
+                    disabled={status === 'loading' || !acceptedPrivacy}
+                    variant="toxic"
+                    className="w-full sm:w-auto group"
+                  >
+                    {status === 'loading' ? (
+                      <>
+                        <FaSkull className="w-5 h-5 mr-2 animate-pulse" />
+                        <span>Infecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaSyringe className="w-5 h-5 mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
+                        <span>Subscribe</span>
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
               </div>
 
               <div className="flex items-start space-x-2 text-sm">
@@ -214,15 +238,17 @@ export default function Footer() {
                     onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                     disabled={status === 'loading'}
                     className="w-4 h-4 rounded border-green-500/30 bg-black/50 
-                      text-green-500 focus:ring-green-500 focus:ring-offset-0"
+                      text-green-500 focus:ring-green-500 focus:ring-offset-0
+                      hover:border-green-500/50 transition-colors duration-300
+                      cursor-pointer"
                     required
                   />
                 </div>
-                <label htmlFor="privacy" className="text-gray-400">
+                <label htmlFor="privacy" className="text-gray-400 group">
                   I agree to the{' '}
                   <Link 
                     href="/privacy-policy" 
-                    className="text-green-500 hover:text-green-400 underline"
+                    className="text-green-500 group-hover:text-pink-500 underline transition-colors duration-300"
                     target="_blank"
                   >
                     privacy policy
@@ -234,7 +260,11 @@ export default function Footer() {
                 <motion.p 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`text-sm ${status === 'error' ? 'text-red-500' : 'text-green-500'}`}
+                  className={`text-sm ${
+                    status === 'error' 
+                      ? 'text-red-500 bg-red-500/10 border border-red-500/30' 
+                      : 'text-green-500 bg-green-500/10 border border-green-500/30'
+                  } py-2 px-4 rounded-lg`}
                 >
                   {message}
                 </motion.p>
@@ -250,7 +280,15 @@ export default function Footer() {
           viewport={{ once: true }}
           className="relative z-10 mt-16 pt-8 border-t border-green-500/20 text-center text-gray-400"
         >
-          <p>© {new Date().getFullYear()} DnB Doctor. All rights reserved. <Link href="https://synthbit.cz" className="text-green-500 hover:text-green-400 underline">SynthBit, s.r.o.</Link></p>
+          <p>
+            © {new Date().getFullYear()} DnB Doctor. All rights reserved.{' '}
+            <Link 
+              href="https://synthbit.cz" 
+              className="text-green-500 hover:text-pink-500 underline transition-colors duration-300"
+            >
+              SynthBit, s.r.o.
+            </Link>
+          </p>
         </motion.div>
       </div>
     </footer>

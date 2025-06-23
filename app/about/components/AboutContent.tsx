@@ -2,10 +2,11 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { FaHeadphones, FaMusic, FaUsers, FaNewspaper } from 'react-icons/fa'
+import { FaHeadphones, FaMusic, FaUsers, FaNewspaper, FaSyringe } from 'react-icons/fa'
 import SubscribeCTA from '../../components/SubscribeCTA'
 import Link from 'next/link'
 import Gallery from '@/app/components/Gallery'
+import Button from '@/app/components/Button'
 
 export default function AboutContent() {
   return (
@@ -50,6 +51,29 @@ export default function AboutContent() {
               We&apos;re dedicated to promoting and preserving drum and bass culture, 
               connecting artists with fans, and providing a platform for the best electronic music.
             </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Experience Button Section */}
+      <section className="py-12 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-block"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Button
+              href="/music"
+              variant="infected"
+              size="lg"
+              className="group text-2xl py-6 px-12"
+            >
+              <FaSyringe className="w-6 h-6 mr-3 transform group-hover:rotate-45 transition-transform duration-500" />
+              <span>The DnB Doctor Experience</span>
+            </Button>
           </motion.div>
         </div>
       </section>

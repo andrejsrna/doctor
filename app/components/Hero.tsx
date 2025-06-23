@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import Button from './Button'
 
 // Pre-calculated positions for server rendering
 const STATIC_SPORES = Array(40).fill(null).map((_, i) => ({
@@ -18,19 +19,6 @@ const STATIC_SPORES = Array(40).fill(null).map((_, i) => ({
 const STATIC_TENTACLES = Array(12).fill(null).map((_, i) => ({
   d: `M ${-10 + (i * 10)} 110 Q 50 50 ${110 + (i * 10)} -10`
 }))
-
-// Modify the button click handlers to be safe for SSR
-const handleLabClick = () => {
-  if (typeof window !== 'undefined') {
-    window.open('https://dnbdoctor.com/music', '_blank')
-  }
-}
-
-const handleDemoClick = () => {
-  if (typeof window !== 'undefined') {
-    window.open('https://dnbdoctor.com/submit-demo', '_blank')
-  }
-}
 
 export default function Hero() {
   const [isMounted, setIsMounted] = useState(false)
@@ -175,35 +163,86 @@ export default function Hero() {
             transition={{ delay: 0.5 }}
             className="space-x-4 flex flex-col md:flex-row md:space-y-0 space-y-4" 
           >
-            <motion.button 
-              className="relative group px-8 py-3 rounded-full overflow-hidden"
-              whileHover={{ scale: 1.05 }}
+            <motion.div 
+              whileHover={{ scale: 1.05 }} 
               whileTap={{ scale: 0.95 }}
-              onClick={handleLabClick}
+              className="relative group"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-green-500 via-purple-500 to-pink-500 group-hover:opacity-80 transition-opacity" />
-              <span className="relative text-white font-medium flex items-center gap-2">
+              <svg className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)]">
+                <defs>
+                  <filter id="toxic-noise">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" />
+                    <feDisplacementMap in="SourceGraphic" scale="10" />
+                  </filter>
+                </defs>
+                <motion.path
+                  d="M20,20 Q30,10 50,10 T80,20 Q90,40 80,60 T50,90 Q30,90 20,60 T20,20"
+                  fill="none"
+                  stroke="rgba(0,255,0,0.3)"
+                  strokeWidth="2"
+                  filter="url(#toxic-noise)"
+                  animate={{
+                    d: [
+                      "M20,20 Q30,10 50,10 T80,20 Q90,40 80,60 T50,90 Q30,90 20,60 T20,20",
+                      "M25,25 Q35,15 50,15 T75,25 Q85,45 75,65 T50,85 Q35,85 25,65 T25,25"
+                    ]
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </svg>
+              <Button 
+                href="/music"
+                variant="toxic"
+                size="lg"
+                className="relative"
+              >
                 Enter Laboratory
                 <motion.span
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
+                  className="ml-2"
                 >
                   →
                 </motion.span>
-              </span>
-            </motion.button>
+              </Button>
+            </motion.div>
 
-            <motion.button 
-              className="relative group px-8 py-3 rounded-full overflow-hidden border border-green-500/30"
-              whileHover={{ scale: 1.05 }}
+            <motion.div 
+              whileHover={{ scale: 1.05 }} 
               whileTap={{ scale: 0.95 }}
-              onClick={handleDemoClick}
+              className="relative group"
             >
-              <span className="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-colors" />
-              <span className="relative text-green-500 font-medium">
+              <svg className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)]">
+                <defs>
+                  <filter id="infected-noise">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" />
+                    <feDisplacementMap in="SourceGraphic" scale="8" />
+                  </filter>
+                </defs>
+                <motion.path
+                  d="M20,20 Q30,10 50,10 T80,20 Q90,40 80,60 T50,90 Q30,90 20,60 T20,20"
+                  fill="none"
+                  stroke="rgba(255,0,255,0.3)"
+                  strokeWidth="2"
+                  filter="url(#infected-noise)"
+                  animate={{
+                    d: [
+                      "M20,20 Q30,10 50,10 T80,20 Q90,40 80,60 T50,90 Q30,90 20,60 T20,20",
+                      "M25,25 Q35,15 50,15 T75,25 Q85,45 75,65 T50,85 Q35,85 25,65 T25,25"
+                    ]
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                />
+              </svg>
+              <Button
+                href="/submit-demo"
+                variant="infected"
+                size="lg"
+                className="relative"
+              >
                 Submit Sample
-              </span>
-            </motion.button>
+              </Button>
+            </motion.div>
           </motion.div>
         </motion.div>
 

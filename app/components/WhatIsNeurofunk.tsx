@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import Button from './Button'
+import { FaUserPlus, FaInfoCircle } from 'react-icons/fa'
 
 export default function WhatIsNeurofunk() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -129,14 +131,35 @@ export default function WhatIsNeurofunk() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="flex gap-4"
+              className="flex flex-wrap gap-4"
             >
-              <button className="px-6 py-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 text-white font-medium hover:from-green-600 hover:to-green-700 transition-colors">
-                <Link href="/contact">Join the Movement</Link>
-              </button>
-              <button className="px-6 py-3 rounded-full border border-green-500/30 text-green-500 font-medium hover:bg-green-500/10 transition-colors">
-                <Link href="/about">Learn More</Link>
-              </button>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="flex-1 min-w-[200px]"
+              >
+                <Button
+                  href="/contact"
+                  variant="infected"
+                  className="w-full group"
+                >
+                  <FaUserPlus className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+                  <span>Join the Movement</span>
+                </Button>
+              </motion.div>
+              
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="flex-1 min-w-[200px]"
+              >
+                <Button
+                  href="/about"
+                  variant="decayed"
+                  className="w-full group"
+                >
+                  <FaInfoCircle className="w-5 h-5 mr-2 transform group-hover:rotate-180 transition-transform duration-500" />
+                  <span>Learn More</span>
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
         </div>

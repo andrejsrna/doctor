@@ -3,9 +3,9 @@
 import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 import { useLatestPosts, useMultipleMediaPreviews } from '../hooks/useWordPress'
-import { useRouter } from 'next/navigation'
+import Button from './Button'
+import { FaPlay, FaPause, FaArrowRight, FaInfoCircle } from 'react-icons/fa'
 
 interface Post {
   id: number
@@ -28,14 +28,13 @@ interface Post {
     }>
   }
   acf?: {
-    preview?: string  // Made optional since it might not exist
+    preview?: string
   }
   date: string
   slug: string
 }
 
 export default function LatestMusic() {
-  const router = useRouter()
   const { data } = useLatestPosts(6)
   const posts = useMemo(() => data?.posts || [], [data?.posts])
   const [playingId, setPlayingId] = useState<number | null>(null)
@@ -61,7 +60,6 @@ export default function LatestMusic() {
     setPreviewUrls(newPreviewUrls)
   }, [posts, previews])
 
-  // Helper function to get the best available image URL
   const getImageUrl = (post: Post) => {
     const media = post._embedded?.['wp:featuredmedia']?.[0]
     return (
@@ -114,7 +112,6 @@ export default function LatestMusic() {
     }
   }
 
-
   return (
     <section className="py-20 px-4 relative">
       {/* Section Background */}
@@ -156,9 +153,6 @@ export default function LatestMusic() {
                 </div>
               )}
 
-              
-              
-              {/* Hidden audio element */}
               {post.acf?.preview && (
                 <audio
                   id={`audio-${post.id}`}
@@ -188,37 +182,50 @@ export default function LatestMusic() {
                 />
                 <div className="flex gap-3">
                   {post.acf?.preview && (
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handlePlay(post.id)
-                      }}
-                      className="flex-1 text-sm text-white bg-purple-500 hover:bg-purple-600 px-4 py-3 rounded-full transition-colors font-medium uppercase tracking-wider flex items-center justify-center gap-2"
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="flex-1"
                     >
-                      {playingId === post.id ? (
-                        <>
-                          <span className="w-4 h-4">⏸</span>
-                          Pause
-                        </>
-                      ) : (
-                        <>
-                          <span className="w-4 h-4">▶️</span>
-                          {audioErrors[post.id] ? 'Error' : 'Preview'}
-                        </>
-                      )}
-                    </button>
+                      <Button 
+                        variant="toxic"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handlePlay(post.id)
+                        }}
+                        className="w-full"
+                      >
+                        {playingId === post.id ? (
+                          <>
+                            <FaPause className="w-4 h-4" />
+                            <span>Pause</span>
+                          </>
+                        ) : (
+                          <>
+                            <FaPlay className="w-4 h-4" />
+                            <span>{audioErrors[post.id] ? 'Error' : 'Preview'}</span>
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
                   )}
                   {audioErrors[post.id] && (
                     <div className="absolute bottom-20 left-0 right-0 text-center text-red-500 text-sm bg-black/80 py-2">
                       {audioErrors[post.id]}
                     </div>
                   )}
-                  <Link 
-                    href={`/music/${post.slug}`} 
-                    className="flex-1 text-sm text-white bg-purple-500 hover:bg-purple-600 px-4 py-3 rounded-full transition-colors font-medium uppercase tracking-wider text-center"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex-1"
                   >
-                    Show More
-                  </Link>
+                    <Button 
+                      href={`/music/${post.slug}`}
+                      variant="infected"
+                      className="w-full"
+                    >
+                      <FaInfoCircle className="w-4 h-4" />
+                      <span>Show More</span>
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             </motion.article>
@@ -226,29 +233,34 @@ export default function LatestMusic() {
         </div>
       </div>
       <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="space-x-4 flex justify-center mt-10"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="space-x-4 flex justify-center mt-10"
+      >
+        <motion.div
+          whileHover={{ 
+            scale: 1.05,
+            transition: { duration: 0.2 }
+          }}
+        >
+          <Button 
+            href="/music"
+            variant="decayed"
+            size="lg"
+            className="group"
           >
-            <motion.button 
-              className="relative group px-8 py-3 rounded-full overflow-hidden"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push('/music')}
+            <span>Show More</span>
+            <motion.div
+              className="inline-block ml-2"
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-green-500 via-purple-500 to-pink-500 group-hover:opacity-80 transition-opacity" />
-              <span className="relative text-white font-medium flex items-center gap-2">
-               Show More
-                <motion.span
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  →
-                </motion.span>
-              </span>
-            </motion.button>
-          </motion.div>
+              <FaArrowRight className="w-4 h-4 transform group-hover:rotate-90 transition-transform duration-300" />
+            </motion.div>
+          </Button>
+        </motion.div>
+      </motion.div>
     </section>
   )
 } 

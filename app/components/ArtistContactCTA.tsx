@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { FaEnvelope, FaArrowRight } from 'react-icons/fa'
+import { FaEnvelope, FaArrowRight, FaUserMd, FaPaperPlane } from 'react-icons/fa'
+import Button from './Button'
 
 interface ArtistContactCTAProps {
   artistName: string
@@ -46,27 +46,40 @@ export default function ArtistContactCTA({ artistName }: ArtistContactCTAProps) 
               transition={{ delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
             >
-              <Link
-                href="/contact"
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl 
-                  bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium 
-                  hover:from-purple-600 hover:to-pink-600 transition-all duration-300 
-                  transform hover:-translate-y-0.5"
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="w-full sm:w-auto"
               >
-                Contact Us
-                <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+                <Button
+                  href="/contact"
+                  variant="infected"
+                  size="lg"
+                  className="w-full sm:w-auto group"
+                >
+                  <FaUserMd className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+                  <span>Contact Us</span>
+                  <FaArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+                </Button>
+              </motion.div>
               
-              <Link
-                href={`mailto:booking@dnbdoctor.com?subject=Inquiry about ${encodeURIComponent(artistName)}`}
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl 
-                  bg-black/30 text-white font-medium border border-purple-500/30
-                  hover:border-purple-500/50 hover:bg-black/40 transition-all duration-300 
-                  transform hover:-translate-y-0.5"
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="w-full sm:w-auto"
               >
-                Send Email
-                <FaEnvelope className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              </Link>
+                <a 
+                  href={`mailto:booking@dnbdoctor.com?subject=Inquiry about ${encodeURIComponent(artistName)}`}
+                  className="block"
+                >
+                  <Button
+                    variant="decayed"
+                    size="lg"
+                    className="w-full sm:w-auto group"
+                  >
+                    <FaPaperPlane className="w-5 h-5 mr-2 transform group-hover:rotate-45 group-hover:translate-x-1 transition-all duration-300" />
+                    <span>Send Email</span>
+                  </Button>
+                </a>
+              </motion.div>
             </motion.div>
           </div>
         </div>

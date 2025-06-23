@@ -3,8 +3,12 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { FaCloudUploadAlt, FaSoundcloud, FaHeadphones, FaCheck } from 'react-icons/fa'
+import { 
+  FaCloudUploadAlt, FaSoundcloud, FaHeadphones, FaCheck, FaSpinner, 
+  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle 
+} from 'react-icons/fa'
 import { Turnstile } from '@marsidev/react-turnstile'
+import Button from '../components/Button'
 
 interface FormData {
   email: string
@@ -116,6 +120,7 @@ export default function SubmitDemoPage() {
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent animate-pulse" />
         </div>
         
         <motion.div 
@@ -127,9 +132,10 @@ export default function SubmitDemoPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm"
+            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm
+              border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
           >
-            <FaCloudUploadAlt className="w-16 h-16 text-purple-500" />
+            <FaCloudUploadAlt className="w-16 h-16 text-purple-500 animate-pulse" />
           </motion.div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
             bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
@@ -151,8 +157,9 @@ export default function SubmitDemoPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.2 }}
-                className="bg-black/30 border border-purple-500/10 rounded-2xl p-6 backdrop-blur-sm
-                  hover:border-purple-500/30 transition-all duration-300"
+                className="bg-black/30 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm
+                  hover:border-purple-500/40 transition-all duration-300
+                  hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
               >
                 <feature.icon className="w-10 h-10 text-purple-500 mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
@@ -306,11 +313,14 @@ export default function SubmitDemoPage() {
             </motion.div>
 
             {/* Form */}
-            <div className="bg-black/30 border border-purple-500/10 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
+            <div className="bg-black/30 border border-purple-500/20 rounded-2xl p-8 md:p-12 backdrop-blur-sm
+              hover:border-purple-500/40 transition-all duration-300
+              hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-6">
                   <div>
-                    <label htmlFor="artistName" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="artistName" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <FaUser className="w-4 h-4 text-purple-500" />
                       Your Real Name *
                     </label>
                     <input
@@ -323,12 +333,13 @@ export default function SubmitDemoPage() {
                       placeholder="Your artist/producer name"
                       className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-colors focus:ring-2 focus:ring-purple-500/20"
+                        transition-all duration-300 hover:border-purple-500/50"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <FaEnvelope className="w-4 h-4 text-purple-500" />
                       Email *
                     </label>
                     <input
@@ -341,11 +352,13 @@ export default function SubmitDemoPage() {
                       placeholder="your@email.com"
                       className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-colors focus:ring-2 focus:ring-purple-500/20"
+                        transition-all duration-300 hover:border-purple-500/50"
                     />
                   </div>
+
                   <div>
-                    <label htmlFor="genre" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="genre" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <FaMusic className="w-4 h-4 text-purple-500" />
                       Genre *
                     </label>
                     <select
@@ -356,7 +369,7 @@ export default function SubmitDemoPage() {
                       required
                       className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-colors focus:ring-2 focus:ring-purple-500/20"
+                        transition-all duration-300 hover:border-purple-500/50 appearance-none cursor-pointer"
                     >
                       <option value="">Select genre</option>
                       <option value="Neurofunk">Neurofunk</option>
@@ -368,7 +381,8 @@ export default function SubmitDemoPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                      <FaLink className="w-4 h-4 text-purple-500" />
                       SoundCloud Link Secret or Private Link *
                     </label>
                     <input
@@ -381,7 +395,7 @@ export default function SubmitDemoPage() {
                       placeholder="https://soundcloud.com/your-track"
                       className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
                         text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-colors focus:ring-2 focus:ring-purple-500/20"
+                        transition-all duration-300 hover:border-purple-500/50"
                     />
                   </div>
 
@@ -394,9 +408,12 @@ export default function SubmitDemoPage() {
                         checked={formData.acceptGuidelines}
                         onChange={handleChange}
                         required
-                        className="mt-1.5"
+                        className="mt-1.5 rounded border-purple-500/30 bg-black/50 
+                          text-purple-500 focus:ring-purple-500 focus:ring-offset-0
+                          hover:border-purple-500/50 transition-all duration-300"
                       />
-                      <label htmlFor="acceptGuidelines" className="text-sm text-gray-300">
+                      <label htmlFor="acceptGuidelines" className="text-sm text-gray-300 flex items-center gap-2">
+                        <FaCheck className="w-4 h-4 text-purple-500" />
                         I have read and followed the{' '}
                         <a 
                           href="/guidelines" 
@@ -418,9 +435,12 @@ export default function SubmitDemoPage() {
                         checked={formData.acceptPrivacy}
                         onChange={handleChange}
                         required
-                        className="mt-1.5"
+                        className="mt-1.5 rounded border-purple-500/30 bg-black/50 
+                          text-purple-500 focus:ring-purple-500 focus:ring-offset-0
+                          hover:border-purple-500/50 transition-all duration-300"
                       />
-                      <label htmlFor="acceptPrivacy" className="text-sm text-gray-300">
+                      <label htmlFor="acceptPrivacy" className="text-sm text-gray-300 flex items-center gap-2">
+                        <FaLock className="w-4 h-4 text-purple-500" />
                         I agree to the{' '}
                         <a 
                           href="/privacy-policy" 
@@ -449,23 +469,26 @@ export default function SubmitDemoPage() {
                   />
                 </div>
 
-                <button 
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 
-                    text-white font-medium hover:from-purple-600 hover:to-pink-600 
-                    transition-all disabled:opacity-50 disabled:hover:from-purple-500 
-                    disabled:hover:to-pink-500 flex items-center justify-center gap-2
-                    focus:ring-2 focus:ring-purple-500/20"
-                >
-                  {status === 'loading' ? (
-                    'Submitting...'
-                  ) : (
-                    <>
-                      Submit Demo <FaCloudUploadAlt className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
+                <motion.div whileHover={{ scale: 1.02 }}>
+                  <Button
+                    onClick={(e) => handleSubmit(e)}
+                    disabled={status === 'loading'}
+                    variant="infected"
+                    className="w-full group"
+                  >
+                    {status === 'loading' ? (
+                      <>
+                        <FaSpinner className="w-5 h-5 animate-spin" />
+                        <span>Infecting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaSkull className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" />
+                        <span>Submit Demo</span>
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
               </form>
 
               <AnimatePresence>
@@ -474,12 +497,17 @@ export default function SubmitDemoPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className={`mt-6 p-4 rounded-xl ${
+                    className={`mt-6 p-4 rounded-xl flex items-center gap-2 justify-center ${
                       status === 'error' 
                         ? 'bg-red-500/10 border border-red-500/30 text-red-500' 
                         : 'bg-green-500/10 border border-green-500/30 text-green-500'
                     }`}
                   >
+                    {status === 'error' ? (
+                      <FaTimesCircle className="w-4 h-4" />
+                    ) : (
+                      <FaCheck className="w-4 h-4" />
+                    )}
                     {message}
                   </motion.div>
                 )}

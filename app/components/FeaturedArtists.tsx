@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaArrowRight, FaSoundcloud } from 'react-icons/fa'
+import { FaArrowRight, FaSoundcloud, FaUserMd } from 'react-icons/fa'
+import Button from './Button'
 
 interface Artist {
   id: number
@@ -148,16 +149,26 @@ export default function FeaturedArtists() {
                   </p>
                   
                   {/* SoundCloud Link */}
-                  <a 
-                    href={artist.acf.soundcloud}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative z-20 inline-flex items-center gap-2 text-orange-500 
-                      hover:text-orange-400 transition-colors"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="inline-block"
                   >
-                    <FaSoundcloud className="w-5 h-5" />
-                    <span>Listen on SoundCloud</span>
-                  </a>
+                    <a 
+                      href={artist.acf.soundcloud}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button
+                        variant="toxic"
+                        size="sm"
+                        className="group"
+                      >
+                        <FaSoundcloud className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-300" />
+                        <span>Listen on SoundCloud</span>
+                      </Button>
+                    </a>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
@@ -171,15 +182,21 @@ export default function FeaturedArtists() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <Link
-            href="/artists"
-            className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl 
-              bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium 
-              hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="inline-block"
           >
-            Meet All Artists
-            <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
+            <Button
+              href="/artists"
+              variant="infected"
+              size="lg"
+              className="group"
+            >
+              <FaUserMd className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+              <span>Meet All Artists</span>
+              <FaArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
     </section>
