@@ -100,8 +100,8 @@ export default function CookieConsent() {
                 <FaShieldVirus className="w-5 h-5 text-purple-500" />
               </div>
               <h3 className="text-lg font-semibold text-white">
-                We value your privacy
-              </h3>
+              We value your privacy
+            </h3>
             </div>
             <motion.p 
               initial={{ opacity: 0 }}
@@ -127,7 +127,7 @@ export default function CookieConsent() {
               className="w-full sm:w-auto"
             >
               <Button
-                onClick={() => saveConsent({ analytics: false, marketing: false })}
+              onClick={() => saveConsent({ analytics: false, marketing: false })}
                 variant="decayed"
                 className="w-full sm:w-auto group"
               >
@@ -140,7 +140,7 @@ export default function CookieConsent() {
               className="w-full sm:w-auto"
             >
               <Button
-                onClick={() => saveConsent({ analytics: true, marketing: true })}
+              onClick={() => saveConsent({ analytics: true, marketing: true })}
                 variant="infected"
                 className="w-full sm:w-auto group"
               >

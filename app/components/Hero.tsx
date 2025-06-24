@@ -2,89 +2,11 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
 import Button from './Button'
 
-// Pre-calculated positions for server rendering
-const STATIC_SPORES = Array(40).fill(null).map((_, i) => ({
-  left: `${(i * 2.5) % 100}%`,
-  top: `${(i * 2.5) % 100}%`,
-  background: i % 3 === 0 
-    ? 'rgba(0,255,0,0.2)' 
-    : i % 3 === 1 
-    ? 'rgba(255,0,255,0.2)' 
-    : 'rgba(255,192,203,0.2)'
-}))
-
-const STATIC_TENTACLES = Array(12).fill(null).map((_, i) => ({
-  d: `M ${-10 + (i * 10)} 110 Q 50 50 ${110 + (i * 10)} -10`
-}))
 
 export default function Hero() {
-  const [isMounted, setIsMounted] = useState(false)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  const renderTentacles = () => (
-    <div className="absolute inset-0 overflow-hidden opacity-30">
-      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-        {(isMounted ? Array(12).fill(null) : STATIC_TENTACLES).map((_, i) => (
-          <motion.path
-            key={i}
-            d={isMounted ? undefined : STATIC_TENTACLES[i].d}
-            className="stroke-green-500/20 fill-none"
-            strokeWidth="0.5"
-            animate={isMounted ? {
-              d: [
-                `M ${-10 + (i * 10)} 110 Q ${50 + Math.sin(i) * 40} ${50 + Math.cos(i) * 40} ${110 + Math.sin(i) * 20} ${-10 + (i * 10)}`,
-                `M ${-10 + (i * 10)} 110 Q ${50 - Math.sin(i) * 40} ${50 - Math.cos(i) * 40} ${110 - Math.sin(i) * 20} ${-10 + (i * 10)}`,
-                `M ${-10 + (i * 10)} 110 Q ${50 + Math.sin(i) * 40} ${50 + Math.cos(i) * 40} ${110 + Math.sin(i) * 20} ${-10 + (i * 10)}`
-              ]
-            } : undefined}
-            transition={{ duration: 10 + i, repeat: Infinity, ease: "easeInOut" }}
-          />
-        ))}
-      </svg>
-    </div>
-  )
-
-  const renderSpores = () => (
-    <>
-      {(isMounted ? Array(40).fill(null) : STATIC_SPORES).map((spore, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 rounded-full"
-          style={isMounted ? {
-            background: `rgba(${
-              Math.random() > 0.6 ? '0,255,0' : 
-              Math.random() > 0.3 ? '255,0,255' : 
-              '255,192,203'
-            }, ${Math.random() * 0.3})`,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-          } : {
-            background: STATIC_SPORES[i].background,
-            left: STATIC_SPORES[i].left,
-            top: STATIC_SPORES[i].top,
-          }}
-          animate={isMounted ? {
-            y: [-20, -40, -20],
-            x: [-10, 10, -10],
-            scale: [1, 1.5, 1],
-            opacity: [0.2, 0.5, 0.2],
-          } : undefined}
-          transition={{
-            duration: 3 + (i * 0.1),
-            repeat: Infinity,
-            delay: i * 0.1,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-    </>
-  )
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">

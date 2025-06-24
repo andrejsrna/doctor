@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 import Image from 'next/image'
+import { FaPlay, FaPause, FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa'
+import Button from './Button'
 
 interface Post {
   id: number
@@ -150,24 +151,35 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
     )
   }
 
-  if (error) {
-    return null // Hide section if there's an error
-  }
-
-  if (posts.length === 0) {
-    return null // Hide section if no other posts from artist
+  if (error || posts.length === 0) {
+    return null
   }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-16 pt-16 border-t border-[#00FF00]/20"
+      className="mt-16 pt-16 border-t border-purple-500/20"
     >
-      <h2 className="text-2xl md:text-3xl font-bold mb-8 bg-clip-text text-transparent 
-        bg-gradient-to-r from-[#00FF00] via-[#9900FF] to-[#00FF00]">
-        More from {artistName}
-      </h2>
+      <div className="flex items-center justify-center mb-8">
+        <motion.div
+          animate={{ 
+            rotate: 360,
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ 
+            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }}
+          className="mr-3"
+        >
+          <FaBiohazard className="w-6 h-6 text-purple-500" />
+        </motion.div>
+        <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent 
+          bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
+          More from {artistName}
+        </h2>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {posts.slice(0, visiblePosts).map((post) => (
@@ -190,27 +202,28 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
                 />
                 <div className="flex gap-3">
                   {post.acf?.preview && (
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handlePlay(post.id)
-                      }}
-                      className="flex-1 text-sm text-white bg-purple-500 hover:bg-purple-600 
-                        px-4 py-3 rounded-full transition-colors font-medium uppercase 
-                        tracking-wider flex items-center justify-center gap-2"
-                    >
-                      {playingId === post.id ? (
-                        <>
-                          <span className="w-4 h-4">⏸</span>
-                          Pause
-                        </>
-                      ) : (
-                        <>
-                          <span className="w-4 h-4">▶️</span>
-                          {audioErrors[post.id] ? 'Error' : 'Preview'}
-                        </>
-                      )}
-                    </button>
+                    <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handlePlay(post.id)
+                        }}
+                        variant="toxic"
+                        className="w-full group"
+                      >
+                        {playingId === post.id ? (
+                          <>
+                            <FaPause className="w-4 h-4 mr-2" />
+                            <span>Pause</span>
+                          </>
+                        ) : (
+                          <>
+                            <FaPlay className="w-4 h-4 mr-2" />
+                            <span>{audioErrors[post.id] ? 'Error' : 'Preview'}</span>
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
                   )}
                   {audioErrors[post.id] && (
                     <div className="absolute bottom-20 left-0 right-0 text-center text-red-500 
@@ -218,14 +231,16 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
                       {audioErrors[post.id]}
                     </div>
                   )}
-                  <Link 
-                    href={`/music/${post.slug}`} 
-                    className="flex-1 text-sm text-white bg-purple-500 hover:bg-purple-600 
-                      px-4 py-3 rounded-full transition-colors font-medium uppercase 
-                      tracking-wider text-center"
-                  >
-                    Show More
-                  </Link>
+                  <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
+                    <Button
+                      href={`/music/${post.slug}`}
+                      variant="infected"
+                      className="w-full group"
+                    >
+                      <FaSyringe className="w-4 h-4 mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
+                      <span>Show More</span>
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -235,13 +250,19 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
 
       {posts.length > visiblePosts && (
         <div className="text-center mt-8">
-          <button
-            onClick={handleLoadMore}
-            className="px-8 py-3 rounded-full bg-[#00FF00]/20 border border-[#00FF00]/30
-              text-[#00FF00] hover:bg-[#00FF00]/30 transition-colors"
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="inline-block"
           >
-            Load More
-          </button>
+            <Button
+              onClick={handleLoadMore}
+              variant="decayed"
+              className="group"
+            >
+              <FaSkull className="w-4 h-4 mr-2 animate-pulse" />
+              <span>Load More</span>
+            </Button>
+          </motion.div>
         </div>
       )}
     </motion.div>

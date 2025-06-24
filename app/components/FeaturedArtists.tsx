@@ -153,21 +153,21 @@ export default function FeaturedArtists() {
                     whileHover={{ scale: 1.02 }}
                     className="inline-block"
                   >
-                    <a 
-                      href={artist.acf.soundcloud}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  <a 
+                    href={artist.acf.soundcloud}
+                    target="_blank"
+                    rel="noopener noreferrer"
                       className="block"
                     >
                       <Button
                         variant="toxic"
                         size="sm"
                         className="group"
-                      >
+                  >
                         <FaSoundcloud className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-300" />
-                        <span>Listen on SoundCloud</span>
+                    <span>Listen on SoundCloud</span>
                       </Button>
-                    </a>
+                  </a>
                   </motion.div>
                 </div>
               </div>

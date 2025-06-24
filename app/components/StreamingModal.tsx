@@ -195,7 +195,7 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
                       pb-1"
                     >
                       Choose Your Infection Vector
-                    </h2>
+                  </h2>
                     <p className="text-gray-400 flex items-center justify-center gap-2">
                       <FaSyringe className="w-4 h-4 text-purple-500 rotate-45" />
                       <span>Select your preferred method of contamination</span>
@@ -214,9 +214,9 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
                       transition={{ delay: index * 0.1 }}
                     >
                       <a
-                        href={service.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      href={service.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                         className="block"
                       >
                         <Button
@@ -250,10 +250,10 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
                                 <span>Spread through</span>
                               </span>
                               <span className="text-xl font-bold">
-                                {service.name}
+                          {service.name}
                               </span>
                               <span className="text-sm opacity-50 mt-1 text-left">
-                                {service.description}
+                          {service.description}
                               </span>
                             </div>
 
@@ -261,7 +261,7 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
                             <FaSyringe className="w-5 h-5 transform rotate-45 
                               group-hover:translate-x-1 group-hover:-translate-y-1 
                               transition-transform duration-300" />
-                          </div>
+                      </div>
                         </Button>
                       </a>
                     </motion.div>

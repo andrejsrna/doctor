@@ -472,21 +472,21 @@ export default function SubmitDemoPage() {
                 <motion.div whileHover={{ scale: 1.02 }}>
                   <Button
                     onClick={(e) => handleSubmit(e)}
-                    disabled={status === 'loading'}
+                  disabled={status === 'loading'}
                     variant="infected"
                     className="w-full group"
-                  >
-                    {status === 'loading' ? (
+                >
+                  {status === 'loading' ? (
                       <>
                         <FaSpinner className="w-5 h-5 animate-spin" />
                         <span>Infecting...</span>
                       </>
-                    ) : (
-                      <>
+                  ) : (
+                    <>
                         <FaSkull className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" />
                         <span>Submit Demo</span>
-                      </>
-                    )}
+                    </>
+                  )}
                   </Button>
                 </motion.div>
               </form>

@@ -1,47 +1,90 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { FaPercent } from 'react-icons/fa'
+import { FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa'
+import Button from './Button'
 
 export default function BulkSalePromo() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl overflow-hidden border border-purple-500/30
-                 hover:border-purple-500/50 transition-all group
-                 hover:shadow-xl hover:shadow-purple-500/10"
+      className="relative"
     >
-      <Link href="/bulk-sale"
-            className="flex items-center justify-between p-6
-                       bg-gradient-to-r from-purple-600/80 to-pink-600/80
-                       hover:from-purple-600/90 hover:to-pink-600/90
-                       transition-all duration-300"
-      >
-        <div className="flex items-center gap-4">
-          <div className="bg-purple-500/30 rounded-lg p-3 flex-shrink-0">
-            <FaPercent className="w-6 h-6 text-purple-300" />
-          </div>
-          <div className="flex flex-col">
-            <h3 className="text-lg font-semibold text-purple-200">
-              Bulk Sale Available
-            </h3>
-            <p className="text-sm text-gray-300">
-              Save 35% on multiple track purchases!
-            </p>
-          </div>
+      {/* Animated Background Effects */}
+      <div className="absolute inset-0">
+        {/* Pulsing gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black to-pink-900/30 animate-pulse rounded-xl" />
+        
+        {/* Animated grid lines */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(168,85,247,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(168,85,247,0.1)_1px,transparent_1px)] bg-[size:24px_24px] rounded-xl" />
+        
+        {/* Moving infection spots */}
+        <div className="absolute inset-0">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-32 h-32 rounded-full bg-purple-500/5 blur-xl"
+              initial={{
+                x: Math.random() * 100 - 50,
+                y: Math.random() * 100 - 50,
+              }}
+              animate={{
+                x: Math.random() * 100 - 50,
+                y: Math.random() * 100 - 50,
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: Math.random() * 5 + 5,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
         </div>
-        <motion.div
-          className="text-purple-300 group-hover:text-purple-200 transition-colors"
-          whileHover={{ x: 5 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </motion.div>
-      </Link>
+
+        {/* Animated border glow */}
+        <div className="absolute inset-0 rounded-xl border border-purple-500/20 shadow-[inset_0_0_30px_rgba(168,85,247,0.2)]" />
+      </div>
+
+      {/* Content */}
+      <Button
+        variant="infected"
+        className="w-full group relative overflow-hidden"
+        href="/bulk-sale"
+      >
+        <div className="flex items-center gap-4 p-4">
+          {/* Icon Container */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-purple-500/20 blur-xl 
+              group-hover:bg-purple-500/40 transition-all duration-500" />
+            <div className="relative z-10 bg-purple-500/30 rounded-lg p-3 flex items-center justify-center">
+              <FaBiohazard className="w-6 h-6 text-purple-300 group-hover:rotate-180 transition-transform duration-700" />
+            </div>
+          </div>
+          
+          {/* Text Content */}
+          <div className="flex flex-col items-start flex-1">
+            <span className="text-sm opacity-70 group-hover:opacity-90 transition-opacity
+              flex items-center gap-2"
+            >
+              <FaSkull className="w-3 h-3" />
+              <span>Special Infection Package</span>
+            </span>
+            <span className="text-xl font-bold">
+              Bulk Sale Available
+            </span>
+            <span className="text-sm opacity-50 mt-1">
+              35% discount on multiple track purchases
+            </span>
+          </div>
+
+          {/* Arrow indicator */}
+          <FaSyringe className="w-5 h-5 transform rotate-45 
+            group-hover:translate-x-1 group-hover:-translate-y-1 
+            transition-transform duration-300" />
+        </div>
+      </Button>
     </motion.div>
   )
 }

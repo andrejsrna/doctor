@@ -188,23 +188,23 @@ export default function LatestMusic() {
                     >
                       <Button 
                         variant="toxic"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          handlePlay(post.id)
-                        }}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handlePlay(post.id)
+                      }}
                         className="w-full"
-                      >
-                        {playingId === post.id ? (
-                          <>
+                    >
+                      {playingId === post.id ? (
+                        <>
                             <FaPause className="w-4 h-4" />
                             <span>Pause</span>
-                          </>
-                        ) : (
-                          <>
+                        </>
+                      ) : (
+                        <>
                             <FaPlay className="w-4 h-4" />
                             <span>{audioErrors[post.id] ? 'Error' : 'Preview'}</span>
-                          </>
-                        )}
+                        </>
+                      )}
                       </Button>
                     </motion.div>
                   )}
@@ -218,7 +218,7 @@ export default function LatestMusic() {
                     className="flex-1"
                   >
                     <Button 
-                      href={`/music/${post.slug}`}
+                    href={`/music/${post.slug}`} 
                       variant="infected"
                       className="w-full"
                     >
@@ -233,11 +233,11 @@ export default function LatestMusic() {
         </div>
       </div>
       <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="space-x-4 flex justify-center mt-10"
-      >
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="space-x-4 flex justify-center mt-10"
+          >
         <motion.div
           whileHover={{ 
             scale: 1.05,
@@ -253,14 +253,14 @@ export default function LatestMusic() {
             <span>Show More</span>
             <motion.div
               className="inline-block ml-2"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
               <FaArrowRight className="w-4 h-4 transform group-hover:rotate-90 transition-transform duration-300" />
             </motion.div>
           </Button>
         </motion.div>
-      </motion.div>
+          </motion.div>
     </section>
   )
 } 

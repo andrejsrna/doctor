@@ -20,7 +20,7 @@ const ListenNowButton = ({ setIsModalOpen }: {
       className="group"
     >
       <motion.span
-        animate={{ 
+        animate={{
           rotate: [0, -15, 15, -15, 0],
           scale: [1, 1.2, 1, 1.2, 1]
         }}
@@ -28,12 +28,12 @@ const ListenNowButton = ({ setIsModalOpen }: {
           duration: 2,
           repeat: Infinity,
           repeatDelay: 1
-        }}
+          }}
         className="mr-2"
-      >
-        🎧
-      </motion.span>
-      Listen Now
+        >
+          🎧
+        </motion.span>
+        Listen Now
     </Button>
   )
 }

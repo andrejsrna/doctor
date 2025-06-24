@@ -68,24 +68,24 @@ export default function SubscribeCTA() {
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                disabled={status === 'loading'}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              disabled={status === 'loading'}
                 className="w-full px-6 py-3 rounded-full bg-black/50 border border-purple-500/30 
-                  text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
+                text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
                   transition-all duration-300 disabled:opacity-50 hover:border-purple-500/50
                   focus:ring-2 focus:ring-purple-500/20"
-                required
-              />
+              required
+            />
             </motion.div>
             
             <motion.div whileHover={{ scale: 1.02 }}>
               <Button
-                type="submit"
-                disabled={status === 'loading'}
+              type="submit"
+              disabled={status === 'loading'}
                 variant="infected"
                 className="w-full sm:w-auto group"
               >

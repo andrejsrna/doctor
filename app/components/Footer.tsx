@@ -161,7 +161,7 @@ export default function Footer() {
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                     {link.text}
-                  </Link>
+              </Link>
                 </motion.div>
               ))}
             </motion.div>
@@ -194,23 +194,23 @@ export default function Footer() {
             >
               <div className="flex flex-col sm:flex-row gap-2">
                 <motion.div className="flex-1" whileHover={{ scale: 1.02 }}>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    disabled={status === 'loading'}
-                    required
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  disabled={status === 'loading'}
+                  required
                     className="w-full bg-black/50 border border-green-500/30 rounded-full px-4 py-2 
-                      text-white placeholder-gray-500 focus:outline-none focus:border-green-500 
+                    text-white placeholder-gray-500 focus:outline-none focus:border-green-500 
                       transition-all duration-300 disabled:opacity-50 hover:border-green-500/50
                       focus:ring-2 focus:ring-green-500/20"
-                  />
+                />
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }}>
                   <Button
-                    type="submit"
-                    disabled={status === 'loading' || !acceptedPrivacy}
+                  type="submit"
+                  disabled={status === 'loading' || !acceptedPrivacy}
                     variant="toxic"
                     className="w-full sm:w-auto group"
                   >
