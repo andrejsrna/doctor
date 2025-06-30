@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import StreamingModal from './StreamingModal'
 import { IoSearchOutline } from 'react-icons/io5'
+import { FaChevronDown } from 'react-icons/fa'
 import SearchModal from './SearchModal'
 import Button from './Button'
 
@@ -78,12 +79,17 @@ export default function Navigation() {
   }, [])
 
   const menuItems = [
-    { title: 'Music', href: '/music' },
     { title: 'Artists', href: '/artists' },
     { title: 'News', href: '/news' },
     { title: 'About', href: '/about' },
     { title: 'Newsletter', href: '/newsletter' },
     { title: 'Submit demo', href: '/submit-demo' },
+  ]
+
+  const musicSubmenuItems = [
+    { title: 'All Releases', href: '/music' },
+    { title: 'Music Packs', href: '/music-packs' },
+    { title: 'Sample Packs', href: '/sample-packs' },
   ]
 
   // Initial render with static values to prevent hydration mismatch
@@ -109,6 +115,27 @@ export default function Navigation() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-end h-16 md:h-20">
               <div className="hidden md:flex items-center space-x-8">
+                {/* Music Dropdown */}
+                <div className="relative group">
+                  <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
+                    Music
+                    <FaChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                  </button>
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                    <div className="py-2">
+                      {musicSubmenuItems.map((item) => (
+                        <Link
+                          key={item.title}
+                          href={item.href}
+                          className="block px-4 py-2 text-gray-300 hover:text-green-500 hover:bg-green-500/10 transition-colors text-sm"
+                        >
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
                 {menuItems.map((item) => (
                   <Link
                     key={item.title}
@@ -164,6 +191,27 @@ export default function Navigation() {
           <div className="flex items-center justify-end h-16 md:h-20">
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
+              {/* Music Dropdown */}
+              <div className="relative group">
+                <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
+                  Music
+                  <FaChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  <div className="py-2">
+                    {musicSubmenuItems.map((item) => (
+                      <Link
+                        key={item.title}
+                        href={item.href}
+                        className="block px-4 py-2 text-gray-300 hover:text-green-500 hover:bg-green-500/10 transition-colors text-sm"
+                      >
+                        {item.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
               {menuItems.map((item) => (
                 <Link
                   key={item.title}
@@ -219,6 +267,21 @@ export default function Navigation() {
           transition={{ duration: 0.2 }}
         >
           <div className="px-2 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-lg border-t border-green-500/20">
+            {/* Music section in mobile menu */}
+            <div className="px-3 py-2">
+              <div className="text-gray-400 text-xs uppercase tracking-wide mb-2">Music</div>
+              {musicSubmenuItems.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="text-gray-300 hover:text-green-500 block px-3 py-2 text-base font-medium transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+            
             {menuItems.map((item) => (
               <Link
                 key={item.title}

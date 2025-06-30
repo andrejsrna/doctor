@@ -357,6 +357,36 @@ export default function ReleasePage({ params }: PageProps) {
                     </motion.div>
                   ))}
               </div>
+
+              {/* Gumroad Button */}
+              {release.acf?.gumroad && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="mt-8 flex justify-center"
+                >
+                  <a
+                    href={release.acf.gumroad}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full max-w-md"
+                  >
+                    <Button
+                      variant="toxic"
+                      size="lg"
+                      className="w-full group text-2xl py-6 px-12 flex items-center justify-center"
+                    >
+                      <svg className="w-7 h-7 mr-3" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="8" fill="#fff"/>
+                        <path d="M23.5 10.5c-1.1 0-2 .9-2 2v7c0 1.1-.9 2-2 2h-7c-1.1 0-2-.9-2-2v-7c0-1.1.9-2 2-2h7c1.1 0 2 .9 2 2v7c0 1.1-.9 2-2 2h-7" stroke="#00B6B9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M13 19c0 1.1.9 2 2 2s2-.9 2-2" stroke="#00B6B9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>Get Sample Pack on Gumroad</span>
+                    </Button>
+                  </a>
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Nurgle-themed Divider */}
