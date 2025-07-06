@@ -4,6 +4,7 @@ import LatestMusic from './components/LatestMusic'
 import WhatIsNeurofunk from './components/WhatIsNeurofunk'
 import BookUsSection from './components/BookUsSection'
 import FeaturedArtists from './components/FeaturedArtists'
+import SpotifyPlaylists from './components/SpotifyPlaylists'
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Hero />
       <FeaturedTrack />
       <LatestMusic />
+      <SpotifyPlaylists />
       <WhatIsNeurofunk />
       <FeaturedArtists />
       <BookUsSection />
