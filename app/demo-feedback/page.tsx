@@ -29,7 +29,6 @@ function DemoFeedbackContent() {
   const [feedback, setFeedback] = useState('')
   const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
     const fetchTrackInfo = async () => {
@@ -160,8 +159,6 @@ function DemoFeedbackContent() {
                 <div className="mt-6">
                   <AudioPreview 
                     url={trackInfo.url}
-                    isPlaying={isPlaying}
-                    onPlayPause={() => setIsPlaying(!isPlaying)}
                   />
                 </div>
 

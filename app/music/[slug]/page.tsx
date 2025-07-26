@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use } from 'react'
 import {
   FaAmazon,
   FaApple,
@@ -33,7 +33,6 @@ export default function ReleasePage({ params }: PageProps) {
   const { slug } = use(params)
   const { data: release, isLoading } = useSingleRelease(slug)
   const { data: previewUrl } = useReleasePreview(release?.acf?.preview || null)
-  const [isPlaying, setIsPlaying] = useState(false)
 
   if (isLoading) {
     return <div className="animate-pulse text-purple-500">Loading...</div>
@@ -140,8 +139,6 @@ export default function ReleasePage({ params }: PageProps) {
         title={release.title.rendered}
         imageUrl={getImageUrl()}
         previewUrl={previewUrl}
-        isPlaying={isPlaying}
-        onPlayPause={() => setIsPlaying(!isPlaying)}
       />
 
       <div className="relative z-10 bg-black/80 backdrop-blur-sm">

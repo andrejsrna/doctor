@@ -51,7 +51,6 @@ interface FeaturedPost {
 export default function FeaturedTrack() {
   const [post, setPost] = useState<FeaturedPost | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isPlaying, setIsPlaying] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
 
   useEffect(() => {
@@ -267,8 +266,6 @@ export default function FeaturedTrack() {
               >
                 <AudioPreview 
                   url={previewUrl}
-                  isPlaying={isPlaying}
-                  onPlayPause={() => setIsPlaying(!isPlaying)}
                 />
               </motion.div>
               )}

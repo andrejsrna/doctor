@@ -8,11 +8,9 @@ interface ReleaseHeroProps {
   title: string
   imageUrl: string | undefined
   previewUrl: string | null
-  isPlaying: boolean
-  onPlayPause: () => void
 }
 
-const ReleaseHero = ({ title, imageUrl, previewUrl, isPlaying, onPlayPause }: ReleaseHeroProps) => (
+const ReleaseHero = ({ title, imageUrl, previewUrl }: ReleaseHeroProps) => (
   <div className="relative">
     <div className="fixed inset-0 z-0">
       {imageUrl && (
@@ -51,8 +49,6 @@ const ReleaseHero = ({ title, imageUrl, previewUrl, isPlaying, onPlayPause }: Re
           >
             <AudioPreview
               url={previewUrl}
-              isPlaying={isPlaying}
-              onPlayPause={onPlayPause}
             />
           </motion.div>
         )}
