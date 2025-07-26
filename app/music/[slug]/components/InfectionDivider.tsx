@@ -5,7 +5,7 @@ import { FaBiohazard } from 'react-icons/fa'
 import SafeIcon from '@/app/components/SafeIcon'
 
 const InfectionDivider = () => (
-  <div className="relative py-16">
+  <div className="relative py-2">
     <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent">
       <div className="absolute left-1/4 top-0 w-px h-8 bg-gradient-to-b from-purple-500/50 to-transparent"></div>
       <div className="absolute left-2/4 top-0 w-px h-12 bg-gradient-to-b from-purple-500/50 to-transparent"></div>

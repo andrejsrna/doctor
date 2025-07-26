@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { FaBrain, FaWaveSquare } from 'react-icons/fa'
 
 interface ReleaseDescriptionProps {
   content: string
@@ -10,31 +11,26 @@ const ReleaseDescription = ({ content }: ReleaseDescriptionProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.1 }}
+    className="relative bg-black/50 border border-purple-500/20 rounded-xl p-8 shadow-2xl shadow-purple-500/10 overflow-hidden"
   >
-    <div className="relative group">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-700/50 via-purple-900/50 to-green-700/50 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-      
-      <div className="relative bg-black/30 backdrop-blur-sm rounded-lg p-6 md:p-8 shadow-lg
-        before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_50%_50%,rgba(68,175,105,0.1),transparent_50%)] before:rounded-lg
-        after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_80%_20%,rgba(128,0,128,0.1),transparent_50%)] after:rounded-lg">
-        
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent">
-          <div className="absolute top-0 left-1/4 w-px h-8 bg-gradient-to-b from-green-500/50 to-transparent"></div>
-          <div className="absolute top-0 left-2/4 w-px h-12 bg-gradient-to-b from-green-500/50 to-transparent"></div>
-          <div className="absolute top-0 left-3/4 w-px h-6 bg-gradient-to-b from-green-500/50 to-transparent"></div>
-        </div>
-        
-        <div className="prose prose-invert prose-lg max-w-none
-          prose-p:text-gray-300 prose-p:relative prose-p:z-10
-          first-letter:text-5xl first-letter:font-bold first-letter:text-green-400
-          first-letter:mr-3 first-letter:float-left
-          prose-headings:text-green-400 prose-headings:font-nurgle
-          prose-a:text-purple-400 prose-a:hover:text-green-400
-          prose-strong:text-green-300
-          prose-blockquote:border-green-700 prose-blockquote:bg-green-900/10
-          prose-code:text-green-300"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(168,85,247,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(168,85,247,0.05)_1px,transparent_1px)] bg-[size:24px_24px] animate-pulse" />
+    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-900/10 via-transparent to-black" />
+
+    <div className="relative z-10">
+      <div className="flex items-center gap-4 mb-6">
+        <FaBrain className="text-3xl text-purple-400" />
+        <h2 className="text-3xl font-bold text-white">Track Story</h2>
+      </div>
+      <div
+        className="prose prose-invert prose-lg text-gray-300 max-w-none 
+          prose-p:my-4 prose-p:leading-relaxed 
+          prose-headings:text-purple-400 prose-strong:text-white"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
+      <div className="mt-8 flex items-center justify-end text-purple-400/50">
+        <FaWaveSquare className="mr-2" />
+        <span className="text-sm font-mono">Signal Acquired</span>
       </div>
     </div>
   </motion.div>

@@ -2,59 +2,86 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import AudioPreview from '@/app/components/AudioPreview'
+import { FaYoutube } from 'react-icons/fa'
+import Button from '@/app/components/Button'
 
 interface ReleaseHeroProps {
   title: string
   imageUrl: string | undefined
-  previewUrl: string | null
+  beatportUrl: string | undefined
+  youtubeUrl: string | undefined
+  description: string
 }
 
-const ReleaseHero = ({ title, imageUrl, previewUrl }: ReleaseHeroProps) => (
-  <div className="relative">
-    <div className="fixed inset-0 z-0">
+export default function ReleaseHero({
+  title,
+  imageUrl,
+  beatportUrl,
+  youtubeUrl,
+  description,
+}: ReleaseHeroProps) {
+  return (
+    <div className="relative flex items-center justify-center text-center px-4 pt-48 pb-24">
       {imageUrl && (
         <Image
           src={imageUrl}
           alt={title}
           fill
-          className="object-cover"
+          className="object-cover object-center z-0"
           priority
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
-    </div>
-    <div className="relative z-10 min-h-[60vh] flex items-center justify-center px-4 py-32">
-      <div className="max-w-4xl mx-auto text-center">
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
+      <div className="absolute inset-0 bg-black/50 z-10" />
+
+      <div className="relative z-20 space-y-6 max-w-3xl">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          whileHover={{
-            scale: 1.01,
-            skewX: 0.5,
-            skewY: -0.5
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent
-            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 mb-8
-            drop-shadow-[0_0_15px_rgba(168,85,247,0.5)] cursor-pointer"
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          className="text-4xl md:text-7xl font-extrabold text-white
+            drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]"
           dangerouslySetInnerHTML={{ __html: title }}
         />
 
-        {previewUrl && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <AudioPreview
-              url={previewUrl}
-            />
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
+          className="prose prose-invert prose-lg text-gray-300 mx-auto"
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+        >
+          {youtubeUrl && (
+            <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="infected" size="lg" className="group">
+                <FaYoutube className="w-6 h-6 mr-3" />
+                Listen on YouTube
+              </Button>
+            </a>
+          )}
+          {beatportUrl && (
+            <a href={beatportUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="toxic" size="lg" className="group">
+                <Image
+                  src="/beatport.svg"
+                  alt="Beatport"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6 mr-3"
+                />
+                Buy on Beatport
+              </Button>
+            </a>
+          )}
+        </motion.div>
       </div>
     </div>
-  </div>
-)
-
-export default ReleaseHero 
+  )
+} 

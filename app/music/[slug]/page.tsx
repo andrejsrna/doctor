@@ -12,18 +12,16 @@ import {
   FaYoutube,
 } from 'react-icons/fa'
 import { motion } from 'framer-motion'
-import { useReleasePreview, useSingleRelease } from '@/app/hooks/useWordPress'
+import { useSingleRelease } from '@/app/hooks/useWordPress'
 import { StreamingLink } from '@/app/types/release'
 import SocialShare from '@/app/components/SocialShare'
 import BulkSalePromo from '@/app/components/BulkSalePromo'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import RelatedNews from '@/app/components/RelatedNews'
-import SubscribeCTA from '@/app/components/SubscribeCTA'
 import ReleaseHero from './components/ReleaseHero'
-import ReleaseDescription from './components/ReleaseDescription'
 import StreamingLinks from './components/StreamingLinks'
 import InfectionDivider from './components/InfectionDivider'
-
+  import EngagementCTA from '@/app/components/EngagementCTA'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -32,14 +30,21 @@ interface PageProps {
 export default function ReleasePage({ params }: PageProps) {
   const { slug } = use(params)
   const { data: release, isLoading } = useSingleRelease(slug)
-  const { data: previewUrl } = useReleasePreview(release?.acf?.preview || null)
 
   if (isLoading) {
-    return <div className="animate-pulse text-purple-500">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black text-purple-500">
+        Loading...
+      </div>
+    )
   }
 
   if (!release) {
-    return <div className="text-red-500">Release not found</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black text-red-500">
+        Release not found
+      </div>
+    )
   }
 
   const getImageUrl = () => {
@@ -54,7 +59,7 @@ export default function ReleasePage({ params }: PageProps) {
       icon: FaSpotify,
       color: 'text-green-400',
       bgColor: 'bg-green-500/10 hover:bg-green-500/20',
-      priority: 3
+      priority: 3,
     },
     {
       name: 'Beatport',
@@ -62,7 +67,7 @@ export default function ReleasePage({ params }: PageProps) {
       icon: '/beatport.svg',
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20',
-      priority: 3
+      priority: 3,
     },
     {
       name: 'Apple Music',
@@ -70,21 +75,21 @@ export default function ReleasePage({ params }: PageProps) {
       icon: FaApple,
       color: 'text-pink-400',
       bgColor: 'bg-pink-500/10 hover:bg-pink-500/20',
-      priority: 2
+      priority: 2,
     },
     {
       name: 'Deezer',
       url: release?.acf?.deezer,
       icon: FaDeezer,
       color: 'text-pink-400',
-      bgColor: 'bg-pink-500/10 hover:bg-pink-500/20'
+      bgColor: 'bg-pink-500/10 hover:bg-pink-500/20',
     },
     {
       name: 'SoundCloud',
       url: release?.acf?.soundcloud,
       icon: FaSoundcloud,
       color: 'text-orange-400',
-      bgColor: 'bg-orange-500/10 hover:bg-orange-500/20'
+      bgColor: 'bg-orange-500/10 hover:bg-orange-500/20',
     },
     {
       name: 'YouTube Music',
@@ -92,7 +97,7 @@ export default function ReleasePage({ params }: PageProps) {
       icon: FaYoutube,
       color: 'text-red-400',
       bgColor: 'bg-red-500/10 hover:bg-red-500/20',
-      priority: 3
+      priority: 3,
     },
     {
       name: 'JunoDownload',
@@ -100,21 +105,21 @@ export default function ReleasePage({ params }: PageProps) {
       icon: FaDownload,
       color: 'text-blue-400',
       bgColor: 'bg-blue-500/10 hover:bg-blue-500/20',
-      priority: 1
+      priority: 1,
     },
     {
       name: 'Tidal',
       url: release?.acf?.tidal,
       icon: '/tidal.svg',
       color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20'
+      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20',
     },
     {
       name: 'Amazon Music',
       url: release?.acf?.amazon,
       icon: FaAmazon,
       color: 'text-yellow-400',
-      bgColor: 'bg-yellow-500/10 hover:bg-yellow-500/20'
+      bgColor: 'bg-yellow-500/10 hover:bg-yellow-500/20',
     },
     {
       name: 'Bandcamp',
@@ -122,15 +127,15 @@ export default function ReleasePage({ params }: PageProps) {
       icon: FaBandcamp,
       color: 'text-pink-400',
       bgColor: 'bg-pink-500/10 hover:bg-pink-500/20',
-      priority: 3
+      priority: 3,
     },
     {
       name: 'iTunes',
       url: release?.acf?.itunes,
       icon: FaApple,
       color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20'
-    }
+      bgColor: 'bg-blue-500/10 hover:bg-blue-500/20',
+    },
   ]
 
   return (
@@ -138,21 +143,21 @@ export default function ReleasePage({ params }: PageProps) {
       <ReleaseHero
         title={release.title.rendered}
         imageUrl={getImageUrl()}
-        previewUrl={previewUrl}
+        beatportUrl={release.acf?.beatport}
+        youtubeUrl={release.acf?.youtube_music}
+        description={release.content.rendered}
       />
 
-      <div className="relative z-10 bg-black/80 backdrop-blur-sm">
+      <div className="relative z-10 bg-black/80 backdrop-blur-sm -mt-24">
         <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-          {release.content.rendered && (
-            <ReleaseDescription content={release.content.rendered} />
-          )}
-
           <StreamingLinks
             links={streamingLinks}
             gumroadUrl={release.acf?.gumroad}
           />
-          
+
           <InfectionDivider />
+
+          <EngagementCTA />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -182,8 +187,6 @@ export default function ReleasePage({ params }: PageProps) {
             currentPostId={release.id}
             relatedBy={release.title.rendered}
           />
-
-          <SubscribeCTA />
         </div>
       </div>
     </section>
