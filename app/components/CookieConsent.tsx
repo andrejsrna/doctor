@@ -44,9 +44,14 @@ export default function CookieConsent() {
           ReactPixel.default.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID as string, undefined, options)
           ReactPixel.default.grantConsent()
           ReactPixel.default.pageView()
-                           } catch {
-           // Silently handle Facebook Pixel errors
+          
+          // Set proper domain for Facebook cookies
+          if (typeof document !== 'undefined') {
+            document.domain = document.domain.split('.').slice(-2).join('.')
           }
+        } catch {
+          // Silently handle Facebook Pixel errors
+        }
       }).catch(() => {
         // Silently handle import errors
       })

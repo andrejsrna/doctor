@@ -91,7 +91,7 @@ export default function RootLayout({
                 const originalError = console.error;
                 const originalWarn = console.warn;
                 
-                const shouldSuppress = (message) => {
+                const shouldSuppressError = (message) => {
                   return message.includes('cloudflareinsights.com') ||
                          message.includes('beacon.min.js') ||
                          (message.includes('integrity') && message.includes('cloudflare')) ||
@@ -99,7 +99,20 @@ export default function RootLayout({
                          message.includes('fbevents.js') ||
                          message.includes('connect.facebook.net') ||
                          message.includes('Unexpected value undefined parsing r attribute') ||
-                         message.includes('AudioContext was prevented from starting automatically');
+                         message.includes('AudioContext was prevented from starting automatically') ||
+                         message.includes('Content-Security-Policy') ||
+                         message.includes('Cookie "_fbp" has been rejected') ||
+                         message.includes('NetworkError when attempting to fetch resource') ||
+                         message.includes('admin.dnbdoctor.com') ||
+                         message.includes('was not used within a few seconds') ||
+                         message.includes('preloaded with link preload');
+                };
+                
+                const shouldSuppressWarn = (message) => {
+                  return message.includes('Feature Policy') ||
+                         message.includes('clipboard-write') ||
+                         message.includes('Layout was forced before the page was fully loaded') ||
+                         message.includes('Skipping unsupported feature name');
                 };
                 
                 console.error = function() {
@@ -109,18 +122,14 @@ export default function RootLayout({
                   }
                   
                   const message = Array.from(arguments).join(' ');
-                  if (!shouldSuppress(message)) {
+                  if (!shouldSuppressError(message)) {
                     originalError.apply(console, arguments);
                   }
                 };
                 
                 console.warn = function() {
                   const message = Array.from(arguments).join(' ');
-                  if (
-                    !message.includes('Feature Policy') &&
-                    !message.includes('clipboard-write') &&
-                    !message.includes('Layout was forced before the page was fully loaded')
-                  ) {
+                  if (!shouldSuppressWarn(message)) {
                     originalWarn.apply(console, arguments);
                   }
                 };
