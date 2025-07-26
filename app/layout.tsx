@@ -105,7 +105,10 @@ export default function RootLayout({
                          message.includes('NetworkError when attempting to fetch resource') ||
                          message.includes('admin.dnbdoctor.com') ||
                          message.includes('was not used within a few seconds') ||
-                         message.includes('preloaded with link preload');
+                         message.includes('preloaded with link preload') ||
+                         message.includes('WaveSurfer') ||
+                         message.includes('seek failed') ||
+                         message.includes('volume setting failed');
                 };
                 
                 const shouldSuppressWarn = (message) => {

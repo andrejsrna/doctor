@@ -40,6 +40,9 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
 
     let isMounted = true
     
+    // Firefox-specific checks
+    const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('firefox')
+    
     try {
       wavesurfer.current = WaveSurfer.create({
         container: waveformRef.current,
@@ -49,16 +52,27 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
         barWidth: 2,
         barGap: 3,
         height: 60,
-        barRadius: 3,
+        barRadius: isFirefox ? 0 : 3, // Firefox has issues with barRadius
         normalize: true,
-        backend: 'MediaElement'
+        backend: 'MediaElement',
+        // Firefox-specific optimizations
+        ...(isFirefox && {
+          interact: false, // Disable interactions that can cause crashes
+          hideScrollbar: true,
+          fillParent: false
+        })
       })
 
       wavesurfer.current.on('ready', () => {
         if (isMounted) {
           setIsReady(true)
           setError(null)
-          wavesurfer.current?.setVolume(volume)
+          // Safer volume setting for Firefox
+          try {
+            wavesurfer.current?.setVolume(volume)
+          } catch (volumeError) {
+            console.warn('Volume setting failed:', volumeError)
+          }
         }
       })
 
@@ -73,11 +87,29 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
       // Add finish event to prevent memory leaks
       wavesurfer.current.on('finish', () => {
         if (isMounted && wavesurfer.current) {
-          wavesurfer.current.seekTo(0)
+          try {
+            wavesurfer.current.seekTo(0)
+          } catch (seekError) {
+            console.warn('Seek failed:', seekError)
+          }
         }
       })
 
-      wavesurfer.current.load(audioUrl)
+      // Firefox-specific loading with retry
+      if (isFirefox) {
+        setTimeout(() => {
+          if (isMounted && wavesurfer.current) {
+            try {
+              wavesurfer.current.load(audioUrl)
+            } catch (loadError) {
+              console.warn('Firefox load retry failed:', loadError)
+              setError('Audio loading failed in Firefox')
+            }
+          }
+        }, 100)
+      } else {
+        wavesurfer.current.load(audioUrl)
+      }
 
       return () => {
         isMounted = false
