@@ -5,20 +5,47 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
         '/',
-        '/offline.html',
-        '/static/fonts/Rajdhani-Regular.woff2',
-        '/static/images/logo.png',
-      ])
+        '/offline.html'
+      ]).catch(() => {
+        // Silently fail if resources can't be cached
+      })
+    })
+  )
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
     })
   )
 })
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return
+  
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).catch(() => {
-        return caches.match('/offline.html')
+    fetch(event.request)
+      .then((response) => {
+        if (response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache)
+          })
+        }
+        return response
       })
-    })
+      .catch(() => {
+        return caches.match(event.request).then((response) => {
+          return response || caches.match('/offline.html')
+        })
+      })
   )
 }) 

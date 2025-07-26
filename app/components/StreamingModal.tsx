@@ -84,12 +84,12 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
                 <motion.div
                   key={i}
                   initial={{ 
-                    x: Math.random() * window.innerWidth,
+                    x: typeof window !== 'undefined' ? Math.random() * window.innerWidth : Math.random() * 800,
                     y: -20,
                     opacity: 0
                   }}
                   animate={{ 
-                    y: window.innerHeight + 20,
+                    y: typeof window !== 'undefined' ? window.innerHeight + 20 : 600,
                     opacity: [0, 1, 1, 0],
                     rotate: 360
                   }}

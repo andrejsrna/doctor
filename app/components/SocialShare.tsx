@@ -36,10 +36,36 @@ const shareButtons: ShareButton[] = [
 export default function SocialShare({ url, title }: { url: string; title: string }) {
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(url)
-      alert('Link copied!')
+      // Check if clipboard API is available and secure context
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+        alert('Link copied!')
+      } else {
+        // Fallback for Firefox or non-HTTPS contexts
+        const textArea = document.createElement('textarea')
+        textArea.value = url
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-999999px'
+        textArea.style.top = '-999999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        
+        try {
+          document.execCommand('copy')
+          alert('Link copied!')
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr)
+          // Show the URL for manual copying
+          prompt('Copy this link:', url)
+        } finally {
+          document.body.removeChild(textArea)
+        }
+      }
     } catch (err) {
       console.error('Failed to copy:', err)
+      // Final fallback - show URL in prompt
+      prompt('Copy this link:', url)
     }
   }
 

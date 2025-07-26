@@ -36,13 +36,19 @@ export default function CookieConsent() {
     if (settings.marketing) {
       // Lazy load Facebook Pixel
       import('react-facebook-pixel').then((ReactPixel) => {
-        const options = {
-          autoConfig: true,
-          debug: process.env.NODE_ENV !== 'production',
-        }
-        ReactPixel.default.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID as string, undefined, options)
-        ReactPixel.default.grantConsent()
-        ReactPixel.default.pageView()
+        try {
+          const options = {
+            autoConfig: true,
+            debug: process.env.NODE_ENV !== 'production',
+          }
+          ReactPixel.default.init(process.env.NEXT_PUBLIC_FB_PIXEL_ID as string, undefined, options)
+          ReactPixel.default.grantConsent()
+          ReactPixel.default.pageView()
+                           } catch {
+           // Silently handle Facebook Pixel errors
+          }
+      }).catch(() => {
+        // Silently handle import errors
       })
     } else {
       // Remove FB pixel cookies

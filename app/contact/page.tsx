@@ -239,6 +239,10 @@ export default function ContactPage() {
                     setStatus('error')
                     setMessage('Security check failed. Please try again.')
                   }}
+                  options={{
+                    theme: 'dark',
+                    size: 'normal'
+                  }}
                 />
               </div>
 

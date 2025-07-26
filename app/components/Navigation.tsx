@@ -67,14 +67,29 @@ export default function Navigation() {
     // Only add scroll listener on client side
     if (typeof window !== 'undefined') {
       const handleScroll = () => {
-        setIsScrolled(window.scrollY > 50)
+        try {
+          setIsScrolled(window.scrollY > 50)
+        } catch {
+          // Fallback for Firefox scroll issues
+          setIsScrolled(document.documentElement.scrollTop > 50)
+        }
       }
       
       // Initial check
       handleScroll()
       
-      window.addEventListener('scroll', handleScroll)
-      return () => window.removeEventListener('scroll', handleScroll)
+      try {
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        return () => {
+          try {
+            window.removeEventListener('scroll', handleScroll)
+          } catch {
+            // Silent cleanup failure
+          }
+        }
+      } catch {
+        // Silent event listener failure
+      }
     }
   }, [])
 

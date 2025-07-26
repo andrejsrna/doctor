@@ -466,6 +466,10 @@ export default function SubmitDemoPage() {
                       setStatus('error')
                       setMessage('Security check failed. Please try again.')
                     }}
+                    options={{
+                      theme: 'dark',
+                      size: 'normal'
+                    }}
                   />
                 </div>
 

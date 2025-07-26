@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
           value: 'strict-origin-when-cross-origin'
         },
         {
+          key: 'Content-Security-Policy',
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com; media-src 'self' data: https: blob:; object-src 'none';"
+        },
+        {
           key: 'Cache-Control',
           value: 'public, max-age=31536000, immutable'
         }

@@ -38,6 +38,8 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
   useEffect(() => {
     if (!audioUrl || !waveformRef.current || wavesurfer.current) return
 
+    let isMounted = true
+    
     try {
       wavesurfer.current = WaveSurfer.create({
         container: waveformRef.current,
@@ -49,33 +51,51 @@ export default function AudioPreview({ url, isPlaying, onPlayPause }: AudioPrevi
         height: 60,
         barRadius: 3,
         normalize: true,
-        backend: 'WebAudio'
+        backend: 'MediaElement'
       })
 
       wavesurfer.current.on('ready', () => {
-        setIsReady(true)
-        setError(null)
-        wavesurfer.current?.setVolume(volume)
+        if (isMounted) {
+          setIsReady(true)
+          setError(null)
+          wavesurfer.current?.setVolume(volume)
+        }
       })
 
       wavesurfer.current.on('error', (err) => {
-        console.error('WaveSurfer error:', err)
-        setError('Failed to load audio')
-        setLoadError(err.message)
+        if (isMounted) {
+          console.error('WaveSurfer error:', err)
+          setError('Failed to load audio')
+          setLoadError(err.message)
+        }
+      })
+
+      // Add finish event to prevent memory leaks
+      wavesurfer.current.on('finish', () => {
+        if (isMounted && wavesurfer.current) {
+          wavesurfer.current.seekTo(0)
+        }
       })
 
       wavesurfer.current.load(audioUrl)
 
       return () => {
+        isMounted = false
         if (wavesurfer.current) {
-          wavesurfer.current.pause()
-          wavesurfer.current.destroy()
+          try {
+            wavesurfer.current.pause()
+            wavesurfer.current.destroy()
+          } catch (cleanupError) {
+            console.warn('WaveSurfer cleanup warning:', cleanupError)
+          }
           wavesurfer.current = null
         }
       }
     } catch (err) {
-      console.error('WaveSurfer init error:', err)
-      setError('Failed to initialize audio player')
+      if (isMounted) {
+        console.error('WaveSurfer init error:', err)
+        setError('Failed to initialize audio player')
+      }
     }
   }, [audioUrl, volume])
 

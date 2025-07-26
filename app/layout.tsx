@@ -77,6 +77,64 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Safer console override for Firefox compatibility
+                if (typeof window === 'undefined' || typeof console === 'undefined') return;
+                
+                let errorCount = 0;
+                const MAX_ERRORS = 100; // Prevent memory buildup
+                
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                
+                const shouldSuppress = (message) => {
+                  return message.includes('cloudflareinsights.com') ||
+                         message.includes('beacon.min.js') ||
+                         (message.includes('integrity') && message.includes('cloudflare')) ||
+                         (message.includes('CORS') && message.includes('cloudflare')) ||
+                         message.includes('fbevents.js') ||
+                         message.includes('connect.facebook.net') ||
+                         message.includes('Unexpected value undefined parsing r attribute') ||
+                         message.includes('AudioContext was prevented from starting automatically');
+                };
+                
+                console.error = function() {
+                  if (errorCount++ > MAX_ERRORS) {
+                    console.error = originalError;
+                    return originalError.apply(console, arguments);
+                  }
+                  
+                  const message = Array.from(arguments).join(' ');
+                  if (!shouldSuppress(message)) {
+                    originalError.apply(console, arguments);
+                  }
+                };
+                
+                console.warn = function() {
+                  const message = Array.from(arguments).join(' ');
+                  if (
+                    !message.includes('Feature Policy') &&
+                    !message.includes('clipboard-write') &&
+                    !message.includes('Layout was forced before the page was fully loaded')
+                  ) {
+                    originalWarn.apply(console, arguments);
+                  }
+                };
+                
+                // Cleanup after 30 seconds to prevent memory leaks
+                setTimeout(() => {
+                  console.error = originalError;
+                  console.warn = originalWarn;
+                }, 30000);
+              })();
+            `
+          }}
+        />
+      </head>
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
       >
