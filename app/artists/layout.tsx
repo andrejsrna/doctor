@@ -1,34 +1,28 @@
 import type { Metadata } from 'next'
 
-interface Props {
-  children: React.ReactNode
-}
-
 export const metadata: Metadata = {
-  title: 'Artists | DnB Doctor - Neurofunk Label',
-  description: 'Discover our talented roster of drum and bass artists. Listen to their latest releases, mixes, and exclusive content on DnB Doctor.',
-  keywords: 'dnb artists, drum and bass producers, neurofunk artists, electronic music producers, dnb doctor artists',
+  title: 'Neurofunk Artists & Producers | DnB Doctor - Top Neurofunk Artists 2025',
+  description: 'Discover the best neurofunk artists and producers in the drum and bass scene. Meet top neurofunk producers, explore their music, and find the latest neurofunk artists pushing the boundaries of the genre.',
+  keywords: 'neurofunk artist, neurofunk producers, top neurofunk artists, best neurofunk producers, neurofunk dnb artists, neurofunk music producers, neurofunk scene artists, dnb doctor artists',
   openGraph: {
-    title: 'Artists | DnB Doctor',
-    description: 'Explore our roster of talented drum and bass artists and producers.',
+    title: 'Neurofunk Artists & Producers | DnB Doctor',
+    description: 'Discover the best neurofunk artists and producers in the drum and bass scene. Top neurofunk producers and latest neurofunk artists.',
+    type: 'website',
     url: 'https://dnbdoctor.com/artists',
-    siteName: 'DnB Doctor',
     images: [
       {
-        url: 'https://dnbdoctor.com/artists-banner.jpg',
+        url: '/music-bg.jpeg',
         width: 1200,
         height: 630,
-        alt: 'DnB Doctor Artists',
+        alt: 'Neurofunk Artists and Producers',
       },
     ],
-    locale: 'en_US',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Artists | DnB Doctor',
-    description: 'Discover our talented roster of drum and bass artists.',
-    images: ['https://dnbdoctor.com/artists-banner.jpg'],
+    title: 'Neurofunk Artists & Producers | DnB Doctor',
+    description: 'Discover the best neurofunk artists and producers in the drum and bass scene.',
+    images: ['/music-bg.jpeg'],
   },
   robots: {
     index: true,
@@ -41,8 +35,19 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://dnbdoctor.com/artists',
+  },
+  other: {
+    'article:section': 'Artists',
+    'article:tag': ['neurofunk artist', 'neurofunk producers', 'drum and bass', 'artists'],
+  },
 }
 
-export default function ArtistsLayout({ children }: Props) {
+export default function ArtistsLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return children
 } 

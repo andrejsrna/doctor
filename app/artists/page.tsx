@@ -83,19 +83,102 @@ export default function ArtistsPage() {
   }
 
   return (
-    <section className="py-32 px-4 relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Neurofunk Artists and Producers",
+            "description": "Top neurofunk artists and producers in the drum and bass scene",
+            "url": "https://dnbdoctor.com/artists",
+            "numberOfItems": artists.length,
+            "itemListElement": artists.map((artist, index) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "item": {
+                "@type": "MusicGroup",
+                "name": artist.title.rendered,
+                "description": `Neurofunk artist and producer - ${artist.title.rendered}`,
+                "url": `https://dnbdoctor.com/artists/${artist.slug}`,
+                "image": getImageUrl(artist),
+                "genre": "Neurofunk",
+                "sameAs": [
+                  artist.acf?.soundcloud,
+                  artist.acf?.spotify,
+                  artist.acf?.facebook,
+                  artist.acf?.instagram
+                ].filter(Boolean)
+              }
+            }))
+          })
+        }}
+      />
+
+      <section className="py-32 px-4 relative min-h-screen">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-bold text-center mb-16 bg-clip-text text-transparent 
+          className="text-4xl md:text-6xl font-bold text-center mb-8 bg-clip-text text-transparent 
             bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
         >
-          Our Artists
+          Neurofunk Artists
         </motion.h1>
 
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-xl text-gray-300 text-center mb-16 max-w-3xl mx-auto"
+        >
+          Discover the best neurofunk artists and producers pushing the boundaries of drum and bass. 
+          Meet top neurofunk producers creating the most innovative sounds in the scene.
+        </motion.p>
+
+        {/* SEO Content Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 text-center"
+        >
+          <h2 className="text-3xl font-bold mb-6 text-white">
+            Top <span className="text-purple-500">Neurofunk Producers</span>
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 text-left">
+            <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-purple-400 mb-3">Innovative Sound Design</h3>
+              <p className="text-gray-300 text-sm">
+                Our neurofunk artists are known for their cutting-edge sound design, 
+                creating complex basslines and atmospheric elements that define the genre.
+              </p>
+            </div>
+            <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-purple-400 mb-3">Technical Precision</h3>
+              <p className="text-gray-300 text-sm">
+                Meet neurofunk producers who master the technical aspects of drum and bass, 
+                delivering precise rhythms and rolling basslines that drive the scene forward.
+              </p>
+            </div>
+            <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-purple-400 mb-3">Genre Pioneers</h3>
+              <p className="text-gray-300 text-sm">
+                Discover neurofunk artists who are pushing the boundaries of the genre, 
+                creating fresh sounds and innovative approaches to drum and bass production.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        <h3 className="text-2xl font-bold mb-8 text-center text-white">
+          Featured <span className="text-purple-500">Neurofunk Artists</span>
+        </h3>
+        
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {artists.map((artist, index) => (
             <motion.article
@@ -109,7 +192,7 @@ export default function ArtistsPage() {
                 {getImageUrl(artist) && (
                   <Image
                     src={getImageUrl(artist)!}
-                    alt={artist.title.rendered}
+                    alt={`Neurofunk artist ${artist.title.rendered}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -155,6 +238,7 @@ export default function ArtistsPage() {
           ))}
         </div>
       </div>
-    </section>
+      </section>
+    </>
   )
 } 

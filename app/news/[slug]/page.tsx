@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { use, useEffect, useState } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
-import SubscribeCTA from '../../components/SubscribeCTA'
+import EngagementCTA from '../../components/EngagementCTA'
 
 interface NewsPost {
   id: number
@@ -224,6 +224,8 @@ export default function NewsPostPage({ params }: PageProps) {
           })}
         </motion.div>
 
+        <div className="h-12" />
+
           <SocialShare
             url={`https://dnbdoctor.com/news/${slug}`}
             title={post.title.rendered}
@@ -236,8 +238,10 @@ export default function NewsPostPage({ params }: PageProps) {
           />
         )}
 
-        {/* Add SubscribeCTA */}
-        <SubscribeCTA />
+        <div className="h-12" />
+
+        {/* Add EngagementCTA */}
+        <EngagementCTA />
 
         {/* Related News remains at the bottom */}
         {post && <RelatedNews currentPostId={post.id} />}
