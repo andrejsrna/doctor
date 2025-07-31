@@ -176,7 +176,7 @@ export default function SamplePacksFAQ() {
           className="text-center mt-12"
         >
           <p className="text-gray-400 mb-6">
-            Still have questions about our sample packs? We're here to help!
+            Still have questions about our sample packs? We&apos;re here to help!
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}
