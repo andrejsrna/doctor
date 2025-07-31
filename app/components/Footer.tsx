@@ -273,12 +273,51 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Other Links */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="relative z-10 mt-12 pt-8 border-t border-green-500/20"
+        >
+          <div className="text-center">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-lg font-bold text-green-500 uppercase tracking-wider mb-4"
+            >
+              Other Links
+            </motion.h3>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="flex flex-wrap justify-center gap-6"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/neurofunk-drum-and-bass" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  Neurofunk Drum & Bass
+                </Link>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+
         {/* Copyright */}
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="relative z-10 mt-16 pt-8 border-t border-green-500/20 text-center text-gray-400"
+          className="relative z-10 mt-8 pt-8 border-t border-green-500/20 text-center text-gray-400"
         >
           <p>
             © {new Date().getFullYear()} DnB Doctor. All rights reserved.{' '}

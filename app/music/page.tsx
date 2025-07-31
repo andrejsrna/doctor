@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaFilter, FaSearch, FaVirus, FaSyringe } from 'react-icons/fa'
 import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
 import Button from '../components/Button'
+import EngagementCTA from '../components/EngagementCTA'
 
 interface Post {
   id: number
@@ -143,6 +144,38 @@ export default function MusicPage() {
 
   return (
     <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Latest DnB Releases",
+            "description": "Latest drum and bass releases, newest DnB tracks, and fresh neurofunk music",
+            "url": "https://dnbdoctor.com/music",
+            "numberOfItems": posts?.length || 0,
+            "itemListElement": posts?.map((post: Post, index: number) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "item": {
+                "@type": "MusicRecording",
+                "name": post.title.rendered,
+                "description": `Latest DnB release - ${post.title.rendered}`,
+                "genre": "Drum and Bass",
+                "url": `https://dnbdoctor.com/music/${post.slug}`,
+                "image": getImageUrl(post),
+                "datePublished": post.date,
+                "byArtist": {
+                  "@type": "MusicGroup",
+                  "name": "DnB Doctor"
+                }
+              }
+            })) || []
+          })
+        }}
+      />
+
       {/* Infected Hero Section */}
       <div className="relative h-[70vh] flex items-center justify-center overflow-hidden">
         {/* Background Image with Animated Overlay */}
@@ -204,19 +237,29 @@ export default function MusicPage() {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 relative">
               <span className="bg-clip-text text-transparent bg-gradient-to-r 
                 from-purple-500 via-pink-500 to-purple-500 relative z-10">
-                Infected Frequencies
+                DnB Latest Releases
               </span>
               <div className="absolute inset-0 blur-xl bg-purple-500/20 -z-10" />
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto 
-              flex items-center justify-center gap-3 relative group">
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto 
+              flex items-center justify-center gap-3 relative group mb-4">
               <FaSyringe className="w-5 h-5 text-purple-500 rotate-45 
                 group-hover:scale-110 transition-transform duration-300" />
-              <span>Your daily dose of neurofunk contamination</span>
+              <span>Latest drum and bass tracks and newest DnB releases</span>
               <FaSyringe className="w-5 h-5 text-purple-500 -rotate-45 
                 group-hover:scale-110 transition-transform duration-300" />
             </p>
+            
+            <motion.p 
+              className="text-lg text-gray-400 max-w-2xl mx-auto mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              Discover the freshest DnB tracks, latest neurofunk releases, and newest drum and bass music 
+              from top artists. Updated daily with the hottest tracks in the scene.
+            </motion.p>
           </motion.div>
 
           {/* CTA Button */}
@@ -248,6 +291,41 @@ export default function MusicPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         
         <div className="max-w-7xl mx-auto relative z-10">
+          {/* SEO Content Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12 text-center"
+          >
+            <h2 className="text-3xl font-bold mb-6 text-white">
+              Latest <span className="text-purple-500">DnB Releases</span>
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">Fresh Tracks Daily</h3>
+                <p className="text-gray-300 text-sm">
+                  Get the newest DnB releases as soon as they drop. Our latest drum and bass tracks 
+                  are updated daily with previews and streaming links.
+                </p>
+              </div>
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">Latest Neurofunk</h3>
+                <p className="text-gray-300 text-sm">
+                  Discover the latest neurofunk releases from top producers. From rolling basslines 
+                  to complex drum patterns, find the freshest sounds in the scene.
+                </p>
+              </div>
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">New Drum & Bass</h3>
+                <p className="text-gray-300 text-sm">
+                  Explore the newest drum and bass music from emerging and established artists. 
+                  Latest DnB tracks with high-quality previews and downloads.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Filter Controls */}
           <div className="mb-8 flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative group">
@@ -273,7 +351,7 @@ export default function MusicPage() {
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 group-hover:text-pink-500 transition-colors duration-300" />
               <input
                 type="text"
-                placeholder="Search releases..."
+                placeholder="Search latest DnB releases, newest tracks, artists..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
@@ -285,6 +363,10 @@ export default function MusicPage() {
             </div>
           </div>
 
+          <h3 className="text-2xl font-bold mb-8 text-center text-white">
+            Latest <span className="text-purple-500">DnB Tracks</span>
+          </h3>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts?.map((post: Post, index: number) => (
               <motion.article
@@ -458,6 +540,22 @@ export default function MusicPage() {
               </div>
             </motion.div>
           )}
+        </div>
+      </section>
+
+      {/* Engagement CTA Section */}
+      <section className="py-20 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold mb-12 text-center"
+          >
+            Stay Connected with <span className="text-purple-500">Latest DnB</span>
+          </motion.h2>
+          <EngagementCTA />
         </div>
       </section>
     </>

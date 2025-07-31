@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaSearch, FaVirus, FaBoxOpen } from 'react-icons/fa'
 import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
 import Button from '../components/Button'
+import SamplePacksFAQ from '../components/SamplePacksFAQ'
 
 interface Post {
   id: number
@@ -154,6 +155,39 @@ export default function SamplePacksPage() {
 
   return (
     <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Neurofunk Sample Packs",
+            "description": "Professional neurofunk sample packs with rolling basslines, complex drums, and dark atmospheres for DnB producers",
+            "url": "https://dnbdoctor.com/sample-packs",
+            "numberOfItems": posts?.length || 0,
+            "itemListElement": posts?.map((post: Post, index: number) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "item": {
+                "@type": "Product",
+                "name": post.title.rendered,
+                "description": `Professional neurofunk sample pack - ${post.title.rendered}`,
+                "category": "Neurofunk Samples",
+                "url": `https://dnbdoctor.com/music/${post.slug}`,
+                "image": getImageUrl(post),
+                "offers": {
+                  "@type": "Offer",
+                  "availability": "https://schema.org/InStock",
+                  "price": "0",
+                  "priceCurrency": "USD"
+                }
+              }
+            })) || []
+          })
+        }}
+      />
+
       {/* Infected Hero Section */}
       <div className="relative h-[70vh] flex items-center justify-center overflow-hidden">
         {/* Background Image with Animated Overlay */}
@@ -215,19 +249,29 @@ export default function SamplePacksPage() {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 relative">
               <span className="bg-clip-text text-transparent bg-gradient-to-r 
                 from-purple-500 via-pink-500 to-purple-500 relative z-10">
-                Sample Packs
+                Neurofunk Samples
               </span>
               <div className="absolute inset-0 blur-xl bg-purple-500/20 -z-10" />
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto 
-              flex items-center justify-center gap-3 relative group">
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto 
+              flex items-center justify-center gap-3 relative group mb-4">
               <FaBoxOpen className="w-5 h-5 text-purple-500 
                 group-hover:scale-110 transition-transform duration-300" />
-              <span>Exclusive DnB sample packs and sound design tools</span>
+              <span>Professional neurofunk sample packs with rolling basslines and complex drums</span>
               <FaBoxOpen className="w-5 h-5 text-purple-500 
                 group-hover:scale-110 transition-transform duration-300" />
             </p>
+            
+            <motion.p 
+              className="text-lg text-gray-400 max-w-2xl mx-auto mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              Download high-quality neurofunk samples featuring dark atmospheres, technical precision, 
+              and infectious beats for your drum and bass productions.
+            </motion.p>
           </motion.div>
 
           {/* CTA Button */}
@@ -259,13 +303,48 @@ export default function SamplePacksPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         
         <div className="max-w-7xl mx-auto relative z-10">
+          {/* SEO Content Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-12 text-center"
+          >
+            <h2 className="text-3xl font-bold mb-6 text-white">
+              Professional <span className="text-purple-500">Neurofunk Samples</span>
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">Rolling Basslines</h3>
+                <p className="text-gray-300 text-sm">
+                  High-quality neurofunk bass samples with complex modulation, perfect for creating 
+                  the signature rolling basslines that define the genre.
+                </p>
+              </div>
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">Complex Drums</h3>
+                <p className="text-gray-300 text-sm">
+                  Professional drum loops and one-shots featuring intricate patterns, tight kicks, 
+                  and crisp snares engineered for neurofunk productions.
+                </p>
+              </div>
+              <div className="bg-black/30 border border-purple-500/20 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-400 mb-3">Dark Atmospheres</h3>
+                <p className="text-gray-300 text-sm">
+                  Atmospheric pads, industrial textures, and sci-fi soundscapes that create the 
+                  dark, technical aesthetic of neurofunk music.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Search Controls */}
           <div className="mb-8 flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative group">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 group-hover:text-pink-500 transition-colors duration-300" />
               <input
                 type="text"
-                placeholder="Search sample packs..."
+                placeholder="Search neurofunk samples, bass loops, drum patterns..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
@@ -277,6 +356,10 @@ export default function SamplePacksPage() {
             </div>
           </div>
 
+          <h3 className="text-2xl font-bold mb-8 text-center text-white">
+            Latest <span className="text-purple-500">Neurofunk Sample Packs</span>
+          </h3>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts?.map((post: Post, index: number) => (
               <motion.article
@@ -287,6 +370,8 @@ export default function SamplePacksPage() {
                 transition={{ delay: index * 0.1 }}
                 className="group relative aspect-square bg-black/50 backdrop-blur-lg rounded-lg overflow-hidden 
                   border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
+                itemScope
+                itemType="https://schema.org/Product"
               >
                 {post.acf?.preview && (
                   <audio
@@ -313,10 +398,11 @@ export default function SamplePacksPage() {
                   <div className="relative aspect-square">
                     <Image
                       src={getImageUrl(post)!}
-                      alt={post.title.rendered}
+                      alt={`Neurofunk sample pack - ${post.title.rendered}`}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                      itemProp="image"
                     />
                   </div>
                 ) : (
@@ -331,7 +417,10 @@ export default function SamplePacksPage() {
                   <h3 
                     className="text-xl font-bold text-white mb-4 line-clamp-2"
                     dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+                    itemProp="name"
                   />
+                  <meta itemProp="description" content={`Professional neurofunk sample pack - ${post.title.rendered}`} />
+                  <meta itemProp="category" content="Neurofunk Samples" />
                   <div className="flex gap-3">
                     {post.acf?.preview && (
                       <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
@@ -452,6 +541,9 @@ export default function SamplePacksPage() {
           )}
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <SamplePacksFAQ />
     </>
   )
 } 

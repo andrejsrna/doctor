@@ -1,34 +1,28 @@
 import type { Metadata } from 'next'
 
-interface Props {
-  children: React.ReactNode
-}
-
 export const metadata: Metadata = {
-  title: 'Music | DnB Doctor - Latest Neurofunk Releases',
-  description: 'Explore our latest neurofunk and drum & bass releases. Listen to previews, download tracks, and discover new electronic music from DnB Doctor.',
-  keywords: 'neurofunk releases, drum and bass music, dnb tracks, electronic music downloads, dnb doctor releases, new neurofunk',
+  title: 'DnB Latest Releases | DnB Doctor - Latest Drum & Bass Music 2024',
+  description: 'Discover the latest DnB releases, newest drum and bass tracks, and fresh neurofunk music. Updated daily with the hottest DnB tracks, latest releases, and new drum and bass music from top artists.',
+  keywords: 'dnb latest, latest dnb releases, newest drum and bass, latest dnb tracks, fresh dnb music, new drum and bass 2024, latest neurofunk, dnb doctor latest, newest dnb releases',
   openGraph: {
-    title: 'Latest Releases | DnB Doctor',
-    description: 'Check out our newest neurofunk and drum & bass releases. High-quality electronic music from DnB Doctor.',
+    title: 'DnB Latest Releases | DnB Doctor',
+    description: 'Latest drum and bass releases, newest DnB tracks, and fresh neurofunk music updated daily.',
+    type: 'website',
     url: 'https://dnbdoctor.com/music',
-    siteName: 'DnB Doctor',
     images: [
       {
-        url: 'https://dnbdoctor.com/music-banner.jpg',
+        url: '/music-bg.jpeg',
         width: 1200,
         height: 630,
-        alt: 'DnB Doctor Music Releases',
+        alt: 'Latest DnB Releases and New Drum and Bass Music',
       },
     ],
-    locale: 'en_US',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Latest Neurofunk Releases | DnB Doctor',
-    description: 'Stream and download our newest drum & bass tracks.',
-    images: ['https://dnbdoctor.com/music-banner.jpg'],
+    title: 'DnB Latest Releases | DnB Doctor',
+    description: 'Latest drum and bass releases and newest DnB tracks.',
+    images: ['/music-bg.jpeg'],
   },
   robots: {
     index: true,
@@ -44,52 +38,16 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://dnbdoctor.com/music',
   },
-  // Schema.org structured data for music collection
-  verification: {
-    other: {
-      'schema:CollectionPage': JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'CollectionPage',
-        name: 'DnB Doctor Music Releases',
-        description: 'Collection of neurofunk and drum & bass releases from DnB Doctor.',
-        publisher: {
-          '@type': 'Organization',
-          name: 'DnB Doctor',
-          url: 'https://dnbdoctor.com'
-        },
-        about: {
-          '@type': 'MusicAlbum',
-          byArtist: {
-            '@type': 'MusicGroup',
-            name: 'DnB Doctor'
-          },
-          genre: ['Neurofunk', 'Drum and Bass', 'Electronic'],
-        },
-        offers: {
-          '@type': 'AggregateOffer',
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-          seller: {
-            '@type': 'Organization',
-            name: 'DnB Doctor'
-          }
-        },
-        isPartOf: {
-          '@type': 'MusicGroup',
-          name: 'DnB Doctor',
-          url: 'https://dnbdoctor.com',
-          genre: ['Neurofunk', 'Drum and Bass'],
-          sameAs: [
-            'https://soundcloud.com/dnbdoctor',
-            'https://www.facebook.com/dnbdoctor',
-            'https://www.instagram.com/dnbdoctor/'
-          ]
-        }
-      })
-    }
-  }
+  other: {
+    'article:section': 'Latest Releases',
+    'article:tag': ['dnb latest', 'drum and bass', 'latest releases', 'neurofunk'],
+  },
 }
 
-export default function MusicLayout({ children }: Props) {
+export default function MusicLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return children
 } 
