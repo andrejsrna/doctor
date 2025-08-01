@@ -110,6 +110,8 @@ export default function SpotifyPlaylists() {
                         width={80}
                         height={80}
                         className="w-full h-full object-cover rounded-lg"
+                        sizes="80px"
+                        quality={85}
                       />
                     </div>
                     

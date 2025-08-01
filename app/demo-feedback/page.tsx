@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { feedbackApi } from '../services/feedbackApi'
 import { FaStar, FaDownload } from 'react-icons/fa'
-import AudioPreview from '../components/AudioPreview'
 
 interface TrackInfo {
   id: number
@@ -155,12 +154,7 @@ function DemoFeedbackContent() {
                   <p className="text-purple-400">{trackInfo.artist}</p>
                 )}
 
-                {/* Audio Player */}
-                <div className="mt-6">
-                  <AudioPreview 
-                    url={trackInfo.url}
-                  />
-                </div>
+
 
                 {/* Download Button */}
                 <motion.a

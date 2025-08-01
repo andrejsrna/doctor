@@ -18,7 +18,8 @@ export default function Hero() {
           fill
           className="object-cover"
           priority
-          sizes="100vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+          quality={85}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-green-900/30 via-black/70 to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-50" />

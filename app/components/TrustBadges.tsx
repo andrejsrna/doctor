@@ -54,7 +54,7 @@ export default function TrustBadges() {
               {typeof badge.image === 'string' ? (
                 <Image
                   src={badge.image}
-                  alt={badge.name}
+                  alt=""
                   width={64}
                   height={64}
                   className="mb-3 transition-transform duration-300 group-hover:scale-110"

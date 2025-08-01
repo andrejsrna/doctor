@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
-import "./globals.css";
 import Footer from './components/Footer'
-import './styles/content-wrapper.css'
 import CookieConsent from "./components/CookieConsent";
+import './globals.css';
+import './styles/content-wrapper.css';
 
 const rajdhani = Share_Tech({
   variable: "--font-rajdhani",
   subsets: ["latin"],
   weight: ["400"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -78,6 +79,92 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        {/* Preconnect to critical origins */}
+        <link rel="preconnect" href="https://admin.dnbdoctor.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Preload critical resources */}
+        <link rel="preload" href="/mainbg.jpeg" as="image" type="image/jpeg" />
+        <link rel="preload" href="/music-bg.jpeg" as="image" type="image/jpeg" />
+        
+        {/* DNS prefetch for external domains */}
+        <link rel="dns-prefetch" href="https://admin.dnbdoctor.com" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        
+        {/* Google Analytics */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+        
+        {/* Critical CSS - inline for performance */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS for above-the-fold content */
+            * { box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body { 
+              margin: 0; padding: 0; 
+              font-family: var(--font-rajdhani), system-ui, -apple-system, sans-serif;
+              background-color: #000; color: #fff; line-height: 1.6;
+              -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            }
+            .min-h-screen { min-height: 100vh; }
+            .relative { position: relative; }
+            .absolute { position: absolute; }
+            .flex { display: flex; }
+            .items-center { align-items: center; }
+            .justify-center { justify-content: center; }
+            .text-center { text-align: center; }
+            .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+            .text-5xl { font-size: 3rem; line-height: 1; }
+            .text-6xl { font-size: 3.75rem; line-height: 1; }
+            .font-bold { font-weight: 700; }
+            .text-purple-500 { color: #a855f7; }
+            .text-white { color: #ffffff; }
+            .text-gray-300 { color: #d1d5db; }
+            .text-gray-400 { color: #9ca3af; }
+            .bg-black { background-color: #000000; }
+            .bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--tw-gradient-stops)); }
+            .from-black { --tw-gradient-from: #000000; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(0, 0, 0, 0)); }
+            .via-purple-900\\/10 { --tw-gradient-stops: var(--tw-gradient-from), rgba(88, 28, 135, 0.1), var(--tw-gradient-to, rgba(88, 28, 135, 0.1)); }
+            .to-black { --tw-gradient-to: #000000; }
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .py-20 { padding-top: 5rem; padding-bottom: 5rem; }
+            .py-32 { padding-top: 8rem; padding-bottom: 8rem; }
+            .mb-8 { margin-bottom: 2rem; }
+            .mb-12 { margin-bottom: 3rem; }
+            .mb-16 { margin-bottom: 4rem; }
+            .max-w-7xl { max-width: 80rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .object-cover { object-fit: cover; }
+            .object-contain { object-fit: contain; }
+            .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+            @media (min-width: 768px) { .md\\:text-5xl { font-size: 3rem; line-height: 1; } .md\\:text-6xl { font-size: 3.75rem; line-height: 1; } }
+            @media (min-width: 1024px) { .lg\\:text-5xl { font-size: 3rem; line-height: 1; } .lg\\:text-6xl { font-size: 3.75rem; line-height: 1; } }
+          `
+        }} />
+        
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -106,7 +193,7 @@ export default function RootLayout({
                          message.includes('admin.dnbdoctor.com') ||
                          message.includes('was not used within a few seconds') ||
                          message.includes('preloaded with link preload') ||
-                         message.includes('WaveSurfer') ||
+
                          message.includes('seek failed') ||
                          message.includes('volume setting failed');
                 };

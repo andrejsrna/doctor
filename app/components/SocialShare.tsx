@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa'
 import { FaXTwitter } from 'react-icons/fa6'
 import Button from './Button'
+import { trackEvent } from '@/app/utils/analytics'
 
 interface ShareButton {
   name: string
@@ -48,7 +49,21 @@ export default function SocialShare({
   url: string
   title: string
 }) {
+  const handleShareClick = (platform: string) => {
+    trackEvent('share', {
+      method: platform,
+      content_type: 'music_release',
+      content_name: title
+    })
+  }
+
   const handleCopyLink = async () => {
+    trackEvent('share', {
+      method: 'copy_link',
+      content_type: 'music_release',
+      content_name: title
+    })
+
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url)
@@ -97,7 +112,10 @@ export default function SocialShare({
             >
               <Button
                 variant="infected"
-                onClick={() => window.open(button.shareUrl(url, title), '_blank')}
+                onClick={() => {
+                  handleShareClick(button.name)
+                  window.open(button.shareUrl(url, title), '_blank')
+                }}
                 className="w-full group !p-3 !justify-start"
               >
                 <div className="flex items-center gap-3 w-full">

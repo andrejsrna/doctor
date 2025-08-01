@@ -3,8 +3,17 @@
 import { motion } from 'framer-motion'
 import { FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa'
 import Button from './Button'
+import { trackEvent } from '@/app/utils/analytics'
 
 export default function BulkSalePromo() {
+  const handleBulkSaleClick = () => {
+    trackEvent('promotion_click', {
+      promotion_type: 'bulk_sale',
+      content_type: 'promotion',
+      content_name: 'Bulk Sale Promotion'
+    })
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -52,6 +61,7 @@ export default function BulkSalePromo() {
         variant="infected"
         className="w-full group relative overflow-hidden"
         href="/bulk-sale"
+        onClick={handleBulkSaleClick}
       >
         <div className="flex items-center gap-4 p-4">
           {/* Icon Container */}

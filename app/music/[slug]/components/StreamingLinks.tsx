@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { FaHeadphonesAlt, FaAngleRight } from 'react-icons/fa'
 import Button from '@/app/components/Button'
 import { StreamingLink } from '@/app/types/release'
+import { trackStreamingClick } from '@/app/utils/analytics'
 
 interface StreamingLinksProps {
   links: StreamingLink[]
@@ -13,6 +14,10 @@ interface StreamingLinksProps {
 
 const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
   const availableLinks = links.filter((link) => link.url)
+
+  const handleStreamingClick = (platform: string) => {
+    trackStreamingClick(platform)
+  }
 
   return (
     <motion.div
@@ -44,6 +49,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"
+                onClick={() => handleStreamingClick(platform.name)}
               >
                 <Button
                   variant="infected"
@@ -54,7 +60,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
                       {typeof platform.icon === 'string' ? (
                         <Image
                           src={platform.icon}
-                          alt={platform.name}
+                          alt=""
                           width={24}
                           height={24}
                           className="w-6 h-6"
@@ -88,6 +94,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full"
+            onClick={() => handleStreamingClick('Gumroad')}
           >
             <Button
               variant="toxic"

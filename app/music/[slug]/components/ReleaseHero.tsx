@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { FaYoutube } from 'react-icons/fa'
 import Button from '@/app/components/Button'
+import { trackStreamingClick } from '@/app/utils/analytics'
 
 interface ReleaseHeroProps {
   title: string
@@ -20,6 +21,10 @@ export default function ReleaseHero({
   youtubeUrl,
   description,
 }: ReleaseHeroProps) {
+  const handleStreamingClick = (platform: string) => {
+    trackStreamingClick(platform)
+  }
+
   return (
     <div className="relative flex items-center justify-center text-center px-4 pt-48 pb-24">
       {imageUrl && (
@@ -29,6 +34,8 @@ export default function ReleaseHero({
           fill
           className="object-cover object-center z-0"
           priority
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+          quality={85}
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
@@ -59,7 +66,12 @@ export default function ReleaseHero({
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           {youtubeUrl && (
-            <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">
+            <a 
+              href={youtubeUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => handleStreamingClick('YouTube')}
+            >
               <Button variant="infected" size="lg" className="group">
                 <FaYoutube className="w-6 h-6 mr-3" />
                 Listen on YouTube
@@ -67,11 +79,16 @@ export default function ReleaseHero({
             </a>
           )}
           {beatportUrl && (
-            <a href={beatportUrl} target="_blank" rel="noopener noreferrer">
+            <a 
+              href={beatportUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => handleStreamingClick('Beatport')}
+            >
               <Button variant="toxic" size="lg" className="group">
                 <Image
                   src="/beatport.svg"
-                  alt="Beatport"
+                  alt=""
                   width={24}
                   height={24}
                   className="w-6 h-6 mr-3"

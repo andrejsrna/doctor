@@ -34,6 +34,8 @@ export default function WhatIsNeurofunk() {
                 fill
                 className="object-cover object-center"
                 priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                quality={85}
               />
               <div className="absolute inset-0 bg-green-500/20 mix-blend-overlay" />
               
@@ -157,7 +159,7 @@ export default function WhatIsNeurofunk() {
                   className="w-full group"
                 >
                   <FaInfoCircle className="w-5 h-5 mr-2 transform group-hover:rotate-180 transition-transform duration-500" />
-                  <span>Learn More</span>
+                  <span>About DnB Doctor</span>
                 </Button>
               </motion.div>
             </motion.div>

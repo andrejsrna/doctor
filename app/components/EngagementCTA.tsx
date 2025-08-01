@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { FaSpotify, FaYoutube, FaEnvelope } from 'react-icons/fa'
 import Link from 'next/link'
 import Button from './Button'
+import { trackEvent } from '@/app/utils/analytics'
 
 const ctaItems: {
   icon: React.ElementType
@@ -40,6 +41,14 @@ const ctaItems: {
 ]
 
 export default function EngagementCTA() {
+  const handleEngagementClick = (platform: string) => {
+    trackEvent('engagement', {
+      method: platform,
+      content_type: 'cta',
+      content_name: platform
+    })
+  }
+
   return (
     <div className="">
       <div className="grid md:grid-cols-3 gap-6">
@@ -60,7 +69,11 @@ export default function EngagementCTA() {
             </div>
             <div className="mt-auto">
               <Link href={item.href} passHref legacyBehavior>
-                <a target={item.href.startsWith('http') ? '_blank' : '_self'} rel="noopener noreferrer">
+                <a 
+                  target={item.href.startsWith('http') ? '_blank' : '_self'} 
+                  rel="noopener noreferrer"
+                  onClick={() => handleEngagementClick(item.buttonText)}
+                >
                   <Button variant={item.variant} size="md">
                     {item.buttonText}
                   </Button>

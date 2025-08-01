@@ -190,6 +190,8 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
                 alt={post.title.rendered}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                quality={85}
               />
               {/* Overlay with title and buttons */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 

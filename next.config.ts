@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-
+  // Performance optimizations
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'react-icons'],
+    optimizeServerReact: true,
+  },
+  
+  // Compiler options for modern browsers
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
+  // Headers for performance and security
   headers: async () => [
     {
       source: '/:path*',
@@ -28,7 +39,7 @@ const nextConfig: NextConfig = {
         },
         {
           key: 'Content-Security-Policy',
-          value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com; media-src 'self' data: https: blob:; object-src 'none';"
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com; media-src 'self' data: https: blob:; object-src 'none';"
         },
         {
           key: 'Cache-Control',
@@ -38,13 +49,13 @@ const nextConfig: NextConfig = {
     }
   ],
 
+  // Compression and caching
   compress: true,
   poweredByHeader: false,
   generateEtags: true,
 
-
   images: {
-      remotePatterns: [
+    remotePatterns: [
       {
         protocol: 'https',
         hostname: 'dnbdoctor.com',
@@ -68,7 +79,13 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
+    // Optimized device sizes for better responsive images
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Optimized image sizes for common display sizes
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Enable modern image formats
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

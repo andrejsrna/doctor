@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FaSpotify, FaApple, FaSoundcloud, FaBandcamp, FaYoutube, FaDeezer } from 'react-icons/fa'
-import AudioPreview from './AudioPreview'
 
 interface StreamingLink {
   name: string
@@ -51,7 +50,6 @@ interface FeaturedPost {
 export default function FeaturedTrack() {
   const [post, setPost] = useState<FeaturedPost | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [previewUrl, setPreviewUrl] = useState<string>('')
 
   useEffect(() => {
     fetchRandomPost()
@@ -64,21 +62,6 @@ export default function FeaturedTrack() {
         `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=1`
       )
       const [data] = await response.json()
-      
-      if (data.acf?.preview) {
-        try {
-          const attachmentResponse = await fetch(
-            `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${data.acf.preview}`
-          )
-          if (attachmentResponse.ok) {
-            const attachment = await attachmentResponse.json()
-            setPreviewUrl(attachment.source_url)
-          }
-        } catch (error) {
-          console.error('Error fetching preview:', error)
-        }
-      }
-
       setPost(data)
     } catch (error) {
       console.error('Error fetching featured post:', error)
@@ -238,6 +221,8 @@ export default function FeaturedTrack() {
                     fill
                     className="object-contain p-4 transform group-hover:scale-105 transition-transform duration-500"
                     priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={85}
                   />
                   </Link>
                 ) : (
@@ -255,22 +240,7 @@ export default function FeaturedTrack() {
                 className="flex flex-col gap-8"
               >
 
-                {previewUrl && (
-                  <>
-                    {/* Audio Preview */}
-            {post.acf?.preview && previewUrl && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <AudioPreview 
-                  url={previewUrl}
-                />
-              </motion.div>
-              )}
-                  </>
-                )}
+
 
    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
                   {streamingLinks
@@ -293,7 +263,7 @@ export default function FeaturedTrack() {
                           {typeof platform.icon === 'string' ? (
                             <Image 
                               src={platform.icon}
-                              alt={platform.name}
+                              alt=""
                               width={24}
                               height={24}
                               className="w-6 h-6"
