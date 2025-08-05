@@ -5,12 +5,15 @@ import Footer from './components/Footer'
 import CookieConsent from "./components/CookieConsent";
 import './globals.css';
 import './styles/content-wrapper.css';
+import SessionProviderWrapper from "./components/SessionProviderWrapper";
+import { PostHogProvider } from "./components/PostHogProvider";
 
 const rajdhani = Share_Tech({
   variable: "--font-rajdhani",
   subsets: ["latin"],
   weight: ["400"],
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -65,10 +68,8 @@ export const metadata: Metadata = {
     canonical: 'https://dnbdoctor.com',
   },
   other: {
-    'schema:graph': [
-
-    ]
-  }
+    'schema:graph': [],
+  },
 };
 
 export default function RootLayout({
@@ -81,8 +82,6 @@ export default function RootLayout({
       <head>
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* Preload critical resources */}
         <link rel="preload" href="/mainbg.jpeg" as="image" type="image/jpeg" />
@@ -237,10 +236,14 @@ export default function RootLayout({
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
       >
-        <Navigation />
-        {children}
-        <Footer />
-        <CookieConsent />
+        <PostHogProvider>
+          <SessionProviderWrapper>
+            <Navigation />
+            {children}
+            <Footer />
+            <CookieConsent />
+          </SessionProviderWrapper>
+        </PostHogProvider>
       </body>
     </html>
   );
