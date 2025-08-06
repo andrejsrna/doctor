@@ -79,6 +79,9 @@ export const {
   jwt: {
     maxAge: 60 * 60 * 24, // 1 day
   },
+  debug: process.env.NODE_ENV === "development",
+  trustHost: true,
+  useSecureCookies: process.env.NODE_ENV === "production",
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === "production" 
@@ -108,5 +111,4 @@ export const {
       return baseUrl;
     },
   },
-  debug: process.env.NODE_ENV === "development",
 });
