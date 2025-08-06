@@ -39,7 +39,9 @@ export default function LoginPage() {
       }
     }
 
-    setTurnstileKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "");
+    const siteKey = process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY || "";
+    console.log("Turnstile site key:", siteKey ? "SET" : "MISSING");
+    setTurnstileKey(siteKey);
     setIsDevelopment(process.env.NODE_ENV === 'development');
   }, []);
 
@@ -208,13 +210,19 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-blue-300 mb-2">
                 Security Check
               </label>
-              <Turnstile
-                siteKey={turnstileKey}
-                onSuccess={handleTurnstileSuccess}
-                onError={handleTurnstileError}
-                onExpire={handleTurnstileExpire}
-                className="w-full"
-              />
+              {turnstileKey ? (
+                <Turnstile
+                  siteKey={turnstileKey}
+                  onSuccess={handleTurnstileSuccess}
+                  onError={handleTurnstileError}
+                  onExpire={handleTurnstileExpire}
+                  className="w-full"
+                />
+              ) : (
+                <div className="p-4 bg-red-900/30 border border-red-500/30 rounded-lg">
+                  <p className="text-red-300 text-sm">⚠️ Turnstile site key not configured</p>
+                </div>
+              )}
             </motion.div>
           )}
           

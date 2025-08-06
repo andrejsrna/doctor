@@ -32,7 +32,7 @@ const handler = NextAuth({
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                secret: process.env.TURNSTILE_SECRET_KEY,
+                secret: process.env.CF_TURNSTILE_SECRET_KEY,
                 response: credentials.turnstileToken,
               }),
             });

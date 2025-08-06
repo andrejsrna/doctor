@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        secret: process.env.TURNSTILE_SECRET_KEY,
+        secret: process.env.CF_TURNSTILE_SECRET_KEY,
         response: token,
       }),
     });
