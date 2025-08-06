@@ -82,6 +82,8 @@ export default function RootLayout({
       <head>
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* Preload critical resources */}
         <link rel="preload" href="/mainbg.jpeg" as="image" type="image/jpeg" />

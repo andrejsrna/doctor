@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Subscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  subscribedAt  DateTime @default(now())
+  status        SubscriberStatus @default(ACTIVE)
+  source        String?
+  tags          String[] @default([])
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  notes         String?
+  lastEmailSent DateTime?
+  emailCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  emailLogs     EmailLog[]
+  influencer    Influencer?
+
+  @@map("subscribers")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  color       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscribers Subscriber[]
+  campaigns   EmailCampaign[]
+
+  @@map("categories")
+}
+
+model EmailCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  body        String
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  sentAt      DateTime?
+  sentCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  emailLogs   EmailLog[]
+
+  @@map("email_campaigns")
+}
+
+model EmailLog {
+  id        String      @id @default(cuid())
+  campaignId String
+  subscriberId String
+  email     String
+  status    EmailStatus @default(PENDING)
+  sentAt    DateTime?
+  openedAt  DateTime?
+  clickedAt DateTime?
+  error     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber Subscriber    @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([subscriberId])
+  @@index([status])
+}
+
+model Influencer {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  platform    String?  // Instagram, YouTube, TikTok, etc.
+  handle      String?  // @username
+  followers   Int?
+  engagement  Float?   // engagement rate
+  category    String?  // DJ, Producer, Blogger, Promoter, etc.
+  location    String?
+  notes       String?
+  status      InfluencerStatus @default(ACTIVE)
+  priority    InfluencerPriority @default(MEDIUM)
+  lastContact DateTime?
+  nextContact DateTime?
+  tags        String[] // ["dnb", "neurofunk", "vinyl", etc.]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriber Subscriber? @relation(fields: [email], references: [email])
+
+  @@index([email])
+  @@index([status])
+  @@index([category])
+}
+
+enum SubscriberStatus {
+  ACTIVE
+  PENDING
+  UNSUBSCRIBED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  BOUNCED
+}
+
+enum InfluencerStatus {
+  ACTIVE
+  INACTIVE
+  CONTACTED
+  RESPONDED
+  COLLABORATING
+}
+
+enum InfluencerPriority {
+  LOW
+  MEDIUM
+  HIGH
+  VIP
+}
