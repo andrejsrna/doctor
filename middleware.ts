@@ -100,38 +100,79 @@ const redirects = [
   { from: "/asana-neurofunk-code", to: "/music/asana-neurofunk-code" },
 ];
 
-function handleRedirects(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  const redirect = redirects.find((r) => r.from === path);
+const PUBLIC_PATHS = [
+  "/",
+  "/music",
+  "/news",
+  "/about",
+  "/contact",
+  "/submit-demo",
+  "/newsletter",
+  "/privacy-policy",
+  "/terms",
+  "/bio",
+  "/guidelines",
+  "/sample-packs",
+  "/music-packs",
+  "/neurofunk-drum-and-bass",
+  "/bulk-sale",
+  "/search",
+  "/unsub",
+  "/demo-feedback",
+];
 
-  if (redirect) {
-    return NextResponse.redirect(new URL(redirect.to, request.url));
-  }
+const STATIC_ASSETS = [
+  "/favicon.ico",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/sitemap-0.xml",
+];
 
-  return NextResponse.next();
+function isPublicPath(path: string): boolean {
+  return PUBLIC_PATHS.some(publicPath => 
+    path === publicPath || path.startsWith(publicPath + "/")
+  );
 }
 
-function addSecurityHeaders(response: NextResponse) {
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  
-  if (process.env.NODE_ENV === "production") {
-    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  }
-  
-  return response;
+function isStaticAsset(path: string): boolean {
+  return STATIC_ASSETS.some(asset => path === asset);
 }
 
-export default withAuth(
-  function middleware(request: NextRequest) {
-    const response = handleRedirects(request);
-    
-    if (response.status !== 200) {
-      return response;
+function handleRedirects(request: NextRequest): NextResponse | null {
+  try {
+    const path = request.nextUrl.pathname;
+    const redirect = redirects.find((r) => r.from === path);
+
+    if (redirect) {
+      return NextResponse.redirect(new URL(redirect.to, request.url));
     }
+    return null;
+  } catch (error) {
+    console.error("Redirect error:", error);
+    return null;
+  }
+}
 
+function addSecurityHeaders(response: NextResponse): NextResponse {
+  try {
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    
+    if (process.env.NODE_ENV === "production") {
+      response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    
+    return response;
+  } catch (error) {
+    console.error("Security headers error:", error);
+    return response;
+  }
+}
+
+function checkAdminAuth(request: NextRequest): NextResponse | null {
+  try {
     const path = request.nextUrl.pathname;
     
     if (path.startsWith("/admin") && path !== "/admin/login") {
@@ -142,17 +183,64 @@ export default withAuth(
         return NextResponse.redirect(new URL("/admin/login", request.url));
       }
     }
+    return null;
+  } catch (error) {
+    console.error("Admin auth error:", error);
+    return null;
+  }
+}
 
-    return addSecurityHeaders(response);
+export default withAuth(
+  function middleware(request: NextRequest) {
+    try {
+      const path = request.nextUrl.pathname;
+      
+      if (isStaticAsset(path)) {
+        return NextResponse.next();
+      }
+      
+      const redirectResponse = handleRedirects(request);
+      if (redirectResponse) {
+        return addSecurityHeaders(redirectResponse);
+      }
+      
+      if (isPublicPath(path)) {
+        const response = NextResponse.next();
+        return addSecurityHeaders(response);
+      }
+      
+      const adminAuthResponse = checkAdminAuth(request);
+      if (adminAuthResponse) {
+        return addSecurityHeaders(adminAuthResponse);
+      }
+      
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+      
+    } catch (error) {
+      console.error("Middleware error:", error);
+      return NextResponse.next();
+    }
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        if (path.startsWith("/admin") && path !== "/admin/login") {
-          return token != null;
+        try {
+          const path = req.nextUrl.pathname;
+          
+          if (isPublicPath(path) || isStaticAsset(path)) {
+            return true;
+          }
+          
+          if (path.startsWith("/admin") && path !== "/admin/login") {
+            return token != null;
+          }
+          
+          return true;
+        } catch (error) {
+          console.error("Authorization callback error:", error);
+          return true;
         }
-        return true;
       },
     },
     pages: {
@@ -162,5 +250,7 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|admin/login).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|admin/login).*)",
+  ],
 };
