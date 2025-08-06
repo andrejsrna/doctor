@@ -15,7 +15,6 @@ const handler = NextAuth({
           return null;
         }
 
-        // Check if we're in development mode and bypass Turnstile
         const isDevelopment = process.env.NODE_ENV === 'development';
         const isDevBypass = credentials.turnstileToken === 'dev-bypass';
 
@@ -23,7 +22,6 @@ const handler = NextAuth({
           return null;
         }
 
-        // Only verify Turnstile in production or if not using dev bypass
         if (!isDevelopment || !isDevBypass) {
           try {
             const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
@@ -128,6 +126,17 @@ const handler = NextAuth({
   },
   jwt: {
     maxAge: 60 * 60 * 24,
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   callbacks: {
     async jwt({ token, account, user }) {

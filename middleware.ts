@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withAuth } from "next-auth/middleware";
 
 const redirects = [
   { from: "/x3a-go", to: "/music/x3a-go" },
@@ -138,6 +137,10 @@ function isStaticAsset(path: string): boolean {
   return STATIC_ASSETS.some(asset => path === asset);
 }
 
+function isApiPath(path: string): boolean {
+  return path.startsWith("/api/");
+}
+
 function handleRedirects(request: NextRequest): NextResponse | null {
   try {
     const path = request.nextUrl.pathname;
@@ -190,67 +193,45 @@ function checkAdminAuth(request: NextRequest): NextResponse | null {
   }
 }
 
-export default withAuth(
-  function middleware(request: NextRequest) {
-    try {
-      const path = request.nextUrl.pathname;
-      
-      if (isStaticAsset(path)) {
-        return NextResponse.next();
-      }
-      
-      const redirectResponse = handleRedirects(request);
-      if (redirectResponse) {
-        return addSecurityHeaders(redirectResponse);
-      }
-      
-      if (isPublicPath(path)) {
-        const response = NextResponse.next();
-        return addSecurityHeaders(response);
-      }
-      
-      const adminAuthResponse = checkAdminAuth(request);
-      if (adminAuthResponse) {
-        return addSecurityHeaders(adminAuthResponse);
-      }
-      
-      const response = NextResponse.next();
-      return addSecurityHeaders(response);
-      
-    } catch (error) {
-      console.error("Middleware error:", error);
+export default function middleware(request: NextRequest) {
+  try {
+    const path = request.nextUrl.pathname;
+    
+    if (isStaticAsset(path)) {
       return NextResponse.next();
     }
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        try {
-          const path = req.nextUrl.pathname;
-          
-          if (isPublicPath(path) || isStaticAsset(path)) {
-            return true;
-          }
-          
-          if (path.startsWith("/admin") && path !== "/admin/login") {
-            return token != null;
-          }
-          
-          return true;
-        } catch (error) {
-          console.error("Authorization callback error:", error);
-          return true;
-        }
-      },
-    },
-    pages: {
-      signIn: "/admin/login",
-    },
+    
+    if (isApiPath(path)) {
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+    }
+    
+    const redirectResponse = handleRedirects(request);
+    if (redirectResponse) {
+      return addSecurityHeaders(redirectResponse);
+    }
+    
+    if (isPublicPath(path)) {
+      const response = NextResponse.next();
+      return addSecurityHeaders(response);
+    }
+    
+    const adminAuthResponse = checkAdminAuth(request);
+    if (adminAuthResponse) {
+      return addSecurityHeaders(adminAuthResponse);
+    }
+    
+    const response = NextResponse.next();
+    return addSecurityHeaders(response);
+    
+  } catch (error) {
+    console.error("Middleware error:", error);
+    return NextResponse.next();
   }
-);
+}
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|admin/login).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };
