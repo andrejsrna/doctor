@@ -53,7 +53,8 @@ export default function Footer() {
     try {
       await subscriberApi.subscribe({
         email,
-        group: 'Customers_final'
+        group: 'Newsletter',
+        source: 'footer'
       })
       setStatus('success')
       setMessage('Thanks for subscribing!')

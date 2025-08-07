@@ -51,12 +51,17 @@ export default function MusicPage() {
   const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
+
   const postsPerPage = 12
   const sectionRef = useRef<HTMLElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
 
   // Use SWR hooks with caching
   const { data: postsData, isLoading: postsLoading } = useLatestPosts(postsPerPage, currentPage, selectedCategory, searchQuery)
   const { data: categories = [] } = useCategories()
+  
+
   
   const posts = useMemo(() => postsData?.posts || [], [postsData?.posts])
   const totalPages = postsData?.totalPages || 1
@@ -82,16 +87,25 @@ export default function MusicPage() {
   }, [posts, previews])
 
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
+  const [initialCategory, setInitialCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedCategory, searchQuery])
-
-  useEffect(() => {
-    if (sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: 'smooth' })
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category');
+    if (category) {
+      setInitialCategory(category);
+      sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [currentPage, selectedCategory, searchQuery])
+  }, []);
+
+  useEffect(() => {
+    if (initialCategory && categories.length > 0) {
+      const categoryObject = categories.find((cat: Category) => cat.slug === initialCategory || cat.name.toLowerCase() === initialCategory.toLowerCase());
+      if (categoryObject) {
+        setSelectedCategory(categoryObject.id.toString());
+      }
+    }
+  }, [initialCategory, categories]);
 
   const getImageUrl = (post: Post) => {
     const media = post._embedded?.['wp:featuredmedia']?.[0]
@@ -350,6 +364,7 @@ export default function MusicPage() {
             <div className="flex-1 relative group">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 group-hover:text-pink-500 transition-colors duration-300" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search latest DnB releases, newest tracks, artists..."
                 value={searchQuery}

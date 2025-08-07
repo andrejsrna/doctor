@@ -199,7 +199,7 @@ export default function ArtistsPage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
-                {/* Social Links - moved outside of Link */}
+                {/* Social Links and View More */}
                 <div className="absolute bottom-4 left-4 right-4 flex gap-4 opacity-0 translate-y-4 
                   group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-10">
                   {artist.acf?.soundcloud && (
@@ -224,6 +224,13 @@ export default function ArtistsPage() {
                       Spotify
                     </a>
                   )}
+                  <Link 
+                    href={`/artists/${artist.slug}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-white hover:text-purple-500 transition-colors"
+                  >
+                    View More
+                  </Link>
                 </div>
               </div>
 

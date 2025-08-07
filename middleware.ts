@@ -17,6 +17,7 @@ const redirects = [
       from: "/asana-ft-yehor-ratatata",
       to: "/music/asana-ft-yehor-ratatata",
     },
+    { from: "/asana-raketa-lp", to: "/music/asana-raketa-lp" },
     { from: "/sollist-distractor", to: "/music/sollist-distractor" },
     { from: "/yehor-freaky-ep", to: "/music/yehor-freaky-ep" },
     {
@@ -174,35 +175,65 @@ const redirects = [
       return response;
     }
   }
+
+  function addCacheControlHeaders(response: NextResponse, path: string): NextResponse {
+    try {
+      // Disable caching for admin routes and API routes
+      if (path.startsWith("/admin") || path.startsWith("/api/")) {
+        response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
+        response.headers.set("Pragma", "no-cache");
+        response.headers.set("Expires", "0");
+      } else {
+        // Add default cache control for other routes
+        response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
+      }
+      
+      return response;
+    } catch (error) {
+      console.error("Cache control headers error:", error);
+      return response;
+    }
+  }
   
   export default auth((request) => {
     try {
       const path = request.nextUrl.pathname;
       
       if (isStaticAsset(path) || isApiPath(path)) {
-        return NextResponse.next();
+        const response = NextResponse.next();
+        return addCacheControlHeaders(addSecurityHeaders(response), path);
       }
       
       const redirectResponse = handleRedirects(request);
       if (redirectResponse) {
-        return addSecurityHeaders(redirectResponse);
+        return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
       }
       
-      if (isPublicPath(path) || request.auth) {
+      if (isPublicPath(path)) {
         const response = NextResponse.next();
-        return addSecurityHeaders(response);
+        return addCacheControlHeaders(addSecurityHeaders(response), path);
       }
       
-      if (!request.auth && path.startsWith("/admin") && path !== "/admin/login") {
-        return NextResponse.redirect(new URL("/admin/login", request.url));
+      if (path.startsWith("/admin")) {
+        if (!request.auth && path !== "/admin/login") {
+          const redirectResponse = NextResponse.redirect(new URL("/admin/login", request.url));
+          return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
+        }
+        if (request.auth && path === "/admin/login") {
+          const redirectResponse = NextResponse.redirect(new URL("/admin", request.url));
+          return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
+        }
+        const response = NextResponse.next();
+        return addCacheControlHeaders(addSecurityHeaders(response), path);
       }
       
       const response = NextResponse.next();
-      return addSecurityHeaders(response);
+      return addCacheControlHeaders(addSecurityHeaders(response), path);
       
     } catch (error) {
       console.error("Middleware error:", error);
-      return NextResponse.next();
+      const response = NextResponse.next();
+      return addCacheControlHeaders(addSecurityHeaders(response), request.nextUrl.pathname);
     }
   });
   

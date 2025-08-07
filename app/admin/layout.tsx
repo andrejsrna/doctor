@@ -2,7 +2,7 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   FaSyringe, 
@@ -11,26 +11,54 @@ import {
   FaShieldAlt
 } from "react-icons/fa";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const LoadingScreen = ({ message, color = "purple" }: { message: string; color?: string }) => (
+  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+    <div className="text-center">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        className={`w-12 h-12 border-2 border-${color}-500 border-t-transparent rounded-full mx-auto`}
+      />
+      <p className={`mt-4 text-${color}-300`}>{message}</p>
+    </div>
+  </div>
+);
+
+const RedirectScreen = ({ message }: { message: string }) => (
+  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+    <p className="mt-4 text-purple-300">{message}</p>
+  </div>
+);
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (status === "unauthenticated" && pathname !== "/admin/login") {
       router.push("/admin/login");
       return;
     }
 
-    if (status === "loading") return;
+    if (status === "authenticated" && pathname === "/admin/login") {
+      router.push("/admin");
+      return;
+    }
 
-    const INACTIVITY_TIMEOUT = 30 * 60 * 1000;
-    const WARNING_TIMEOUT = 25 * 60 * 1000;
+    if (status !== "authenticated") return;
+
+    const INACTIVITY_TIMEOUT = 60 * 60 * 1000;
+    const WARNING_TIMEOUT = 50 * 60 * 1000;
 
     const updateActivity = () => {
       setLastActivity(Date.now());
@@ -49,42 +77,34 @@ export default function AdminLayout({
     };
 
     const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
-    events.forEach(event => {
-      document.addEventListener(event, updateActivity, true);
-    });
-
+    events.forEach(event => document.addEventListener(event, updateActivity, true));
     const interval = setInterval(checkInactivity, 60000);
 
     return () => {
-      events.forEach(event => {
-        document.removeEventListener(event, updateActivity, true);
-      });
+      events.forEach(event => document.removeEventListener(event, updateActivity, true));
       clearInterval(interval);
     };
-  }, [status, router, lastActivity]);
+  }, [status, lastActivity, pathname, router]);
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
 
-
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-2 border-purple-500 border-t-transparent rounded-full mx-auto"
-          />
-          <p className="mt-4 text-purple-300">Loading...</p>
-        </div>
-      </div>
-    );
+  if (status === "loading" || !isClient) {
+    return <LoadingScreen message="Loading Session..." />;
   }
 
   if (status === "unauthenticated") {
+    if (pathname !== "/admin/login") {
+      return <LoadingScreen message="Redirecting to login..." color="red" />;
+    }
+    return <RedirectScreen message="Redirecting to login..." />;
+  }
+
+  if (pathname === "/admin/login") {
+    if (status === "authenticated") {
+      return <RedirectScreen message="Redirecting to dashboard..." />;
+    }
     return <>{children}</>;
   }
 
@@ -103,11 +123,10 @@ export default function AdminLayout({
         </motion.div>
       )}
 
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-black/50 backdrop-blur-sm border-b border-purple-500/20 shadow-2xl"
+        className="bg-black/50 backdrop-blur-sm border-b pt-32 container mx-auto border-purple-500/20 shadow-2xl"
       >
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -124,7 +143,7 @@ export default function AdminLayout({
             
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-400">
-                Session expires in 30 minutes
+                Session expires in 1 hour
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -140,10 +159,9 @@ export default function AdminLayout({
         </div>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="container mx-auto py-8">
         {children}
       </div>
     </div>
   );
-} 
+}

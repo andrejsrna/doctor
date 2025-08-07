@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../lib/prisma";
 
 export const { 
   handlers: { GET, POST }, 
@@ -73,20 +71,42 @@ export const {
   },
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24, // 1 day
-    updateAge: 60 * 60, // 1 hour
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
   },
   jwt: {
-    maxAge: 60 * 60 * 24, // 1 day
+    maxAge: 60 * 60 * 24 * 7, // 7 days
   },
   debug: process.env.NODE_ENV === "development",
   trustHost: true,
-  useSecureCookies: process.env.NODE_ENV === "production",
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === "production" 
         ? "__Secure-next-auth.session-token" 
         : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      },
+    },
+    callbackUrl: {
+      name: process.env.NODE_ENV === "production" 
+        ? "__Secure-next-auth.callback-url" 
+        : "next-auth.callback-url",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === "production" 
+        ? "__Host-next-auth.csrf-token" 
+        : "next-auth.csrf-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -102,7 +122,10 @@ export const {
       }
       return session;
     },
-    async jwt({ token }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
       return token;
     },
     async redirect({ url, baseUrl }) {

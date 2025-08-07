@@ -103,8 +103,12 @@ export default function Navigation() {
 
   const musicSubmenuItems = [
     { title: 'All Releases', href: '/music' },
+    { title: 'Single Releases', href: '/music?category=single-tracks' },
+    { title: 'EPs', href: '/music?category=ep' },
+    { title: 'LPs', href: '/music?category=albums' },
     { title: 'Music Packs', href: '/music-packs' },
     { title: 'Sample Packs', href: '/sample-packs' },
+    { title: 'Search for Music', href: '/music?focus=search' },
   ]
 
   // Initial render with static values to prevent hydration mismatch
@@ -259,7 +263,6 @@ export default function Navigation() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-gray-300 hover:text-green-500 p-2"
               >
-                <span className="sr-only">Open main menu</span>
                 {!isOpen ? (
                   <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M4 6h16M4 12h16M4 18h16"></path>

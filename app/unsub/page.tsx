@@ -17,8 +17,7 @@ export default function UnsubscribePage() {
 
     try {
       await subscriberApi.unsubscribe({
-        email,
-        token: 'unsubscribe' // Token is handled on the backend
+        email
       })
       setStatus('success')
       setMessage('You have been successfully unsubscribed.')

@@ -26,11 +26,13 @@ export default function SubscribeCTA() {
     try {
       await subscriberApi.subscribe({
         email,
-        group: 'Customers_final'
+        group: 'Newsletter',
+        source: 'subscribe_cta'
       })
       setStatus('success')
       setMessage('Thanks for subscribing!')
       setEmail('')
+      setAcceptedPolicy(false)
     } catch (error) {
       setStatus('error')
       setMessage(error instanceof Error ? error.message : 'Failed to subscribe')

@@ -148,27 +148,45 @@ export default function FeaturedArtists() {
                     {artist.acf.description}
                   </p>
                   
-                  {/* SoundCloud Link */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className="inline-block"
-                  >
-                  <a 
-                    href={artist.acf.soundcloud}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                      className="block"
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="flex-1"
                     >
-                      <Button
-                        variant="toxic"
-                        size="sm"
-                        className="group"
-                  >
-                        <FaSoundcloud className="w-5 h-5 transform group-hover:scale-110 transition-transform duration-300" />
-                    <span>Listen on SoundCloud</span>
-                      </Button>
-                  </a>
-                  </motion.div>
+                      <a 
+                        href={artist.acf.soundcloud}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <Button
+                          variant="toxic"
+                          size="sm"
+                          className="group w-full"
+                        >
+                          <FaSoundcloud className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
+                          <span>SoundCloud</span>
+                        </Button>
+                      </a>
+                    </motion.div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="flex-1"
+                    >
+                      <Link href={`/artists/${artist.slug}`}>
+                        <Button
+                          variant="infected"
+                          size="sm"
+                          className="group w-full"
+                        >
+                          <FaUserMd className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
+                          <span>View More</span>
+                        </Button>
+                      </Link>
+                    </motion.div>
+                  </div>
                 </div>
               </div>
             </motion.div>

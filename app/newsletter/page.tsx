@@ -28,7 +28,8 @@ export default function NewsletterPage() {
     try {
       await subscriberApi.subscribe({
         email,
-        group: 'Customers_final'
+        group: 'Newsletter',
+        source: 'newsletter_page'
       })
       setStatus('success')
       setMessage('Successfully infected! Welcome to the horde!')

@@ -1,9 +1,8 @@
-const API_BASE_URL = 'https://admin.dnbdoctor.com/wp-json/mlds/v1'
-
 export const subscriberApi = {
-  async subscribe(data: { email: string; name?: string; group: string }) {
+  async subscribe(data: { email: string; name?: string; group?: string; source?: string }) {
     try {
-      const response = await fetch(`${API_BASE_URL}/subscribe`, {
+      console.log('🔍 Subscribing via Prisma API:', data);
+      const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -11,20 +10,27 @@ export const subscriberApi = {
         body: JSON.stringify(data),
       })
 
+      console.log('📡 Subscribe response status:', response.status);
+      
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || 'Failed to subscribe')
+        console.error('❌ Subscribe error:', error);
+        throw new Error(error.error || 'Failed to subscribe')
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log('✅ Subscribe success:', result);
+      return result
     } catch (error) {
+      console.error('💥 Subscribe exception:', error);
       throw error
     }
   },
 
-  async unsubscribe(data: { email: string; token: string }) {
+  async unsubscribe(data: { email: string; token?: string }) {
     try {
-      const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
+      console.log('🔍 Unsubscribing via Prisma API:', data);
+      const response = await fetch('/api/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,13 +38,19 @@ export const subscriberApi = {
         body: JSON.stringify(data),
       })
 
+      console.log('📡 Unsubscribe response status:', response.status);
+
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.message || 'Failed to unsubscribe')
+        console.error('❌ Unsubscribe error:', error);
+        throw new Error(error.error || 'Failed to unsubscribe')
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log('✅ Unsubscribe success:', result);
+      return result
     } catch (error) {
+      console.error('💥 Unsubscribe exception:', error);
       throw error
     }
   }

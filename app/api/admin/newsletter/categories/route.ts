@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+function addNoCacheHeaders(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  return response;
+}
+
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
@@ -9,33 +16,46 @@ export async function GET() {
           select: {
             subscribers: {
               where: {
-                status: "ACTIVE"
+                status: {
+                  not: 'UNSUBSCRIBED'
+                }
               }
             }
           }
         }
+      },
+      orderBy: {
+        name: 'asc'
       }
     });
 
-    // Calculate subscriber count for each category
-    const categoriesWithCounts = categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      color: category.color,
-      description: category.description,
-      subscriberCount: category._count.subscribers
-    }));
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      categories: categoriesWithCounts
+      categories: categories.map(category => ({
+        id: category.id,
+        name: category.name,
+        color: category.color,
+        description: category.description,
+        subscriberCount: category._count.subscribers
+      }))
     });
+
+    return addNoCacheHeaders(response);
   } catch (error) {
-    console.error("Error fetching categories:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch categories" },
+    console.error('Error fetching categories:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    const response = NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to fetch categories',
+        details: errorMessage
+      },
       { status: 500 }
     );
+
+    return addNoCacheHeaders(response);
   }
 }
 
