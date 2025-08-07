@@ -63,6 +63,7 @@ export function useNewsletterData() {
         t: timestamp.toString()
       });
       
+      searchParams.append('includeInfluencers', '0');
       const response = await fetch(`/api/admin/newsletter/subscribers?${searchParams}`, {
         cache: 'no-store',
         headers: {

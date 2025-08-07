@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
@@ -18,6 +18,7 @@ interface TrackInfo {
 function DemoFeedbackContent() {
   const searchParams = useSearchParams()
   const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null)
+  const [tokenMeta, setTokenMeta] = useState<{ files?: Array<{ id: string; name: string; path?: string }>; subject?: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -28,6 +29,9 @@ function DemoFeedbackContent() {
   const [feedback, setFeedback] = useState('')
   const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const wavesurferRef = useRef<{ destroy: () => void; load: (src: string) => Promise<void>; playPause: () => void; stop: () => void } | null>(null)
+  const waveContainerRef = useRef<HTMLDivElement | null>(null)
+  const [audioError, setAudioError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchTrackInfo = async () => {
@@ -46,6 +50,14 @@ function DemoFeedbackContent() {
         }
         
         setTrackInfo(info)
+
+        if (token) {
+          const metaRes = await fetch(`/api/feedback?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
+          if (metaRes.ok) {
+            const meta = await metaRes.json()
+            setTokenMeta(meta)
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load track information')
         console.error('Feedback form error:', err)
@@ -56,6 +68,46 @@ function DemoFeedbackContent() {
 
     fetchTrackInfo()
   }, [searchParams])
+
+  useEffect(() => {
+    const setupWave = async () => {
+      if (!tokenMeta?.files?.length && !trackInfo?.url) return
+      const src = tokenMeta?.files?.[0]?.path || trackInfo?.url
+      if (!src || !waveContainerRef.current) return
+      try {
+        const WaveSurfer = (await import('wavesurfer.js')).default
+        if (wavesurferRef.current) {
+          wavesurferRef.current.destroy()
+          wavesurferRef.current = null
+        }
+        const ws = WaveSurfer.create({
+          container: waveContainerRef.current,
+          waveColor: '#6b7280',
+          progressColor: '#a855f7',
+          cursorColor: '#a855f7',
+          height: 64,
+          barRadius: 2,
+          barWidth: 2,
+          barGap: 1,
+          normalize: true,
+          dragToSeek: true,
+        })
+        wavesurferRef.current = ws as unknown as {
+          destroy: () => void;
+          load: (src: string) => Promise<void>;
+          playPause: () => void;
+          stop: () => void;
+        }
+        await ws.load(src)
+      } catch {
+        setAudioError('Unable to initialize player')
+      }
+    }
+    setupWave()
+    return () => {
+      try { wavesurferRef.current?.destroy() } catch {}
+    }
+  }, [tokenMeta, trackInfo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,13 +124,22 @@ function DemoFeedbackContent() {
 
     try {
       setSubmitting(true)
-      await feedbackApi.submitFeedback({
-        track_id: parseInt(trackId),
-        token: token || undefined,
-        rating,
-        feedback,
-        name
+      // Submit to our API (which also forwards to WordPress)
+      const resp = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          track_id: parseInt(trackId),
+          token: token || undefined,
+          rating,
+          feedback,
+          name
+        })
       })
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to submit feedback')
+      }
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit feedback')
@@ -172,6 +233,55 @@ function DemoFeedbackContent() {
               </div>
             )}
           </div>
+
+          {/* Audio Waveform Player */}
+          <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
+            <h3 className="text-lg font-semibold text-white mb-2">Preview</h3>
+            <div ref={waveContainerRef} className="w-full" />
+            {audioError && (
+              <div className="text-sm text-red-400 mt-2">{audioError}</div>
+            )}
+            {!audioError && (
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => wavesurferRef.current?.playPause()}
+                  className="px-3 py-1.5 bg-purple-500/30 hover:bg-purple-500/50 rounded text-white text-sm"
+                >
+                  Play / Pause
+                </button>
+                <button
+                  type="button"
+                  onClick={() => wavesurferRef.current?.stop()}
+                  className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700/70 rounded text-white text-sm"
+                >
+                  Stop
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Download/Preview Links from token metadata (R2 or otherwise) */}
+          {tokenMeta?.files?.length ? (
+            <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-white mb-2">Files</h3>
+              <ul className="space-y-2">
+                {tokenMeta.files.map((f) => (
+                  <li key={f.id}>
+                    {f.path?.startsWith('http') ? (
+                      <a href={f.path} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">
+                        {f.name}
+                      </a>
+                    ) : (
+                      <a href={f.path} download className="text-purple-400 hover:text-purple-300 underline">
+                        {f.name}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {/* Feedback Form */}
           <form onSubmit={handleSubmit} className="space-y-6">

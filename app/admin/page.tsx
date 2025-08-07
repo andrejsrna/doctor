@@ -1,13 +1,9 @@
 "use client";
-
-import { useSession } from "next-auth/react";
+import { authClient } from "@/app/lib/authClient";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  LoadingState, 
-  ErrorState
-} from "../components/admin/AdminUI";
-import { DashboardContent } from "../components/admin/DashboardContent";
+import { LoadingState, ErrorState } from "../components/admin/AdminUI";
+import DashboardMinimal from "../components/admin/DashboardMinimal";
 import { productivityMessages, navigationItems } from "../components/admin/constants";
 
 interface DashboardStats {
@@ -50,7 +46,7 @@ interface DashboardData {
 
 
 export default function AdminPage() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const router = useRouter();
   const [currentMessage, setCurrentMessage] = useState("");
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -62,7 +58,7 @@ export default function AdminPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/admin/dashboard/stats');
+      const response = await fetch('/api/admin/dashboard/stats', { cache: 'no-store', headers: { 'cache-control': 'no-cache' } });
       const data = await response.json();
       
       if (data.success) {
@@ -123,7 +119,7 @@ export default function AdminPage() {
   if (!dashboardData) return <LoadingState message="No data available" />;
 
   return (
-    <DashboardContent
+    <DashboardMinimal
       userName={session?.user?.name || "Admin"}
       currentMessage={currentMessage}
       dashboardData={dashboardData}
@@ -132,6 +128,10 @@ export default function AdminPage() {
       formatTimeAgo={formatTimeAgo}
       getCategoryColor={getCategoryColor}
       onNavigate={(href) => router.push(href)}
+      onRefreshMessage={() => {
+        const randomIndex = Math.floor(Math.random() * productivityMessages.length);
+        setCurrentMessage(productivityMessages[randomIndex]);
+      }}
     />
   );
 }

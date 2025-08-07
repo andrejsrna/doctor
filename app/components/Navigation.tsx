@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import StreamingModal from './StreamingModal'
 import { IoSearchOutline } from 'react-icons/io5'
 import { FaChevronDown } from 'react-icons/fa'
@@ -46,6 +47,7 @@ export default function Navigation() {
   const { scrollY } = useScroll()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
+  const pathname = usePathname()
 
   // Transform opacity based on scroll
   const headerOpacity = useTransform(
@@ -92,6 +94,21 @@ export default function Navigation() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mql = window.matchMedia('(min-width: 768px)')
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsOpen(false)
+    }
+    if (mql.matches) setIsOpen(false)
+    mql.addEventListener('change', handleChange)
+    return () => mql.removeEventListener('change', handleChange)
+  }, [])
+
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
   const menuItems = [
     { title: 'Artists', href: '/artists' },
@@ -254,14 +271,14 @@ export default function Navigation() {
             <div className="md:hidden flex items-center space-x-4">
               <button
                 onClick={() => setIsSearchModalOpen(true)}
-                className="text-gray-300 hover:text-green-500 p-2"
+                className="text-gray-300 md:hidden hover:text-green-500 p-2"
                 aria-label="Search"
               >
                 <IoSearchOutline size={24} />
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-300 hover:text-green-500 p-2"
+                className="text-gray-300 md:hidden hover:text-green-500 p-2"
               >
                 {!isOpen ? (
                   <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">

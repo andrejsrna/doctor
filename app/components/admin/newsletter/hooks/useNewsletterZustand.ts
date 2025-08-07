@@ -42,6 +42,8 @@ export const useNewsletterZustand = () => {
   const handleItemsPerPageChange = useNewsletterStore(state => state.handleItemsPerPageChange);
   const setSendingNewsletter = useNewsletterStore(state => state.setSendingNewsletter);
 
+  const fetchData = useNewsletterStore(state => state.fetchData);
+
   useEffect(() => {
     const store = useNewsletterStore.getState();
     if (store.subscribers.length === 0 && !store.loading) {
@@ -93,9 +95,10 @@ export const useNewsletterZustand = () => {
     handleCloseAddModal,
     handleSubmitAddSubscriber,
     handleUpdateExistingSubscriber,
-    handleManageCategories: () => console.log('Manage categories'),
+    handleManageCategories: () => {},
     handleSendNewsletter: () => setSendingNewsletter(true),
     handlePageChange,
     handleItemsPerPageChange,
+    fetchData,
   };
 };

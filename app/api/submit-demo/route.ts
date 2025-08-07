@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
+import { prisma } from '@/lib/prisma'
 
 interface RequestBody {
   email: string
@@ -37,6 +38,16 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    // Save to database
+    await prisma.demoSubmission.create({
+      data: { 
+        email: formData.email,
+        artistName: formData.artistName,
+        genre: formData.genre,
+        trackLink: formData.subject,
+      },
+    })
 
     // Configure SMTP transporter
     const transporter = nodemailer.createTransport({
@@ -80,9 +91,9 @@ Please review at your earliest convenience.
       { status: 200 }
     )
   } catch (error) {
-    console.error('Submit demo error:', error)
+    console.error('Demo submission error:', error)
     return NextResponse.json(
-      { message: 'Failed to process request' },
+      { message: 'Failed to submit demo' },
       { status: 500 }
     )
   }

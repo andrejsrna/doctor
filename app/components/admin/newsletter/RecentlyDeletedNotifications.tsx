@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+ 
 import { FaUndo } from "react-icons/fa";
 import { Subscriber, RecentlyDeleted } from "./types";
 
@@ -16,11 +16,7 @@ export default function RecentlyDeletedNotifications({
   if (recentlyDeleted.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-4 right-4 space-y-2"
-    >
+    <div className="fixed bottom-4 right-4 space-y-2">
       {recentlyDeleted.map((item) => (
         <div
           key={item.subscriber.id}
@@ -31,18 +27,16 @@ export default function RecentlyDeletedNotifications({
               <p className="font-semibold">Subscriber deleted</p>
               <p className="text-sm opacity-75">{item.subscriber.email}</p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => onUndoDelete(item.subscriber)}
               className="px-3 py-1 bg-yellow-700/50 hover:bg-yellow-600/50 rounded text-sm font-medium transition-colors"
             >
               <FaUndo className="w-3 h-3 inline mr-1" />
               Undo
-            </motion.button>
+            </button>
           </div>
         </div>
       ))}
-    </motion.div>
+    </div>
   );
 }

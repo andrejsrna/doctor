@@ -15,6 +15,22 @@ const nextConfig: NextConfig = {
   // Headers for performance and security
   headers: async () => [
     {
+      source: '/admin/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+        { key: 'Expires', value: '0' }
+      ]
+    },
+    {
+      source: '/api/admin/:path*',
+      headers: [
+        { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate, max-age=0' },
+        { key: 'Pragma', value: 'no-cache' },
+        { key: 'Expires', value: '0' }
+      ]
+    },
+    {
       source: '/api/auth/:path*',
       headers: [
         {

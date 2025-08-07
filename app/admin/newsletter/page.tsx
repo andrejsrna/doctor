@@ -2,16 +2,16 @@
 
 import { memo } from "react";
 import SubscriberList from "../../components/admin/newsletter/SubscriberList";
-import NewsletterControls from "../../components/admin/newsletter/NewsletterControls";
+import SimpleControls from "../../components/admin/newsletter/SimpleControls";
 import AddSubscriberModal from "../../components/admin/newsletter/modals/AddSubscriberModal";
-import NewsletterStats from "../../components/admin/newsletter/NewsletterStats";
-import NewsletterActions from "../../components/admin/newsletter/NewsletterActions";
-import RecentlyDeletedNotifications from "../../components/admin/newsletter/RecentlyDeletedNotifications";
+import { useRouter } from "next/navigation";
+// simplified view: stats/actions/recently-deleted removed
 import NewsletterPageLayout from "../../components/admin/newsletter/NewsletterPageLayout";
 import NewsletterLoading from "../../components/admin/newsletter/NewsletterLoading";
 import { useNewsletterZustand } from "../../components/admin/newsletter/hooks/useNewsletterZustand";
 
 const NewsletterPage = memo(function NewsletterPage() {
+  const router = useRouter();
   const {
     // State
     searchTerm,
@@ -20,12 +20,12 @@ const NewsletterPage = memo(function NewsletterPage() {
     setFilterStatus,
     filterCategory,
     setFilterCategory,
-    showSoftDeleted,
-    setShowSoftDeleted,
+    // showSoftDeleted,
+    // setShowSoftDeleted,
     currentPage,
     itemsPerPage,
-    recentlyDeleted,
-    sendingNewsletter,
+    // recentlyDeleted,
+    // sendingNewsletter,
     subscribers,
     categories,
     loading,
@@ -41,20 +41,21 @@ const NewsletterPage = memo(function NewsletterPage() {
     showUpdateOption,
     
     // Actions
-    handleUndoDeleteSubmit,
+    // handleUndoDeleteSubmit,
     handleDeleteSubscriberClick,
     handleSubscriberSelect,
     handleSelectAll,
-    handleBulkDelete,
+    // handleBulkDelete,
     handleEditSubscriber,
     handleAddSubscriber,
     handleCloseAddModal,
     handleSubmitAddSubscriber,
     handleUpdateExistingSubscriber,
-    handleManageCategories,
-    handleSendNewsletter,
+    // handleManageCategories,
+    // handleSendNewsletter,
     handlePageChange,
     handleItemsPerPageChange,
+    // fetchData,
   } = useNewsletterZustand();
 
   if (loading) {
@@ -64,29 +65,16 @@ const NewsletterPage = memo(function NewsletterPage() {
   return (
     <>
       <NewsletterPageLayout>
-        <NewsletterStats />
-        
-        <NewsletterActions
-          onAddSubscriber={handleAddSubscriber}
-          onSendNewsletter={handleSendNewsletter}
-          sendingNewsletter={sendingNewsletter}
-        />
-
-        <NewsletterControls
+        <SimpleControls
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
           filterCategory={filterCategory}
           setFilterCategory={setFilterCategory}
-          showSoftDeleted={showSoftDeleted}
-          setShowSoftDeleted={setShowSoftDeleted}
           categories={categories}
-          selectedSubscribersCount={selectedSubscribers.length}
           onAddSubscriber={handleAddSubscriber}
-          onManageCategories={handleManageCategories}
-          onSendNewsletter={handleSendNewsletter}
-          onBulkDelete={handleBulkDelete}
+          onManageCategories={() => router.push('/admin/newsletter/categories')}
         />
 
         <SubscriberList
@@ -107,10 +95,7 @@ const NewsletterPage = memo(function NewsletterPage() {
         />
       </NewsletterPageLayout>
 
-      <RecentlyDeletedNotifications
-        recentlyDeleted={recentlyDeleted}
-        onUndoDelete={handleUndoDeleteSubmit}
-      />
+      
 
       <AddSubscriberModal
         isOpen={showAddModal}
@@ -124,6 +109,8 @@ const NewsletterPage = memo(function NewsletterPage() {
         isLoading={isAddingSubscriber}
         showUpdateOption={showUpdateOption}
       />
+
+      
     </>
   );
 });

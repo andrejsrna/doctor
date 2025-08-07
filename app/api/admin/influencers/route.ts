@@ -52,6 +52,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const priority = searchParams.get('priority');
     const search = searchParams.get('search');
+    const debug = searchParams.get('debug') === '1';
+    const includeStats = searchParams.get('includeStats') === '1';
 
     const where: Record<string, unknown> = {};
 
@@ -67,7 +69,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const influencers = await prisma.influencer.findMany({
+    let influencers = await prisma.influencer.findMany({
       where,
       include: {
         subscriber: {
@@ -78,6 +80,141 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    if (
+      influencers.length === 0 &&
+      !status && !category && !priority && !search
+    ) {
+      try {
+        const flagged = await prisma.category.findMany({ where: { influencersEnabled: true }, select: { id: true, name: true } });
+        for (const f of flagged) {
+          const subs = await prisma.subscriber.findMany({ where: { categoryId: f.id } });
+          for (const s of subs) {
+            const emailLc = s.email.toLowerCase();
+            const exists = await prisma.influencer.findUnique({ where: { email: emailLc } });
+            if (!exists) {
+              await prisma.influencer.create({
+                data: {
+                  email: emailLc,
+                  name: s.name || undefined,
+                  status: 'ACTIVE',
+                  priority: 'MEDIUM',
+                  tags: ['newsletter-sync'],
+                  notes: `Auto-synced from newsletter category: ${f.name}`
+                }
+              });
+            }
+          }
+        }
+        influencers = await prisma.influencer.findMany({
+          where,
+          include: { subscriber: { include: { category: true } } },
+          orderBy: { createdAt: 'desc' },
+        });
+      } catch (e) {
+        console.error('Auto-repair sync failed:', e);
+      }
+    }
+
+    if (includeStats) {
+      const subscriberIds = influencers.map((i) => i.subscriber?.id).filter(Boolean) as string[];
+      const emails = influencers.map((i) => i.email);
+
+      const [sentAgg, openAgg, clickAgg, fbAgg] = await Promise.all([
+        subscriberIds.length
+          ? prisma.emailLog.groupBy({
+              by: ['subscriberId'],
+              where: { subscriberId: { in: subscriberIds }, status: 'SENT' },
+              _count: { _all: true },
+              _max: { sentAt: true },
+            })
+          : Promise.resolve([]),
+        subscriberIds.length
+          ? prisma.emailLog.groupBy({
+              by: ['subscriberId'],
+              where: { subscriberId: { in: subscriberIds }, openedAt: { not: null } },
+              _count: { _all: true },
+              _max: { openedAt: true },
+            })
+          : Promise.resolve([]),
+        subscriberIds.length
+          ? prisma.emailLog.groupBy({
+              by: ['subscriberId'],
+              where: { subscriberId: { in: subscriberIds }, clickedAt: { not: null } },
+              _count: { _all: true },
+              _max: { clickedAt: true },
+            })
+          : Promise.resolve([]),
+        emails.length
+          ? prisma.demoFeedback.groupBy({
+              by: ['recipientEmail'],
+              where: { recipientEmail: { in: emails }, submittedAt: { not: null } },
+              _count: { _all: true },
+              _avg: { rating: true },
+              _max: { submittedAt: true },
+            })
+          : Promise.resolve([]),
+      ]);
+
+      const sentMap = new Map(sentAgg.map((a) => [a.subscriberId, a]));
+      const openMap = new Map(openAgg.map((a) => [a.subscriberId, a]));
+      const clickMap = new Map(clickAgg.map((a) => [a.subscriberId, a]));
+      const fbMap = new Map(fbAgg.map((a) => [a.recipientEmail, a]));
+
+      const enriched = influencers.map((i) => {
+        const sid = i.subscriber?.id || '';
+        const s = sentMap.get(sid);
+        const o = openMap.get(sid);
+        const c = clickMap.get(sid);
+        const f = fbMap.get(i.email);
+        return {
+          ...i,
+          stats: {
+            newsletter: {
+              sent: s?._count?._all || 0,
+              opened: o?._count?._all || 0,
+              clicked: c?._count?._all || 0,
+              lastSentAt: s?._max?.sentAt || null,
+            },
+            feedbacks: {
+              total: f?._count?._all || 0,
+              avgRating: f?._avg?.rating || null,
+              lastSubmittedAt: f?._max?.submittedAt || null,
+            },
+          },
+        };
+      });
+
+      if (debug) {
+        const flagged = await prisma.category.findMany({ where: { influencersEnabled: true } });
+        const flaggedStats = await Promise.all(flagged.map(async (f) => {
+          const subs = await prisma.subscriber.findMany({ where: { categoryId: f.id } });
+          return {
+            id: f.id,
+            name: f.name,
+            subscribers: subs.length,
+            sampleEmails: subs.slice(0, 5).map(s => s.email)
+          };
+        }));
+        return NextResponse.json({ influencers: enriched, debug: { flaggedCategories: flaggedStats } });
+      }
+
+      return NextResponse.json(enriched as unknown as InfluencerResponse[]);
+    }
+
+    if (debug) {
+      const flagged = await prisma.category.findMany({ where: { influencersEnabled: true } });
+      const flaggedStats = await Promise.all(flagged.map(async (f) => {
+        const subs = await prisma.subscriber.findMany({ where: { categoryId: f.id } });
+        return {
+          id: f.id,
+          name: f.name,
+          subscribers: subs.length,
+          sampleEmails: subs.slice(0, 5).map(s => s.email)
+        };
+      }));
+      return NextResponse.json({ influencers, debug: { flaggedCategories: flaggedStats } });
+    }
 
     return NextResponse.json(influencers as InfluencerResponse[]);
   } catch (error) {
@@ -105,7 +242,7 @@ export async function POST(request: NextRequest) {
     }
 
     const existingInfluencer = await prisma.influencer.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
 
     if (existingInfluencer) {
@@ -117,7 +254,7 @@ export async function POST(request: NextRequest) {
 
     const influencer = await prisma.influencer.create({
       data: {
-        email,
+        email: email.toLowerCase(),
         name,
         platform,
         handle,
@@ -138,6 +275,21 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    const existingSubscriber = await prisma.subscriber.findUnique({ where: { email: email.toLowerCase() } });
+    if (!existingSubscriber) {
+      const flaggedCategory = await prisma.category.findFirst({ where: { influencersEnabled: true } });
+      await prisma.subscriber.create({
+        data: {
+          email: email.toLowerCase(),
+          name: name || undefined,
+          status: 'ACTIVE',
+          source: 'influencers',
+          tags: ['influencer-sync'],
+          categoryId: flaggedCategory?.id,
+        }
+      });
+    }
 
     return NextResponse.json(
       { success: true, influencer: influencer as InfluencerResponse },

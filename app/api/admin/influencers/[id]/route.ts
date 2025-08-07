@@ -1,97 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-interface UpdateInfluencerData {
-  name?: string;
-  platform?: string;
-  handle?: string;
-  followers?: number;
-  engagement?: number;
-  category?: string;
-  location?: string;
-  notes?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'CONTACTED' | 'RESPONDED' | 'COLLABORATING';
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'VIP';
-  lastContact?: Date;
-  nextContact?: Date;
-  tags?: string[];
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
-    const body: UpdateInfluencerData = await request.json();
+    const { id } = params;
+    if (!id) return NextResponse.json({ success: false, error: 'Missing id' }, { status: 400 });
 
-    const existingInfluencer = await prisma.influencer.findUnique({
+    const body = await request.json();
+    const data: Record<string, unknown> = {};
+
+    if (typeof body.name !== 'undefined') data.name = body.name || null;
+    if (typeof body.platform !== 'undefined') data.platform = body.platform || null;
+    if (typeof body.handle !== 'undefined') data.handle = body.handle || null;
+    if (typeof body.followers !== 'undefined') data.followers = body.followers === '' ? null : Number(body.followers);
+    if (typeof body.engagement !== 'undefined') data.engagement = body.engagement === '' ? null : Number(body.engagement);
+    if (typeof body.category !== 'undefined') data.category = body.category || null;
+    if (typeof body.location !== 'undefined') data.location = body.location || null;
+    if (typeof body.notes !== 'undefined') data.notes = body.notes || null;
+    if (typeof body.status !== 'undefined') data.status = body.status;
+    if (typeof body.priority !== 'undefined') data.priority = body.priority;
+    if (typeof body.tags !== 'undefined') data.tags = Array.isArray(body.tags) ? body.tags : String(body.tags || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const updated = await prisma.influencer.update({
       where: { id },
+      data,
+      include: { subscriber: { include: { category: true } } },
     });
 
-    if (!existingInfluencer) {
-      return NextResponse.json(
-        { success: false, error: 'Influencer not found' },
-        { status: 404 }
-      );
-    }
-
-    const influencer = await prisma.influencer.update({
-      where: { id },
-      data: body,
-      include: {
-        subscriber: {
-          include: {
-            category: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json({ success: true, influencer });
+    return NextResponse.json({ success: true, influencer: updated });
   } catch (error) {
-    const details = (typeof error === 'object' && error && 'message' in error) 
-      ? (error as { message?: string }).message 
+    const details = (typeof error === 'object' && error && 'message' in error)
+      ? (error as { message?: string }).message
       : String(error);
-    
-    return NextResponse.json(
-      { success: false, error: 'Failed to update influencer', details },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to update influencer', details }, { status: 500 });
   }
 }
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-
-    const existingInfluencer = await prisma.influencer.findUnique({
-      where: { id },
-    });
-
-    if (!existingInfluencer) {
-      return NextResponse.json(
-        { success: false, error: 'Influencer not found' },
-        { status: 404 }
-      );
-    }
-
-    await prisma.influencer.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    const details = (typeof error === 'object' && error && 'message' in error) 
-      ? (error as { message?: string }).message 
-      : String(error);
-    
-    return NextResponse.json(
-      { success: false, error: 'Failed to delete influencer', details },
-      { status: 500 }
-    );
-  }
-} 

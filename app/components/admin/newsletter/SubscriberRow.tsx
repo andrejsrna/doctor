@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
+ 
 import { FaEnvelope, FaEdit, FaTrash } from "react-icons/fa";
 
 interface Subscriber {
@@ -85,9 +85,7 @@ const SubscriberRow = memo(function SubscriberRow({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+    <div
       className={`p-4 rounded-lg border transition-all duration-200 ${
         isSelected
           ? "bg-purple-900/30 border-purple-500/50"
@@ -132,24 +130,22 @@ const SubscriberRow = memo(function SubscriberRow({
             </span>
           )}
           
-          <motion.button
-            whileHover={{ scale: 1.1 }}
+          <button
             onClick={() => onEdit(subscriber)}
             className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
           >
             <FaEdit className="w-4 h-4" />
-          </motion.button>
+          </button>
           
-          <motion.button
-            whileHover={{ scale: 1.1 }}
+          <button
             onClick={() => onDelete(subscriber.id)}
             className="p-2 text-red-400 hover:text-red-300 transition-colors"
           >
             <FaTrash className="w-4 h-4" />
-          </motion.button>
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });
 

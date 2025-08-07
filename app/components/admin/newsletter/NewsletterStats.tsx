@@ -1,17 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+ 
 import { FaUsers, FaEnvelope, FaChartLine } from "react-icons/fa";
 import { useNewsletterStats } from "./hooks/useNewsletterSelectors";
 
 export default function NewsletterStats() {
   const stats = useNewsletterStats();
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="grid grid-cols-1 md:grid-cols-3 gap-6"
-    >
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="bg-black/50 backdrop-blur-sm border border-purple-500/20 rounded-lg p-6">
         <div className="flex items-center gap-3">
           <FaUsers className="w-6 h-6 text-purple-400" />
@@ -41,6 +37,6 @@ export default function NewsletterStats() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

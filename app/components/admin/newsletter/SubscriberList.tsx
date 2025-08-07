@@ -1,7 +1,6 @@
 "use client";
 
 import { memo, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
 import { FaUsers, FaChevronLeft, FaChevronRight, FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import SubscriberRow from "./SubscriberRow";
 
@@ -190,25 +189,21 @@ const SubscriberList = memo(function SubscriberList({
           </div>
           
           <div className="flex items-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
               className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <FaAngleDoubleLeft className="w-4 h-4" />
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <FaChevronLeft className="w-4 h-4" />
-            </motion.button>
+            </button>
             
             <div className="flex items-center gap-1">
               {getPageNumbers.map((page, index) => (
@@ -216,9 +211,7 @@ const SubscriberList = memo(function SubscriberList({
                   {page === '...' ? (
                     <span className="px-3 py-2 text-gray-500">...</span>
                   ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={() => onPageChange(page as number)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                         currentPage === page
@@ -227,31 +220,27 @@ const SubscriberList = memo(function SubscriberList({
                       }`}
                     >
                       {page}
-                    </motion.button>
+                    </button>
                   )}
                 </div>
               ))}
             </div>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <FaChevronRight className="w-4 h-4" />
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
               className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <FaAngleDoubleRight className="w-4 h-4" />
-            </motion.button>
+            </button>
           </div>
         </div>
       )}

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/lib/auth";
 
 interface DemoFile {
   id: string;
@@ -20,8 +19,81 @@ interface EmailData {
   newsletterCategory?: string;
 }
 
+  const renderDemoEmailHTML = ({
+    subject,
+    body,
+    feedbackLink,
+    baseUrl,
+    fileNames = [] as string[],
+  }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileNames?: string[] }) => {
+    const logo = `${baseUrl.replace(/\/$/, '')}/logo.png`;
+    const safeBody = (body || '').split('\n').map(p => `<p style="margin:0 0 16px;">${p.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`).join('');
+    const filesList = fileNames.length
+      ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileNames.map(n => `<li style=\"color:#a855f7;\">${n.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</li>`).join('')}</ul>`
+      : '';
+    return `<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${subject}</title>
+    <style>
+      .preheader { display: none !important; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0; overflow: hidden; }
+      @media (prefers-color-scheme: dark) { .bg { background:#000!important; } .card { background:#0b0b0b!important; } }
+    </style>
+  </head>
+  <body class="bg" style="margin:0;padding:0;background:#000;color:#fff;">
+    <span class="preheader">New demo from DnB Doctor – we’d love your feedback.</span>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#000;">
+      <tr>
+        <td align="center" style="padding:24px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;">
+            <tr>
+              <td align="center" style="padding:8px 0 24px;">
+                <img src="${logo}" width="96" height="auto" alt="DnB Doctor" style="display:block;border:0;outline:none;text-decoration:none;" />
+              </td>
+            </tr>
+            <tr>
+              <td class="card" style="background:#0d0d0d;border:1px solid #3b0764;border-radius:12px;padding:24px;">
+                <h1 style="margin:0 0 12px;font-size:22px;line-height:28px;color:#a855f7;font-family:Arial, Helvetica, sans-serif;">${subject}</h1>
+                <div style="font-family:Arial, Helvetica, sans-serif;font-size:14px;line-height:22px;color:#e5e7eb;">
+                  ${safeBody}
+                  ${filesList}
+                </div>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 8px;">
+                  <tr>
+                    <td align="center" bgcolor="#16a34a" style="border-radius:10px;">
+                      <a href="${feedbackLink}" target="_blank" style="display:inline-block;padding:12px 18px;font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#000;background:#22c55e;text-decoration:none;border-radius:10px;font-weight:bold;">
+                        Review & Give Feedback
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:18px;color:#9ca3af;">If the button doesn’t work, copy & paste this link:</p>
+                <p style="margin:6px 0 0;font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:18px;color:#60a5fa;word-break:break-all;">
+                  <a href="${feedbackLink}" style="color:#60a5fa;text-decoration:underline;">${feedbackLink}</a>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:16px 8px;color:#6b7280;font-family:Arial, Helvetica, sans-serif;font-size:12px;">
+                © ${new Date().getFullYear()} DnB Doctor
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+ </html>`;
+  }
+
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { files, emailData }: { files: DemoFile[], emailData: EmailData } = await request.json();
 
     if (!files || files.length === 0) {
@@ -77,24 +149,9 @@ export async function POST(request: NextRequest) {
 
     const emailPromises = recipients.map(async (recipient) => {
       try {
-        const attachments = [];
+        // We no longer send attachments or direct file links in email
         
-        for (const file of files) {
-          if (file.path) {
-            try {
-              const filePath = join(process.cwd(), "public", file.path);
-              const fileBuffer = await readFile(filePath);
-              
-              attachments.push({
-                filename: file.name,
-                content: fileBuffer,
-                contentType: file.type
-              });
-            } catch (error) {
-              console.error(`Failed to read file ${file.path}:`, error);
-            }
-          }
-        }
+        // No file processing here; links will be available on the feedback page only
 
         // Personalize message for newsletter subscribers
         let personalizedSubject = emailData.subject;
@@ -110,13 +167,37 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Create unique feedback token per recipient batch
+        const feedbackToken = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+        await prisma.demoFeedback.create({
+          data: {
+            token: feedbackToken,
+            recipientEmail: recipient,
+            subject: personalizedSubject,
+            message: personalizedMessage,
+            files: selectedFilesToJson(files),
+          }
+        })
+
+        const siteBase = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || process.env.NEXTAUTH_URL || ''
+        const feedbackLink = `${siteBase.replace(/\/$/, '')}/demo-feedback?token=${feedbackToken}`
+
+        const base = siteBase
+        const html = renderDemoEmailHTML({
+          subject: personalizedSubject,
+          body: personalizedMessage,
+          feedbackLink,
+          baseUrl: base,
+          fileNames: files.map(f => f.name)
+        })
+
         const mailOptions = {
           from: process.env.SMTP_FROM || process.env.SMTP_USER,
           to: recipient,
           subject: personalizedSubject,
-          text: personalizedMessage,
-          html: personalizedMessage.replace(/\n/g, '<br>'),
-          attachments
+          text: `${personalizedMessage}\n\nReview & Give Feedback: ${feedbackLink}`,
+          html,
+          // No attachments
         };
 
         await transporter.sendMail(mailOptions);
@@ -153,4 +234,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+
+  const selectedFilesToJson = (files: DemoFile[]) => files.map(f => ({ id: f.id, name: f.name, size: f.size, type: f.type, path: f.path }))
 } 

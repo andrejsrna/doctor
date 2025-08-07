@@ -1,7 +1,6 @@
 "use client";
 
 import { memo, useCallback } from "react";
-import { motion } from "framer-motion";
 import { FaFilter, FaTags, FaPlus, FaCog, FaEnvelope, FaTrash } from "react-icons/fa";
 import SearchInput from "./SearchInput";
 
@@ -63,12 +62,7 @@ const NewsletterControls = memo(function NewsletterControls({
   }, [setSearchTerm]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2 }}
-      className="bg-black/50 backdrop-blur-sm border border-green-500/20 rounded-xl shadow-2xl p-6"
-    >
+    <div className="bg-black/50 backdrop-blur-sm border border-green-500/20 rounded-xl shadow-2xl p-6">
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div className="flex-1 min-w-64">
           <SearchInput
@@ -118,51 +112,43 @@ const NewsletterControls = memo(function NewsletterControls({
           </label>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={onAddSubscriber}
           className="px-4 py-2 bg-purple-900/50 text-purple-300 rounded-lg hover:bg-purple-900/70 transition-all duration-200 flex items-center gap-2"
         >
           <FaPlus className="w-4 h-4" />
           Add Subscriber
-        </motion.button>
+        </button>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={onManageCategories}
           className="px-4 py-2 bg-blue-900/50 text-blue-300 rounded-lg hover:bg-blue-900/70 transition-all duration-200 flex items-center gap-2"
         >
           <FaCog className="w-4 h-4" />
           Manage Categories
-        </motion.button>
+        </button>
 
         {selectedSubscribersCount > 0 && (
           <>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={onSendNewsletter}
               className="px-4 py-2 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70 transition-all duration-200 flex items-center gap-2"
             >
               <FaEnvelope className="w-4 h-4" />
               Send Newsletter
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={onBulkDelete}
               className="px-4 py-2 bg-red-900/50 text-red-300 rounded-lg hover:bg-red-900/70 transition-all duration-200 flex items-center gap-2"
             >
               <FaTrash className="w-4 h-4" />
               Delete Selected ({selectedSubscribersCount})
-            </motion.button>
+            </button>
           </>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 });
 

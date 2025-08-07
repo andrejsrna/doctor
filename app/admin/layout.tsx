@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { authClient } from "@/app/lib/authClient";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -8,7 +8,8 @@ import {
   FaSyringe, 
   FaSkull, 
   FaSignOutAlt, 
-  FaShieldAlt
+  FaShieldAlt,
+  FaArrowLeft
 } from "react-icons/fa";
 
 const LoadingScreen = ({ message, color = "purple" }: { message: string; color?: string }) => (
@@ -31,31 +32,19 @@ const RedirectScreen = ({ message }: { message: string }) => (
 );
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [lastActivity, setLastActivity] = useState(Date.now());
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  useEffect(() => { setIsClient(true); }, []);
 
   useEffect(() => {
-    if (status === "loading") return;
-
-    if (status === "unauthenticated" && pathname !== "/admin/login") {
-      router.push("/admin/login");
-      return;
-    }
-
-    if (status === "authenticated" && pathname === "/admin/login") {
-      router.push("/admin");
-      return;
-    }
-
-    if (status !== "authenticated") return;
+    if (isPending) return;
+    const isAuthed = !!session?.user;
+    if (!isAuthed) return;
 
     const INACTIVITY_TIMEOUT = 60 * 60 * 1000;
     const WARNING_TIMEOUT = 50 * 60 * 1000;
@@ -70,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const timeSinceActivity = now - lastActivity;
 
       if (timeSinceActivity >= INACTIVITY_TIMEOUT) {
-        signOut({ callbackUrl: "/admin/login" });
+        authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/admin/login") } });
       } else if (timeSinceActivity >= WARNING_TIMEOUT) {
         setShowTimeoutWarning(true);
       }
@@ -84,29 +73,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       events.forEach(event => document.removeEventListener(event, updateActivity, true));
       clearInterval(interval);
     };
-  }, [status, lastActivity, pathname, router]);
+  }, [isPending, session, lastActivity, router]);
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+  const handleSignOut = async () => {
+    await authClient.signOut({ fetchOptions: { onSuccess: () => router.push("/") } });
   };
 
-  if (status === "loading" || !isClient) {
+  if (isPending || !isClient) {
     return <LoadingScreen message="Loading Session..." />;
   }
 
-  if (status === "unauthenticated") {
-    if (pathname !== "/admin/login") {
-      return <LoadingScreen message="Redirecting to login..." color="red" />;
-    }
-    return <RedirectScreen message="Redirecting to login..." />;
-  }
-
   if (pathname === "/admin/login") {
-    if (status === "authenticated") {
+    if (session?.user) {
       return <RedirectScreen message="Redirecting to dashboard..." />;
     }
     return <>{children}</>;
   }
+  
+  // For non-login pages, rely on middleware to redirect unauthenticated users
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
@@ -145,6 +129,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="text-sm text-gray-400">
                 Session expires in 1 hour
               </div>
+              {pathname !== "/admin" && (
+                <button
+                  onClick={() => router.push("/admin")}
+                  className="px-4 py-2 font-bold text-white bg-gradient-to-r from-purple-900/80 via-purple-700/80 to-purple-900/80 hover:from-purple-800/80 hover:via-purple-600/80 hover:to-purple-800/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 rounded-lg transition-all duration-200 flex items-center gap-2"
+                >
+                  <FaArrowLeft className="w-4 h-4" />
+                  Back
+                </button>
+              )}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

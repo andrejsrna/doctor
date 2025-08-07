@@ -23,6 +23,14 @@ interface DashboardStats {
 
 
 
+function addNoCacheHeaders(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0, private");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  response.headers.set("Surrogate-Control", "no-store");
+  return response;
+}
+
 export async function GET() {
   try {
     // Get total subscribers count
@@ -131,18 +139,19 @@ export async function GET() {
       subscribersByCategory
     };
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       stats,
       recentActivity
     });
+    return addNoCacheHeaders(res);
 
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
-    return NextResponse.json(
+    const res = NextResponse.json(
       { 
         success: false, 
         error: 'Failed to fetch dashboard stats',
@@ -150,5 +159,6 @@ export async function GET() {
       },
       { status: 500 }
     );
+    return addNoCacheHeaders(res);
   }
 } 

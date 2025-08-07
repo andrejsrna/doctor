@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "./app/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 const redirects = [
     { from: "/x3a-go", to: "/music/x3a-go" },
@@ -195,7 +195,7 @@ const redirects = [
     }
   }
   
-  export default auth((request) => {
+  export default function middleware(request: NextRequest) {
     try {
       const path = request.nextUrl.pathname;
       
@@ -215,11 +215,13 @@ const redirects = [
       }
       
       if (path.startsWith("/admin")) {
-        if (!request.auth && path !== "/admin/login") {
+        const sessionCookie = getSessionCookie(request);
+        const isAuthed = Boolean(sessionCookie);
+        if (!isAuthed && path !== "/admin/login") {
           const redirectResponse = NextResponse.redirect(new URL("/admin/login", request.url));
           return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
         }
-        if (request.auth && path === "/admin/login") {
+        if (isAuthed && path === "/admin/login") {
           const redirectResponse = NextResponse.redirect(new URL("/admin", request.url));
           return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
         }
@@ -235,10 +237,10 @@ const redirects = [
       const response = NextResponse.next();
       return addCacheControlHeaders(addSecurityHeaders(response), request.nextUrl.pathname);
     }
-  });
+  }
   
   export const config = {
     matcher: [
-      "/((?!_next/static|_next/image|favicon.ico).*)",
+      "/((?!api|_next/static|_next/image|favicon.ico).*)",
     ],
   };

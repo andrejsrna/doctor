@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { authClient } from "@/app/lib/authClient";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaSyringe, FaSkull } from "react-icons/fa";
@@ -18,9 +18,13 @@ export default function LoginPage() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileKey, setTurnstileKey] = useState("");
   const [isDevelopment, setIsDevelopment] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
+    // Ensure CSRF cookie is set before attempting sign-in
+    fetch('/api/auth/csrf', { credentials: 'include' }).catch(() => {})
+
     const storedAttempts = localStorage.getItem("loginAttempts");
     const storedLockoutTime = localStorage.getItem("lockoutTime");
     
@@ -86,24 +90,23 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        username,
+      const { error } = await authClient.signIn.email({
+        email: username,
         password,
-        turnstileToken: isDevelopment ? "dev-bypass" : turnstileToken
+        callbackURL: "/admin"
       });
       
-      if (result?.error) {
+      if (error) {
         setAttempts(prev => {
           const newAttempts = prev + 1;
           localStorage.setItem("loginAttempts", newAttempts.toString());
           return newAttempts;
         });
         setError("Invalid credentials");
-      } else if (result?.ok) {
+      } else {
         localStorage.removeItem("loginAttempts");
         localStorage.removeItem("lockoutTime");
-        router.push("/admin");
+        router.push('/admin');
       }
     } catch {
       setError("An error occurred. Please try again.");

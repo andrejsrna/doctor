@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
     const category = searchParams.get('category') || '';
+    const includeInfluencers = searchParams.get('includeInfluencers') === '1';
     
     const skip = (page - 1) * limit;
     
@@ -83,6 +84,16 @@ export async function GET(request: NextRequest) {
       conditions.push({ categoryId: category });
     }
     
+    if (!includeInfluencers) {
+      conditions.push({
+        NOT: {
+          category: {
+            is: { influencersEnabled: true }
+          }
+        }
+      });
+    }
+
     const whereClause = { AND: conditions };
     
     const [subscribers, totalCount] = await Promise.all([
@@ -154,6 +165,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { email, name, tags, category, notes, updateExisting }: CreateSubscriberData = await request.json();
+    let validCategoryId: string | undefined = undefined;
+    if (category) {
+      try {
+        const cat = await prisma.category.findUnique({ where: { id: category } });
+        if (cat) validCategoryId = category;
+      } catch {
+        validCategoryId = undefined;
+      }
+    }
 
     if (!email) {
       const response = NextResponse.json(
@@ -178,11 +198,40 @@ export async function POST(request: NextRequest) {
             status: "ACTIVE",
             source: "admin",
             tags: tags || existingSubscriber.tags,
-            categoryId: category || existingSubscriber.categoryId,
+            categoryId: validCategoryId || existingSubscriber.categoryId,
             notes: notes || existingSubscriber.notes,
           },
           include: { category: true }
         });
+
+        if (updatedSubscriber.categoryId) {
+          const cat = await prisma.category.findUnique({ where: { id: updatedSubscriber.categoryId } });
+          if (cat?.influencersEnabled) {
+          const emailLc = updatedSubscriber.email.toLowerCase();
+          const existingInfluencer = await prisma.influencer.findUnique({ where: { email: emailLc } });
+            if (existingInfluencer) {
+              await prisma.influencer.update({
+              where: { email: emailLc },
+                data: {
+                  name: updatedSubscriber.name || existingInfluencer.name,
+                  status: 'ACTIVE',
+                  tags: Array.from(new Set([...(existingInfluencer.tags || []), 'newsletter-sync']))
+                }
+              });
+            } else {
+              await prisma.influencer.create({
+                data: {
+                email: emailLc,
+                  name: updatedSubscriber.name || undefined,
+                  status: 'ACTIVE',
+                  priority: 'MEDIUM',
+                  tags: ['newsletter-sync'],
+                  notes: `Auto-synced from newsletter category: ${updatedSubscriber.category?.name || ''}`
+                }
+              });
+            }
+          }
+        }
 
         const response = NextResponse.json({ 
           success: true, 
@@ -216,12 +265,32 @@ export async function POST(request: NextRequest) {
         status: "ACTIVE",
         source: "admin",
         tags: tags || [],
-        categoryId: category || undefined,
+        categoryId: validCategoryId,
         notes: notes || undefined,
         emailCount: 0
       },
       include: { category: true }
     });
+
+    if (newSubscriber.categoryId) {
+      const cat = await prisma.category.findUnique({ where: { id: newSubscriber.categoryId } });
+      if (cat?.influencersEnabled) {
+        const emailLc = newSubscriber.email.toLowerCase();
+        const existingInfluencer = await prisma.influencer.findUnique({ where: { email: emailLc } });
+        if (!existingInfluencer) {
+          await prisma.influencer.create({
+            data: {
+              email: emailLc,
+              name: newSubscriber.name || undefined,
+              status: 'ACTIVE',
+              priority: 'MEDIUM',
+              tags: ['newsletter-sync'],
+              notes: `Auto-synced from newsletter category: ${newSubscriber.category?.name || ''}`
+            }
+          });
+        }
+      }
+    }
 
     const response = NextResponse.json({ 
       success: true, 

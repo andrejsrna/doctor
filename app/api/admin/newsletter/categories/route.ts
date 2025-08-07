@@ -36,6 +36,7 @@ export async function GET() {
         name: category.name,
         color: category.color,
         description: category.description,
+        influencersEnabled: (category as any).influencersEnabled ?? false,
         subscriberCount: category._count.subscribers
       }))
     });
@@ -61,7 +62,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, color, description } = await request.json();
+    const { name, color, description, influencersEnabled = false } = await request.json();
 
     if (!name || !color || !description) {
       return NextResponse.json(
@@ -71,12 +72,32 @@ export async function POST(request: NextRequest) {
     }
 
     const newCategory = await prisma.category.create({
-      data: {
-        name,
-        color,
-        description
-      }
+      data: { name, color, description, influencersEnabled }
     });
+
+    if (newCategory.influencersEnabled) {
+      try {
+        const subscribers = await prisma.subscriber.findMany({ where: { categoryId: newCategory.id } });
+        for (const s of subscribers) {
+          const emailLc = s.email.toLowerCase();
+          const existing = await prisma.influencer.findUnique({ where: { email: emailLc } });
+          if (!existing) {
+            await prisma.influencer.create({
+              data: {
+                email: emailLc,
+                name: s.name || undefined,
+                status: 'ACTIVE',
+                priority: 'MEDIUM',
+                tags: ['newsletter-sync'],
+                notes: `Auto-synced from newsletter category: ${newCategory.name}`
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Auto-sync on create failed:', e);
+      }
+    }
 
     return NextResponse.json({
       success: true,
