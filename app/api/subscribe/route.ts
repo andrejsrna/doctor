@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendFreeTrackEmail } from "@/app/services/brevo";
 
 interface SubscribeData {
   email: string;
@@ -75,9 +76,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Send free track via Brevo (best-effort)
+    try {
+      await sendFreeTrackEmail({
+        toEmail: newSubscriber.email,
+        toName: newSubscriber.name || undefined,
+        downloadUrl: 'https://cdn.dnbdoctor.com/YEHOR%20-%20Hold%20Me%20(Original%20Mix).wav',
+      });
+    } catch (e) {
+      console.error('Brevo send error:', e);
+    }
+
     const response = NextResponse.json({
       success: true,
-      message: 'Successfully subscribed to our newsletter!',
+      message: 'Check your email for the free track!',
       subscriber: {
         id: newSubscriber.id,
         email: newSubscriber.email,

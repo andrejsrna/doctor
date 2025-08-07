@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Button from '../components/Button'
+import KeyTracks from '../components/KeyTracks'
 
 interface FormData {
   email: string
@@ -171,75 +172,8 @@ export default function SubmitDemoPage() {
       </div>
 
       {/* Music Examples Section */}
-      <div className="bg-black py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent 
-              bg-gradient-to-r from-purple-500 to-pink-500">
-              Music We Accept
-            </h2>
-            <p className="text-xl text-gray-300 mt-4 max-w-2xl mx-auto">
-              Here are some examples of releases that match our style and quality standards
-            </p>
-          </motion.div>
-
-          <div className="grid gap-6 max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-            >
-              <iframe 
-                width="100%" 
-                height="166" 
-                scrolling="no" 
-                frameBorder="no" 
-                allow="autoplay" 
-                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1788399262&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-                className="rounded-lg"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-            >
-              <iframe 
-                width="100%" 
-                height="166" 
-                scrolling="no" 
-                frameBorder="no" 
-                allow="autoplay" 
-                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1512762610&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-                className="rounded-lg"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-            >
-              <iframe 
-                width="100%" 
-                height="166" 
-                scrolling="no" 
-                frameBorder="no" 
-                allow="autoplay" 
-                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1742135040&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-                className="rounded-lg"
-              />
-            </motion.div>
-          </div>
-        </div>
+      <div className="bg-black">
+        <KeyTracks title="Music We Accept" />
       </div>
 
       {/* Form Section */}

@@ -5,11 +5,13 @@ import WhatIsNeurofunk from './components/WhatIsNeurofunk'
 import BookUsSection from './components/BookUsSection'
 import FeaturedArtists from './components/FeaturedArtists'
 import SpotifyPlaylists from './components/SpotifyPlaylists'
+import NewToNeurofunk from './components/NewToNeurofunk'
 
 export default function Home() {
   return (
     <main>
       <Hero />
+      <NewToNeurofunk />
       <FeaturedTrack />
       <LatestMusic />
       <SpotifyPlaylists />
