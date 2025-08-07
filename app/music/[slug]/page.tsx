@@ -9,7 +9,6 @@ import {
   FaDownload,
   FaSoundcloud,
   FaSpotify,
-  FaYoutube,
 } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 import { useSingleRelease } from '@/app/hooks/useWordPress'
@@ -86,17 +85,10 @@ export default function ReleasePage({ params }: PageProps) {
     },
     {
       name: 'SoundCloud',
-      url: release?.acf?.soundcloud,
+      url: release?.acf?.sc,
       icon: FaSoundcloud,
       color: 'text-orange-400',
       bgColor: 'bg-orange-500/10 hover:bg-orange-500/20',
-    },
-    {
-      name: 'YouTube Music',
-      url: release?.acf?.youtube_music,
-      icon: FaYoutube,
-      color: 'text-red-400',
-      bgColor: 'bg-red-500/10 hover:bg-red-500/20',
       priority: 3,
     },
     {

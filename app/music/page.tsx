@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaFilter, FaSearch, FaVirus, FaSyringe, FaSoundcloud, FaSpotify, FaApple } from 'react-icons/fa'
+import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaFilter, FaSearch, FaVirus, FaSyringe, FaSoundcloud, FaSpotify, FaApple, FaYoutube } from 'react-icons/fa'
 import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
 import Button from '../components/Button'
 import EngagementCTA from '../components/EngagementCTA'
@@ -487,7 +487,7 @@ export default function MusicPage() {
                   </div>
                   
                   {/* Streaming Links */}
-                  {(post.acf?.soundcloud || post.acf?.spotify || post.acf?.apple_music || post.acf?.beatport) && (
+                  {(post.acf?.soundcloud || post.acf?.spotify || post.acf?.apple_music || post.acf?.beatport || post.acf?.youtube_music) && (
                     <div className="flex gap-2 mt-3">
                       {post.acf?.soundcloud && (
                         <motion.a
@@ -541,6 +541,18 @@ export default function MusicPage() {
                             height={16}
                             className="mx-auto"
                           />
+                        </motion.a>
+                      )}
+                      {post.acf?.youtube_music && (
+                        <motion.a
+                          href={post.acf.youtube_music}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 
+                            hover:border-red-500/50 rounded-lg p-2 text-center transition-all duration-300"
+                        >
+                          <FaYoutube className="w-4 h-4 text-red-400 mx-auto" />
                         </motion.a>
                       )}
                     </div>

@@ -72,7 +72,7 @@ export default function ReleaseHero({
               rel="noopener noreferrer"
               onClick={() => handleStreamingClick('YouTube')}
             >
-              <Button variant="infected" size="lg" className="group">
+              <Button variant="toxic" size="lg" className="group">
                 <FaYoutube className="w-6 h-6 mr-3" />
                 Listen on YouTube
               </Button>
