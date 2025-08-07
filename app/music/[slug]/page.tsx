@@ -85,7 +85,7 @@ export default function ReleasePage({ params }: PageProps) {
     },
     {
       name: 'SoundCloud',
-      url: release?.acf?.sc,
+      url: release?.acf?.soundcloud,
       icon: FaSoundcloud,
       color: 'text-orange-400',
       bgColor: 'bg-orange-500/10 hover:bg-orange-500/20',
