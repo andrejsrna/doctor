@@ -103,14 +103,14 @@ export default function CookieConsent() {
       exit={{ opacity: 0, y: 50 }}
       className="fixed bottom-0 left-0 right-0 z-[201] bg-black/95 backdrop-blur-xl border-t border-purple-500/20"
     >
-      <div className="container mx-auto max-w-4xl p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex-1 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-purple-500/20 border border-purple-500/30">
-                <FaShieldVirus className="w-5 h-5 text-purple-500" />
+      <div className="container mx-auto max-w-4xl p-3 md:p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-6">
+          <div className="flex-1 space-y-2 md:space-y-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 rounded-full bg-purple-500/20 border border-purple-500/30">
+                <FaShieldVirus className="w-4 h-4 md:w-5 md:h-5 text-purple-500" />
               </div>
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-base md:text-lg font-semibold text-white">
               We value your privacy
             </h3>
             </div>
@@ -118,7 +118,7 @@ export default function CookieConsent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-gray-300 text-sm"
+              className="text-gray-300 text-xs md:text-sm"
             >
               We use cookies to enhance your browsing experience, serve personalized content, 
               and analyze our traffic. By clicking &quot;Accept All&quot;, you consent to our use of 
@@ -132,7 +132,7 @@ export default function CookieConsent() {
               {' '}to learn more.
             </motion.p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="w-full sm:w-auto"
@@ -140,9 +140,9 @@ export default function CookieConsent() {
               <Button
               onClick={() => saveConsent({ analytics: false, marketing: false })}
                 variant="decayed"
-                className="w-full sm:w-auto group"
+                className="w-full sm:w-auto group text-xs md:text-sm py-2 md:py-3"
               >
-                <FaSkull className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+                <FaSkull className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
                 <span>Reject All</span>
               </Button>
             </motion.div>
@@ -153,9 +153,9 @@ export default function CookieConsent() {
               <Button
               onClick={() => saveConsent({ analytics: true, marketing: true })}
                 variant="infected"
-                className="w-full sm:w-auto group"
+                className="w-full sm:w-auto group text-xs md:text-sm py-2 md:py-3"
               >
-                <FaSyringe className="w-5 h-5 mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
+                <FaSyringe className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
                 <span>Accept All</span>
               </Button>
             </motion.div>

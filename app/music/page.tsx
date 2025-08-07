@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaFilter, FaSearch, FaVirus, FaSyringe } from 'react-icons/fa'
+import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaFilter, FaSearch, FaVirus, FaSyringe, FaSoundcloud, FaSpotify, FaApple } from 'react-icons/fa'
 import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
 import Button from '../components/Button'
 import EngagementCTA from '../components/EngagementCTA'
@@ -31,6 +31,12 @@ interface Post {
   }
   acf?: {
     preview?: string
+    soundcloud?: string
+    spotify?: string
+    apple_music?: string
+    beatport?: string
+    deezer?: string
+    youtube_music?: string
   }
   date: string
   excerpt: {
@@ -479,8 +485,68 @@ export default function MusicPage() {
                       </Button>
                     </motion.div>
                   </div>
-                </div>
-              </motion.article>
+                  
+                  {/* Streaming Links */}
+                  {(post.acf?.soundcloud || post.acf?.spotify || post.acf?.apple_music || post.acf?.beatport) && (
+                    <div className="flex gap-2 mt-3">
+                      {post.acf?.soundcloud && (
+                        <motion.a
+                          href={post.acf.soundcloud}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          className="flex-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 
+                            hover:border-orange-500/50 rounded-lg p-2 text-center transition-all duration-300"
+                        >
+                          <FaSoundcloud className="w-4 h-4 text-orange-400 mx-auto" />
+                        </motion.a>
+                      )}
+                      {post.acf?.spotify && (
+                        <motion.a
+                          href={post.acf.spotify}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 
+                            hover:border-green-500/50 rounded-lg p-2 text-center transition-all duration-300"
+                        >
+                          <FaSpotify className="w-4 h-4 text-green-400 mx-auto" />
+                        </motion.a>
+                      )}
+                      {post.acf?.apple_music && (
+                        <motion.a
+                          href={post.acf.apple_music}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          className="flex-1 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 
+                            hover:border-pink-500/50 rounded-lg p-2 text-center transition-all duration-300"
+                        >
+                          <FaApple className="w-4 h-4 text-pink-400 mx-auto" />
+                        </motion.a>
+                      )}
+                      {post.acf?.beatport && (
+                        <motion.a
+                          href={post.acf.beatport}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05 }}
+                          className="flex-1 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 
+                            hover:border-cyan-500/50 rounded-lg p-2 text-center transition-all duration-300"
+                        >
+                          <Image
+                            src="/beatport.svg"
+                            alt="Beatport"
+                            width={16}
+                            height={16}
+                            className="mx-auto"
+                          />
+                        </motion.a>
+                      )}
+                    </div>
+                                     )}
+                  </div>
+                </motion.article>
             ))}
           </div>
 
