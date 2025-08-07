@@ -1,6 +1,6 @@
 "use client";
 
-import { FaEnvelope, FaUserEdit, FaUserTimes, FaGlobe, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
+import { FaEnvelope, FaGlobe, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 
 interface Influencer {
   id: string;

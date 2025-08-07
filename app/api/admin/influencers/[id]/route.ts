@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await ctx.params;
     if (!id) return NextResponse.json({ success: false, error: 'Missing id' }, { status: 400 });
 
     const body = await request.json();

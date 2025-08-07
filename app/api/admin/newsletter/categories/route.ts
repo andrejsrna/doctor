@@ -36,7 +36,7 @@ export async function GET() {
         name: category.name,
         color: category.color,
         description: category.description,
-        influencersEnabled: (category as any).influencersEnabled ?? false,
+        influencersEnabled: (category as unknown as { influencersEnabled?: boolean }).influencersEnabled ?? false,
         subscriberCount: category._count.subscribers
       }))
     });

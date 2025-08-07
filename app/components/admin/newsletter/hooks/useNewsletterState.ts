@@ -215,7 +215,7 @@ export const useNewsletterState = () => {
     setCurrentPage(1);
   }, []);
 
-  const memoizedStats = useMemo(() => stats, [stats.totalSubscribers, stats.activeSubscribers, stats.pendingSubscribers]);
+  const memoizedStats = useMemo(() => stats, [stats]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

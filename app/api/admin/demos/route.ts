@@ -16,15 +16,18 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: any = {
+    const where: {
+      status?: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED';
+      OR?: Array<{ artistName?: { contains: string; mode: 'insensitive' } } | { email?: { contains: string; mode: 'insensitive' } } | { genre?: { contains: string; mode: 'insensitive' } }>;
+    } = {
       ...(status && status !== 'ALL' 
-        ? { status: status } 
+        ? { status: status as 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' } 
         : {}),
       ...(search ? {
         OR: [
-          { artistName: { contains: search, mode: 'insensitive' as any } },
-          { email: { contains: search, mode: 'insensitive' as any } },
-          { genre: { contains: search, mode: 'insensitive' as any } },
+          { artistName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { genre: { contains: search, mode: 'insensitive' } },
         ],
       } : {}),
     }

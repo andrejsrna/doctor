@@ -1,13 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FaMusic, 
-  FaEnvelope, 
-  FaEye, 
   FaCheck, 
-  FaTimes, 
   FaSearch,
   FaFilter,
   FaEdit
@@ -47,11 +44,7 @@ export default function DemosPage() {
   const [showModal, setShowModal] = useState(false);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchSubmissions();
-  }, [pagination.page, search, statusFilter]);
-
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -72,7 +65,11 @@ export default function DemosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, search, statusFilter]);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, [fetchSubmissions]);
 
   const updateSubmission = async (id: string, status: string, notes?: string) => {
     setUpdating(true);
@@ -299,7 +296,7 @@ export default function DemosPage() {
                 </label>
                 <select
                   value={selectedSubmission.status}
-                  onChange={(e) => setSelectedSubmission(prev => prev ? { ...prev, status: e.target.value as any } : null)}
+                  onChange={(e) => setSelectedSubmission(prev => prev ? { ...prev, status: e.target.value as DemoSubmission['status'] } : null)}
                   className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
                   <option value="PENDING">Pending</option>
