@@ -5,19 +5,29 @@ import WhatIsNeurofunk from './components/WhatIsNeurofunk'
 import BookUsSection from './components/BookUsSection'
 import FeaturedArtists from './components/FeaturedArtists'
 import SpotifyPlaylists from './components/SpotifyPlaylists'
-import NewToNeurofunk from './components/NewToNeurofunk'
+import { Suspense } from 'react'
 
 export default function Home() {
   return (
     <main>
       <Hero />
-      <NewToNeurofunk />
-      <FeaturedTrack />
-      <LatestMusic />
-      <SpotifyPlaylists />
+      <Suspense fallback={<div style={{height: 400}} />}> 
+        {/* server-rendered, cached */}
+        <FeaturedTrack />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 600}} />}> 
+        <LatestMusic />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 400}} />}> 
+        <SpotifyPlaylists />
+      </Suspense>
       <WhatIsNeurofunk />
-      <FeaturedArtists />
-      <BookUsSection />
+      <Suspense fallback={<div style={{height: 500}} />}> 
+        <FeaturedArtists />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 500}} />}> 
+        <BookUsSection />
+      </Suspense>
     </main>
   )
 }

@@ -5,47 +5,17 @@ import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import StreamingModal from './StreamingModal'
-import { IoSearchOutline } from 'react-icons/io5'
-import { FaChevronDown } from 'react-icons/fa'
+import ListenMenu from './ListenMenu'
 import SearchModal from './SearchModal'
-import Button from './Button'
 
-const ListenNowButton = ({ setIsModalOpen }: { 
-  isModalOpen: boolean
-  setIsModalOpen: (open: boolean) => void 
-}) => {
-  return (
-    <Button
-      variant="infected"
-      onClick={() => setIsModalOpen(true)}
-      className="group"
-    >
-      <motion.span
-        animate={{
-          rotate: [0, -15, 15, -15, 0],
-          scale: [1, 1.2, 1, 1.2, 1]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 1
-          }}
-        className="mr-2"
-        >
-          🎧
-        </motion.span>
-        Listen Now
-    </Button>
-  )
-}
+// removed old ListenNowButton modal trigger in favor of ListenMenu
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const { scrollY } = useScroll()
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
   const pathname = usePathname()
 
@@ -121,7 +91,7 @@ export default function Navigation() {
   const musicSubmenuItems = [
     { title: 'All Releases', href: '/music' },
     { title: 'Single Releases', href: '/music?category=single-tracks' },
-    { title: 'EPs', href: '/music?category=ep' },
+    { title: 'EPs', href: '/music?category=eps' },
     { title: 'LPs', href: '/music?category=albums' },
     { title: 'Music Packs', href: '/music-packs' },
     { title: 'Sample Packs', href: '/sample-packs' },
@@ -155,7 +125,9 @@ export default function Navigation() {
                 <div className="relative group">
                   <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
                     Music
-                    <FaChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                    <svg className="w-3 h-3 transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
                   <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                     <div className="py-2">
@@ -181,14 +153,13 @@ export default function Navigation() {
                     {item.title}
                   </Link>
                 ))}
-                <button
-                  onClick={() => setIsSearchModalOpen(true)}
-                  className="text-gray-300 hover:text-green-500 transition-colors"
-                  aria-label="Search"
-                >
-                  <IoSearchOutline size={24} />
+                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-green-500 transition-colors" aria-label="Search">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
                 </button>
-                <ListenNowButton isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+                <ListenMenu />
               </div>
             </div>
           </div>
@@ -229,10 +200,12 @@ export default function Navigation() {
             <div className="hidden md:flex items-center space-x-8">
               {/* Music Dropdown */}
               <div className="relative group">
-                <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
-                  Music
-                  <FaChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
-                </button>
+                  <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
+                    Music
+                    <svg className="w-3 h-3 transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 <div className="absolute top-full left-0 mt-2 w-48 bg-black/90 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                   <div className="py-2">
                     {musicSubmenuItems.map((item) => (
@@ -257,24 +230,22 @@ export default function Navigation() {
                   {item.title}
                 </Link>
               ))}
-              <button
-                onClick={() => setIsSearchModalOpen(true)}
-                className="text-gray-300 hover:text-green-500 transition-colors"
-                aria-label="Search"
-              >
-                <IoSearchOutline size={24} />
+              <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-green-500 transition-colors" aria-label="Search">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
               </button>
-              <ListenNowButton isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+               <ListenMenu />
             </div>
 
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-4">
-              <button
-                onClick={() => setIsSearchModalOpen(true)}
-                className="text-gray-300 md:hidden hover:text-green-500 p-2"
-                aria-label="Search"
-              >
-                <IoSearchOutline size={24} />
+              <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 md:hidden hover:text-green-500 p-2" aria-label="Search">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
               </button>
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -335,11 +306,14 @@ export default function Navigation() {
               className="text-gray-300 hover:text-green-500 block px-3 py-2 text-base font-medium transition-colors"
               aria-label="Search"
             >
-              <IoSearchOutline size={24} />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
             </button>
-            <div onClick={() => setIsOpen(false)}>
-              <ListenNowButton isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-            </div>
+              <div onClick={() => setIsOpen(false)}>
+                <ListenMenu />
+              </div>
           </div>
         </motion.div>
       </motion.nav>
@@ -348,10 +322,7 @@ export default function Navigation() {
         isOpen={isSearchModalOpen}
         onClose={() => setIsSearchModalOpen(false)}
       />
-      <StreamingModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {/* StreamingModal removed from header */}
     </>
   )
 } 

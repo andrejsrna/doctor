@@ -29,6 +29,7 @@ export const fetchNewsletterData = async (params: FetchDataParams): Promise<Fetc
     search: params.debouncedSearchTerm,
     status: params.filterStatus,
     category: params.filterCategory,
+    includeInfluencers: '1',
     showSoftDeleted: params.showSoftDeleted.toString(),
     t: timestamp.toString()
   });
@@ -41,7 +42,13 @@ export const fetchNewsletterData = async (params: FetchDataParams): Promise<Fetc
         'Pragma': 'no-cache'
       }
     }),
-    fetch('/api/admin/newsletter/categories')
+    fetch(`/api/admin/newsletter/categories?t=${timestamp}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    })
   ]);
   
   let subscribers: Subscriber[] = [];
@@ -66,7 +73,14 @@ export const fetchNewsletterData = async (params: FetchDataParams): Promise<Fetc
   
   if (categoriesResponse.ok) {
     const data = await categoriesResponse.json();
-    categories = data.categories || [];
+    const raw = (data.categories || []) as Category[];
+    const seen = new Set<string>();
+    categories = raw.filter(c => {
+      const key = c.name.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   } else {
     console.error('Failed to fetch categories:', await categoriesResponse.text());
   }

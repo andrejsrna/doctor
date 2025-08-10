@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
  
 import InfluencersHeader from "../../components/admin/influencers/InfluencersHeader";
+import Link from 'next/link'
 import InfluencerStats from "../../components/admin/influencers/InfluencerStats";
 import InfluencerFilters from "../../components/admin/influencers/InfluencerFilters";
 import InfluencersTable from "../../components/admin/influencers/InfluencersTable";
@@ -40,7 +42,11 @@ interface Influencer {
 // removed Category type; no manual sync UI
 
 export default function InfluencersPage() {
+  const router = useRouter();
   const [influencers, setInfluencers] = useState<Influencer[]>([]);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(0);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,12 +63,13 @@ export default function InfluencersPage() {
       setError(null);
       
       const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('limit', '20');
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter) params.append('status', statusFilter);
       if (categoryFilter) params.append('category', categoryFilter);
       if (priorityFilter) params.append('priority', priorityFilter);
 
-      params.append('includeStats', '1');
       const response = await fetch(`/api/admin/influencers?${params}` , {
         cache: 'no-store',
         headers: { 'cache-control': 'no-cache' }
@@ -70,14 +77,19 @@ export default function InfluencersPage() {
       if (!response.ok) throw new Error('Failed to fetch influencers');
       
       const data = await response.json();
-      setInfluencers(Array.isArray(data) ? data : (data?.influencers || []));
+      const items: Influencer[] = Array.isArray(data) ? data : (data?.items || data?.influencers || []);
+      setInfluencers(items);
+      if (data?.pagination) {
+        setPages(data.pagination.pages || 0);
+        setTotal(data.pagination.total || 0);
+      }
     } catch (error) {
       setError('Failed to load influencers');
       console.error('Error fetching influencers:', error);
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, statusFilter, categoryFilter, priorityFilter]);
+  }, [page, searchTerm, statusFilter, categoryFilter, priorityFilter]);
 
   useEffect(() => {
     fetchInfluencers();
@@ -131,7 +143,7 @@ export default function InfluencersPage() {
     <div className="container mx-auto px-6 py-8 text-white">
       <InfluencersHeader onAdd={() => alert('Add influencer functionality coming soon!')} />
       <InfluencerStats
-        total={influencers.length}
+        total={total || influencers.length}
         active={influencers.filter(i => i.status === 'ACTIVE').length}
         vip={influencers.filter(i => i.priority === 'VIP').length}
         synced={influencers.filter(i => i.subscriber).length}
@@ -149,14 +161,38 @@ export default function InfluencersPage() {
       />
 
       {filteredInfluencers.length > 0 ? (
-        <InfluencersTable
-          influencers={filteredInfluencers}
-          onEdit={(infl) => { setEditing(infl as unknown as InfluencerForModal); setEditOpen(true); }}
-          onDelete={(id) => confirm('Delete influencer?') && alert(`Delete ${id} coming soon`)}
-        />
+        <>
+          <div className="mb-3 text-sm text-gray-400">Click Edit to open modal, or open full page for feedback details.</div>
+          <InfluencersTable
+            influencers={filteredInfluencers}
+            onEdit={(infl) => { router.push(`/admin/influencers/${infl.id}`); }}
+            onDelete={(id) => confirm('Delete influencer?') && alert(`Delete ${id} coming soon`)}
+          />
+          <div className="mt-4 text-sm text-gray-400">Tip: Open individual page: <span className="italic">/admin/influencers/[id]</span>. Example: {filteredInfluencers[0] ? <Link href={`/admin/influencers/${filteredInfluencers[0].id}`} className="underline text-blue-300">Open first</Link> : null}</div>
+        </>
       ) : (
         <div className="bg-black/40 border border-purple-500/20 rounded-xl p-8 text-center">
           <div className="text-xl text-gray-300">No influencers yet</div>
+        </div>
+      )}
+
+      {pages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-6">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <div className="text-gray-400">{page} / {pages}</div>
+          <button
+            disabled={page === pages}
+            onClick={() => setPage(p => Math.min(pages, p + 1))}
+            className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       )}
 

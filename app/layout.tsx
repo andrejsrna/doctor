@@ -7,6 +7,7 @@ import './globals.css';
 import './styles/content-wrapper.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import { PostHogProvider } from "./components/PostHogProvider";
+import { Toaster } from 'react-hot-toast';
 
 const rajdhani = Share_Tech({
   variable: "--font-rajdhani",
@@ -82,40 +83,11 @@ export default function RootLayout({
       <head>
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Preload critical resources */}
-        <link rel="preload" href="/mainbg.jpeg" as="image" type="image/jpeg" />
-        <link rel="preload" href="/music-bg.jpeg" as="image" type="image/jpeg" />
         
         {/* DNS prefetch for external domains */}
         <link rel="dns-prefetch" href="https://admin.dnbdoctor.com" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         
-        {/* Google Analytics */}
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-                    page_title: document.title,
-                    page_location: window.location.href,
-                  });
-                `,
-              }}
-            />
-          </>
-        )}
+        {/* Google Analytics moved to body via next/script */}
         
         {/* Critical CSS - inline for performance */}
         <style dangerouslySetInnerHTML={{
@@ -166,74 +138,65 @@ export default function RootLayout({
           `
         }} />
         
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Safer console override for Firefox compatibility
-                if (typeof window === 'undefined' || typeof console === 'undefined') return;
-                
-                let errorCount = 0;
-                const MAX_ERRORS = 100; // Prevent memory buildup
-                
-                const originalError = console.error;
-                const originalWarn = console.warn;
-                
-                const shouldSuppressError = (message) => {
-                  return message.includes('cloudflareinsights.com') ||
-                         message.includes('beacon.min.js') ||
-                         (message.includes('integrity') && message.includes('cloudflare')) ||
-                         (message.includes('CORS') && message.includes('cloudflare')) ||
-                         message.includes('fbevents.js') ||
-                         message.includes('connect.facebook.net') ||
-                         message.includes('Unexpected value undefined parsing r attribute') ||
-                         message.includes('AudioContext was prevented from starting automatically') ||
-                         message.includes('Content-Security-Policy') ||
-                         message.includes('Cookie "_fbp" has been rejected') ||
-                         message.includes('NetworkError when attempting to fetch resource') ||
-                         message.includes('admin.dnbdoctor.com') ||
-                         message.includes('was not used within a few seconds') ||
-                         message.includes('preloaded with link preload') ||
-
-                         message.includes('seek failed') ||
-                         message.includes('volume setting failed');
-                };
-                
-                const shouldSuppressWarn = (message) => {
-                  return message.includes('Feature Policy') ||
-                         message.includes('clipboard-write') ||
-                         message.includes('Layout was forced before the page was fully loaded') ||
-                         message.includes('Skipping unsupported feature name');
-                };
-                
-                console.error = function() {
-                  if (errorCount++ > MAX_ERRORS) {
+        {process.env.NODE_ENV === 'development' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  if (typeof window === 'undefined' || typeof console === 'undefined') return;
+                  let errorCount = 0;
+                  const MAX_ERRORS = 100;
+                  const originalError = console.error;
+                  const originalWarn = console.warn;
+                  const shouldSuppressError = (message) => {
+                    return message.includes('cloudflareinsights.com') ||
+                           message.includes('beacon.min.js') ||
+                           (message.includes('integrity') && message.includes('cloudflare')) ||
+                           (message.includes('CORS') && message.includes('cloudflare')) ||
+                           message.includes('fbevents.js') ||
+                           message.includes('connect.facebook.net') ||
+                           message.includes('Unexpected value undefined parsing r attribute') ||
+                           message.includes('AudioContext was prevented from starting automatically') ||
+                           message.includes('Content-Security-Policy') ||
+                           message.includes('Cookie "_fbp" has been rejected') ||
+                           message.includes('NetworkError when attempting to fetch resource') ||
+                           message.includes('admin.dnbdoctor.com') ||
+                           message.includes('was not used within a few seconds') ||
+                           message.includes('preloaded with link preload') ||
+                           message.includes('seek failed') ||
+                           message.includes('volume setting failed');
+                  };
+                  const shouldSuppressWarn = (message) => {
+                    return message.includes('Feature Policy') ||
+                           message.includes('clipboard-write') ||
+                           message.includes('Layout was forced before the page was fully loaded') ||
+                           message.includes('Skipping unsupported feature name');
+                  };
+                  console.error = function() {
+                    if (errorCount++ > MAX_ERRORS) {
+                      console.error = originalError;
+                      return originalError.apply(console, arguments);
+                    }
+                    const message = Array.from(arguments).join(' ');
+                    if (!shouldSuppressError(message)) {
+                      originalError.apply(console, arguments);
+                    }
+                  };
+                  console.warn = function() {
+                    const message = Array.from(arguments).join(' ');
+                    if (!shouldSuppressWarn(message)) {
+                      originalWarn.apply(console, arguments);
+                    }
+                  };
+                  setTimeout(() => {
                     console.error = originalError;
-                    return originalError.apply(console, arguments);
-                  }
-                  
-                  const message = Array.from(arguments).join(' ');
-                  if (!shouldSuppressError(message)) {
-                    originalError.apply(console, arguments);
-                  }
-                };
-                
-                console.warn = function() {
-                  const message = Array.from(arguments).join(' ');
-                  if (!shouldSuppressWarn(message)) {
-                    originalWarn.apply(console, arguments);
-                  }
-                };
-                
-                // Cleanup after 30 seconds to prevent memory leaks
-                setTimeout(() => {
-                  console.error = originalError;
-                  console.warn = originalWarn;
-                }, 30000);
-              })();
-            `
-          }}
-        />
+                    console.warn = originalWarn;
+                  }, 30000);
+                })();
+              `
+            }}
+          />
+        )}
       </head>
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
@@ -244,6 +207,7 @@ export default function RootLayout({
             {children}
             <Footer />
             <CookieConsent />
+            <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
           </SessionProviderWrapper>
         </PostHogProvider>
       </body>

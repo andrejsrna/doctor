@@ -18,7 +18,7 @@ interface TrackInfo {
 function DemoFeedbackContent() {
   const searchParams = useSearchParams()
   const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null)
-  const [tokenMeta, setTokenMeta] = useState<{ files?: Array<{ id: string; name: string; path?: string }>; subject?: string } | null>(null)
+  const [tokenMeta, setTokenMeta] = useState<{ files?: Array<{ id: string; name: string; path?: string }>; subject?: string; release?: { title: string; slug: string } | null } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -34,22 +34,18 @@ function DemoFeedbackContent() {
   const [audioError, setAudioError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchTrackInfo = async () => {
+    const fetchTrackAndMeta = async () => {
       try {
-        // Support both track and track_id parameters
-        const trackId = searchParams.get('track_id') || searchParams.get('track')
         const token = searchParams.get('token')
+        const trackIdParam = searchParams.get('track_id') || searchParams.get('track')
 
-        if (!trackId) {
-          throw new Error('Missing track ID parameter. Use track_id or track in URL.')
+        if (trackIdParam) {
+          const info = await feedbackApi.getTrackInfo(parseInt(trackIdParam), token || undefined)
+          if (!info) {
+            throw new Error('Track information not found')
+          }
+          setTrackInfo(info)
         }
-
-        const info = await feedbackApi.getTrackInfo(parseInt(trackId), token || undefined)
-        if (!info) {
-          throw new Error('Track information not found')
-        }
-        
-        setTrackInfo(info)
 
         if (token) {
           const metaRes = await fetch(`/api/feedback?token=${encodeURIComponent(token)}`, { cache: 'no-store' })
@@ -57,6 +53,10 @@ function DemoFeedbackContent() {
             const meta = await metaRes.json()
             setTokenMeta(meta)
           }
+        }
+
+        if (!trackIdParam && !token) {
+          setError('Missing token or track parameter in URL')
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load track information')
@@ -66,13 +66,14 @@ function DemoFeedbackContent() {
       }
     }
 
-    fetchTrackInfo()
+    fetchTrackAndMeta()
   }, [searchParams])
 
   useEffect(() => {
     const setupWave = async () => {
       if (!tokenMeta?.files?.length && !trackInfo?.url) return
-      const src = tokenMeta?.files?.[0]?.path || trackInfo?.url
+      const original = tokenMeta?.files?.[0]?.path || trackInfo?.url
+      const src = original?.startsWith('http') ? `/api/audio-proxy?url=${encodeURIComponent(original)}` : original
       if (!src || !waveContainerRef.current) return
       try {
         const WaveSurfer = (await import('wavesurfer.js')).default
@@ -112,16 +113,11 @@ function DemoFeedbackContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!trackInfo || rating === 0) return
+    if (rating === 0) return
     
     const trackId = searchParams.get('track_id') || searchParams.get('track')
     const token = searchParams.get('token')
     
-    if (!trackId) {
-      setError('Missing track ID')
-      return
-    }
-
     try {
       setSubmitting(true)
       // Submit to our API (which also forwards to WordPress)
@@ -129,7 +125,7 @@ function DemoFeedbackContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          track_id: parseInt(trackId),
+          track_id: trackId ? parseInt(trackId) : undefined,
           token: token || undefined,
           rating,
           feedback,
@@ -191,6 +187,21 @@ function DemoFeedbackContent() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-8"
         >
+          {/* Related Release */}
+          {tokenMeta?.release && (
+            <div className="bg-black/40 border border-purple-500/20 rounded-xl p-4">
+              <div className="text-sm text-gray-300 mb-1">Related release</div>
+              <a
+                href={`/music/${tokenMeta.release.slug}`}
+                className="text-purple-400 hover:text-purple-300 underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {tokenMeta.release.title}
+              </a>
+            </div>
+          )}
+
           {/* Track Info */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent 
@@ -266,19 +277,19 @@ function DemoFeedbackContent() {
             <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
               <h3 className="text-lg font-semibold text-white mb-2">Files</h3>
               <ul className="space-y-2">
-                {tokenMeta.files.map((f) => (
-                  <li key={f.id}>
-                    {f.path?.startsWith('http') ? (
-                      <a href={f.path} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline">
+                {tokenMeta.files.map((f) => {
+                  const isAbs = !!f.path && f.path.startsWith('http')
+                  const viewHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}` : f.path || '#'
+                  const dlHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}&download=1&name=${encodeURIComponent(f.name)}` : f.path || '#'
+                  return (
+                    <li key={f.id} className="flex items-center justify-between gap-3">
+                      <a href={viewHref} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline truncate">
                         {f.name}
                       </a>
-                    ) : (
-                      <a href={f.path} download className="text-purple-400 hover:text-purple-300 underline">
-                        {f.name}
-                      </a>
-                    )}
-                  </li>
-                ))}
+                      <a href={dlHref} className="px-2 py-1 text-xs rounded bg-purple-500/20 border border-purple-500/30 text-purple-200 hover:bg-purple-500/30">Download</a>
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ) : null}

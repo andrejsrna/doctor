@@ -1,6 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await ctx.params;
+    if (!id) return NextResponse.json({ success: false, error: 'Missing id' }, { status: 400 });
+
+    const influencer = await prisma.influencer.findUnique({
+      where: { id },
+      include: { subscriber: { include: { category: true } } },
+    });
+    if (!influencer) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+
+    const feedbacks = await prisma.demoFeedback.findMany({
+      where: { recipientEmail: influencer.email.toLowerCase(), submittedAt: { not: null } },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        subject: true,
+        rating: true,
+        feedback: true,
+        submittedAt: true,
+        createdAt: true,
+        wpPostId: true,
+      }
+    });
+
+    return NextResponse.json({ success: true, influencer, feedbacks });
+  } catch (error) {
+    const details = (typeof error === 'object' && error && 'message' in error)
+      ? (error as { message?: string }).message
+      : String(error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch influencer', details }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await ctx.params;

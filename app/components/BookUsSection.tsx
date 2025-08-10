@@ -16,7 +16,6 @@ export default function BookUsSection() {
           alt="DJ Party"
           fill
           className="object-cover opacity-20"
-          priority
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       </div>

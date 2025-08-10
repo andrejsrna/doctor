@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/lib/auth";
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -8,8 +9,11 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const categories = await prisma.category.findMany({
       include: {
         _count: {
@@ -62,6 +66,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const { name, color, description, influencersEnabled = false } = await request.json();
 
     if (!name || !color || !description) {

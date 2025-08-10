@@ -11,20 +11,12 @@ export async function generateMetadata(
   const { slug } = await params
   
   try {
-    const res = await fetch(
-      'https://admin.dnbdoctor.com/wp-json/wp/v2/artists?' + new URLSearchParams({
-        slug,
-        _embed: '1'
-      }),
-      { next: { revalidate: 3600 } }
-    )
-    
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || ''}/api/artists/${slug}`, { next: { revalidate: 3600 } })
     const data = await res.json()
-    const artist = data[0]
-    
-    const formattedName = artist?.title?.rendered || slug
+    const artist = data?.item
+    const formattedName = artist?.name || slug
     const artistUrl = `https://dnbdoctor.com/artists/${slug}`
-    const coverImage = `https://dnbdoctor.com/artists/${slug}/cover.jpg`
+    const coverImage = artist?.imageUrl || `https://dnbdoctor.com/artists/${slug}/cover.jpg`
 
     return {
       title: `${formattedName} | DnB Doctor Artist`,

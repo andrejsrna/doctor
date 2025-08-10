@@ -25,21 +25,32 @@ const fetcher = async (url: string) => {
 
 export function useLatestPosts(postsPerPage: number, page = 1, category = '', search = '') {
   return useSWR(
-    [`posts`, postsPerPage, page, category, search],
+    [`releases`, postsPerPage, page, category, search],
     async () => {
-      let url = `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?_embed&per_page=${postsPerPage}&page=${page}`
-      if (category) url += `&categories=${category}`
-      if (search) url += `&search=${encodeURIComponent(search)}`
-      
-      const response = await fetch(url)
-      if (!response.ok) throw new Error('Failed to fetch posts')
-      
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(postsPerPage),
+        category,
+        search,
+      })
+      const response = await fetch(`/api/releases?${params}`)
+      if (!response.ok) throw new Error('Failed to fetch releases')
       const data = await response.json()
-      return {
-        posts: data,
-        totalPages: Number(response.headers.get('X-WP-TotalPages')) || 1,
-        total: Number(response.headers.get('X-WP-Total')) || 0
-      }
+      const posts = (data.items || []).map((item: {
+        id: string
+        title: string
+        coverImageUrl?: string | null
+        imageUrl?: string | null
+        previewUrl?: string | null
+        slug: string
+      }) => ({
+        id: item.id,
+        title: item.title,
+        coverImageUrl: item.imageUrl || item.coverImageUrl || null,
+        previewUrl: item.previewUrl || null,
+        slug: item.slug,
+      }))
+      return { posts, totalPages: data.totalPages || 1, total: data.total || 0 }
     },
     CACHE_CONFIG.posts
   )
@@ -82,9 +93,10 @@ export function useCategories() {
   return useSWR(
     'categories',
     async () => {
-      const response = await fetch('https://admin.dnbdoctor.com/wp-json/wp/v2/categories')
-      if (!response.ok) throw new Error('Failed to fetch categories')
-      return response.json()
+      const res = await fetch('/api/admin/releases/categories')
+      if (!res.ok) throw new Error('Failed to fetch categories')
+      const data = await res.json()
+      return data.categories || []
     },
     CACHE_CONFIG.posts
   )
@@ -94,17 +106,15 @@ export function useSingleRelease(slug: string) {
   return useSWR(
     slug ? [`release`, slug] : null,
     async () => {
-      const response = await fetch(
-        `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?slug=${slug}&_embed`
-      )
+      const response = await fetch(`/api/releases/${slug}`)
       if (!response.ok) throw new Error('Failed to fetch release')
       const data = await response.json()
-      return data[0] || null
+      return data.item || null
     },
     {
       ...CACHE_CONFIG.posts,
       revalidateOnMount: true,
-      dedupingInterval: 60000, // 1 minute
+      dedupingInterval: 60000,
     }
   )
 }

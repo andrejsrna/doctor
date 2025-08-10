@@ -1,36 +1,17 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { useLatestPosts, useMultipleMediaPreviews } from '../hooks/useWordPress'
+import { useLatestPosts } from '../hooks/useWordPress'
 import Button from './Button'
 import { FaPlay, FaPause, FaArrowRight, FaInfoCircle } from 'react-icons/fa'
 
 interface Post {
-  id: number
-  title: {
-    rendered: string
-  }
-  _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url?: string
-      media_details?: {
-        sizes?: {
-          full?: {
-            source_url?: string
-          }
-          medium?: {
-            source_url?: string
-          }
-        }
-      }
-    }>
-  }
-  acf?: {
-    preview?: string
-  }
-  date: string
+  id: string
+  title: string
+  coverImageUrl: string | null
+  previewUrl: string | null
   slug: string
 }
 
@@ -38,42 +19,17 @@ export default function LatestMusic() {
   const { data } = useLatestPosts(6)
   const posts = useMemo(() => data?.posts || [], [data?.posts])
   const [playingId, setPlayingId] = useState<number | null>(null)
-  const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
-  const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
+  const [audioErrors, setAudioErrors] = useState<Record<string, string>>({})
+  // no external previews needed; URLs come directly from API
 
-  const previewIds = useMemo(() => 
-    posts.map((post: Post) => post.acf?.preview).filter(Boolean) || [], 
-    [posts]
-  )
-  const { data: previews } = useMultipleMediaPreviews(previewIds)
-
-  useEffect(() => {
-    if (!posts || !previews) return
-    
-    const newPreviewUrls: Record<number, string> = {}
-    posts.forEach((post: Post) => {
-      if (post.acf?.preview && previews[post.acf.preview]) {
-        newPreviewUrls[post.id] = previews[post.acf.preview]
-      }
-    })
-
-    setPreviewUrls(newPreviewUrls)
-  }, [posts, previews])
-
-  const getImageUrl = (post: Post) => {
-    const media = post._embedded?.['wp:featuredmedia']?.[0]
-    return (
-      media?.source_url ||
-      media?.media_details?.sizes?.full?.source_url ||
-      media?.media_details?.sizes?.medium?.source_url
-    )
-  }
+  const getImageUrl = (post: Post) => post.coverImageUrl || undefined
 
   const handlePlay = async (postId: number) => {
-    if (!posts.find((post: Post) => post.id === postId)?.acf?.preview) {
+    const idKey = String(postId)
+    if (!posts.find((post: Post) => post.id === idKey)?.previewUrl) {
       setAudioErrors(prev => ({
         ...prev,
-        [postId]: 'No preview available'
+        [idKey]: 'No preview available'
       }))
       return
     }
@@ -85,7 +41,7 @@ export default function LatestMusic() {
     } else {
       // Stop any currently playing audio
       if (playingId) {
-        const currentAudio = document.getElementById(`audio-${playingId}`) as HTMLAudioElement
+       const currentAudio = document.getElementById(`audio-${playingId}`) as HTMLAudioElement
         currentAudio?.pause()
         currentAudio.currentTime = 0
       }
@@ -97,15 +53,15 @@ export default function LatestMusic() {
           setPlayingId(postId)
           // Clear any previous error for this post
           setAudioErrors(prev => {
-            const newErrors = { ...prev }
-            delete newErrors[postId]
+            const newErrors: Record<string, string> = { ...prev }
+            delete newErrors[idKey]
             return newErrors
           })
         } catch (error) {
           console.error('Error playing audio:', error)
           setAudioErrors(prev => ({
             ...prev,
-            [postId]: 'Error playing audio'
+            [idKey]: 'Error playing audio'
           }))
         }
       }
@@ -127,7 +83,7 @@ export default function LatestMusic() {
           Latest <span className="text-purple-500">Releases</span>
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {posts?.map((post: Post, index: number) => (
             <motion.article
               key={post.id}
@@ -141,11 +97,10 @@ export default function LatestMusic() {
                 <div className="relative aspect-square">
                   <Image
                     src={getImageUrl(post)!}
-                    alt={post.title.rendered}
+                    alt={post.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                    quality={85}
                   />
                 </div>
               ) : (
@@ -154,7 +109,7 @@ export default function LatestMusic() {
                 </div>
               )}
 
-              {post.acf?.preview && (
+              {post.previewUrl && (
                 <audio
                   id={`audio-${post.id}`}
                   preload="none"
@@ -165,11 +120,8 @@ export default function LatestMusic() {
                     }))
                   }}
                 >
-                  {previewUrls[post.id] && (
-                    <source 
-                      src={previewUrls[post.id]} 
-                      type="audio/mpeg"
-                    />
+                  {post.previewUrl && (
+                    <source src={post.previewUrl} type="audio/mpeg" />
                   )}
                   Your browser does not support the audio element.
                 </audio>
@@ -177,12 +129,9 @@ export default function LatestMusic() {
               
               {/* Overlay with title and buttons */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <h3 
-                  className="text-xl font-bold text-white mb-4 line-clamp-2"
-                  dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                />
+                <h3 className="text-xl font-bold text-white mb-4 line-clamp-2">{post.title}</h3>
                 <div className="flex gap-3">
-                  {post.acf?.preview && (
+                  {post.previewUrl && (
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       className="flex-1"
@@ -191,11 +140,11 @@ export default function LatestMusic() {
                         variant="toxic"
                       onClick={(e) => {
                         e.preventDefault()
-                        handlePlay(post.id)
+                        handlePlay(Number(post.id))
                       }}
                         className="w-full"
                     >
-                      {playingId === post.id ? (
+                      {playingId === Number(post.id) ? (
                         <>
                             <FaPause className="w-4 h-4" />
                             <span>Pause</span>

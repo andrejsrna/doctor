@@ -1,9 +1,10 @@
 import { ButtonHTMLAttributes } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   href?: string;
+  target?: string;
+  rel?: string;
   variant?: 'toxic' | 'infected' | 'decayed';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -15,6 +16,8 @@ export default function Button({
   variant = 'toxic',
   size = 'md',
   className = '',
+  target,
+  rel,
   ...props
 }: ButtonProps) {
   const baseStyles = 'relative inline-flex items-center justify-center font-bold overflow-hidden';
@@ -50,16 +53,18 @@ export default function Button({
   `.replace(/\s+/g, ' ').trim();
 
   const ButtonContent = () => (
-    <motion.span 
-      className="relative z-10 flex items-center gap-2"
-    >
-      {children}
-    </motion.span>
-   );
+    <span className="relative z-10 flex items-center gap-2">{children}</span>
+  );
 
    if (href) {
      return (
-       <Link href={href} className={buttonStyles}>
+       <Link
+         href={href}
+         className={buttonStyles}
+         target={target}
+         rel={rel}
+         onClick={props.onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}
+       >
          <ButtonContent />
        </Link>
      );

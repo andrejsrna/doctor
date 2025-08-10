@@ -65,31 +65,26 @@ export default function SocialShare({
     })
 
     try {
+      if (navigator.share) {
+        await navigator.share({ title, url })
+        return
+      }
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(url)
-        alert('Link copied!')
-      } else {
-        const textArea = document.createElement('textarea')
-        textArea.value = url
-        textArea.style.position = 'fixed'
-        textArea.style.left = '-999999px'
-        textArea.style.top = '-999999px'
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-        try {
-          document.execCommand('copy')
-          alert('Link copied!')
-        } catch (fallbackErr) {
-          console.error('Fallback copy failed:', fallbackErr)
-          prompt('Copy this link:', url)
-        } finally {
-          document.body.removeChild(textArea)
-        }
+        return
       }
+      const textArea = document.createElement('textarea')
+      textArea.value = url
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-999999px'
+      textArea.style.top = '-999999px'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
     } catch (err) {
       console.error('Failed to copy:', err)
-      prompt('Copy this link:', url)
     }
   }
 

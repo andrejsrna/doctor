@@ -2,30 +2,16 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FaFacebook, FaInstagram, FaYoutube, FaNewspaper, FaSyringe, FaSkull } from 'react-icons/fa'
+import { FaSyringe, FaSkull } from 'react-icons/fa'
 import { useState, useEffect } from 'react'
 import { subscriberApi } from '../services/subscriberApi'
 import Button from './Button'
+import toast from 'react-hot-toast'
 
 const socialLinks = [
-  {
-    name: 'Facebook',
-    href: 'https://www.facebook.com/dnbdoctor',
-    icon: FaFacebook,
-    hoverColor: 'hover:text-blue-500'
-  },
-  {
-    name: 'Instagram',
-    href: 'https://www.instagram.com/dnbdoctor/',
-    icon: FaInstagram,
-    hoverColor: 'hover:text-pink-500'
-  },
-  {
-    name: 'YouTube',
-    href: 'https://www.youtube.com/@dnbdoctor1',
-    icon: FaYoutube,
-    hoverColor: 'hover:text-red-500'
-  }
+  { name: 'Facebook', href: 'https://www.facebook.com/dnbdoctor', icon: 'facebook' as const, hoverColor: 'hover:text-blue-500' },
+  { name: 'Instagram', href: 'https://www.instagram.com/dnbdoctor/', icon: 'instagram' as const, hoverColor: 'hover:text-pink-500' },
+  { name: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1', icon: 'youtube' as const, hoverColor: 'hover:text-red-500' },
 ]
 
 export default function Footer() {
@@ -58,11 +44,13 @@ export default function Footer() {
       })
       setStatus('success')
       setMessage('Thanks for subscribing!')
+      toast.success('Subscribed to Newsletter')
       setEmail('')
       setAcceptedPrivacy(false)
     } catch (error) {
       setStatus('error')
       setMessage(error instanceof Error ? error.message : 'Failed to subscribe')
+      toast.error(error instanceof Error ? error.message : 'Subscription failed')
     }
   }
 
@@ -110,7 +98,15 @@ export default function Footer() {
                   whileHover={{ scale: 1.1, rotate: 12 }}
                   className={`text-gray-400 ${link.hoverColor} transition-colors`}
                 >
-                  <link.icon className="w-6 h-6" />
+                  {link.icon === 'facebook' && (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.2l-.4 3h-1.8v7A10 10 0 0 0 22 12z"/></svg>
+                  )}
+                  {link.icon === 'instagram' && (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm6.5-.8a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg>
+                  )}
+                  {link.icon === 'youtube' && (
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M23.5 6.2s-.2-1.6-.8-2.2c-.8-.8-1.7-.8-2.2-.9C17.6 2.8 12 2.8 12 2.8h0s-5.6 0-8.5.3c-.5.1-1.4.1-2.2.9C.7 4.6.5 6.2.5 6.2S.2 8.1.2 10v1.9c0 1.9.2 3.8.2 3.8s.2 1.6.8 2.2c.8.8 1.8.8 2.3.9 1.7.2 7.2.3 7.2.3s5.6 0 8.5-.3c.5-.1 1.4-.1 2.2-.9.6-.6.8-2.2.8-2.2s.2-1.9.2-3.8V10c0-1.9-.2-3.8-.2-3.8zM9.8 14.6V7.9l6.1 3.3-6.1 3.4z"/></svg>
+                  )}
                   <span className="sr-only">{link.name}</span>
                 </motion.a>
               ))}
@@ -123,7 +119,9 @@ export default function Footer() {
                 whileHover={{ scale: 1.1, rotate: 12 }}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
-                <FaNewspaper className="w-6 h-6" />
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M4 4h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 3v9h12V7H6zm-3 9V7H2v11a2 2 0 0 0 2 2h16v-2H5a2 2 0 0 1-2-2z"/>
+                </svg>
                 <span className="sr-only">Newsletter</span>
               </motion.a>
             </div>

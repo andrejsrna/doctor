@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from 'react-hot-toast'
 
 interface Subscriber {
   id: string;
@@ -48,9 +49,11 @@ export function useNewsletterActions() {
       });
 
       if (response.ok) {
+        toast.success('Subscriber added')
         return { success: true };
       } else {
         const error = await response.json();
+        toast.error(error.error || 'Failed to add subscriber')
         return { success: false, error: error.error };
       }
     } catch (error) {
@@ -76,9 +79,11 @@ export function useNewsletterActions() {
       });
 
       if (response.ok) {
+        toast.success('Subscriber updated')
         return { success: true };
       } else {
         const error = await response.json();
+        toast.error(error.error || 'Failed to update subscriber')
         return { success: false, error: error.error };
       }
     } catch (error) {
@@ -94,9 +99,11 @@ export function useNewsletterActions() {
       });
 
       if (response.ok) {
+        toast.success('Subscriber deleted')
         return { success: true };
       } else {
         const error = await response.json();
+        toast.error(error.error || 'Failed to delete subscriber')
         return { success: false, error: error.error };
       }
     } catch (error) {
@@ -117,8 +124,10 @@ export function useNewsletterActions() {
       const failedDeletions = results.filter(result => !result.ok);
 
       if (failedDeletions.length === 0) {
+        toast.success('Deleted selected subscribers')
         return { success: true };
       } else {
+        toast.error(`Failed to delete ${failedDeletions.length} subscribers`)
         return { success: false, error: `Failed to delete ${failedDeletions.length} subscribers` };
       }
     } catch (error) {
@@ -147,9 +156,11 @@ export function useNewsletterActions() {
 
       if (response.ok) {
         const result = await response.json();
+        toast.success(result.message || 'Newsletter sent')
         return { success: true, message: result.message };
       } else {
         const error = await response.json();
+        toast.error(error.error || 'Failed to send newsletter')
         return { success: false, error: error.error };
       }
     } catch (error) {
@@ -178,9 +189,11 @@ export function useNewsletterActions() {
 
       if (response.ok) {
         setRecentlyDeleted(prev => prev.filter(item => item.timestamp !== deletedItem.timestamp));
+        toast.success('Restored subscriber')
         return { success: true };
       } else {
         const error = await response.json();
+        toast.error(error.error || 'Failed to restore subscriber')
         return { success: false, error: error.error };
       }
     } catch (error) {

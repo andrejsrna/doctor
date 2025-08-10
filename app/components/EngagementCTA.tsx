@@ -68,16 +68,15 @@ export default function EngagementCTA() {
               <p className="text-gray-400 mb-4 text-sm">{item.description}</p>
             </div>
             <div className="mt-auto">
-              <Link href={item.href} passHref legacyBehavior>
-                <a 
-                  target={item.href.startsWith('http') ? '_blank' : '_self'} 
-                  rel="noopener noreferrer"
-                  onClick={() => handleEngagementClick(item.buttonText)}
-                >
-                  <Button variant={item.variant} size="md">
-                    {item.buttonText}
-                  </Button>
-                </a>
+              <Link
+                href={item.href}
+                target={item.href.startsWith('http') ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                onClick={() => handleEngagementClick(item.buttonText)}
+              >
+                <Button variant={item.variant} size="md">
+                  {item.buttonText}
+                </Button>
               </Link>
             </div>
           </motion.div>

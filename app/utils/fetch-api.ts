@@ -1,22 +1,5 @@
-const API_URL = 'https://admin.dnbdoctor.com/wp-json/wp/v2'
-
-export async function fetchAPI(path: string, options = {}) {
-  const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }
-
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options
-  }
-
-  const res = await fetch(`${API_URL}${path}`, mergedOptions)
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch API')
-  }
-
-  return res.json()
-} 
+// Deprecated: WordPress API usage replaced by local Prisma-backed endpoints.
+// Retained as a no-op to avoid import errors during transition.
+export async function fetchAPI() {
+  throw new Error('fetchAPI deprecated: migrate to local Prisma-backed API routes')
+}

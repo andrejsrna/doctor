@@ -29,6 +29,43 @@ export async function POST(request: NextRequest) {
     }
 
     const emailLower = email.toLowerCase().trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!isValidEmail.test(emailLower)) {
+      const response = NextResponse.json(
+        { success: false, error: 'Invalid email address' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
+    async function ensureNewsletterCategoryId(): Promise<string> {
+      const existingNewsletter = await prisma.category.findFirst({
+        where: { name: { equals: "Newsletter", mode: "insensitive" } },
+      });
+      if (existingNewsletter) return existingNewsletter.id;
+      const existingVip = await prisma.category.findFirst({
+        where: { name: { equals: "VIP", mode: "insensitive" } },
+      });
+      if (existingVip) {
+        const updated = await prisma.category.update({
+          where: { id: existingVip.id },
+          data: {
+            name: "Newsletter",
+            color: existingVip.color || "purple",
+            description: "General newsletter subscribers",
+          },
+        });
+        return updated.id;
+      }
+      const created = await prisma.category.create({
+        data: {
+          name: "Newsletter",
+          color: "purple",
+          description: "General newsletter subscribers",
+        },
+      });
+      return created.id;
+    }
 
     // Check if subscriber already exists
     const existingSubscriber = await prisma.subscriber.findUnique({
@@ -37,11 +74,12 @@ export async function POST(request: NextRequest) {
 
     if (existingSubscriber) {
       if (existingSubscriber.status === 'UNSUBSCRIBED') {
-        // Reactivate unsubscribed subscriber
+        const newsletterCategoryId = await ensureNewsletterCategoryId();
         await prisma.subscriber.update({
           where: { email: emailLower },
           data: {
             status: 'ACTIVE',
+            categoryId: existingSubscriber.categoryId || newsletterCategoryId,
             notes: existingSubscriber.notes ? 
               `${existingSubscriber.notes}\n[REACTIVATED]` : 
               '[REACTIVATED]'
@@ -63,7 +101,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create new subscriber
+    const newsletterCategoryId = await ensureNewsletterCategoryId();
     const newSubscriber = await prisma.subscriber.create({
       data: {
         email: emailLower,
@@ -71,6 +109,7 @@ export async function POST(request: NextRequest) {
         status: "ACTIVE",
         source: source || "website",
         tags: group ? [group] : [],
+        categoryId: newsletterCategoryId,
         notes: `Subscribed via ${source || 'website'} form`,
         emailCount: 0
       }

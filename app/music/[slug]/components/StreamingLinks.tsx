@@ -1,9 +1,12 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import Image from 'next/image'
-import { FaHeadphonesAlt, FaAngleRight } from 'react-icons/fa'
+import { FaHeadphonesAlt, FaAngleRight, FaSpotify, FaApple, FaDeezer, FaSoundcloud, FaDownload } from 'react-icons/fa'
 import Button from '@/app/components/Button'
+import OutboundInterstitial, { getOutboundDismissed } from '@/app/components/OutboundInterstitial'
+import { useState } from 'react'
+import { ENABLE_OUTBOUND_INTERSTITIAL } from '@/app/utils/flags'
 import { StreamingLink } from '@/app/types/release'
 import { trackStreamingClick } from '@/app/utils/analytics'
 
@@ -13,16 +16,52 @@ interface StreamingLinksProps {
 }
 
 const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
-  const availableLinks = links.filter((link) => link.url)
+  const availableLinks = links.filter((link) => !!link.url)
+  const shouldReduce = useReducedMotion()
+  const [interstitialOpen, setInterstitialOpen] = useState(false)
+  const [pending, setPending] = useState<{ platform: string; href: string } | null>(null)
 
-  const handleStreamingClick = (platform: string) => {
+  const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
+    if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
+      e.preventDefault()
+      setPending({ platform, href })
+      setInterstitialOpen(true)
+      return
+    }
     trackStreamingClick(platform)
+  }
+
+  const renderIcon = (icon: StreamingLink['icon']) => {
+    if (typeof icon === 'string') {
+      if (icon.startsWith('/')) {
+        return (
+          <Image
+            src={icon}
+            alt=""
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
+        )
+      }
+      const map: Record<string, React.ComponentType<{ className?: string }>> = {
+        spotify: FaSpotify,
+        apple: FaApple,
+        deezer: FaDeezer,
+        soundcloud: FaSoundcloud,
+        download: FaDownload,
+      }
+      const Mapped = map[icon.toLowerCase()] || null
+      return Mapped ? <Mapped className="w-6 h-6" /> : null
+    }
+    const Comp = icon
+    return <Comp className="w-6 h-6" />
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
+      animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
       className="space-y-6"
     >
       <div className="text-center">
@@ -40,35 +79,23 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
           .map((platform, index) => (
             <motion.div
               key={platform.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
+              initial={shouldReduce ? undefined : { opacity: 0, x: -20 }}
+              animate={shouldReduce ? undefined : { opacity: 1, x: 0 }}
+              transition={shouldReduce ? undefined : { delay: index * 0.05 }}
             >
               <a
                 href={platform.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"
-                onClick={() => handleStreamingClick(platform.name)}
+                onClick={(e) => handleStreamingClick(platform.name, platform.url!, e)}
               >
                 <Button
                   variant="infected"
                   className="w-full group !p-3 !justify-start"
                 >
                   <div className="flex items-center gap-3 w-full">
-                    <div className="w-8 h-8 flex items-center justify-center">
-                      {typeof platform.icon === 'string' ? (
-                        <Image
-                          src={platform.icon}
-                          alt=""
-                          width={24}
-                          height={24}
-                          className="w-6 h-6"
-                        />
-                      ) : (
-                        <platform.icon className="w-6 h-6" />
-                      )}
-                    </div>
+                    <div className="w-8 h-8 flex items-center justify-center">{renderIcon(platform.icon)}</div>
 
                     <span className="font-semibold text-md text-left flex-grow">
                       {platform.name}
@@ -94,7 +121,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full"
-            onClick={() => handleStreamingClick('Gumroad')}
+            onClick={(e) => handleStreamingClick('Gumroad', gumroadUrl, e)}
           >
             <Button
               variant="toxic"
@@ -107,6 +134,19 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
           </a>
         </motion.div>
       )}
+      <OutboundInterstitial
+        isOpen={interstitialOpen}
+        onClose={() => setInterstitialOpen(false)}
+        onContinue={() => {
+          const next = pending
+          setInterstitialOpen(false)
+          setPending(null)
+          if (next?.href) {
+            trackStreamingClick(next.platform)
+            window.open(next.href, '_blank', 'noopener,noreferrer')
+          }
+        }}
+      />
     </motion.div>
   )
 }

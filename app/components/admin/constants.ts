@@ -21,10 +21,40 @@ export const navigationItems = [
     description: "Review Demo Submissions"
   },
   {
+    name: "Feedback",
+    href: "/admin/feedback",
+    icon: FaNewspaper,
+    description: "Feedback"
+  }, 
+  {
+    name: "Artists",
+    href: "/admin/artists",
+    icon: FaUsers,
+    description: "Manage Artists"
+  },
+  {
+    name: "News",
+    href: "/admin/news",
+    icon: FaNewspaper,
+    description: "Manage News"
+  },
+  {
     name: "Demo Distribution",
     href: "/admin/demo",
     icon: FaMusic,
     description: "Upload & Send Demos"
+  },
+  {
+    name: "Releases",
+    href: "/admin/releases",
+    icon: FaMusic,
+    description: "Manage Releases"
+  },
+  {
+    name: "Legacy Feedback",
+    href: "/admin/feedback",
+    icon: FaNewspaper,
+    description: "Imported Feedback"
   },
   {
     name: "Newsletter",

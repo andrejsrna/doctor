@@ -57,12 +57,23 @@ export async function GET(request: NextRequest) {
     const record = await prisma.demoFeedback.findUnique({ where: { token } })
     if (!record) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+    let release: { title: string; slug: string } | null = null
+    if (record.wpPostId && typeof record.wpPostId === 'number') {
+      try {
+        const rel = await prisma.release.findFirst({ where: { wpId: record.wpPostId }, select: { title: true, slug: true } })
+        if (rel) release = { title: rel.title, slug: rel.slug }
+      } catch {
+        release = null
+      }
+    }
+
     return NextResponse.json({
       subject: record.subject,
       message: record.message,
       files: record.files,
       recipientEmail: record.recipientEmail,
       submittedAt: record.submittedAt,
+      release,
     })
   } catch (error) {
     console.error('Feedback fetch error:', error)

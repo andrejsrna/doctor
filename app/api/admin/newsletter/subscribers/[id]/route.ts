@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/lib/auth";
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -13,6 +14,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) {
+      const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return addNoCacheHeaders(response);
+    }
+
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      const response = NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+      return addNoCacheHeaders(response);
+    }
+
     const { id } = await params;
     const updateData = await request.json();
 
@@ -26,6 +40,24 @@ export async function PUT(
         { status: 404 }
       );
       return addNoCacheHeaders(response);
+    }
+
+    // Validate/sanitize categoryId or category (name) to avoid FK errors
+    const hasCategoryIdProp = Object.prototype.hasOwnProperty.call(updateData, 'categoryId');
+    const hasCategoryProp = Object.prototype.hasOwnProperty.call(updateData, 'category');
+    if (hasCategoryIdProp || hasCategoryProp) {
+      const rawValue = hasCategoryIdProp ? updateData.categoryId : updateData.category;
+      if (!rawValue) {
+        updateData.categoryId = null;
+      } else {
+        const asString = String(rawValue);
+        let category = await prisma.category.findUnique({ where: { id: asString } });
+        if (!category) {
+          category = await prisma.category.findFirst({ where: { name: { equals: asString, mode: 'insensitive' } } });
+        }
+        updateData.categoryId = category ? category.id : null;
+      }
+      if (hasCategoryProp) delete updateData.category;
     }
 
     // Update subscriber data
@@ -60,6 +92,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) {
+      const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return addNoCacheHeaders(response);
+    }
+
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      const response = NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+      return addNoCacheHeaders(response);
+    }
+
     const { id } = await params;
     const { searchParams } = new URL(request.url);
     const softDelete = searchParams.get('soft') === 'true';

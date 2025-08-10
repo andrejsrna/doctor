@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/app/lib/auth';
 
 interface CreateInfluencerData {
   email: string;
@@ -47,7 +48,17 @@ interface InfluencerResponse {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const origin = request.headers.get('origin');
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
+    const page = Math.max(1, Number(searchParams.get('page') || 1));
+    const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') || 20)));
     const status = searchParams.get('status');
     const category = searchParams.get('category');
     const priority = searchParams.get('priority');
@@ -69,17 +80,16 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    let influencers = await prisma.influencer.findMany({
-      where,
-      include: {
-        subscriber: {
-          include: {
-            category: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const [influencers, total] = await Promise.all([
+      prisma.influencer.findMany({
+        where,
+        include: { subscriber: { include: { category: true } } },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.influencer.count({ where }),
+    ]);
 
     if (
       influencers.length === 0 &&
@@ -106,11 +116,17 @@ export async function GET(request: NextRequest) {
             }
           }
         }
-        influencers = await prisma.influencer.findMany({
-          where,
-          include: { subscriber: { include: { category: true } } },
-          orderBy: { createdAt: 'desc' },
-        });
+        const [inf, count] = await Promise.all([
+          prisma.influencer.findMany({
+            where,
+            include: { subscriber: { include: { category: true } } },
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
+          }),
+          prisma.influencer.count({ where }),
+        ])
+        return NextResponse.json({ influencers: inf, pagination: { page, limit, total: count, pages: Math.ceil(count / limit) } })
       } catch (e) {
         console.error('Auto-repair sync failed:', e);
       }
@@ -196,10 +212,10 @@ export async function GET(request: NextRequest) {
             sampleEmails: subs.slice(0, 5).map(s => s.email)
           };
         }));
-        return NextResponse.json({ influencers: enriched, debug: { flaggedCategories: flaggedStats } });
+        return NextResponse.json({ items: enriched, debug: { flaggedCategories: flaggedStats }, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
       }
 
-      return NextResponse.json(enriched as unknown as InfluencerResponse[]);
+      return NextResponse.json({ items: enriched as unknown as InfluencerResponse[], pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
     }
 
     if (debug) {
@@ -213,10 +229,10 @@ export async function GET(request: NextRequest) {
           sampleEmails: subs.slice(0, 5).map(s => s.email)
         };
       }));
-      return NextResponse.json({ influencers, debug: { flaggedCategories: flaggedStats } });
+      return NextResponse.json({ items: influencers, debug: { flaggedCategories: flaggedStats }, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
     }
 
-    return NextResponse.json(influencers as InfluencerResponse[]);
+    return NextResponse.json({ items: influencers as InfluencerResponse[], pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
   } catch (error) {
     const details = (typeof error === 'object' && error && 'message' in error) 
       ? (error as { message?: string }).message 
@@ -231,6 +247,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const origin = request.headers.get('origin');
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+    }
     const body: CreateInfluencerData = await request.json();
     const { email, name, platform, handle, followers, engagement, category, location, notes, status, priority, tags } = body;
 
@@ -277,8 +301,10 @@ export async function POST(request: NextRequest) {
     });
 
     const existingSubscriber = await prisma.subscriber.findUnique({ where: { email: email.toLowerCase() } });
+    const preferredName = process.env.INFLUENCER_DEFAULT_CATEGORY_NAME || 'Influencer 1';
+    const preferredCategory = await prisma.category.findFirst({ where: { name: { equals: preferredName, mode: 'insensitive' } } });
+    const fallbackCategory = preferredCategory || await prisma.category.findFirst({ where: { influencersEnabled: true }, orderBy: { createdAt: 'asc' } });
     if (!existingSubscriber) {
-      const flaggedCategory = await prisma.category.findFirst({ where: { influencersEnabled: true } });
       await prisma.subscriber.create({
         data: {
           email: email.toLowerCase(),
@@ -286,9 +312,11 @@ export async function POST(request: NextRequest) {
           status: 'ACTIVE',
           source: 'influencers',
           tags: ['influencer-sync'],
-          categoryId: flaggedCategory?.id,
+          categoryId: fallbackCategory?.id,
         }
       });
+    } else if (!existingSubscriber.categoryId && fallbackCategory?.id) {
+      await prisma.subscriber.update({ where: { email: email.toLowerCase() }, data: { categoryId: fallbackCategory.id } });
     }
 
     return NextResponse.json(

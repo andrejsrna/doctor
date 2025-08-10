@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import toast from 'react-hot-toast'
 import { FaPlus, FaSave, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +20,7 @@ export default function NewsletterCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -28,7 +29,7 @@ export default function NewsletterCategoriesPage() {
       const data: { categories: CategoryItem[] } = await res.json();
       setCategories((data.categories || []).map((c) => ({ ...c, influencersEnabled: !!c.influencersEnabled })));
     } catch {
-      setToast({ message: 'Failed to load categories', type: 'error' });
+      toast.error('Failed to load categories');
     } finally {
       setLoading(false);
     }
@@ -52,10 +53,10 @@ export default function NewsletterCategoriesPage() {
         body: JSON.stringify({ name: draft.name.trim(), color: draft.color.trim(), description: draft.description.trim(), influencersEnabled: !!draft.influencersEnabled })
       });
       if (res.ok) {
-        setToast({ message: 'Category created', type: 'success' });
+        toast.success('Category created');
         await fetchCategories();
       } else {
-        setToast({ message: 'Create failed', type: 'error' });
+        toast.error('Create failed');
       }
     } finally {
       setCreating(false);
@@ -72,10 +73,10 @@ export default function NewsletterCategoriesPage() {
         body: JSON.stringify({ name: item.name.trim(), color: item.color.trim(), description: item.description.trim(), influencersEnabled: !!item.influencersEnabled })
       });
       if (res.ok) {
-        setToast({ message: 'Category saved', type: 'success' });
+        toast.success('Category saved');
         await fetchCategories();
       } else {
-        setToast({ message: 'Save failed', type: 'error' });
+        toast.error('Save failed');
       }
     } finally {
       setSavingId(null);
@@ -87,10 +88,10 @@ export default function NewsletterCategoriesPage() {
     try {
       const res = await fetch(`/api/admin/newsletter/categories/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setToast({ message: 'Category deleted', type: 'success' });
+        toast.success('Category deleted');
         await fetchCategories();
       } else {
-        setToast({ message: 'Delete failed', type: 'error' });
+        toast.error('Delete failed');
       }
     } finally {
       setSavingId(null);
@@ -114,9 +115,7 @@ export default function NewsletterCategoriesPage() {
         </div>
       </div>
 
-      {toast && (
-        <div className={`mb-4 px-3 py-2 rounded text-sm ${toast.type === 'success' ? 'bg-green-900/70 text-green-200' : 'bg-red-900/70 text-red-200'}`}>{toast.message}</div>
-      )}
+      
 
       {loading ? (
         <div className="text-gray-400">Loading...</div>

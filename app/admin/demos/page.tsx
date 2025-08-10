@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast'
 import { motion } from 'framer-motion';
 import { 
   FaMusic, 
@@ -89,6 +90,7 @@ export default function DemosPage() {
       }
     } catch (error) {
       console.error('Error updating submission:', error);
+      toast.error('Update failed')
     } finally {
       setUpdating(false);
     }

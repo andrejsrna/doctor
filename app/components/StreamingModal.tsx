@@ -1,6 +1,8 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { FaSoundcloud, FaTimes, FaApple, FaSyringe, FaVirus, FaBiohazard, FaSkull } from 'react-icons/fa'
 import Image from 'next/image'
 import Button from './Button'
@@ -66,7 +68,16 @@ const streamingServices = [
 ]
 
 export default function StreamingModal({ isOpen, onClose }: StreamingModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    if (!mounted) return
+    const prev = document.body.style.overflow
+    if (isOpen) document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [isOpen, mounted])
+
+  const content = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -76,7 +87,7 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[1000] grid place-items-center p-4"
           >
             {/* Infection Particles */}
             <div className="absolute inset-0 overflow-hidden">
@@ -110,9 +121,8 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-2xl bg-black/95 border border-purple-500/30 rounded-2xl 
-                backdrop-blur-sm relative overflow-hidden my-4
-                shadow-[0_0_30px_rgba(168,85,247,0.15)]"
+              className="w-full max-w-2xl max-h-[85vh] overflow-auto bg-black/95 border border-purple-500/30 rounded-2xl 
+                backdrop-blur-sm relative my-4 shadow-[0_0_30px_rgba(168,85,247,0.15)]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Background Effects */}
@@ -274,4 +284,6 @@ export default function StreamingModal({ isOpen, onClose }: StreamingModalProps)
       )}
     </AnimatePresence>
   )
+  if (!mounted) return null
+  return createPortal(content, document.body)
 } 

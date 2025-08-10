@@ -1,78 +1,28 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+// server component
 import Image from 'next/image'
 import Link from 'next/link'
-import { FaArrowRight, FaSoundcloud, FaUserMd } from 'react-icons/fa'
+import { FaSoundcloud, FaUserMd } from 'react-icons/fa'
 import Button from './Button'
+import { prisma } from '@/lib/prisma'
 
-interface Artist {
-  id: number
-  slug: string
-  title: {
-    rendered: string
-  }
-  acf: {
-    role: string
-    soundcloud: string
-    description: string
-  }
-  _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url?: string
-      media_details?: {
-        sizes?: {
-          large?: {
-            source_url?: string
-          }
-        }
-      }
-    }>
-  }
-}
 
-export default function FeaturedArtists() {
-  const [artists, setArtists] = useState<Artist[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchArtists = async () => {
-      try {
-        const response = await fetch(
-          'https://admin.dnbdoctor.com/wp-json/wp/v2/artists?per_page=3&orderby=date&featured=1&_embed',
-          { next: { revalidate: 3600 } }
-        )
-        const data = await response.json()
-        setArtists(data)
-      } catch (error) {
-        console.error('Error fetching artists:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchArtists()
-  }, [])
+export default async function FeaturedArtists() {
+  const artists = await prisma.artist.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      imageUrl: true,
+      soundcloud: true,
+    },
+  })
 
   // Helper function to get the best available image URL
-  const getImageUrl = (artist: Artist) => {
-    return artist._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.large?.source_url ||
-           artist._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
-           '/placeholder-artist.jpg' // fallback image
-  }
+  const getImageUrl = (artist: { imageUrl: string | null }) => artist.imageUrl || '/placeholder-artist.jpg'
 
-  if (isLoading) {
-    return (
-      <section className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-pulse text-purple-500">Loading artists...</div>
-          </div>
-        </div>
-      </section>
-    )
-  }
+  if (!artists?.length) return null
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -82,6 +32,7 @@ export default function FeaturedArtists() {
           src="/pattern.png"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover"
         />
       </div>
@@ -89,49 +40,26 @@ export default function FeaturedArtists() {
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16 space-y-4">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent 
-              bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
-          >
-            Featured Artists
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-gray-400 max-w-2xl mx-auto"
-          >
-            Meet the talented producers and DJs behind our signature neurofunk sound
-          </motion.p>
+          <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">Featured Artists</h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">Meet the talented producers and DJs behind our signature neurofunk sound</p>
         </div>
 
         {/* Artists Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {artists.map((artist, index) => (
-            <motion.div
-              key={artist.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group relative"
-            >
+          {artists.map((artist) => (
+            <div key={artist.id} className="group relative">
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden 
                 border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)]">
                 <Link 
                   href={`/artists/${artist.slug}`}
                   className="block absolute inset-0 z-10"
                 >
-                  <span className="sr-only">View {artist.title.rendered}&apos;s profile</span>
+                  <span className="sr-only">View {artist.name}&apos;s profile</span>
                 </Link>
                 
                 <Image
                   src={getImageUrl(artist)}
-                  alt={artist.title.rendered}
+                  alt={artist.name}
                   fill
                   className="object-cover transition-transform duration-500 
                     group-hover:scale-110"
@@ -141,21 +69,14 @@ export default function FeaturedArtists() {
                 {/* Artist Info */}
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <h3 className="text-2xl font-bold text-white mb-1">
-                    {artist.title.rendered}
+                    {artist.name}
                   </h3>
-                  <p className="text-purple-400 mb-3">{artist.acf.role}</p>
-                  <p className="text-gray-300 line-clamp-2 mb-4">
-                    {artist.acf.description}
-                  </p>
                   
                   {/* Action Buttons */}
                   <div className="flex gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="flex-1"
-                    >
+                    <div className="flex-1">
                       <a 
-                        href={artist.acf.soundcloud}
+                        href={artist.soundcloud || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block"
@@ -169,12 +90,9 @@ export default function FeaturedArtists() {
                           <span>SoundCloud</span>
                         </Button>
                       </a>
-                    </motion.div>
+                    </div>
                     
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="flex-1"
-                    >
+                    <div className="flex-1">
                       <Link href={`/artists/${artist.slug}`}>
                         <Button
                           variant="infected"
@@ -185,37 +103,27 @@ export default function FeaturedArtists() {
                           <span>View More</span>
                         </Button>
                       </Link>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* CTA Button */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="inline-block"
-          >
-            <Button
-              href="/artists"
-              variant="infected"
-              size="lg"
-              className="group"
-            >
-              <FaUserMd className="w-5 h-5 mr-2 transform group-hover:rotate-12 transition-transform duration-300" />
+        <div className="text-center">
+          <div className="inline-block">
+            <Button href="/artists" variant="infected" size="lg" className="group">
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 12c2.761 0 5-2.686 5-6s-2.239-6-5-6-5 2.686-5 6 2.239 6 5 6zm0 2c-3.33 0-10 1.667-10 5v3h20v-3c0-3.333-6.67-5-10-5z"/>
+              </svg>
               <span>Meet All Artists</span>
-              <FaArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
+              <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8 8-8z" transform="scale(-1,1) translate(-24,0)"/>
+              </svg>
             </Button>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   )

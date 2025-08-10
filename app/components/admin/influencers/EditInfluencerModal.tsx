@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast'
 
 type Status = 'ACTIVE' | 'INACTIVE' | 'CONTACTED' | 'RESPONDED' | 'COLLABORATING';
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'VIP';
@@ -67,10 +68,11 @@ export default function EditInfluencerModal({
       if (!res.ok) throw new Error('Failed to update');
       const data = await res.json();
       onSaved(data.influencer);
+      toast.success('Influencer saved')
       onClose();
     } catch (e) {
       console.error(e);
-      alert('Failed to save influencer');
+      toast.error('Failed to save influencer');
     } finally {
       setSaving(false);
     }

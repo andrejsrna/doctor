@@ -132,6 +132,7 @@ const SubscriberRow = memo(function SubscriberRow({
           
           <button
             onClick={() => onEdit(subscriber)}
+            aria-label="Edit subscriber"
             className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
           >
             <FaEdit className="w-4 h-4" />

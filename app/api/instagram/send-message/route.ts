@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const accessToken = process.env.IG_TOKEN;
     
     if (!accessToken) {

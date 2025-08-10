@@ -6,9 +6,9 @@ async function main() {
   // Create default categories
   const categories = [
     {
-      name: "VIP",
+      name: "Newsletter",
       color: "purple",
-      description: "Premium subscribers"
+      description: "General newsletter subscribers"
     },
     {
       name: "Promoters",

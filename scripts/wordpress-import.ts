@@ -64,9 +64,9 @@ async function importWordPressData() {
         color = 'purple'
         description = 'General newsletter subscribers'
       } else if (groupName.toLowerCase().includes('customer')) {
-        categoryName = 'VIP'
+        categoryName = 'Newsletter'
         color = 'purple'
-        description = 'Premium customers'
+        description = 'General newsletter subscribers'
       }
 
       // Check if category already exists

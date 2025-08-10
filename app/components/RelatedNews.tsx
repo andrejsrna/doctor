@@ -1,46 +1,39 @@
-'use client'
+"use client"
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-interface NewsPost {
-  id: number
-  date: string
-  title: {
-    rendered: string
-  }
+import { sanitizeHtml } from '@/lib/sanitize'
+
+type NewsPost = {
+  id: string
   slug: string
+  title: string
+  publishedAt?: string | null
 }
 
-export default function RelatedNews({ 
-  currentPostId, 
-  relatedBy = '' 
-}: { 
-  currentPostId: number
-  relatedBy?: string 
+export default function RelatedNews({
+  currentPostId,
+  relatedBy = '',
+}: {
+  currentPostId: string | number
+  relatedBy?: string
 }) {
   const [posts, setPosts] = useState<NewsPost[]>([])
 
   useEffect(() => {
     const fetchRelatedPosts = async () => {
       try {
-        const baseUrl = 'https://admin.dnbdoctor.com/wp-json/wp/v2/news'
-        const queryParams = new URLSearchParams({
-          per_page: '3'
-        })
-        
-        if (relatedBy) {
-          queryParams.append('search', relatedBy.split(' ')[0])
-        }
-
-        const response = await fetch(`${baseUrl}?${queryParams.toString()}`)
+        const params = new URLSearchParams({ page: '1', limit: '6' })
+        if (relatedBy) params.append('search', relatedBy)
+        const response = await fetch(`/api/news?${params.toString()}`, { next: { revalidate: 300 } })
         const data = await response.json()
-        setPosts(data.filter((post: NewsPost) => post.id !== currentPostId))
+        const unique = (data.items as NewsPost[]).filter(p => p.id !== String(currentPostId)).slice(0, 3)
+        setPosts(unique)
       } catch (error) {
         console.error('Error fetching related posts:', error)
       }
     }
-
     fetchRelatedPosts()
   }, [currentPostId, relatedBy])
 
@@ -50,22 +43,21 @@ export default function RelatedNews({
     <div className="mt-20 pt-12 border-t border-white/10">
       <h2 className="text-2xl font-bold text-purple-500 mb-8">Related News</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.slice(0, 3).map((post, index) => (
+        {posts.map((post, index) => (
           <motion.article
             key={post.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-black/30 border border-white/5 rounded-xl p-6
-              hover:border-purple-500/30 transition-all duration-300 backdrop-blur-sm"
+            className="bg-black/30 border border-white/5 rounded-xl p-6 hover:border-purple-500/30 transition-all duration-300 backdrop-blur-sm"
           >
             <Link href={`/news/${post.slug}`} className="block">
               <time className="text-sm text-purple-500">
-                {new Date(post.date).toLocaleDateString()}
+                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}
               </time>
-              <h3 
+              <h3
                 className="text-lg font-bold mt-2 hover:text-purple-400 transition-colors"
-                dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
               />
             </Link>
           </motion.article>
@@ -73,4 +65,4 @@ export default function RelatedNews({
       </div>
     </div>
   )
-} 
+}

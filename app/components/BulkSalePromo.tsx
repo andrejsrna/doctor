@@ -28,29 +28,8 @@ export default function BulkSalePromo() {
         {/* Animated grid lines */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(168,85,247,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(168,85,247,0.1)_1px,transparent_1px)] bg-[size:24px_24px] rounded-xl" />
         
-        {/* Moving infection spots */}
-        <div className="absolute inset-0">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-32 h-32 rounded-full bg-purple-500/5 blur-xl"
-              initial={{
-                x: Math.random() * 100 - 50,
-                y: Math.random() * 100 - 50,
-              }}
-              animate={{
-                x: Math.random() * 100 - 50,
-                y: Math.random() * 100 - 50,
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: Math.random() * 5 + 5,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            />
-          ))}
-        </div>
+        {/* Moving infection spots (deterministic across SSR/CSR) */}
+        <Spots />
 
         {/* Animated border glow */}
         <div className="absolute inset-0 rounded-xl border border-purple-500/20 shadow-[inset_0_0_30px_rgba(168,85,247,0.2)]" />
@@ -96,5 +75,26 @@ export default function BulkSalePromo() {
         </div>
       </Button>
     </motion.div>
+  )
+}
+ 
+function Spots() {
+  const configs = [
+    { initX: -20, initY: 15, animX: 30, animY: -25, duration: 8 },
+    { initX: 25, initY: -30, animX: -35, animY: 20, duration: 9.5 },
+    { initX: -40, initY: 10, animX: 15, animY: -15, duration: 7.5 },
+  ]
+  return (
+    <div className="absolute inset-0">
+      {configs.map((c, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-32 h-32 rounded-full bg-purple-500/5 blur-xl"
+          initial={{ x: c.initX, y: c.initY }}
+          animate={{ x: c.animX, y: c.animY, scale: [1, 1.2, 1] }}
+          transition={{ duration: c.duration, repeat: Infinity, repeatType: 'reverse' }}
+        />
+      ))}
+    </div>
   )
 }

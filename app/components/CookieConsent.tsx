@@ -12,6 +12,7 @@ type CookieSettings = {
 }
 
 const COOKIE_CONSENT_KEY = 'cookie-consent'
+const LS_CONSENT_KEY = 'dd-cookie-consent'
 const COOKIE_EXPIRY_DAYS = 365
 
 export default function CookieConsent() {
@@ -25,9 +26,9 @@ export default function CookieConsent() {
     // Google Analytics
     const gaKey = `ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`
     if (settings.analytics) {
-      window[gaKey] = false
+      ;(globalThis as unknown as Record<string, unknown>)[gaKey] = false
     } else {
-      window[gaKey] = true
+      ;(globalThis as unknown as Record<string, unknown>)[gaKey] = true
       const cookies = ['_ga', '_gat', '_gid']
       cookies.forEach(cookie => Cookies.remove(cookie))
     }
@@ -65,6 +66,20 @@ export default function CookieConsent() {
     }
   }
 
+  const loadGA = () => {
+    if (typeof window === 'undefined') return
+    const gaId = process.env.NEXT_PUBLIC_GA_ID
+    if (!gaId) return
+    if ('gtag' in window) return
+    const s1 = document.createElement('script')
+    s1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
+    s1.async = true
+    document.body.appendChild(s1)
+    const s2 = document.createElement('script')
+    s2.innerHTML = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}',{page_title:document.title,page_location:window.location.href});`
+    document.body.appendChild(s2)
+  }
+
   useEffect(() => {
     setIsMounted(true)
     const consent = Cookies.get(COOKIE_CONSENT_KEY)
@@ -77,6 +92,8 @@ export default function CookieConsent() {
           ? { analytics: false, marketing: false } 
           : JSON.parse(consent) as CookieSettings;
         handleAnalyticsTools(savedSettings);
+        try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(savedSettings)) } catch {}
+        if (savedSettings.analytics) loadGA()
       } catch (error) {
         console.error('Error parsing cookie consent:', error);
         // Set default values if parsing fails
@@ -90,7 +107,13 @@ export default function CookieConsent() {
       expires: COOKIE_EXPIRY_DAYS,
       sameSite: 'strict'
     })
+    try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(settings)) } catch {}
     handleAnalyticsTools(settings)
+    if (settings.analytics) loadGA()
+    try {
+      const evt = new CustomEvent('dd-consent-changed', { detail: settings })
+      window.dispatchEvent(evt)
+    } catch {}
     setIsVisible(false)
   }
 

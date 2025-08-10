@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FaEnvelope, FaCheck, FaSpinner, FaSkull, FaLock, FaTimesCircle } from 'react-icons/fa'
 import { subscriberApi } from '../services/subscriberApi'
+import toast from 'react-hot-toast'
 import Image from 'next/image'
 import Button from '../components/Button'
 
@@ -33,11 +34,13 @@ export default function NewsletterPage() {
       })
       setStatus('success')
       setMessage('Successfully infected! Welcome to the horde!')
+      toast.success('Subscribed to Newsletter')
       setEmail('')
       setAcceptedPrivacy(false)
     } catch (error) {
       setStatus('error')
       setMessage(error instanceof Error ? error.message : 'Infection failed. Please try again.')
+      toast.error(error instanceof Error ? error.message : 'Subscription failed')
     }
   }
 

@@ -17,7 +17,10 @@ interface EmailData {
   message: string;
   recipients: string;
   newsletterCategory?: string;
+  wpPostId?: number;
 }
+
+// helper not needed anymore; paths normalized inline
 
   const renderDemoEmailHTML = ({
     subject,
@@ -25,12 +28,27 @@ interface EmailData {
     feedbackLink,
     baseUrl,
     fileNames = [] as string[],
-  }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileNames?: string[] }) => {
+    fileLinks = [] as Array<{ name: string; url: string }>,
+    releaseLink,
+  }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileNames?: string[]; fileLinks?: Array<{ name: string; url: string }>; releaseLink?: { title: string; url: string } | null; }) => {
     const logo = `${baseUrl.replace(/\/$/, '')}/logo.png`;
     const safeBody = (body || '').split('\n').map(p => `<p style="margin:0 0 16px;">${p.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`).join('');
-    const filesList = fileNames.length
-      ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileNames.map(n => `<li style=\"color:#a855f7;\">${n.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</li>`).join('')}</ul>`
+    const filesList = (fileLinks.length > 0)
+      ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileLinks.map(f => {
+            const safeName = (f.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            const safeUrl = (f.url || '').replace(/"/g,'%22')
+            return `<li style=\"color:#a855f7;\"><a href="${safeUrl}" style="color:#a855f7;text-decoration:underline;">${safeName}</a></li>`
+          }).join('')}</ul>`
+      : (fileNames.length
+        ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileNames.map(n => `<li style=\"color:#a855f7;\">${n.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</li>`).join('')}</ul>`
+        : '');
+    const releaseBlock = releaseLink && releaseLink.url
+      ? `<div style="margin:16px 0;padding:12px;border:1px solid #3b0764;border-radius:10px;background:#0b0b0b;">
+           <div style="font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#e5e7eb;margin-bottom:8px;">Related Release</div>
+           <a href="${releaseLink.url}" style="color:#60a5fa;text-decoration:underline;font-family:Arial, Helvetica, sans-serif;">${(releaseLink.title||'View release').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</a>
+         </div>`
       : '';
+
     return `<!doctype html>
 <html>
   <head>
@@ -59,6 +77,7 @@ interface EmailData {
                 <div style="font-family:Arial, Helvetica, sans-serif;font-size:14px;line-height:22px;color:#e5e7eb;">
                   ${safeBody}
                   ${filesList}
+                  ${releaseBlock}
                 </div>
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 8px;">
                   <tr>
@@ -147,24 +166,31 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    const siteBase = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || process.env.NEXTAUTH_URL || ''
+
+    const toAbsoluteUrl = (p: string) => {
+      const base = siteBase.replace(/\/$/, '')
+      if (!p) return p
+      if (p.startsWith('http://') || p.startsWith('https://')) return p
+      if (p.startsWith('/')) return `${base}${p}`
+      return `${base}/${p}`
+    }
+
     const emailPromises = recipients.map(async (recipient) => {
       try {
         // We no longer send attachments or direct file links in email
         
         // No file processing here; links will be available on the feedback page only
 
-        // Personalize message for newsletter subscribers
-        let personalizedSubject = emailData.subject;
-        let personalizedMessage = emailData.message;
-
-        if (emailData.newsletterCategory) {
-          const subscriber = await prisma.subscriber.findFirst({
-            where: { email: recipient }
-          });
-          if (subscriber?.name) {
-            personalizedSubject = personalizedSubject.replace(/{name}/g, subscriber.name);
-            personalizedMessage = personalizedMessage.replace(/{name}/g, subscriber.name);
-          }
+        const subscriber = await prisma.subscriber.findFirst({ where: { email: recipient }, select: { name: true } });
+        const displayName: string | undefined = subscriber?.name || undefined;
+        let personalizedSubject = emailData.subject.replace(/{name}/g, displayName || "");
+        let personalizedMessage = emailData.message.replace(/{name}/g, displayName || "");
+        if (!displayName) {
+          personalizedMessage = personalizedMessage
+            .replace(/(^|\n)\s*Hi\s*,\s*(\n|$)/i, "$1$2")
+            .replace(/(^|\n)\s*Hello\s*,\s*(\n|$)/i, "$1$2");
+          personalizedSubject = personalizedSubject.replace(/\s*-\s*$/, "").replace(/\s{2,}/g, " ").trim();
         }
 
         // Create unique feedback token per recipient batch
@@ -175,27 +201,40 @@ export async function POST(request: NextRequest) {
             recipientEmail: recipient,
             subject: personalizedSubject,
             message: personalizedMessage,
-            files: selectedFilesToJson(files),
+            files: files.map(f => ({ id: f.id, name: f.name, path: toAbsoluteUrl(f.path) })),
+            wpPostId: typeof emailData.wpPostId === 'number' ? emailData.wpPostId : null,
           }
         })
 
-        const siteBase = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || process.env.NEXTAUTH_URL || ''
         const feedbackLink = `${siteBase.replace(/\/$/, '')}/demo-feedback?token=${feedbackToken}`
 
         const base = siteBase
+        let releaseLink: { title: string; url: string } | null = null
+        if (typeof emailData.wpPostId === 'number' && emailData.wpPostId > 0) {
+          try {
+            const rel = await prisma.release.findFirst({ where: { wpId: emailData.wpPostId }, select: { title: true, slug: true } })
+            if (rel) releaseLink = { title: rel.title, url: `${siteBase.replace(/\/$/, '')}/music/${rel.slug}` }
+          } catch {}
+        }
+
         const html = renderDemoEmailHTML({
           subject: personalizedSubject,
           body: personalizedMessage,
           feedbackLink,
           baseUrl: base,
-          fileNames: files.map(f => f.name)
+          fileNames: files.map(f => f.name),
+          fileLinks: files.map(f => ({ name: f.name, url: toAbsoluteUrl(f.path) })),
+          releaseLink
         })
 
+        const firstLink = (files && files.length > 0) ? toAbsoluteUrl(files[0].path) : ''
+        const textFiles = files && files.length > 0 ? `\n\nListen/Download: ${firstLink}` : ''
+        const textRelease = releaseLink ? `\nRelated Release: ${releaseLink.url}` : ''
         const mailOptions = {
           from: process.env.SMTP_FROM || process.env.SMTP_USER,
           to: recipient,
           subject: personalizedSubject,
-          text: `${personalizedMessage}\n\nReview & Give Feedback: ${feedbackLink}`,
+          text: `${personalizedMessage}${textFiles}${textRelease}\n\nReview & Give Feedback: ${feedbackLink}`,
           html,
           // No attachments
         };
@@ -234,6 +273,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-
-  const selectedFilesToJson = (files: DemoFile[]) => files.map(f => ({ id: f.id, name: f.name, size: f.size, type: f.type, path: f.path }))
 } 

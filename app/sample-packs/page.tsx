@@ -4,117 +4,61 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaArrowLeft, FaArrowRight, FaSearch, FaVirus, FaBoxOpen } from 'react-icons/fa'
-import { useLatestPosts, useMultipleMediaPreviews, useCategories } from '../hooks/useWordPress'
+import { useLatestPosts, useCategories } from '../hooks/useWordPress'
 import Button from '../components/Button'
 import SamplePacksFAQ from '../components/SamplePacksFAQ'
 
-interface Post {
-  id: number
-  title: {
-    rendered: string
-  }
+interface ReleaseItem {
+  id: string
+  title: string
   slug: string
-  _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url?: string
-      media_details?: {
-        sizes?: {
-          full?: {
-            source_url?: string
-          }
-          medium?: {
-            source_url?: string
-          }
-        }
-      }
-    }>
-  }
-  acf?: {
-    preview?: string
-  }
-  date: string
-  excerpt: {
-    rendered: string
-  }
-  categories?: number[]
-}
-
-interface Category {
-  id: number
-  name: string
-  slug: string
+  coverImageUrl?: string | null
+  previewUrl?: string | null
+  publishedAt?: string | null
+  categories?: string[]
 }
 
 export default function SamplePacksPage() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [playingId, setPlayingId] = useState<number | null>(null)
-  const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const [audioErrors, setAudioErrors] = useState<Record<string, string>>({})
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [samplePacksCategoryId, setSamplePacksCategoryId] = useState<string>('')
+  const [samplePacksCategory, setSamplePacksCategory] = useState<string>('')
   const postsPerPage = 12
   const sectionRef = useRef<HTMLElement>(null)
 
   // Use SWR hooks with caching
-  const { data: postsData, isLoading: postsLoading } = useLatestPosts(postsPerPage, currentPage, samplePacksCategoryId, searchQuery)
+  const { data: postsData, isLoading: postsLoading } = useLatestPosts(postsPerPage, currentPage, samplePacksCategory, searchQuery)
   const { data: categories = [] } = useCategories()
   
-  const posts = useMemo(() => postsData?.posts || [], [postsData?.posts])
+  const posts = useMemo<ReleaseItem[]>(() => postsData?.posts || [], [postsData?.posts])
   const totalPages = postsData?.totalPages || 1
 
-  const previewIds = useMemo(() => 
-    posts.map((post: Post) => post.acf?.preview).filter(Boolean) || [], 
-    [posts]
-  )
-  const { data: previews } = useMultipleMediaPreviews(previewIds)
+  
 
   // Find Sample Packs category ID
   useEffect(() => {
-    const samplePacksCategory = categories.find((cat: Category) => 
-      cat.name.toLowerCase().includes('sample pack') || 
-      cat.slug.toLowerCase().includes('sample-pack')
-    )
-    if (samplePacksCategory) {
-      setSamplePacksCategoryId(samplePacksCategory.id.toString())
-    }
+    const matched = (categories as string[]).find((c) => c.toLowerCase().includes('sample pack') || c.toLowerCase().includes('sample-pack'))
+    if (matched) setSamplePacksCategory(matched)
   }, [categories])
 
   // Update previewUrls when previews change
-  useEffect(() => {
-    if (!posts || !previews) return
-    
-    const newPreviewUrls: Record<number, string> = {}
-    posts.forEach((post: Post) => {
-      if (post.acf?.preview && previews[post.acf.preview]) {
-        newPreviewUrls[post.id] = previews[post.acf.preview]
-      }
-    })
-
-    setPreviewUrls(newPreviewUrls)
-  }, [posts, previews])
-
-  const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
+  
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [samplePacksCategoryId, searchQuery])
+  }, [samplePacksCategory, searchQuery])
 
   useEffect(() => {
     if (sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [currentPage, samplePacksCategoryId, searchQuery])
+  }, [currentPage, samplePacksCategory, searchQuery])
 
-  const getImageUrl = (post: Post) => {
-    const media = post._embedded?.['wp:featuredmedia']?.[0]
-    return (
-      media?.source_url ||
-      media?.media_details?.sizes?.full?.source_url ||
-      media?.media_details?.sizes?.medium?.source_url
-    )
-  }
+  const getImageUrl = (post: ReleaseItem) => post.coverImageUrl || undefined
 
-  const handlePlay = async (postId: number) => {
-    if (!posts?.find((post: Post) => post.id === postId)?.acf?.preview) {
+  const handlePlay = async (postId: string) => {
+    if (!posts?.find((post: ReleaseItem) => post.id === postId)?.previewUrl) {
       setAudioErrors(prev => ({
         ...prev,
         [postId]: 'No preview available'
@@ -166,13 +110,13 @@ export default function SamplePacksPage() {
             "description": "Professional neurofunk sample packs with rolling basslines, complex drums, and dark atmospheres for DnB producers",
             "url": "https://dnbdoctor.com/sample-packs",
             "numberOfItems": posts?.length || 0,
-            "itemListElement": posts?.map((post: Post, index: number) => ({
+            "itemListElement": posts?.map((post: ReleaseItem, index: number) => ({
               "@type": "ListItem",
               "position": index + 1,
               "item": {
                 "@type": "Product",
-                "name": post.title.rendered,
-                "description": `Professional neurofunk sample pack - ${post.title.rendered}`,
+                "name": post.title,
+                "description": `Professional neurofunk sample pack - ${post.title}`,
                 "category": "Neurofunk Samples",
                 "url": `https://dnbdoctor.com/music/${post.slug}`,
                 "image": getImageUrl(post),
@@ -361,7 +305,7 @@ export default function SamplePacksPage() {
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts?.map((post: Post, index: number) => (
+            {posts?.map((post: ReleaseItem, index: number) => (
               <motion.article
                 key={post.id}
                 initial={{ opacity: 1, y: 20 }}
@@ -373,7 +317,7 @@ export default function SamplePacksPage() {
                 itemScope
                 itemType="https://schema.org/Product"
               >
-                {post.acf?.preview && (
+                {post.previewUrl && (
                   <audio
                     id={`audio-${post.id}`}
                     preload="none"
@@ -384,12 +328,7 @@ export default function SamplePacksPage() {
                       }))
                     }}
                   >
-                    {previewUrls[post.id] && (
-                      <source 
-                        src={previewUrls[post.id]} 
-                        type="audio/mpeg"
-                      />
-                    )}
+                    <source src={post.previewUrl} type="audio/mpeg" />
                     Your browser does not support the audio element.
                   </audio>
                 )}
@@ -398,7 +337,7 @@ export default function SamplePacksPage() {
                   <div className="relative aspect-square">
                     <Image
                       src={getImageUrl(post)!}
-                      alt={`Neurofunk sample pack - ${post.title.rendered}`}
+                      alt={`Neurofunk sample pack - ${post.title}`}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
@@ -416,13 +355,14 @@ export default function SamplePacksPage() {
                   opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                   <h3 
                     className="text-xl font-bold text-white mb-4 line-clamp-2"
-                    dangerouslySetInnerHTML={{ __html: post.title.rendered }}
                     itemProp="name"
-                  />
-                  <meta itemProp="description" content={`Professional neurofunk sample pack - ${post.title.rendered}`} />
+                  >
+                    {post.title}
+                  </h3>
+                  <meta itemProp="description" content={`Professional neurofunk sample pack - ${post.title}`} />
                   <meta itemProp="category" content="Neurofunk Samples" />
                   <div className="flex gap-3">
-                    {post.acf?.preview && (
+                    {post.previewUrl && (
                       <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
                         <Button
                           onClick={(e) => {

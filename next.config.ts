@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   // Performance optimizations
@@ -50,9 +51,10 @@ const nextConfig: NextConfig = {
           key: 'Strict-Transport-Security',
           value: 'max-age=31536000; includeSubDomains'
         },
+        // Align with middleware header which sets DENY
         {
           key: 'X-Frame-Options',
-          value: 'SAMEORIGIN'
+          value: 'DENY'
         },
         {
           key: 'X-Content-Type-Options',
@@ -65,10 +67,6 @@ const nextConfig: NextConfig = {
         {
           key: 'Content-Security-Policy',
           value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com; media-src 'self' data: https: blob:; object-src 'none';"
-        },
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable'
         }
       ]
     }
@@ -84,6 +82,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'dnbdoctor.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: process.env.R2_PUBLIC_HOSTNAME || 'r2.example.com',
         pathname: '/**',
       },
       {
@@ -103,7 +106,7 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400,
     // Optimized device sizes for better responsive images
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // Optimized image sizes for common display sizes
@@ -133,4 +136,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
+export default withBundleAnalyzer(nextConfig);

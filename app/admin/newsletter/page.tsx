@@ -4,6 +4,7 @@ import { memo } from "react";
 import SubscriberList from "../../components/admin/newsletter/SubscriberList";
 import SimpleControls from "../../components/admin/newsletter/SimpleControls";
 import AddSubscriberModal from "../../components/admin/newsletter/modals/AddSubscriberModal";
+import EditSubscriberModal from "../../components/admin/newsletter/modals/EditSubscriberModal";
 import { useRouter } from "next/navigation";
 // simplified view: stats/actions/recently-deleted removed
 import NewsletterPageLayout from "../../components/admin/newsletter/NewsletterPageLayout";
@@ -34,11 +35,15 @@ const NewsletterPage = memo(function NewsletterPage() {
     totalPages,
     totalCount,
     showAddModal,
+    showEditModal,
     newSubscriber,
     setNewSubscriber,
     addSubscriberError,
     isAddingSubscriber,
     showUpdateOption,
+    editingSubscriber,
+    isEditing,
+    editError,
     
     // Actions
     // handleUndoDeleteSubmit,
@@ -51,6 +56,8 @@ const NewsletterPage = memo(function NewsletterPage() {
     handleCloseAddModal,
     handleSubmitAddSubscriber,
     handleUpdateExistingSubscriber,
+    handleCloseEditModal,
+    handleSubmitEditSubscriber,
     // handleManageCategories,
     // handleSendNewsletter,
     handlePageChange,
@@ -110,6 +117,15 @@ const NewsletterPage = memo(function NewsletterPage() {
         showUpdateOption={showUpdateOption}
       />
 
+      <EditSubscriberModal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModal}
+        subscriber={editingSubscriber}
+        categories={categories}
+        onSubmit={handleSubmitEditSubscriber}
+        isLoading={isEditing}
+        error={editError}
+      />
       
     </>
   );

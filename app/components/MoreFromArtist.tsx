@@ -7,7 +7,7 @@ import { FaPlay, FaPause, FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa
 import Button from './Button'
 
 interface Post {
-  id: number
+  id: string
   title: {
     rendered: string
   }
@@ -24,64 +24,33 @@ interface Post {
 
 interface MoreFromArtistProps {
   artistName: string
-  currentPostId: number
+  currentPostId: string
 }
 
 export default function MoreFromArtist({ artistName, currentPostId }: MoreFromArtistProps) {
   const [posts, setPosts] = useState<Post[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [playingId, setPlayingId] = useState<number | null>(null)
+  const [playingId, setPlayingId] = useState<string | null>(null)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const [visiblePosts, setVisiblePosts] = useState(4)
-  const [audioErrors, setAudioErrors] = useState<Record<number, string>>({})
+  const [audioErrors, setAudioErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const fetchArtistPosts = async () => {
       try {
-        // First fetch tag ID
-        const tagsResponse = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/tags?search=${encodeURIComponent(artistName)}`
-        )
-        const tags = await tagsResponse.json()
-        
-        if (!tags.length) {
-          setError('No artist tag found')
-          return
-        }
-
-        // Then fetch posts with that tag ID
-        const response = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/posts?tags=${tags[0].id}&_embed`
-        )
+        const response = await fetch(`/api/posts/by-artist?artist=${encodeURIComponent(artistName)}`)
         if (!response.ok) throw new Error('Failed to fetch posts')
-        
         const data = await response.json()
-        const filteredPosts = data.filter((post: Post) => post.id !== currentPostId)
-
-        // Fetch preview URLs for each post
-        const postsWithPreviews = await Promise.all(
-          filteredPosts.map(async (post: Post) => {
-            if (post.acf?.preview) {
-              const attachmentResponse = await fetch(
-                `https://admin.dnbdoctor.com/wp-json/wp/v2/media/${post.acf.preview}`
-              )
-              if (attachmentResponse.ok) {
-                const attachment = await attachmentResponse.json()
-                return {
-                  ...post,
-                  acf: {
-                    ...post.acf,
-                    preview: attachment.source_url
-                  }
-                }
-              }
-            }
-            return post
-          })
-        )
-
-        setPosts(postsWithPreviews)
+        const filtered = (data.items || []).filter((post: { id: string }) => post.id !== currentPostId)
+        const normalized: Post[] = filtered.map((p: { id: string; slug: string; title: string; coverImageUrl?: string | null; previewUrl?: string | null }) => ({
+          id: p.id,
+          slug: p.slug,
+          title: { rendered: p.title },
+          _embedded: { 'wp:featuredmedia': [{ source_url: p.coverImageUrl }] },
+          acf: p.previewUrl ? { preview: p.previewUrl } : undefined,
+        }))
+        setPosts(normalized)
       } catch (error) {
         console.error('Error:', error)
         setError('Failed to load more posts from this artist')
@@ -90,12 +59,10 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
       }
     }
 
-    if (artistName) {
-      fetchArtistPosts()
-    }
+    if (artistName) fetchArtistPosts()
   }, [artistName, currentPostId])
 
-  const handlePlay = async (postId: number) => {
+  const handlePlay = async (postId: string) => {
     const post = posts.find(p => p.id === postId)
     if (!post?.acf?.preview) return
 

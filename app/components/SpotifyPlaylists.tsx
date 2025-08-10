@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaPlay } from 'react-icons/fa'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -40,29 +39,9 @@ export default function SpotifyPlaylists() {
     <section className="py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `linear-gradient(to right, rgba(168,85,247,0.1) 1px, transparent 1px),
-                           linear-gradient(to bottom, rgba(168,85,247,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px',
-          animation: 'grid-move 20s linear infinite'
-        }} />
-      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30" />
 
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 rounded-full bg-purple-500/30 animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${5 + Math.random() * 5}s`
-            }}
-          />
-        ))}
-      </div>
+      {/* Decorative particles removed for performance */}
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         <motion.div
@@ -132,7 +111,9 @@ export default function SpotifyPlaylists() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
                   >
-                    <FaPlay className="text-sm" />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
                     Listen on Spotify
                   </Link>
                 </div>

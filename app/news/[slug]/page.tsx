@@ -1,184 +1,94 @@
-'use client'
 
+import { prisma } from '@/lib/prisma'
+import { notFound } from 'next/navigation'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
-import { motion } from 'framer-motion'
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser'
 import Image from 'next/image'
-import { use, useEffect, useState } from 'react'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import EngagementCTA from '../../components/EngagementCTA'
+import { sanitizeHtml } from '@/lib/sanitize'
+import type { Metadata } from 'next'
+import Script from 'next/script'
 
-interface NewsPost {
-  id: number
-  date: string
-  title: {
-    rendered: string
-  }
-  content: {
-    rendered: string
-    protected: boolean
-  }
-  acf: {
-    scsc: string // SoundCloud iframe code
-    artist: number
-  }
-  meta: {
-    _related_artist: string
-  }
-  _embedded?: {
-    'wp:featuredmedia'?: [{
-      source_url: string
-      media_details?: {
-        sizes?: {
-          full?: {
-            source_url: string
-          }
-        }
-      }
-    }]
-  }
-  related_artist: string
-}
+interface PageProps { params: Promise<{ slug: string }> }
 
-interface PageProps {
-  params: Promise<{ slug: string }>
-}
+export const revalidate = 300
 
-export default function NewsPostPage({ params }: PageProps) {
-  const { slug } = use(params)
-  const [post, setPost] = useState<NewsPost | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [artistName, setArtistName] = useState<string>('')
+export default async function NewsPostPage({ params }: PageProps) {
+  const { slug } = await params
+  const post = await prisma.news.findUnique({ where: { slug } })
+  if (!post) return notFound()
+  const artistName = post.relatedArtistName || ''
 
-  const fetchArtistName = async (artistId: number) => {
-    try {
-      const response = await fetch(
-        `https://admin.dnbdoctor.com/wp-json/wp/v2/artists/${artistId}`
-      )
-      const data = await response.json()
-      return data.title.rendered
-    } catch (error) {
-      console.error('Error fetching artist:', error)
-      return ''
-    }
-  }
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(
-          `https://admin.dnbdoctor.com/wp-json/wp/v2/news?slug=${slug}&_embed`
-        )
-        const data = await response.json()
-        if (data.length > 0) {
-          console.log('Post data:', data[0])
-          setPost(data[0])
-          if (data[0].acf?.artist) {
-            const name = await fetchArtistName(data[0].acf.artist)
-            setArtistName(name)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching post:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPost()
-  }, [slug])
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
+  const formatDate = (date: string | Date) => {
+    const d = typeof date === 'string' ? new Date(date) : date
+    return d.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
   }
 
-  const getImageUrl = () => {
-    const media = post?._embedded?.['wp:featuredmedia']?.[0]
-    return media?.source_url || media?.media_details?.sizes?.full?.source_url
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-purple-500">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!post) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">Post not found</div>
-      </div>
-    )
-  }
+  const getImageUrl = () => post?.coverImageUrl || undefined
 
   return (
     <section className="py-32 px-4 relative min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
 
       {getImageUrl() && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative w-full max-w-4xl mx-auto mb-12 aspect-[21/9] rounded-2xl overflow-hidden"
-        >
+        <div className="relative w-full max-w-4xl mx-auto mb-12 aspect-[21/9] rounded-2xl overflow-hidden">
           <Image
             src={getImageUrl()!}
-            alt={post?.title.rendered || ''}
+            alt={post?.title || ''}
             fill
+            sizes="(max-width: 768px) 100vw, 800px"
             className="object-cover"
             priority
+            fetchPriority="high"
+            placeholder="blur"
+            blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
-        </motion.div>
+        </div>
       )}
 
       <article className="max-w-4xl mx-auto relative z-10">
+        <Script id="article-jsonld" type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: sanitizeHtml(post.title).replace(/<[^>]*>/g, ''),
+            datePublished: post.publishedAt || undefined,
+            image: post.coverImageUrl || undefined,
+            author: post.relatedArtistName ? [{ '@type': 'Person', name: post.relatedArtistName }] : undefined,
+          })}
+        </Script>
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
+        <header className="text-center mb-12">
           <time className="text-purple-500 font-medium">
-            {formatDate(post.date)}
+            {formatDate(post.publishedAt || '')}
           </time>
           <h1
             className="text-4xl md:text-6xl font-bold mt-4 bg-clip-text text-transparent
               bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
-            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
           />
-        </motion.header>
+        </header>
 
         {/* SoundCloud Player */}
-        {post.acf?.scsc && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-12 rounded-xl overflow-hidden bg-black/30 border border-white/5 p-6"
-          >
+        {post.scsc && (
+          <div className="mb-12 rounded-xl overflow-hidden bg-black/30 border border-white/5 p-6">
             <div
               className="w-full h-[166px]"
-              dangerouslySetInnerHTML={{ __html: post.acf.scsc }}
+              dangerouslySetInnerHTML={{ __html: post.scsc }}
             />
-          </motion.div>
+          </div>
         )}
 
         {/* Content using html-react-parser */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="prose prose-invert prose-purple max-w-none"
-        >
-          {parse(post.content.rendered || '', {
+        <div className="prose prose-invert prose-purple max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:text-gray-300 prose-a:text-purple-400 hover:prose-a:text-pink-400">
+          {parse(post.content || '', {
             replace: (domNode) => {
               if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
                 const { src, alt, width, height } = domNode.attribs;
@@ -190,24 +100,22 @@ export default function NewsPostPage({ params }: PageProps) {
                 }
 
                 // Convert width/height to numbers
-                const imgWidth = parseInt(width, 10);
-                const imgHeight = parseInt(height, 10);
+                const imgWidth = parseInt(String(width || '0'), 10);
+                const imgHeight = parseInt(String(height || '0'), 10);
 
                 if (isNaN(imgWidth) || isNaN(imgHeight)) {
                    return <></>; // Skip if width/height are not valid numbers
                 }
 
-                return (
-                  <div className="my-6"> {/* Add margin around the image container */}
+                 return (
+                  <div className="my-6">
                     <Image
                       src={src}
-                      alt={alt || 'Post image'} // Provide default alt text
+                      alt={alt || 'Post image'}
                       width={imgWidth}
                       height={imgHeight}
-                      className="rounded-lg shadow-md w-full h-auto" // Ensure image is responsive and styled
-                      priority // Add priority prop to disable lazy loading
-                      // Add sizes attribute if needed for further optimization,
-                      // but Next.js handles basic responsiveness well with width/height
+                      className="rounded-lg shadow-md w-full h-auto"
+                      sizes="(max-width: 1024px) 100vw, 800px"
                     />
                   </div>
                 );
@@ -216,19 +124,29 @@ export default function NewsPostPage({ params }: PageProps) {
                 // Cast children to DOMNode[] to satisfy parser types
                 // No need for nested replace here as the main replace handles the img inside
                 return <>{domToReact(domNode.children as DOMNode[])}</>;
+              } else if (domNode instanceof Element && ['h1','h2','h3'].includes(domNode.name)) {
+                const level = domNode.name
+                const cls = level === 'h1' ? 'text-4xl font-bold mt-6 mb-3'
+                  : level === 'h2' ? 'text-3xl font-bold mt-5 mb-3'
+                  : 'text-2xl font-bold mt-4 mb-2'
+                return (
+                  <div className={cls}>
+                    {domToReact(domNode.children as DOMNode[])}
+                  </div>
+                )
               }
               // Keep default rendering for other elements (return undefined or null)
               // Return undefined to let the parser handle the node default way
               return undefined;
             }
           })}
-        </motion.div>
+        </div>
 
         <div className="h-12" />
 
           <SocialShare
             url={`https://dnbdoctor.com/news/${slug}`}
-            title={post.title.rendered}
+            title={post.title}
           />
 
         {artistName && artistName !== '' && (
@@ -243,9 +161,37 @@ export default function NewsPostPage({ params }: PageProps) {
         {/* Add EngagementCTA */}
         <EngagementCTA />
 
-        {/* Related News remains at the bottom */}
-        {post && <RelatedNews currentPostId={post.id} />}
+        {post && (
+          <RelatedNews currentPostId={post.wpId || 0} relatedBy={post.relatedArtistName || post.title} />
+        )}
       </article>
     </section>
   )
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const post = await prisma.news.findUnique({ where: { slug } })
+  if (!post) return {}
+  const plainTitle = sanitizeHtml(post.title).replace(/<[^>]*>/g, '')
+  const description = sanitizeHtml((post.content || '').replace(/<[^>]*>/g, '')).slice(0, 160)
+  const url = `https://dnbdoctor.com/news/${slug}`
+  return {
+    title: `${plainTitle} | DNB Doctor`,
+    description,
+    openGraph: {
+      title: plainTitle,
+      description,
+      url,
+      type: 'article',
+      images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: plainTitle,
+      description,
+      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+    },
+    alternates: { canonical: url },
+  }
 }

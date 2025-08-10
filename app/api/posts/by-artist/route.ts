@@ -1,17 +1,32 @@
 import { NextResponse } from 'next/server'
-import { fetchAPI } from '@/app/utils/fetch-api'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const artistTag = searchParams.get('artist')
+  const artistName = (searchParams.get('artist') || '').trim()
 
   try {
-    const data = await fetchAPI(
-      `/posts?tags=${artistTag}&_embed`,
-      { cache: 'no-store' }
-    )
-
-    return NextResponse.json(data)
+    if (!artistName) return NextResponse.json({ items: [] })
+    const items = await prisma.release.findMany({
+      where: {
+        OR: [
+          { artistName: { equals: artistName, mode: 'insensitive' } },
+          { title: { contains: artistName, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { publishedAt: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        coverImageUrl: true,
+        previewUrl: true,
+        publishedAt: true,
+      },
+    })
+    const res = NextResponse.json({ items })
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400')
+    return res
   } catch (error) {
     console.error('Error fetching artist posts:', error)
     return NextResponse.json(

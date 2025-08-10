@@ -1,28 +1,29 @@
 export const subscriberApi = {
   async subscribe(data: { email: string; name?: string; group?: string; source?: string }) {
     try {
-      console.log('🔍 Subscribing via Prisma API:', data);
+      const email = (data.email || '').toLowerCase().trim();
+      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!isValidEmail.test(email)) {
+        throw new Error('Please enter a valid email address');
+      }
+      const payload = { ...data, email };
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
-      console.log('📡 Subscribe response status:', response.status);
       
       if (!response.ok) {
         const error = await response.json()
-        console.error('❌ Subscribe error:', error);
         throw new Error(error.error || 'Failed to subscribe')
       }
 
       const result = await response.json()
-      console.log('✅ Subscribe success:', result);
       return result
     } catch (error) {
-      console.error('💥 Subscribe exception:', error);
       throw error
     }
   },

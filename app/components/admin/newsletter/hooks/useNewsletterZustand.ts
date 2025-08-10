@@ -23,11 +23,15 @@ export const useNewsletterZustand = () => {
   const totalPages = useNewsletterStore(state => state.totalPages);
   const totalCount = useNewsletterStore(state => state.totalCount);
   const showAddModal = useNewsletterStore(state => state.showAddModal);
+  const showEditModal = useNewsletterStore(state => state.showEditModal);
   const newSubscriber = useNewsletterStore(state => state.newSubscriber);
   const setNewSubscriber = useNewsletterStore(state => state.setNewSubscriber);
   const addSubscriberError = useNewsletterStore(state => state.addSubscriberError);
   const isAddingSubscriber = useNewsletterStore(state => state.isAddingSubscriber);
   const showUpdateOption = useNewsletterStore(state => state.showUpdateOption);
+  const editingSubscriber = useNewsletterStore(state => state.editingSubscriber);
+  const isEditing = useNewsletterStore(state => state.isEditing);
+  const editError = useNewsletterStore(state => state.editError);
   const resetPagination = useNewsletterStore(state => state.resetPagination);
   const handleUndoDelete = useNewsletterStore(state => state.handleUndoDelete);
   const handleDeleteSubscriber = useNewsletterStore(state => state.handleDeleteSubscriber);
@@ -38,6 +42,9 @@ export const useNewsletterZustand = () => {
   const handleCloseAddModal = useNewsletterStore(state => state.handleCloseAddModal);
   const handleSubmitAddSubscriber = useNewsletterStore(state => state.handleSubmitAddSubscriber);
   const handleUpdateExistingSubscriber = useNewsletterStore(state => state.handleUpdateExistingSubscriber);
+  const handleEditSubscriberOpen = useNewsletterStore(state => state.handleEditSubscriberOpen);
+  const handleCloseEditModal = useNewsletterStore(state => state.handleCloseEditModal);
+  const handleSubmitEditSubscriber = useNewsletterStore(state => state.handleSubmitEditSubscriber);
   const handlePageChange = useNewsletterStore(state => state.handlePageChange);
   const handleItemsPerPageChange = useNewsletterStore(state => state.handleItemsPerPageChange);
   const setSendingNewsletter = useNewsletterStore(state => state.setSendingNewsletter);
@@ -50,6 +57,23 @@ export const useNewsletterZustand = () => {
       store.fetchData();
     }
   }, []);
+
+  useEffect(() => {
+    const onFocus = () => fetchData(true);
+    const onVisibility = () => { if (!document.hidden) fetchData(true) };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (showEditModal || showAddModal) {
+      fetchData(true);
+    }
+  }, [showEditModal, showAddModal, fetchData]);
 
   useEffect(() => {
     resetPagination();
@@ -78,11 +102,15 @@ export const useNewsletterZustand = () => {
     totalPages,
     totalCount,
     showAddModal,
+    showEditModal,
     newSubscriber,
     setNewSubscriber,
     addSubscriberError,
     isAddingSubscriber,
     showUpdateOption,
+    editingSubscriber,
+    isEditing,
+    editError,
     
     // Actions
     handleUndoDeleteSubmit: handleUndoDelete,
@@ -90,11 +118,13 @@ export const useNewsletterZustand = () => {
     handleSubscriberSelect,
     handleSelectAll,
     handleBulkDelete,
-    handleEditSubscriber: () => console.log('Edit subscriber'),
+    handleEditSubscriber: handleEditSubscriberOpen,
     handleAddSubscriber,
     handleCloseAddModal,
     handleSubmitAddSubscriber,
     handleUpdateExistingSubscriber,
+    handleCloseEditModal,
+    handleSubmitEditSubscriber,
     handleManageCategories: () => {},
     handleSendNewsletter: () => setSendingNewsletter(true),
     handlePageChange,

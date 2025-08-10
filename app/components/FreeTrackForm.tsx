@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 export default function FreeTrackForm() {
   const [email, setEmail] = useState('')
@@ -15,20 +16,24 @@ export default function FreeTrackForm() {
     setMsg('')
     setOk(null)
     try {
+      const emailLc = email.toLowerCase().trim()
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, group: 'FreeTrack', source: 'new_fans_free_track' })
+        body: JSON.stringify({ email: emailLc, name, group: 'FreeTrack', source: 'new_fans_free_track' })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Failed to subscribe')
       setOk(true)
       setMsg('Check your email for the download link!')
+      toast.success('Subscribed. Check your email for the track!')
       setEmail('')
       setName('')
     } catch (err) {
       setOk(false)
-      setMsg(err instanceof Error ? err.message : 'Something went wrong')
+      const message = err instanceof Error ? err.message : 'Something went wrong'
+      setMsg(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }

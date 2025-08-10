@@ -225,6 +225,7 @@ model DemoFeedback {
   id              String   @id @default(cuid())
   token           String   @unique
   recipientEmail  String
+  senderEmail     String?
   subject         String
   message         String
   files           Json
@@ -234,6 +235,9 @@ model DemoFeedback {
   submittedAt     DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  trackToken      String?
+  wpPostId        Int?
+  source          String?
 
   @@index([recipientEmail])
   @@index([createdAt])
@@ -242,4 +246,73 @@ model DemoFeedback {
 enum Role {
   ADMIN
   USER
+}
+
+model Release {
+  id             String   @id @default(cuid())
+  wpId           Int?     @unique
+  slug           String   @unique
+  title          String
+  content        String?  @db.Text
+  coverImageUrl  String?
+  coverImageKey  String?
+  previewUrl     String?
+  spotify        String?
+  appleMusic     String?
+  beatport       String?
+  deezer         String?
+  soundcloud     String?
+  youtubeMusic   String?
+  junoDownload   String?
+  tidal          String?
+  gumroad        String?
+  bandcamp       String?
+  artistName     String?
+  categories     String[] @default([])
+  publishedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([title])
+  @@index([artistName])
+}
+
+model Artist {
+  id         String   @id @default(cuid())
+  wpId       Int?     @unique
+  slug       String   @unique
+  name       String
+  bio        String?  @db.Text
+  imageUrl   String?
+  imageKey   String?
+  soundcloud String?
+  spotify    String?
+  facebook   String?
+  instagram  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([slug])
+  @@index([name])
+}
+
+model News {
+  id                 String   @id @default(cuid())
+  wpId               Int?     @unique
+  slug               String   @unique
+  title              String
+  content            String?  @db.Text
+  coverImageUrl      String?
+  coverImageKey      String?
+  scsc               String?
+  relatedArtistName  String?
+  publishedAt        DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@index([slug])
+  @@index([title])
 }

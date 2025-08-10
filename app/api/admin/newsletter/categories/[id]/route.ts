@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/lib/auth";
 
 function json(res: unknown, init?: ResponseInit) {
   const r = NextResponse.json(res, init);
@@ -11,6 +12,15 @@ function json(res: unknown, init?: ResponseInit) {
 
 export async function PATCH(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
+    const session = await auth.api.getSession({ headers: _req.headers });
+    if (!session?.user) return json({ error: "Unauthorized" }, { status: 401 });
+
+    const origin = _req.headers.get("origin");
+    const requestOrigin = new URL(_req.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const body = await _req.json();
     const { name, color, description, influencersEnabled } = body || {};
     if (!name || !color || !description || typeof influencersEnabled === 'undefined') {
@@ -66,6 +76,15 @@ export async function PATCH(_req: NextRequest, ctx: { params: Promise<{ id: stri
 
 export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
+    const session = await auth.api.getSession({ headers: _req.headers });
+    if (!session?.user) return json({ error: "Unauthorized" }, { status: 401 });
+
+    const origin = _req.headers.get("origin");
+    const requestOrigin = new URL(_req.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const { id } = await ctx.params;
     await prisma.$transaction([
       prisma.subscriber.updateMany({ where: { categoryId: id }, data: { categoryId: null } }),

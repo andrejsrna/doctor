@@ -1,4 +1,6 @@
 import { Metadata } from 'next'
+import { prisma } from '@/lib/prisma'
+import { sanitizeHtml } from '@/app/utils/sanitize'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -11,54 +13,19 @@ export async function generateMetadata(
   const { slug } = await params
   
   try {
-    const response = await fetch(
-      'https://admin.dnbdoctor.com/wp-json/wp/v2/posts?' + new URLSearchParams({
-        slug,
-        _embed: '1'
-      }),
-      { next: { revalidate: 3600 } }
-    )
-    const data = await response.json()
-    const release = data[0]
+    const release = await prisma.release.findUnique({ where: { slug } })
 
-    // Helper function to decode HTML entities
-    const decodeHtmlEntities = (text: string) => {
-      const namedEntities: { [key: string]: string } = {
-        '&amp;': '&',
-        '&lt;': '<',
-        '&gt;': '>',
-        '&quot;': '"',
-        '&#39;': "'",
-        '&apos;': "'",
-        '&nbsp;': ' ',
-        '&mdash;': '—',
-        '&ndash;': '–',
-        '&hellip;': '…',
-        '&copy;': '©',
-        '&reg;': '®',
-        '&trade;': '™'
-      }
-      
-      return text
-        // Handle named entities
-        .replace(/&[a-zA-Z]+;/g, (entity) => namedEntities[entity] || entity)
-        // Handle numeric entities like &#8211;
-        .replace(/&#(\d+);/g, (match, num) => String.fromCharCode(parseInt(num, 10)))
-        // Handle hex entities like &#x2013;
-        .replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)))
-    }
-    
-    const rawTitle = release?.title?.rendered || 'Music Release'
-    const title = decodeHtmlEntities(rawTitle)
-    
-    const rawDescription = release?.excerpt?.rendered?.replace(/<[^>]*>/g, '') || 'Check out this release on DnB Doctor'
-    const description = decodeHtmlEntities(rawDescription)
+    const rawTitle = release?.title || 'Music Release'
+    const title = sanitizeHtml(rawTitle).replace(/<[^>]+>/g, '')
+    const rawDescription = release?.content?.slice(0, 160) || 'Check out this release on DnB Doctor'
+    const description = sanitizeHtml(rawDescription).replace(/<[^>]+>/g, '')
     const releaseUrl = `https://dnbdoctor.com/music/${slug}`
-    const imageUrl = release?._embedded?.['wp:featuredmedia']?.[0]?.source_url
+    const imageUrl = release?.coverImageUrl || undefined
 
     return {
       title: `${title} | DnB Doctor`,
       description,
+      alternates: { canonical: releaseUrl },
       openGraph: {
         title: `${title} | DnB Doctor`,
         description,
@@ -71,6 +38,13 @@ export async function generateMetadata(
             height: 630,
           }
         ] : [],
+        audio: release?.previewUrl ? [{ url: release.previewUrl }] : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${title} | DnB Doctor`,
+        description,
+        images: imageUrl ? [imageUrl] : [],
       },
       robots: {
         index: true,

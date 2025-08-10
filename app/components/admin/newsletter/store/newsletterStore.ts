@@ -47,6 +47,10 @@ interface NewsletterState {
   // Modal State
   newSubscriber: ReturnType<typeof createEmptySubscriber>;
   addSubscriberError: string;
+  showEditModal: boolean;
+  editingSubscriber: Subscriber | null;
+  isEditing: boolean;
+  editError: string;
   
   // Recently Deleted
   recentlyDeleted: RecentlyDeleted[];
@@ -64,6 +68,9 @@ interface NewsletterState {
   setNewSubscriber: (subscriber: ReturnType<typeof createEmptySubscriber>) => void;
   setAddSubscriberError: (error: string) => void;
   setSendingNewsletter: (sending: boolean) => void;
+  setShowEditModal: (show: boolean) => void;
+  setEditingSubscriber: (subscriber: Subscriber | null) => void;
+  setEditError: (error: string) => void;
   
   // Complex Actions
   fetchData: (isSearchUpdate?: boolean) => Promise<void>;
@@ -76,6 +83,15 @@ interface NewsletterState {
   handleCloseAddModal: () => void;
   handleSubmitAddSubscriber: () => Promise<void>;
   handleUpdateExistingSubscriber: () => Promise<void>;
+  handleEditSubscriberOpen: (subscriber: Subscriber) => void;
+  handleCloseEditModal: () => void;
+  handleSubmitEditSubscriber: (data: {
+    name?: string;
+    tags: string[];
+    categoryId?: string;
+    notes?: string;
+    status: 'ACTIVE' | 'PENDING' | 'UNSUBSCRIBED';
+  }) => Promise<void>;
   handlePageChange: (page: number) => void;
   handleItemsPerPageChange: (items: number) => void;
   resetPagination: () => void;
@@ -115,6 +131,10 @@ export const useNewsletterStore = create<NewsletterState>()(
     
     newSubscriber: createEmptySubscriber(),
     addSubscriberError: '',
+    showEditModal: false,
+    editingSubscriber: null,
+    isEditing: false,
+    editError: '',
     
     recentlyDeleted: [],
     
@@ -147,6 +167,9 @@ export const useNewsletterStore = create<NewsletterState>()(
     setNewSubscriber: (subscriber) => set({ newSubscriber: subscriber }),
     setAddSubscriberError: (error) => set({ addSubscriberError: error }),
     setSendingNewsletter: (sending) => set({ sendingNewsletter: sending }),
+    setShowEditModal: (show) => set({ showEditModal: show }),
+    setEditingSubscriber: (subscriber) => set({ editingSubscriber: subscriber }),
+    setEditError: (error) => set({ editError: error }),
     
     // Complex Actions
     fetchData: async (isSearchUpdate = false) => {
@@ -305,6 +328,43 @@ export const useNewsletterStore = create<NewsletterState>()(
         set({ addSubscriberError: createNetworkError(error) });
       } finally {
         set({ isAddingSubscriber: false });
+      }
+    },
+    
+    handleEditSubscriberOpen: (subscriber) => {
+      set({ editingSubscriber: subscriber, showEditModal: true, editError: '' });
+    },
+    
+    handleCloseEditModal: () => {
+      set({ showEditModal: false, editingSubscriber: null, editError: '' });
+    },
+    
+    handleSubmitEditSubscriber: async (data) => {
+      const state = get();
+      if (!state.editingSubscriber) return;
+      set({ isEditing: true, editError: '' });
+      try {
+        const res = await fetch(`/api/admin/newsletter/subscribers/${state.editingSubscriber.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            tags: data.tags,
+            categoryId: data.categoryId,
+            notes: data.notes,
+            status: data.status
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to update subscriber');
+        }
+        set({ showEditModal: false, editingSubscriber: null });
+        await get().fetchData();
+      } catch (e) {
+        set({ editError: e instanceof Error ? e.message : 'Update failed' });
+      } finally {
+        set({ isEditing: false });
       }
     },
     

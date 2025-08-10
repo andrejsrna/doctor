@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/app/lib/auth";
 
 interface CreateSubscriberData {
   email: string;
@@ -42,6 +43,9 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -58,12 +62,6 @@ export async function GET(request: NextRequest) {
         status: {
           not: 'UNSUBSCRIBED'
         }
-      },
-      {
-        OR: [
-          { notes: null },
-          { notes: { not: { contains: '[SOFT DELETED]' } } }
-        ]
       }
     ];
     
@@ -164,6 +162,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const origin = request.headers.get("origin");
+    const requestOrigin = new URL(request.url).origin;
+    if (origin && origin !== requestOrigin) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const { email, name, tags, category, notes, updateExisting }: CreateSubscriberData = await request.json();
     let validCategoryId: string | undefined = undefined;
     if (category) {

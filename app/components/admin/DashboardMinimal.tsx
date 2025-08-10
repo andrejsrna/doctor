@@ -128,9 +128,9 @@ export default function DashboardMinimal({
             <div className="text-lg font-semibold">Admin Shortcuts</div>
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {navigationItems.map((item) => (
+            {navigationItems.map((item, idx) => (
               <button
-                key={item.href}
+                key={`${item.href}-${idx}`}
                 onClick={() => onNavigate(item.href)}
                 className="group text-left bg-black/40 border border-purple-500/20 hover:border-purple-500/40 rounded-xl p-4 transition-colors"
               >
