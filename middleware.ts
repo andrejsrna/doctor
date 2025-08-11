@@ -99,6 +99,7 @@ const redirects = [
       to: "/music/chemical-chronicles-2024",
     },
     { from: "/asana-neurofunk-code", to: "/music/asana-neurofunk-code" },
+    { from: "/podcasts", to: "/music" },
   ];
   
   const PUBLIC_PATHS = [
