@@ -8,6 +8,7 @@ import './styles/content-wrapper.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import { PostHogProvider } from "./components/PostHogProvider";
 import { Toaster } from 'react-hot-toast';
+import GlobalErrorReporter from './components/GlobalErrorReporter'
 
 const rajdhani = Share_Tech({
   variable: "--font-rajdhani",
@@ -203,6 +204,7 @@ export default function RootLayout({
       >
         <PostHogProvider>
           <SessionProviderWrapper>
+            <GlobalErrorReporter />
             <Navigation />
             {children}
             <Footer />

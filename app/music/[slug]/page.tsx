@@ -60,6 +60,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   return (
     <section>
+      <noscript>
+        <div className="px-4 py-6 text-center text-gray-300">Enable JavaScript to view this page.</div>
+      </noscript>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ReleaseHero
         title={safeTitle}

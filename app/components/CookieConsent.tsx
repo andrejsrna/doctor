@@ -46,10 +46,7 @@ export default function CookieConsent() {
           ReactPixel.default.grantConsent()
           ReactPixel.default.pageView()
           
-          // Set proper domain for Facebook cookies
-          if (typeof document !== 'undefined') {
-            document.domain = document.domain.split('.').slice(-2).join('.')
-          }
+          
         } catch {
           // Silently handle Facebook Pixel errors
         }
