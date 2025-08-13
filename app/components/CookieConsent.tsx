@@ -77,6 +77,24 @@ export default function CookieConsent() {
     document.body.appendChild(s2)
   }
 
+  const loadCloudflareAnalytics = () => {
+    if (typeof window === 'undefined') return
+    if (document.querySelector('script[data-cf-beacon]')) return
+    const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+    if (!token) return
+    const sc = document.createElement('script')
+    sc.defer = true
+    sc.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+    sc.setAttribute('data-cf-beacon', JSON.stringify({ token }))
+    document.body.appendChild(sc)
+  }
+
+  const removeCloudflareAnalytics = () => {
+    if (typeof window === 'undefined') return
+    const existing = document.querySelector('script[src*="cloudflareinsights.com/beacon.min.js"]')
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
+  }
+
   useEffect(() => {
     setIsMounted(true)
     const consent = Cookies.get(COOKIE_CONSENT_KEY)
@@ -90,7 +108,12 @@ export default function CookieConsent() {
           : JSON.parse(consent) as CookieSettings;
         handleAnalyticsTools(savedSettings);
         try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(savedSettings)) } catch {}
-        if (savedSettings.analytics) loadGA()
+        if (savedSettings.analytics) {
+          loadGA()
+          loadCloudflareAnalytics()
+        } else {
+          removeCloudflareAnalytics()
+        }
       } catch (error) {
         console.error('Error parsing cookie consent:', error);
         // Set default values if parsing fails
@@ -106,7 +129,12 @@ export default function CookieConsent() {
     })
     try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(settings)) } catch {}
     handleAnalyticsTools(settings)
-    if (settings.analytics) loadGA()
+    if (settings.analytics) {
+      loadGA()
+      loadCloudflareAnalytics()
+    } else {
+      removeCloudflareAnalytics()
+    }
     try {
       const evt = new CustomEvent('dd-consent-changed', { detail: settings })
       window.dispatchEvent(evt)
