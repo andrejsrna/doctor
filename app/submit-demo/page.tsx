@@ -2,14 +2,12 @@
 
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
-import { 
-  FaCloudUploadAlt, FaSoundcloud, FaHeadphones, FaCheck, FaSpinner, 
-  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle 
+import {
+  FaCheck, FaSpinner,
+  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle
 } from 'react-icons/fa'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Button from '../components/Button'
-import KeyTracks from '../components/KeyTracks'
 
 interface FormData {
   email: string
@@ -19,24 +17,6 @@ interface FormData {
   acceptGuidelines: boolean
   acceptPrivacy: boolean
 }
-
-const features = [
-  {
-    icon: FaSoundcloud,
-    title: "Share Your Sound",
-    description: "We accept demos via SoundCloud or private links"
-  },
-  {
-    icon: FaHeadphones,
-    title: "Professional Review",
-    description: "Every submission is carefully reviewed by our team"
-  },
-  {
-    icon: FaCheck,
-    title: "Quick Response",
-    description: "We aim to respond within 5 working days"
-  }
-]
 
 export default function SubmitDemoPage() {
   const [formData, setFormData] = useState<FormData>({
@@ -109,73 +89,7 @@ export default function SubmitDemoPage() {
   }
 
   return (
-    <section className="min-h-screen relative overflow-hidden">
-      {/* Hero Section with Parallax Effect */}
-      <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/submitdemo.jpeg"
-            alt="Submit Demo Background"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent animate-pulse" />
-        </div>
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-center px-4"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-block p-4 bg-purple-500/20 rounded-full mb-6 backdrop-blur-sm
-              border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
-          >
-            <FaCloudUploadAlt className="w-16 h-16 text-purple-500 animate-pulse" />
-          </motion.div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
-            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
-            Submit Your Demo
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-            We&apos;re always looking for fresh talent. Let&apos;s create something amazing together.
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Features Section */}
-      <div className="bg-black/50 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                className="bg-black/30 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-sm
-                  hover:border-purple-500/40 transition-all duration-300
-                  hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-              >
-                <feature.icon className="w-10 h-10 text-purple-500 mb-4" />
-                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Music Examples Section */}
-      <div className="bg-black">
-        <KeyTracks title="Music We Accept" />
-      </div>
-
+    <section className="py-16 relative overflow-hidden">
       {/* Form Section */}
       <div className="bg-black py-16">
         <motion.div
@@ -253,7 +167,7 @@ export default function SubmitDemoPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid gap-6">
                   <div>
-                    <label htmlFor="artistName" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    <label htmlFor="artistName" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <FaUser className="w-4 h-4 text-purple-500" />
                       Your Real Name *
                     </label>
@@ -272,7 +186,7 @@ export default function SubmitDemoPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    <label htmlFor="email" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <FaEnvelope className="w-4 h-4 text-purple-500" />
                       Email *
                     </label>
@@ -291,7 +205,7 @@ export default function SubmitDemoPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="genre" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    <label htmlFor="genre" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <FaMusic className="w-4 h-4 text-purple-500" />
                       Genre *
                     </label>
@@ -315,7 +229,7 @@ export default function SubmitDemoPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    <label htmlFor="subject" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
                       <FaLink className="w-4 h-4 text-purple-500" />
                       SoundCloud Link Secret or Private Link *
                     </label>
