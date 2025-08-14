@@ -144,13 +144,26 @@ const redirects = [
     return path.startsWith("/api/");
   }
   
+  function normalizePath(path: string): string {
+    const lower = path.toLowerCase();
+    if (lower !== "/" && lower.endsWith("/")) {
+      return lower.slice(0, -1);
+    }
+    return lower;
+  }
+
   function handleRedirects(request: NextRequest): NextResponse | null {
     try {
-      const path = request.nextUrl.pathname;
-      const redirect = redirects.find((r) => r.from === path);
-  
+      const originalPath = request.nextUrl.pathname;
+      const path = normalizePath(originalPath);
+      const redirect = redirects.find((r) => normalizePath(r.from) === path);
+
       if (redirect) {
-        return NextResponse.redirect(new URL(redirect.to, request.url));
+        const response = NextResponse.redirect(new URL(redirect.to, request.url));
+        if (process.env.DEBUG_MIDDLEWARE_REDIRECTS === "1") {
+          console.info("Middleware redirect:", originalPath, "->", redirect.to);
+        }
+        return response;
       }
       return null;
     } catch (error) {
