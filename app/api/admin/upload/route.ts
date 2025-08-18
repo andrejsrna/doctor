@@ -3,6 +3,7 @@ import { auth } from "@/app/lib/auth"
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
+import { validateAdminOrigin } from "@/app/lib/adminUtils"
 
 function getS3() {
   const endpoint = process.env.R2_ENDPOINT
@@ -25,9 +26,8 @@ export async function POST(request: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 })
 
-  const origin = request.headers.get("origin")
-  const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: "Invalid origin" }, { status: 403 })
+  // Validate origin (logs but doesn't block)
+  validateAdminOrigin(request)
   if (file.size > 25 * 1024 * 1024) return NextResponse.json({ error: "File too large" }, { status: 413 })
   const allowedKinds = new Set(["asset", "image", "audio", "cover", "preview"])
   if (!allowedKinds.has(kind)) return NextResponse.json({ error: "Invalid kind" }, { status: 400 })

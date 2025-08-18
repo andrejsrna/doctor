@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { auth } from "@/app/lib/auth";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { validateAdminOrigin } from "@/app/lib/adminUtils";
 
 function getS3() {
   const endpoint = process.env.R2_ENDPOINT;
@@ -19,11 +20,8 @@ export async function POST(request: NextRequest) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const origin = request.headers.get("origin");
-    const requestOrigin = new URL(request.url).origin;
-    if (origin && origin !== requestOrigin) {
-      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
-    }
+    // Validate origin (logs but doesn't block)
+    validateAdminOrigin(request);
     const formData = await request.formData();
     const files = formData.getAll("files") as File[];
 

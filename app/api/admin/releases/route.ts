@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/app/lib/auth"
+import { validateAdminOrigin } from "@/app/lib/adminUtils"
 
 function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -43,9 +44,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user) return unauthorized()
-  const origin = request.headers.get('origin')
-  const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  validateAdminOrigin(request)
   const data = await request.json()
   const created = await prisma.release.create({
     data: {
@@ -74,9 +73,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user) return unauthorized()
-  const origin = request.headers.get('origin')
-  const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  validateAdminOrigin(request)
   const { id, ...data } = await request.json()
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
 
@@ -107,9 +104,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user) return unauthorized()
-  const origin = request.headers.get('origin')
-  const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  validateAdminOrigin(request)
   const { searchParams } = new URL(request.url)
   const id = searchParams.get("id")
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
