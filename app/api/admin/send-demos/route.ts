@@ -182,16 +182,81 @@ export async function POST(request: NextRequest) {
         
         // No file processing here; links will be available on the feedback page only
 
-        const subscriber = await prisma.subscriber.findFirst({ where: { email: recipient }, select: { name: true } });
-        const displayName: string | undefined = subscriber?.name || undefined;
-        let personalizedSubject = emailData.subject.replace(/{name}/g, displayName || "");
-        let personalizedMessage = emailData.message.replace(/{name}/g, displayName || "");
-        if (!displayName) {
+        const subscriber = await prisma.subscriber.findFirst({ 
+          where: { email: recipient }, 
+          select: { 
+            name: true, 
+            categoryId: true,
+            subscribedAt: true,
+            category: {
+              select: { name: true }
+            }
+          } 
+        });
+        
+        // Get release info if wpPostId is provided
+        let releaseInfo: { title?: string; artistName?: string } = {};
+        if (typeof emailData.wpPostId === 'number' && emailData.wpPostId > 0) {
+          try {
+            const release = await prisma.release.findFirst({ 
+              where: { wpId: emailData.wpPostId }, 
+              select: { title: true, artistName: true } 
+            });
+            if (release) {
+              releaseInfo = {
+                title: release.title || undefined,
+                artistName: release.artistName || undefined
+              };
+            }
+          } catch (error) {
+            console.error('Error fetching release info:', error);
+          }
+        }
+
+        // Prepare placeholder values with fallbacks
+        const placeholderValues = {
+          name: subscriber?.name || '', // Empty string for name - we'll handle this specially
+          email: recipient,
+          artist: releaseInfo.artistName || 'our artist',
+          track: releaseInfo.title || 'this track',
+          category: subscriber?.category?.name || 'our newsletter',
+          subscribedAt: subscriber?.subscribedAt ? new Date(subscriber.subscribedAt).toLocaleDateString() : 'recently'
+        };
+
+        // Replace placeholders in subject and message
+        let personalizedSubject = emailData.subject;
+        let personalizedMessage = emailData.message;
+
+        // Replace all placeholders except name (we'll handle it specially)
+        Object.entries(placeholderValues).forEach(([key, value]) => {
+          if (key !== 'name') {
+            const placeholder = `{${key}}`;
+            personalizedSubject = personalizedSubject.replace(new RegExp(placeholder, 'g'), value);
+            personalizedMessage = personalizedMessage.replace(new RegExp(placeholder, 'g'), value);
+          }
+        });
+
+        // Handle name placeholder specially
+        const namePlaceholder = /{name}/g;
+        if (subscriber?.name) {
+          // If we have a name, replace normally
+          personalizedSubject = personalizedSubject.replace(namePlaceholder, subscriber.name);
+          personalizedMessage = personalizedMessage.replace(namePlaceholder, subscriber.name);
+        } else {
+          // If no name, clean up the text to remove awkward references
+          personalizedSubject = personalizedSubject
+            .replace(namePlaceholder, '')
+            .replace(/\s*-\s*$/, "")
+            .replace(/\s{2,}/g, " ")
+            .replace(/\s*for your consideration\s*$/i, " for your consideration")
+            .trim();
           personalizedMessage = personalizedMessage
+            .replace(namePlaceholder, '')
             .replace(/(^|\n)\s*Hi\s*,\s*(\n|$)/i, "$1$2")
             .replace(/(^|\n)\s*Hello\s*,\s*(\n|$)/i, "$1$2");
-          personalizedSubject = personalizedSubject.replace(/\s*-\s*$/, "").replace(/\s{2,}/g, " ").trim();
         }
+
+
 
         // Create unique feedback token per recipient batch
         const feedbackToken = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`

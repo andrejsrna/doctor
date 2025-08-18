@@ -141,7 +141,7 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }} 
         className="relative bg-black/50 backdrop-blur-sm border border-purple-500/20 rounded-xl p-8 shadow-2xl"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-green-900/20 rounded-xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-green-900/20 rounded-xl pointer-events-none" />
         
         <div className="relative z-10 text-center mb-8">
           <motion.div 
@@ -165,7 +165,7 @@ export default function LoginPage() {
           )}
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 relative z-20">
           <motion.div 
             initial={{ opacity: 0, x: -20 }} 
             animate={{ opacity: 1, x: 0 }} 
@@ -180,7 +180,7 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLocked || isLoading}
               autoComplete="username"
-              className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed relative z-30"
               placeholder="Enter username"
             />
           </motion.div>
@@ -199,7 +199,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLocked || isLoading}
               autoComplete="current-password"
-              className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed relative z-30"
               placeholder="Enter password"
             />
           </motion.div>

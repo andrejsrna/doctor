@@ -462,6 +462,7 @@ export default function DemoPage() {
                   type="text"
                   value={emailData.subject}
                   onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="New track for your consideration {name}"
                   className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
@@ -474,6 +475,17 @@ export default function DemoPage() {
                   value={emailData.message}
                   onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
                   rows={6}
+                  placeholder="Hello {name},
+
+We have a new track we'd love you to check out.
+
+Artist: {artist}
+Track: {track}
+
+Let us know what you think.
+
+Best regards,
+DnB Doctor Team"
                   className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
@@ -485,9 +497,20 @@ export default function DemoPage() {
                     : `Sending to manual email list`
                   }
                 </p>
-                <p className="text-xs text-gray-400">
-                  Use {'{name}'} for recipient name, {'{email}'} for email address
+                <p className="text-xs text-gray-400 mb-3">
+                  Available placeholders: {'{name}'} (recipient name), {'{email}'} (email address), {'{artist}'} (artist name), {'{track}'} (track name), {'{category}'} (newsletter category), {'{subscribedAt}'} (subscription date)
                 </p>
+                
+                {/* Preview section */}
+                <div className="border-t border-purple-500/20 pt-3">
+                  <p className="text-xs text-purple-300 mb-2">Preview (example values):</p>
+                  <div className="text-xs text-gray-400 space-y-1">
+                    <p><strong>Subject (with name):</strong> {emailData.subject.replace(/{name}/g, 'John').replace(/{email}/g, 'john@example.com').replace(/{artist}/g, 'Artist Name').replace(/{track}/g, 'Track Title').replace(/{category}/g, 'Newsletter Category').replace(/{subscribedAt}/g, '01/01/2024')}</p>
+                    <p><strong>Subject (no name):</strong> {emailData.subject.replace(/{name}/g, '').replace(/{email}/g, 'john@example.com').replace(/{artist}/g, 'Artist Name').replace(/{track}/g, 'Track Title').replace(/{category}/g, 'Newsletter Category').replace(/{subscribedAt}/g, '01/01/2024').replace(/\s*-\s*$/, "").replace(/\s{2,}/g, " ").replace(/\s*for your consideration\s*$/i, " for your consideration").trim()}</p>
+                    <p><strong>Message:</strong> {emailData.message.replace(/{name}/g, 'John').replace(/{email}/g, 'john@example.com').replace(/{artist}/g, 'Artist Name').replace(/{track}/g, 'Track Title').replace(/{category}/g, 'Newsletter Category').replace(/{subscribedAt}/g, '01/01/2024').substring(0, 100)}...</p>
+                  </div>
+                </div>
+                
                 {emailData.wpPostId && (
                   <p className="text-xs text-blue-300 mt-1">Linked release (WP Post ID): {emailData.wpPostId}</p>
                 )}
