@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/app/lib/auth";
+import { validateAdminOriginPermissive } from "@/app/lib/adminUtils";
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -20,12 +21,7 @@ export async function PUT(
       return addNoCacheHeaders(response);
     }
 
-    const origin = request.headers.get("origin");
-    const requestOrigin = new URL(request.url).origin;
-    if (origin && origin !== requestOrigin) {
-      const response = NextResponse.json({ error: "Invalid origin" }, { status: 403 });
-      return addNoCacheHeaders(response);
-    }
+    validateAdminOriginPermissive(request);
 
     const { id } = await params;
     const updateData = await request.json();
@@ -98,12 +94,7 @@ export async function DELETE(
       return addNoCacheHeaders(response);
     }
 
-    const origin = request.headers.get("origin");
-    const requestOrigin = new URL(request.url).origin;
-    if (origin && origin !== requestOrigin) {
-      const response = NextResponse.json({ error: "Invalid origin" }, { status: 403 });
-      return addNoCacheHeaders(response);
-    }
+    validateAdminOriginPermissive(request);
 
     const { id } = await params;
     const { searchParams } = new URL(request.url);
