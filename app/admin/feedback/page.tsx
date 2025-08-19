@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 interface FeedbackItem {
   id: string
   recipientEmail: string
+  senderEmail?: string | null
   subject: string
   rating: number | null
   feedback: string | null
@@ -58,59 +59,139 @@ export default function FeedbackAdminPage() {
     return () => controller.abort()
   }, [page, search, legacyOnly, ratingMin, ratingMax, startDate, endDate, limit])
 
-  // removed unused fetchItems
-
   const formatDate = (v?: string | null) => v ? new Date(v).toLocaleDateString() : '-'
+  
+  const formatFeedback = (feedback: string | null) => {
+    if (!feedback) return <span className="text-gray-500 italic">(no feedback text)</span>
+    const cleanText = feedback.replace(/^["']|["']$/g, '') // Remove surrounding quotes
+    return cleanText.length > 100 ? (
+      <span title={cleanText}>
+        {cleanText.substring(0, 100)}...
+      </span>
+    ) : (
+      <span>{cleanText}</span>
+    )
+  }
+
+  const getRatingColor = (rating: number | null) => {
+    if (!rating) return 'text-gray-500'
+    if (rating >= 4) return 'text-green-400'
+    if (rating >= 3) return 'text-yellow-400'
+    return 'text-red-400'
+  }
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Feedback</h1>
+      
+      {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search"
-               className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        <input 
+          value={search} 
+          onChange={e => setSearch(e.target.value)} 
+          placeholder="Search feedback, name, email..." 
+          className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded text-sm" 
+        />
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={legacyOnly} onChange={e => setLegacyOnly(e.target.checked)} /> Legacy only
+          <input type="checkbox" checked={legacyOnly} onChange={e => setLegacyOnly(e.target.checked)} /> 
+          Legacy only
         </label>
-        <input value={ratingMin} onChange={e => setRatingMin(e.target.value)} placeholder="Min rating" className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
-        <input value={ratingMax} onChange={e => setRatingMax(e.target.value)} placeholder="Max rating" className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
-        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
-        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        <input 
+          value={ratingMin} 
+          onChange={e => setRatingMin(e.target.value)} 
+          placeholder="Min rating" 
+          className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded text-sm" 
+        />
+        <input 
+          value={ratingMax} 
+          onChange={e => setRatingMax(e.target.value)} 
+          placeholder="Max rating" 
+          className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded text-sm" 
+        />
+        <input 
+          type="date" 
+          value={startDate} 
+          onChange={e => setStartDate(e.target.value)} 
+          className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded text-sm" 
+        />
+        <input 
+          type="date" 
+          value={endDate} 
+          onChange={e => setEndDate(e.target.value)} 
+          className="px-3 py-2 bg-black/50 border border-purple-500/30 rounded text-sm" 
+        />
       </div>
 
-      {loading ? <div className="text-gray-400">Loading...</div> : items.length === 0 ? (
+      {loading ? (
+        <div className="text-gray-400">Loading...</div>
+      ) : items.length === 0 ? (
         <div className="text-gray-500">No feedback found.</div>
       ) : (
         <div className="space-y-2">
           {items.map(it => (
-            <div key={it.id} className="border border-purple-500/20 rounded p-3 bg-black/40">
-              <div className="flex justify-between text-sm text-gray-400">
-                <div>{formatDate(it.submittedAt) || formatDate(it.createdAt)}</div>
-                <div>Rating: {it.rating ?? '-'}</div>
+            <div key={it.id} className="border border-purple-500/20 rounded p-3 bg-black/40 hover:bg-black/60 transition-colors">
+              {/* Header with date, rating, and sender info */}
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <span>{formatDate(it.submittedAt) || formatDate(it.createdAt)}</span>
+                  <span className={`font-medium ${getRatingColor(it.rating)}`}>
+                    {it.rating ? `★ ${it.rating}/5` : 'No rating'}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 text-right">
+                  {it.senderEmail && (
+                    <div className="mb-1">
+                      <span className="text-purple-300">From:</span> {it.senderEmail}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-purple-300">By:</span> {it.name || 'Anonymous'}
+                  </div>
+                </div>
               </div>
-              <div className="mt-1 text-white">{(() => {
-                const t = it.feedback || ''
-                if (!t) return '(no text)'
-                if (/^\".*\"$/.test(t)) return t.slice(1, -1)
-                return t
-              })()}</div>
-              <div className="mt-1 text-xs text-gray-500">By: {it.name || 'Anonymous'}</div>
-              {it.release ? (
-                <div className="text-xs text-gray-400">For: <a className="underline" href={`/music/${it.release.slug}`} target="_blank" rel="noopener noreferrer">{it.release.title}</a></div>
-              ) : null}
+
+              {/* Feedback content */}
+              <div className="mb-2 text-sm">
+                {formatFeedback(it.feedback)}
+              </div>
+
+              {/* Release info */}
+              {it.release && (
+                <div className="mb-2 text-xs">
+                  <span className="text-purple-300">Release:</span>{' '}
+                  <a 
+                    className="underline text-blue-300 hover:text-blue-200" 
+                    href={`/music/${it.release.slug}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    {it.release.title}
+                  </a>
+                </div>
+              )}
+
+              {/* Files */}
               {Array.isArray(it.files) && it.files.length > 0 && (
-                <div className="mt-2">
-                  <div className="text-xs text-gray-400 mb-1">Files:</div>
-                  <ul className="text-xs text-purple-300 space-y-1">
+                <div className="text-xs">
+                  <span className="text-purple-300">Files ({it.files.length}):</span>
+                  <div className="mt-1 flex flex-wrap gap-1">
                     {it.files.map(f => (
-                      <li key={f.id}>
+                      <span key={f.id} className="inline-block">
                         {f.path ? (
-                          <a href={f.path} target="_blank" rel="noopener noreferrer" className="underline">{f.name}</a>
+                          <a 
+                            href={f.path} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="underline text-blue-300 hover:text-blue-200"
+                          >
+                            {f.name}
+                          </a>
                         ) : (
-                          <span>{f.name}</span>
+                          <span className="text-gray-400">{f.name}</span>
                         )}
-                      </li>
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
@@ -118,11 +199,24 @@ export default function FeedbackAdminPage() {
         </div>
       )}
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2">
-          <button disabled={page===1} onClick={() => setPage(p => Math.max(1, p-1))} className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50">Prev</button>
-          <div className="text-gray-400">{page} / {totalPages}</div>
-          <button disabled={page===totalPages} onClick={() => setPage(p => p+1)} className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50">Next</button>
+          <button 
+            disabled={page===1} 
+            onClick={() => setPage(p => Math.max(1, p-1))} 
+            className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50 text-sm"
+          >
+            Prev
+          </button>
+          <div className="text-gray-400 text-sm">{page} / {totalPages}</div>
+          <button 
+            disabled={page===totalPages} 
+            onClick={() => setPage(p => p+1)} 
+            className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50 text-sm"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     where.AND = [ ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), {
       OR: [
         { recipientEmail: { contains: search, mode: 'insensitive' } },
+        { senderEmail: { contains: search, mode: 'insensitive' } },
         { subject: { contains: search, mode: 'insensitive' } },
         { feedback: { contains: search, mode: 'insensitive' } },
         { name: { contains: search, mode: 'insensitive' } },
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         recipientEmail: true,
+        senderEmail: true,
         subject: true,
         rating: true,
         feedback: true,
