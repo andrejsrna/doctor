@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import toast from 'react-hot-toast'
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { FaPlus, FaSearch, FaTrash, FaEdit } from "react-icons/fa"
+import { FaPlus, FaSearch, FaTrash, FaEdit, FaEye } from "react-icons/fa"
 import NiceSelect from "@/app/components/NiceSelect"
 import { useDebounce } from "@/app/hooks/useDebounce"
 
@@ -122,10 +122,27 @@ export default function ReleasesClient({ items, pagination }: { items: ReleaseIt
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Link href={`/admin/releases/${item.id}`} className="p-2 rounded hover:bg-purple-500/10 text-blue-300">
+              <Link 
+                href={`/music/${item.slug}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded hover:bg-green-500/10 text-green-300"
+                title="View release"
+              >
+                <FaEye />
+              </Link>
+              <Link 
+                href={`/admin/releases/${item.id}`} 
+                className="p-2 rounded hover:bg-purple-500/10 text-blue-300"
+                title="Edit release"
+              >
                 <FaEdit />
               </Link>
-              <button onClick={() => deleteItem(item.id)} className="p-2 rounded hover:bg-red-500/10 text-red-300">
+              <button 
+                onClick={() => deleteItem(item.id)} 
+                className="p-2 rounded hover:bg-red-500/10 text-red-300"
+                title="Delete release"
+              >
                 <FaTrash />
               </button>
             </div>

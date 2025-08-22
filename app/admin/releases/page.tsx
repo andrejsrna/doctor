@@ -10,7 +10,7 @@ export default async function ReleasesAdminPage({ searchParams }: { searchParams
 
   const params = new URLSearchParams({ page: String(page), limit: String(limit), search, category })
   const cookieStore = await cookies()
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/admin/releases?${params.toString()}`, {
+  const res = await fetch(`${process.env.BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/releases?${params.toString()}`, {
     headers: { cookie: cookieStore.toString() },
     cache: "no-store",
     next: { revalidate: 0 },
