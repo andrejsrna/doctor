@@ -1,6 +1,6 @@
 "use client";
 import { authClient } from "@/app/lib/authClient";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingState, ErrorState } from "../components/admin/AdminUI";
 import DashboardMinimal from "../components/admin/DashboardMinimal";
@@ -114,6 +114,21 @@ export default function AdminPage() {
     return colorMap[color] || 'text-gray-400 bg-gray-900/30';
   }, []);
 
+  if (session?.user?.role === 'EDITOR') {
+    router.replace('/admin/demos');
+    return <LoadingState message="Redirecting..." />;
+  }
+
+  const filteredNavItems = useMemo(() => {
+    if (session?.user?.role === 'ADMIN') {
+      return navigationItems;
+    }
+    if (session?.user?.role === 'EDITOR') {
+      return navigationItems.filter(item => item.href === '/admin/demos');
+    }
+    return [];
+  }, [session]);
+
   if (loading) return <LoadingState message="Loading dashboard..." />;
   if (error) return <ErrorState error={error} onRetry={fetchDashboardData} />;
   if (!dashboardData) return <LoadingState message="No data available" />;
@@ -123,7 +138,7 @@ export default function AdminPage() {
       userName={session?.user?.name || "Admin"}
       currentMessage={currentMessage}
       dashboardData={dashboardData}
-      navigationItems={navigationItems}
+      navigationItems={filteredNavItems}
       formatNumber={formatNumber}
       formatTimeAgo={formatTimeAgo}
       getCategoryColor={getCategoryColor}

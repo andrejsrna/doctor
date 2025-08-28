@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/app/lib/auth'
+import { sendDemoStatusUpdateEmail } from '@/app/services/email'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,19 +18,22 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     const where: {
-      status?: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED';
+      status?: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' | 'ARCHIVED' | { in: Array<'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED'> };
       OR?: Array<{ artistName?: { contains: string; mode: 'insensitive' } } | { email?: { contains: string; mode: 'insensitive' } } | { genre?: { contains: string; mode: 'insensitive' } }>;
-    } = {
-      ...(status && status !== 'ALL' 
-        ? { status: status as 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' } 
-        : {}),
-      ...(search ? {
-        OR: [
-          { artistName: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { genre: { contains: search, mode: 'insensitive' } },
-        ],
-      } : {}),
+    } = {};
+
+    if (status && status !== 'ALL') {
+      where.status = status as 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
+    } else {
+      where.status = { in: ['PENDING', 'REVIEWED', 'APPROVED', 'REJECTED'] };
+    }
+    
+    if (search) {
+      where.OR = [
+        { artistName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { genre: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     const [submissions, total] = await Promise.all([
@@ -68,14 +72,40 @@ export async function PATCH(request: NextRequest) {
     }
     const { id, status, notes } = await request.json()
 
+    const existingSubmission = await prisma.demoSubmission.findUnique({
+      where: { id },
+    });
+
+    if (!existingSubmission) {
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+    }
+
     const submission = await prisma.demoSubmission.update({
       where: { id },
       data: {
-        status: status as 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED',
+        status: status as 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' | 'ARCHIVED',
         notes,
         updatedAt: new Date(),
       },
     })
+
+    if (
+      (status === 'APPROVED' || status === 'REJECTED') &&
+      existingSubmission.status !== status
+    ) {
+      try {
+        await sendDemoStatusUpdateEmail({
+          email: submission.email,
+          artistName: submission.artistName,
+          status,
+          notes,
+        });
+      } catch (emailError) {
+        console.error('Failed to send status update email:', emailError);
+        // We don't want to fail the whole request if email fails,
+        // so we just log the error. The status is already updated in the DB.
+      }
+    }
 
     return NextResponse.json({ submission })
   } catch (error) {

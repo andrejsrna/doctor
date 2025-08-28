@@ -8,7 +8,10 @@ import {
   FaCheck, 
   FaSearch,
   FaFilter,
-  FaEdit
+  FaThumbsUp,
+  FaThumbsDown,
+  FaTimes,
+  FaTrash,
 } from 'react-icons/fa';
 
 interface DemoSubmission {
@@ -17,7 +20,7 @@ interface DemoSubmission {
   artistName: string;
   genre: string;
   trackLink: string;
-  status: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -42,7 +45,8 @@ export default function DemosPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedSubmission, setSelectedSubmission] = useState<DemoSubmission | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [rejectionNotes, setRejectionNotes] = useState('');
   const [updating, setUpdating] = useState(false);
 
   const fetchSubmissions = useCallback(async () => {
@@ -72,8 +76,9 @@ export default function DemosPage() {
     fetchSubmissions();
   }, [fetchSubmissions]);
 
-  const updateSubmission = async (id: string, status: string, notes?: string) => {
+  const handleUpdateSubmission = async (id: string, status: 'APPROVED' | 'REJECTED' | 'ARCHIVED', notes?: string) => {
     setUpdating(true);
+    toast.loading('Updating submission...');
     try {
       const response = await fetch('/api/admin/demos', {
         method: 'PATCH',
@@ -84,16 +89,48 @@ export default function DemosPage() {
       });
 
       if (response.ok) {
-        await fetchSubmissions();
-        setShowModal(false);
-        setSelectedSubmission(null);
+        toast.dismiss();
+        toast.success(`Submission ${status.toLowerCase()} and email sent.`);
+        fetchSubmissions();
+        if (status === 'REJECTED') {
+          setShowRejectionModal(false);
+          setRejectionNotes('');
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update submission');
       }
     } catch (error) {
       console.error('Error updating submission:', error);
-      toast.error('Update failed')
+      toast.dismiss();
+      toast.error(error instanceof Error ? error.message : 'Update failed');
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleApprove = (submission: DemoSubmission) => {
+    if (window.confirm(`Are you sure you want to approve the demo from ${submission.artistName}? An email will be sent.`)) {
+      handleUpdateSubmission(submission.id, 'APPROVED');
+    }
+  };
+
+  const handleReject = () => {
+    if (selectedSubmission) {
+      handleUpdateSubmission(selectedSubmission.id, 'REJECTED', rejectionNotes);
+    }
+  };
+
+  const handleArchive = (submission: DemoSubmission) => {
+    if (window.confirm(`Are you sure you want to archive the demo from ${submission.artistName}? This will hide it from the main list.`)) {
+      handleUpdateSubmission(submission.id, 'ARCHIVED');
+    }
+  };
+
+  const openRejectionModal = (submission: DemoSubmission) => {
+    setSelectedSubmission(submission);
+    setRejectionNotes(submission.notes || '');
+    setShowRejectionModal(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -102,6 +139,7 @@ export default function DemosPage() {
       REVIEWED: 'bg-blue-900/30 border-blue-500/30 text-blue-300',
       APPROVED: 'bg-green-900/30 border-green-500/30 text-green-300',
       REJECTED: 'bg-red-900/30 border-red-500/30 text-red-300',
+      ARCHIVED: 'bg-gray-900/30 border-gray-500/30 text-gray-400',
     };
     return colors[status as keyof typeof colors] || colors.PENDING;
   };
@@ -159,6 +197,7 @@ export default function DemosPage() {
               <option value="REVIEWED">Reviewed</option>
               <option value="APPROVED">Approved</option>
               <option value="REJECTED">Rejected</option>
+              <option value="ARCHIVED">Archived</option>
             </select>
           </div>
         </div>
@@ -233,16 +272,39 @@ export default function DemosPage() {
                   </div>
                   
                   <div className="flex items-center gap-2 ml-4">
+                    {submission.status !== 'APPROVED' && (
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleApprove(submission)}
+                        disabled={updating}
+                        className="p-2 text-green-400 hover:text-green-300 hover:bg-green-900/30 rounded-lg transition-all duration-200 disabled:opacity-50"
+                        title="Approve"
+                      >
+                        <FaThumbsUp className="w-4 h-4" />
+                      </motion.button>
+                    )}
+                    {submission.status !== 'REJECTED' && (
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => openRejectionModal(submission)}
+                        disabled={updating}
+                        className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-lg transition-all duration-200 disabled:opacity-50"
+                        title="Reject"
+                      >
+                        <FaThumbsDown className="w-4 h-4" />
+                      </motion.button>
+                    )}
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setSelectedSubmission(submission);
-                        setShowModal(true);
-                      }}
-                      className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded-lg transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleArchive(submission)}
+                      disabled={updating}
+                      className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-900/30 rounded-lg transition-all duration-200 disabled:opacity-50"
+                      title="Archive"
                     >
-                      <FaEdit className="w-4 h-4" />
+                      <FaTrash className="w-4 h-4" />
                     </motion.button>
                   </div>
                 </div>
@@ -280,44 +342,33 @@ export default function DemosPage() {
         )}
       </motion.div>
 
-      {showModal && selectedSubmission && (
+      {showRejectionModal && selectedSubmission && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-black/90 border border-purple-500/30 rounded-xl p-8 w-full max-w-2xl mx-4 shadow-2xl"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">
-              Update Demo Submission
-            </h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-white">
+                Reject Submission: {selectedSubmission.artistName}
+              </h3>
+              <button onClick={() => setShowRejectionModal(false)} className="text-gray-400 hover:text-white">
+                <FaTimes />
+              </button>
+            </div>
             
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-purple-300 mb-2">
-                  Status
-                </label>
-                <select
-                  value={selectedSubmission.status}
-                  onChange={(e) => setSelectedSubmission(prev => prev ? { ...prev, status: e.target.value as DemoSubmission['status'] } : null)}
-                  className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="REVIEWED">Reviewed</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-300 mb-2">
-                  Notes
+                  Rejection Notes (optional, will be sent to the artist)
                 </label>
                 <textarea
-                  value={selectedSubmission.notes || ''}
-                  onChange={(e) => setSelectedSubmission(prev => prev ? { ...prev, notes: e.target.value } : null)}
-                  rows={4}
+                  value={rejectionNotes}
+                  onChange={(e) => setRejectionNotes(e.target.value)}
+                  rows={6}
                   className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Add notes about this submission..."
+                  placeholder="Provide constructive feedback..."
                 />
               </div>
             </div>
@@ -326,10 +377,7 @@ export default function DemosPage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setShowModal(false);
-                  setSelectedSubmission(null);
-                }}
+                onClick={() => setShowRejectionModal(false)}
                 className="px-6 py-3 text-gray-400 bg-gray-900/50 rounded-lg hover:bg-gray-900/70 transition-all duration-200"
               >
                 Cancel
@@ -338,19 +386,19 @@ export default function DemosPage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => updateSubmission(selectedSubmission.id, selectedSubmission.status, selectedSubmission.notes)}
+                onClick={handleReject}
                 disabled={updating}
-                className="px-6 py-3 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
+                className="px-6 py-3 bg-red-900/50 text-red-300 rounded-lg hover:bg-red-900/70 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
               >
                 {updating ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-300"></div>
-                    Updating...
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-300"></div>
+                    Rejecting...
                   </>
                 ) : (
                   <>
-                    <FaCheck className="w-4 h-4" />
-                    Update
+                    <FaThumbsDown className="w-4 h-4" />
+                    Confirm Rejection
                   </>
                 )}
               </motion.button>

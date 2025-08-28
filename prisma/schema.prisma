@@ -219,6 +219,7 @@ enum DemoStatus {
   REVIEWED
   APPROVED
   REJECTED
+  ARCHIVED
 }
 
 model DemoFeedback {
@@ -246,6 +247,7 @@ model DemoFeedback {
 enum Role {
   ADMIN
   USER
+  EDITOR
 }
 
 model Release {

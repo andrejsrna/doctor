@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { auth } from "@/app/lib/auth";
 
 const redirects = [
     { from: "/x3a-go", to: "/music/x3a-go" },
@@ -152,6 +152,17 @@ const redirects = [
     return lower;
   }
 
+  async function getUserRole(request: NextRequest): Promise<string | null> {
+    try {
+      const session = await auth.api.getSession({ headers: request.headers });
+      const role = (session as { user?: { role?: string } } | null)?.user?.role;
+      return role ?? null;
+    } catch (error) {
+      console.error("getUserRole error:", error);
+      return null;
+    }
+  }
+
   function handleRedirects(request: NextRequest): NextResponse | null {
     try {
       const originalPath = request.nextUrl.pathname;
@@ -215,7 +226,7 @@ const redirects = [
     }
   }
   
-  export default function middleware(request: NextRequest) {
+  export default async function middleware(request: NextRequest) {
     try {
       const path = request.nextUrl.pathname;
       
@@ -235,16 +246,33 @@ const redirects = [
       }
       
       if (path.startsWith("/admin")) {
-        const sessionCookie = getSessionCookie(request);
-        const isAuthed = Boolean(sessionCookie);
-        if (!isAuthed && path !== "/admin/login") {
+        const userRole = await getUserRole(request);
+        const isAuthed = !!userRole;
+
+        const allowedPaths = ['/admin/login', '/admin/register-editor'];
+
+        if (!isAuthed && !allowedPaths.includes(path)) {
           const redirectResponse = NextResponse.redirect(new URL("/admin/login", request.url));
           return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
         }
-        if (isAuthed && path === "/admin/login") {
+
+        if (isAuthed && allowedPaths.includes(path)) {
           const redirectResponse = NextResponse.redirect(new URL("/admin", request.url));
           return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
         }
+        
+        if (isAuthed) {
+          if (userRole === 'USER') {
+            const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+            return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
+          }
+          
+          if (userRole === 'EDITOR' && path !== '/admin/demos' && path !== '/admin') {
+            const redirectResponse = NextResponse.redirect(new URL("/admin/demos", request.url));
+            return addCacheControlHeaders(addSecurityHeaders(redirectResponse), path);
+          }
+        }
+
         const response = NextResponse.next();
         return addCacheControlHeaders(addSecurityHeaders(response), path);
       }

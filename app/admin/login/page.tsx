@@ -22,9 +22,6 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Ensure CSRF cookie is set before attempting sign-in
-    fetch('/api/auth/csrf', { credentials: 'include' }).catch(() => {})
-
     const storedAttempts = localStorage.getItem("loginAttempts");
     const storedLockoutTime = localStorage.getItem("lockoutTime");
     
