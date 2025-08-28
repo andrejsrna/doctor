@@ -43,8 +43,6 @@ interface DashboardData {
   recentActivity: RecentActivity[];
 }
 
-
-
 export default function AdminPage() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
@@ -52,6 +50,10 @@ export default function AdminPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  type SessionUser = { name?: string | null; role?: "ADMIN" | "EDITOR" | "USER" };
+  const user = (session?.user || {}) as SessionUser;
+  const userRole = user.role;
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -79,6 +81,12 @@ export default function AdminPage() {
     setCurrentMessage(productivityMessages[randomIndex]);
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  useEffect(() => {
+    if (userRole === 'EDITOR') {
+      router.replace('/admin/demos');
+    }
+  }, [userRole, router]);
 
   const formatNumber = useCallback((num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -114,20 +122,16 @@ export default function AdminPage() {
     return colorMap[color] || 'text-gray-400 bg-gray-900/30';
   }, []);
 
-  if (session?.user?.role === 'EDITOR') {
-    router.replace('/admin/demos');
-    return <LoadingState message="Redirecting..." />;
-  }
-
   const filteredNavItems = useMemo(() => {
-    if (session?.user?.role === 'ADMIN') {
+    if (userRole === 'ADMIN') {
       return navigationItems;
     }
-    if (session?.user?.role === 'EDITOR') {
+    if (userRole === 'EDITOR') {
       return navigationItems.filter(item => item.href === '/admin/demos');
     }
-    return [];
-  }, [session]);
+    // For authenticated users without elevated roles, still show Demo Submissions
+    return navigationItems.filter(item => item.href === '/admin/demos');
+  }, [userRole]);
 
   if (loading) return <LoadingState message="Loading dashboard..." />;
   if (error) return <ErrorState error={error} onRetry={fetchDashboardData} />;
@@ -135,7 +139,7 @@ export default function AdminPage() {
 
   return (
     <DashboardMinimal
-      userName={session?.user?.name || "Admin"}
+      userName={user.name || "Admin"}
       currentMessage={currentMessage}
       dashboardData={dashboardData}
       navigationItems={filteredNavItems}

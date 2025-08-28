@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/app/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 const redirects = [
     { from: "/x3a-go", to: "/music/x3a-go" },
@@ -152,15 +152,14 @@ const redirects = [
     return lower;
   }
 
-  async function getUserRole(request: NextRequest): Promise<string | null> {
-    try {
-      const session = await auth.api.getSession({ headers: request.headers });
-      const role = (session as { user?: { role?: string } } | null)?.user?.role;
-      return role ?? null;
-    } catch (error) {
-      console.error("getUserRole error:", error);
-      return null;
-    }
+  async function getUserRole(): Promise<string | null> {
+    // Role lookup is skipped in middleware (Edge) to avoid DB access
+    return null;
+  }
+
+  function hasSession(request: NextRequest): boolean {
+    const sessionCookie = getSessionCookie(request);
+    return !!sessionCookie;
   }
 
   function handleRedirects(request: NextRequest): NextResponse | null {
@@ -246,8 +245,8 @@ const redirects = [
       }
       
       if (path.startsWith("/admin")) {
-        const userRole = await getUserRole(request);
-        const isAuthed = !!userRole;
+        const isAuthed = hasSession(request);
+        const userRole = await getUserRole();
 
         const allowedPaths = ['/admin/login', '/admin/register-editor'];
 
