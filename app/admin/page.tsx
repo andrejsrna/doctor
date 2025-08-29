@@ -129,8 +129,8 @@ export default function AdminPage() {
     if (userRole === 'EDITOR') {
       return navigationItems.filter(item => item.href === '/admin/demos');
     }
-    // For authenticated users without elevated roles, still show Demo Submissions
-    return navigationItems.filter(item => item.href === '/admin/demos');
+    // Other roles: show nothing
+    return [];
   }, [userRole]);
 
   if (loading) return <LoadingState message="Loading dashboard..." />;

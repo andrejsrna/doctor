@@ -153,7 +153,6 @@ const redirects = [
   }
 
   async function getUserRole(): Promise<string | null> {
-    // Role lookup is skipped in middleware (Edge) to avoid DB access
     return null;
   }
 
@@ -202,19 +201,15 @@ const redirects = [
 
   function addCacheControlHeaders(response: NextResponse, path: string): NextResponse {
     try {
-      // Disable caching for admin routes and auth
       if (path.startsWith("/admin") || path.startsWith("/api/admin") || path.startsWith("/api/auth")) {
         response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
         response.headers.set("Pragma", "no-cache");
         response.headers.set("Expires", "0");
       } else if (path.startsWith("/_next/static") || path.startsWith("/_next/image") || path.startsWith("/public") || path.match(/\.(?:js|css|svg|png|jpg|jpeg|gif|webp|ico)$/)) {
-        // Static assets: long-term immutable caching
         response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
       } else if (path.startsWith("/api/")) {
-        // Public API: allow shared cache with SWR
         response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
       } else {
-        // HTML routes: let Next control caching or use short TTL
         response.headers.set("Cache-Control", "public, s-maxage=0, must-revalidate");
       }
       

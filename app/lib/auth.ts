@@ -7,6 +7,12 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  // Ensure role is included on the client session user
+  user: {
+    additionalFields: {
+      role: { type: "string" },
+    },
+  },
   emailAndPassword: { enabled: true, requireEmailVerification: false },
   session: { 
     expiresIn: 60 * 60 * 24 * 7,
@@ -23,7 +29,6 @@ export const auth = betterAuth({
   onAPIError: {
     throw: false,
     onError: (e) => {
-      // Surface the underlying error in server logs for debugging
       console.error("[BetterAuth] API error:", e);
     },
   },
