@@ -7,10 +7,9 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  // Ensure role is included on the client session user
   user: {
     additionalFields: {
-      role: { type: "string" },
+      role: { type: "string", input: false, defaultValue: "USER" },
     },
   },
   emailAndPassword: { enabled: true, requireEmailVerification: false },
