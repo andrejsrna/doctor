@@ -4,13 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import toast from 'react-hot-toast'
 import { useDebounce } from "../../hooks/useDebounce";
 import { motion } from "framer-motion";
-import { FaMusic, FaUpload, FaEnvelope, FaTrash, FaPlay } from "react-icons/fa";
+import { FaMusic, FaUpload, FaEnvelope, FaTrash, FaPlay, FaImage } from "react-icons/fa";
 
 interface DemoFile {
   id: string;
   name: string;
   size: number;
   type: string;
+  fileCategory?: 'audio' | 'image';
   path?: string;
   url?: string;
   duration?: number;
@@ -119,7 +120,8 @@ export default function DemoPage() {
       
       for (let i = 0; i < uploadedFiles.length; i++) {
         const file = uploadedFiles[i];
-        if (file.type.startsWith('audio/')) {
+        // Accept both audio and image files
+        if (file.type.startsWith('audio/') || file.type.startsWith('image/')) {
           formData.append('files', file);
         }
       }
@@ -152,7 +154,8 @@ export default function DemoPage() {
   };
 
   const handleSendEmails = async () => {
-    if (files.length === 0) return;
+    // Allow sending emails without files (for text-only or image-only emails)
+    // if (files.length === 0) return;
 
     setSending(true);
 
@@ -246,7 +249,7 @@ export default function DemoPage() {
           ref={fileInputRef}
           type="file"
           multiple
-          accept="audio/*"
+          accept="audio/*,image/*"
           onChange={handleFileUpload}
           className="hidden"
         />
@@ -262,7 +265,27 @@ export default function DemoPage() {
               <div className="flex items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <FaMusic className="w-5 h-5 text-purple-400" />
+                    {file.fileCategory === 'image' ? (
+                      <div className="flex items-center gap-3">
+                        <FaImage className="w-5 h-5 text-blue-400" />
+                        {file.path && (
+                          <div className="w-12 h-12 rounded border border-gray-600 overflow-hidden bg-gray-800">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                              src={file.path} 
+                              alt={file.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <FaMusic className="w-5 h-5 text-purple-400" />
+                    )}
                     <div>
                       <h3 className="font-medium text-white">{file.name}</h3>
                       <p className="text-sm text-gray-400">
@@ -273,7 +296,7 @@ export default function DemoPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {file.path && (
+                  {file.path && file.fileCategory === 'audio' && (
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       className="p-2 text-purple-400 hover:text-purple-300 transition-colors"
@@ -299,43 +322,45 @@ export default function DemoPage() {
           <div className="text-center py-12">
             <FaMusic className="w-16 h-16 text-gray-500 mx-auto mb-4" />
             <p className="text-gray-400">No files uploaded yet</p>
-            <p className="text-sm text-gray-500">Upload WAV or MP3 files to get started</p>
+            <p className="text-sm text-gray-500">Upload audio files (WAV, MP3) or images (JPG, PNG) to get started</p>
           </div>
         )}
       </motion.div>
 
-      {files.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-black/50 border border-purple-500/20 rounded-xl p-6"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Send Demos</h2>
-              <p className="text-gray-400">
-                Selected {files.length} file{files.length !== 1 ? 's' : ''}
-                {emailData.newsletterCategory && (
-                   <span className="text-blue-300">
-                    {" "}• Sending to {newsletterCategories.find(cat => cat.id === emailData.newsletterCategory)?.name} category
-                  </span>
-                )}
-              </p>
-            </div>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowEmailModal(true)}
-              className="px-6 py-3 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70 transition-all duration-200 flex items-center gap-2"
-            >
-              <FaEnvelope className="w-4 h-4" />
-              Send via Email
-            </motion.button>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-black/50 border border-purple-500/20 rounded-xl p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Send Email</h2>
+            <p className="text-gray-400">
+              {files.length > 0 ? (
+                <>Selected {files.length} file{files.length !== 1 ? 's' : ''}</>
+              ) : (
+                <>Send text-only email or upload files first</>
+              )}
+              {emailData.newsletterCategory && (
+                 <span className="text-blue-300">
+                  {" "}• Sending to {newsletterCategories.find(cat => cat.id === emailData.newsletterCategory)?.name} category
+                </span>
+              )}
+            </p>
           </div>
-        </motion.div>
-      )}
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowEmailModal(true)}
+            className="px-6 py-3 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70 transition-all duration-200 flex items-center gap-2"
+          >
+            <FaEnvelope className="w-4 h-4" />
+            Send via Email
+          </motion.button>
+        </div>
+      </motion.div>
 
       {showEmailModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[1000]">
@@ -344,7 +369,7 @@ export default function DemoPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="bg-black/90 border border-purple-500/30 rounded-xl p-6 w-full max-w-2xl mx-auto shadow-2xl max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">Send Demo Files</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Send Email</h3>
             
             <div className="space-y-6">
               <div>
@@ -535,7 +560,7 @@ DnB Doctor Team"
                 className="px-5 py-2.5 bg-green-900/60 text-green-200 rounded-lg hover:bg-green-900/80 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
               >
                 <FaEnvelope className="w-4 h-4" />
-                {sending ? "Sending..." : "Send Demos"}
+                {sending ? "Sending..." : "Send Email"}
               </motion.button>
             </div>
           </motion.div>

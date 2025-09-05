@@ -49,13 +49,22 @@ export async function POST(request: NextRequest) {
     const uploadedFiles = [];
 
     for (const file of files) {
-      if (!file.type.startsWith("audio/")) continue;
-      if (file.size > 100 * 1024 * 1024) continue;
+      // Accept both audio and image files
+      const isAudio = file.type.startsWith("audio/");
+      const isImage = file.type.startsWith("image/");
+      
+      if (!isAudio && !isImage) continue;
+      
+      // Different size limits for audio (100MB) and images (10MB)
+      const maxSize = isAudio ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+      if (file.size > maxSize) continue;
 
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-      const key = `demos/${Date.now()}-${Math.random().toString(36).slice(2)}-${cleanName}`;
+      // Organize files by type
+      const fileType = isImage ? 'images' : 'demos';
+      const key = `${fileType}/${Date.now()}-${Math.random().toString(36).slice(2)}-${cleanName}`;
 
       if (useR2 && s3 && bucket) {
         await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: buffer, ContentType: file.type || undefined }));
@@ -65,6 +74,7 @@ export async function POST(request: NextRequest) {
           name: file.name,
           size: file.size,
           type: file.type,
+          fileCategory: isImage ? 'image' : 'audio',
           path: url || key,
           url: url || undefined,
           uploadedAt: new Date().toISOString(),
@@ -78,6 +88,7 @@ export async function POST(request: NextRequest) {
           name: file.name,
           size: file.size,
           type: file.type,
+          fileCategory: isImage ? 'image' : 'audio',
           path: `/uploads/demos/${fileName}`,
           uploadedAt: new Date().toISOString(),
         });

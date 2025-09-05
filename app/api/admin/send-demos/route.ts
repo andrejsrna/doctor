@@ -8,6 +8,7 @@ interface DemoFile {
   name: string;
   size: number;
   type: string;
+  fileCategory?: 'audio' | 'image';
   path: string;
   uploadedAt: string;
 }
@@ -27,21 +28,32 @@ interface EmailData {
     body,
     feedbackLink,
     baseUrl,
-    fileNames = [] as string[],
-    fileLinks = [] as Array<{ name: string; url: string }>,
+    fileLinks = [] as Array<{ name: string; url: string; fileCategory?: 'audio' | 'image' }>,
     releaseLink,
-  }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileNames?: string[]; fileLinks?: Array<{ name: string; url: string }>; releaseLink?: { title: string; url: string } | null; }) => {
+  }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileLinks?: Array<{ name: string; url: string; fileCategory?: 'audio' | 'image' }>; releaseLink?: { title: string; url: string } | null; }) => {
     const logo = `${baseUrl.replace(/\/$/, '')}/logo.png`;
     const safeBody = (body || '').split('\n').map(p => `<p style="margin:0 0 16px;">${p.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`).join('');
-    const filesList = (fileLinks.length > 0)
-      ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileLinks.map(f => {
+    // Separate audio files and images
+    const audioFiles = fileLinks.filter(f => f.fileCategory !== 'image');
+    const imageFiles = fileLinks.filter(f => f.fileCategory === 'image');
+    
+    const audioList = (audioFiles.length > 0)
+      ? `<div style="margin:0 0 16px;"><h3 style="margin:0 0 8px;font-size:16px;color:#a855f7;">Audio Files:</h3><ul style="padding-left:18px;margin:0;">${audioFiles.map(f => {
             const safeName = (f.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')
             const safeUrl = (f.url || '').replace(/"/g,'%22')
-            return `<li style=\"color:#a855f7;\"><a href="${safeUrl}" style="color:#a855f7;text-decoration:underline;">${safeName}</a></li>`
-          }).join('')}</ul>`
-      : (fileNames.length
-        ? `<ul style="padding-left:18px;margin:0 0 16px;">${fileNames.map(n => `<li style=\"color:#a855f7;\">${n.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</li>`).join('')}</ul>`
-        : '');
+            return `<li style=\"color:#a855f7;margin-bottom:4px;\"><a href="${safeUrl}" style="color:#a855f7;text-decoration:underline;">${safeName}</a></li>`
+          }).join('')}</ul></div>`
+      : '';
+      
+    const imageList = (imageFiles.length > 0)
+      ? `<div style="margin:0 0 16px;"><h3 style="margin:0 0 8px;font-size:16px;color:#60a5fa;">Images:</h3><div style="display:flex;flex-wrap:wrap;gap:8px;">${imageFiles.map(f => {
+            const safeName = (f.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            const safeUrl = (f.url || '').replace(/"/g,'%22')
+            return `<div style="text-align:center;"><img src="${safeUrl}" alt="${safeName}" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid #3b0764;display:block;margin:0 0 4px;" /><p style="margin:0;font-size:12px;color:#9ca3af;">${safeName}</p></div>`
+          }).join('')}</div></div>`
+      : '';
+      
+    const filesList = audioList + imageList;
     const releaseBlock = releaseLink && releaseLink.url
       ? `<div style="margin:16px 0;padding:12px;border:1px solid #3b0764;border-radius:10px;background:#0b0b0b;">
            <div style="font-family:Arial, Helvetica, sans-serif;font-size:14px;color:#e5e7eb;margin-bottom:8px;">Related Release</div>
@@ -115,12 +127,13 @@ export async function POST(request: NextRequest) {
     }
     const { files, emailData }: { files: DemoFile[], emailData: EmailData } = await request.json();
 
-    if (!files || files.length === 0) {
-      return NextResponse.json(
-        { error: "No files provided" },
-        { status: 400 }
-      );
-    }
+    // Allow sending emails without files (for text-only or image-only emails)
+    // if (!files || files.length === 0) {
+    //   return NextResponse.json(
+    //     { error: "No files provided" },
+    //     { status: 400 }
+    //   );
+    // }
 
     if (!emailData.subject || !emailData.message) {
       return NextResponse.json(
@@ -287,8 +300,7 @@ export async function POST(request: NextRequest) {
           body: personalizedMessage,
           feedbackLink,
           baseUrl: base,
-          fileNames: files.map(f => f.name),
-          fileLinks: files.map(f => ({ name: f.name, url: toAbsoluteUrl(f.path) })),
+          fileLinks: files.map(f => ({ name: f.name, url: toAbsoluteUrl(f.path), fileCategory: f.fileCategory })),
           releaseLink
         })
 

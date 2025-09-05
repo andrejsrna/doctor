@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { feedbackApi } from '../services/feedbackApi'
-import { FaStar, FaDownload } from 'react-icons/fa'
+import { FaStar, FaDownload, FaMusic } from 'react-icons/fa'
 
 interface TrackInfo {
   id: number
@@ -18,7 +18,7 @@ interface TrackInfo {
 function DemoFeedbackContent() {
   const searchParams = useSearchParams()
   const [trackInfo, setTrackInfo] = useState<TrackInfo | null>(null)
-  const [tokenMeta, setTokenMeta] = useState<{ files?: Array<{ id: string; name: string; path?: string }>; subject?: string; release?: { title: string; slug: string } | null } | null>(null)
+  const [tokenMeta, setTokenMeta] = useState<{ files?: Array<{ id: string; name: string; path?: string; fileCategory?: 'audio' | 'image' }>; subject?: string; release?: { title: string; slug: string } | null } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -32,6 +32,8 @@ function DemoFeedbackContent() {
   const wavesurferRef = useRef<{ destroy: () => void; load: (src: string) => Promise<void>; playPause: () => void; stop: () => void } | null>(null)
   const waveContainerRef = useRef<HTMLDivElement | null>(null)
   const [audioError, setAudioError] = useState<string | null>(null)
+  const [currentAudioIndex, setCurrentAudioIndex] = useState(0)
+  const [audioFiles, setAudioFiles] = useState<Array<{ id: string; name: string; path?: string; fileCategory?: 'audio' | 'image' }>>([])
 
   useEffect(() => {
     const fetchTrackAndMeta = async () => {
@@ -69,11 +71,61 @@ function DemoFeedbackContent() {
     fetchTrackAndMeta()
   }, [searchParams])
 
+  // Helper function to detect if file is audio
+  const isAudioFile = (file: { name: string; fileCategory?: 'audio' | 'image' }) => {
+    // If we have fileCategory, use it
+    if (file.fileCategory) {
+      return file.fileCategory === 'audio';
+    }
+    
+    // Fallback: check file extension
+    const fileName = file.name.toLowerCase();
+    const audioExtensions = ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a', '.wma'];
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+    
+    // If it's clearly an image, return false
+    if (imageExtensions.some(ext => fileName.endsWith(ext))) {
+      return false;
+    }
+    
+    // If it's clearly audio, return true
+    if (audioExtensions.some(ext => fileName.endsWith(ext))) {
+      return true;
+    }
+    
+    // Default: assume it's audio if we can't determine (for backward compatibility)
+    return true;
+  };
+
+  // Extract audio files when tokenMeta changes
+  useEffect(() => {
+    if (tokenMeta?.files) {
+      const audioOnlyFiles = tokenMeta.files.filter(isAudioFile);
+      setAudioFiles(audioOnlyFiles);
+      setCurrentAudioIndex(0);
+    } else {
+      setAudioFiles([]);
+      setCurrentAudioIndex(0);
+    }
+  }, [tokenMeta]);
+
   useEffect(() => {
     const setupWave = async () => {
-      if (!tokenMeta?.files?.length && !trackInfo?.url) return
-      const original = tokenMeta?.files?.[0]?.path || trackInfo?.url
-      const src = original?.startsWith('http') ? `/api/audio-proxy?url=${encodeURIComponent(original)}` : original
+      // Use current audio file or fallback to trackInfo
+      const currentAudioFile = audioFiles[currentAudioIndex];
+      const original = currentAudioFile?.path || trackInfo?.url;
+      
+      if (!original) {
+        if (audioFiles.length === 0 && tokenMeta?.files?.length) {
+          setAudioError('No audio files available for playback');
+        }
+        return;
+      }
+      
+      // Reset any previous errors
+      setAudioError(null);
+      
+      const src = original.startsWith('http') ? `/api/audio-proxy?url=${encodeURIComponent(original)}` : original
       if (!src || !waveContainerRef.current) return
       try {
         const WaveSurfer = (await import('wavesurfer.js')).default
@@ -100,15 +152,17 @@ function DemoFeedbackContent() {
           stop: () => void;
         }
         await ws.load(src)
-      } catch {
-        setAudioError('Unable to initialize player')
+      } catch (error) {
+        console.error('Audio player error:', error);
+        const currentFile = audioFiles[currentAudioIndex];
+        setAudioError(`Unable to initialize player${currentFile ? ` for ${currentFile.name}` : ''}`);
       }
     }
     setupWave()
     return () => {
       try { wavesurferRef.current?.destroy() } catch {}
     }
-  }, [tokenMeta, trackInfo])
+  }, [audioFiles, currentAudioIndex, trackInfo, tokenMeta?.files?.length])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -246,51 +300,151 @@ function DemoFeedbackContent() {
           </div>
 
           {/* Audio Waveform Player */}
-          <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
-            <h3 className="text-lg font-semibold text-white mb-2">Preview</h3>
-            <div ref={waveContainerRef} className="w-full" />
-            {audioError && (
-              <div className="text-sm text-red-400 mt-2">{audioError}</div>
-            )}
-            {!audioError && (
-              <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => wavesurferRef.current?.playPause()}
-                  className="px-3 py-1.5 bg-purple-500/30 hover:bg-purple-500/50 rounded text-white text-sm"
-                >
-                  Play / Pause
-                </button>
-                <button
-                  type="button"
-                  onClick={() => wavesurferRef.current?.stop()}
-                  className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700/70 rounded text-white text-sm"
-                >
-                  Stop
-                </button>
+          {(audioFiles.length > 0 || trackInfo?.url) && (
+            <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-white">Preview</h3>
+                {audioFiles.length > 1 && (
+                  <div className="text-sm text-gray-400">
+                    {currentAudioIndex + 1} of {audioFiles.length}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+              
+              {/* Track selector for multiple files */}
+              {audioFiles.length > 1 && (
+                <div className="mb-4 space-y-2">
+                  <div className="text-sm text-gray-300">Select track:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {audioFiles.map((file, index) => (
+                      <button
+                        key={file.id}
+                        type="button"
+                        onClick={() => setCurrentAudioIndex(index)}
+                        className={`px-3 py-1.5 rounded text-sm transition-all ${
+                          index === currentAudioIndex
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70'
+                        }`}
+                      >
+                        {file.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Current track name */}
+              {audioFiles[currentAudioIndex] && (
+                <div className="mb-2 text-sm text-purple-300">
+                  Now playing: {audioFiles[currentAudioIndex].name}
+                </div>
+              )}
+              
+              <div ref={waveContainerRef} className="w-full" />
+              {audioError && (
+                <div className="text-sm text-red-400 mt-2">{audioError}</div>
+              )}
+              {!audioError && (
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => wavesurferRef.current?.playPause()}
+                    className="px-3 py-1.5 bg-purple-500/30 hover:bg-purple-500/50 rounded text-white text-sm"
+                  >
+                    Play / Pause
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => wavesurferRef.current?.stop()}
+                    className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700/70 rounded text-white text-sm"
+                  >
+                    Stop
+                  </button>
+                  {audioFiles.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentAudioIndex(Math.max(0, currentAudioIndex - 1))}
+                        disabled={currentAudioIndex === 0}
+                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentAudioIndex(Math.min(audioFiles.length - 1, currentAudioIndex + 1))}
+                        disabled={currentAudioIndex === audioFiles.length - 1}
+                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm"
+                      >
+                        Next
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Download/Preview Links from token metadata (R2 or otherwise) */}
+          {/* Files Section */}
           {tokenMeta?.files?.length ? (
             <div className="bg-black/30 border border-purple-500/10 rounded-xl p-4">
-              <h3 className="text-lg font-semibold text-white mb-2">Files</h3>
-              <ul className="space-y-2">
-                {tokenMeta.files.map((f) => {
-                  const isAbs = !!f.path && f.path.startsWith('http')
-                  const viewHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}` : f.path || '#'
-                  const dlHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}&download=1&name=${encodeURIComponent(f.name)}` : f.path || '#'
-                  return (
-                    <li key={f.id} className="flex items-center justify-between gap-3">
-                      <a href={viewHref} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline truncate">
-                        {f.name}
-                      </a>
-                      <a href={dlHref} className="px-2 py-1 text-xs rounded bg-purple-500/20 border border-purple-500/30 text-purple-200 hover:bg-purple-500/30">Download</a>
-                    </li>
-                  )
-                })}
-              </ul>
+              <h3 className="text-lg font-semibold text-white mb-4">All Files</h3>
+              
+              {/* Audio Files */}
+              {audioFiles.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-md font-medium text-purple-300 mb-2">Audio Files</h4>
+                  <div className="space-y-2">
+                    {audioFiles.map((f) => {
+                      const isAbs = !!f.path && f.path.startsWith('http')
+                      const viewHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}` : f.path || '#'
+                      const dlHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}&download=1&name=${encodeURIComponent(f.name)}` : f.path || '#'
+                      return (
+                        <div key={f.id} className="flex items-center justify-between gap-3 p-2 bg-black/20 rounded">
+                          <a href={viewHref} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 underline truncate flex items-center gap-2">
+                            <FaMusic className="w-3 h-3" />
+                            {f.name}
+                          </a>
+                          <a href={dlHref} className="px-2 py-1 text-xs rounded bg-purple-500/20 border border-purple-500/30 text-purple-200 hover:bg-purple-500/30">Download</a>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Image Files */}
+              {tokenMeta.files.filter(f => !isAudioFile(f)).length > 0 && (
+                <div>
+                  <h4 className="text-md font-medium text-blue-300 mb-2">Images</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {tokenMeta.files
+                      .filter(f => !isAudioFile(f))
+                      .map((f) => {
+                        const isAbs = !!f.path && f.path.startsWith('http')
+                        const viewHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}` : f.path || '#'
+                        const dlHref = isAbs ? `/api/audio-proxy?url=${encodeURIComponent(f.path!)}&download=1&name=${encodeURIComponent(f.name)}` : f.path || '#'
+                        return (
+                          <div key={f.id} className="bg-black/20 rounded p-2">
+                            <a href={viewHref} target="_blank" rel="noopener noreferrer">
+                              {f.path && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img 
+                                  src={f.path} 
+                                  alt={f.name}
+                                  className="w-full h-20 object-cover rounded mb-2"
+                                />
+                              )}
+                              <div className="text-xs text-blue-300 truncate">{f.name}</div>
+                            </a>
+                            <a href={dlHref} className="inline-block mt-1 px-2 py-1 text-xs rounded bg-blue-500/20 border border-blue-500/30 text-blue-200 hover:bg-blue-500/30">Download</a>
+                          </div>
+                        )
+                      })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : null}
 
