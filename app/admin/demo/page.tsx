@@ -134,7 +134,27 @@ export default function DemoPage() {
       if (response.ok) {
         const result = await response.json();
         setFiles(prev => [...prev, ...result.files]);
-        toast.success('Files uploaded')
+        
+        // Show detailed feedback
+        if (result.success) {
+          toast.success(result.message);
+          
+          // Show warnings for skipped files
+          if (result.skipped?.length > 0) {
+            result.skipped.forEach((skip: { name: string; reason: string }) => {
+              toast.error(`Skipped ${skip.name}: ${skip.reason}`, { duration: 5000 });
+            });
+          }
+          
+          // Show errors for failed uploads
+          if (result.errors?.length > 0) {
+            result.errors.forEach((err: { name: string; error: string }) => {
+              toast.error(`Failed to upload ${err.name}: ${err.error}`, { duration: 6000 });
+            });
+          }
+        } else {
+          toast.error(result.message || 'Upload failed');
+        }
       } else {
         const error = await response.json();
         toast.error(`Upload failed: ${error.error}`)
@@ -322,7 +342,7 @@ export default function DemoPage() {
           <div className="text-center py-12">
             <FaMusic className="w-16 h-16 text-gray-500 mx-auto mb-4" />
             <p className="text-gray-400">No files uploaded yet</p>
-            <p className="text-sm text-gray-500">Upload audio files (WAV, MP3) or images (JPG, PNG) to get started</p>
+            <p className="text-sm text-gray-500">Upload audio files (WAV, MP3, up to 200MB) or images (JPG, PNG, up to 20MB) to get started</p>
           </div>
         )}
       </motion.div>
