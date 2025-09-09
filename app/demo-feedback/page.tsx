@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
@@ -34,6 +34,11 @@ function DemoFeedbackContent() {
   const [audioError, setAudioError] = useState<string | null>(null)
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0)
   const [audioFiles, setAudioFiles] = useState<Array<{ id: string; name: string; path?: string; fileCategory?: 'audio' | 'image' }>>([])
+  const [playerLoading, setPlayerLoading] = useState(false)
+  const [audioLoadingProgress, setAudioLoadingProgress] = useState(0)
+  const [isPlayerReady, setIsPlayerReady] = useState(false)
+  const [preloadedAudio, setPreloadedAudio] = useState<Set<string>>(new Set())
+  const [loadingStage, setLoadingStage] = useState<'initializing' | 'loading' | 'decoding' | 'ready'>('initializing')
 
   useEffect(() => {
     const fetchTrackAndMeta = async () => {
@@ -97,19 +102,70 @@ function DemoFeedbackContent() {
     return true;
   };
 
+  // Function to preload audio files
+  const preloadAudioFile = useCallback(async (file: { id: string; name: string; path?: string }) => {
+    if (!file.path || preloadedAudio.has(file.id)) return;
+    
+    try {
+      const src = file.path.startsWith('http') ? `/api/audio-proxy?url=${encodeURIComponent(file.path)}` : file.path;
+      const audio = new Audio(src);
+      
+      // Preload the audio
+      audio.preload = 'metadata';
+      
+      await new Promise((resolve, reject) => {
+        const cleanup = () => {
+          audio.removeEventListener('loadedmetadata', resolve);
+          audio.removeEventListener('error', reject);
+          audio.removeEventListener('abort', reject);
+        };
+        
+        audio.addEventListener('loadedmetadata', () => {
+          cleanup();
+          resolve(undefined);
+        });
+        audio.addEventListener('error', (e) => {
+          cleanup();
+          reject(e);
+        });
+        audio.addEventListener('abort', () => {
+          cleanup();
+          reject(new Error('Audio loading aborted'));
+        });
+        
+        audio.load();
+      });
+      
+      setPreloadedAudio(prev => new Set([...prev, file.id]));
+      console.log(`Preloaded audio: ${file.name}`);
+    } catch (error) {
+      if (error instanceof Error && error.message !== 'Audio loading aborted') {
+        console.warn(`Failed to preload audio: ${file.name}`, error);
+      }
+    }
+  }, [preloadedAudio]);
+
   // Extract audio files when tokenMeta changes
   useEffect(() => {
     if (tokenMeta?.files) {
       const audioOnlyFiles = tokenMeta.files.filter(isAudioFile);
       setAudioFiles(audioOnlyFiles);
       setCurrentAudioIndex(0);
+      
+      // Preload the first few audio files
+      audioOnlyFiles.slice(0, 3).forEach(file => {
+        preloadAudioFile(file);
+      });
     } else {
       setAudioFiles([]);
       setCurrentAudioIndex(0);
     }
-  }, [tokenMeta]);
+  }, [tokenMeta, preloadAudioFile]);
 
   useEffect(() => {
+    let isMounted = true;
+    let abortController: AbortController | null = null;
+    
     const setupWave = async () => {
       // Use current audio file or fallback to trackInfo
       const currentAudioFile = audioFiles[currentAudioIndex];
@@ -119,20 +175,67 @@ function DemoFeedbackContent() {
         if (audioFiles.length === 0 && tokenMeta?.files?.length) {
           setAudioError('No audio files available for playback');
         }
+        setIsPlayerReady(false);
+        setPlayerLoading(false);
         return;
       }
       
-      // Reset any previous errors
+      // Reset states
       setAudioError(null);
+      setPlayerLoading(true);
+      setIsPlayerReady(false);
+      setAudioLoadingProgress(0);
+      setLoadingStage('initializing');
       
       const src = original.startsWith('http') ? `/api/audio-proxy?url=${encodeURIComponent(original)}` : original
-      if (!src || !waveContainerRef.current) return
+      if (!src || !waveContainerRef.current) {
+        setPlayerLoading(false);
+        return;
+      }
+      
       try {
+        // Create abort controller for this operation
+        abortController = new AbortController();
+        
         const WaveSurfer = (await import('wavesurfer.js')).default
+        
+        // Clean up previous instance safely
         if (wavesurferRef.current) {
-          wavesurferRef.current.destroy()
-          wavesurferRef.current = null
+          try {
+            wavesurferRef.current.destroy();
+          } catch (e) {
+            console.warn('Error destroying previous WaveSurfer instance:', e);
+          }
+          wavesurferRef.current = null;
         }
+        
+        // Check if component is still mounted
+        if (!isMounted) return;
+        
+        // Simulate realistic loading progress
+        const simulateProgress = () => {
+          if (!isMounted) return;
+          
+          setLoadingStage('loading');
+          setAudioLoadingProgress(20);
+          
+          setTimeout(() => {
+            if (!isMounted) return;
+            setAudioLoadingProgress(40);
+          }, 200);
+          
+          setTimeout(() => {
+            if (!isMounted) return;
+            setAudioLoadingProgress(60);
+          }, 400);
+          
+          setTimeout(() => {
+            if (!isMounted) return;
+            setLoadingStage('decoding');
+            setAudioLoadingProgress(80);
+          }, 600);
+        };
+        
         const ws = WaveSurfer.create({
           container: waveContainerRef.current,
           waveColor: '#6b7280',
@@ -145,24 +248,116 @@ function DemoFeedbackContent() {
           normalize: true,
           dragToSeek: true,
         })
+        
+        // Start progress simulation
+        simulateProgress();
+        
+        // Add loading progress tracking (backup for actual progress)
+        ws.on('loading', (progress: number) => {
+          if (isMounted && progress > 0) {
+            // Only update if progress is meaningful
+            if (progress > 60) {
+              setAudioLoadingProgress(Math.min(85, Math.round(progress)));
+            }
+          }
+        });
+        
+        // Add ready state tracking
+        ws.on('ready', () => {
+          if (isMounted) {
+            setLoadingStage('ready');
+            setAudioLoadingProgress(100);
+            // Small delay to show 100% progress before hiding loading state
+            setTimeout(() => {
+              if (isMounted) {
+                setIsPlayerReady(true);
+                setPlayerLoading(false);
+              }
+            }, 500);
+          }
+        });
+        
+        // Add decode progress tracking for more accurate progress
+        ws.on('decode', (progress: number) => {
+          if (isMounted) {
+            // Map decode progress to 80-95%
+            const mappedProgress = 80 + (progress * 0.15);
+            setAudioLoadingProgress(Math.round(mappedProgress));
+          }
+        });
+        
+        // Add error handling
+        ws.on('error', (error: Error) => {
+          if (isMounted) {
+            console.error('WaveSurfer error:', error);
+            setAudioError(`Failed to load audio: ${error.message}`);
+            setPlayerLoading(false);
+            setIsPlayerReady(false);
+          }
+        });
+        
         wavesurferRef.current = ws as unknown as {
           destroy: () => void;
           load: (src: string) => Promise<void>;
           playPause: () => void;
           stop: () => void;
         }
-        await ws.load(src)
+        
+        // Check if operation was aborted before loading
+        if (abortController.signal.aborted || !isMounted) return;
+        
+        await ws.load(src);
+        
+        // Final check after loading
+        if (!isMounted) {
+          try {
+            ws.destroy();
+          } catch (e) {
+            console.warn('Error destroying WaveSurfer after load:', e);
+          }
+        }
       } catch (error) {
-        console.error('Audio player error:', error);
-        const currentFile = audioFiles[currentAudioIndex];
-        setAudioError(`Unable to initialize player${currentFile ? ` for ${currentFile.name}` : ''}`);
+        if (isMounted) {
+          console.error('Audio player error:', error);
+          const currentFile = audioFiles[currentAudioIndex];
+          setAudioError(`Unable to initialize player${currentFile ? ` for ${currentFile.name}` : ''}`);
+          setPlayerLoading(false);
+          setIsPlayerReady(false);
+        }
       }
     }
-    setupWave()
+    
+    setupWave();
+    
     return () => {
-      try { wavesurferRef.current?.destroy() } catch {}
+      isMounted = false;
+      
+      // Abort any ongoing operations
+      if (abortController) {
+        abortController.abort();
+      }
+      
+      // Clean up WaveSurfer instance
+      if (wavesurferRef.current) {
+        try {
+          wavesurferRef.current.destroy();
+        } catch (e) {
+          console.warn('Error destroying WaveSurfer in cleanup:', e);
+        }
+        wavesurferRef.current = null;
+      }
     }
   }, [audioFiles, currentAudioIndex, trackInfo, tokenMeta?.files?.length])
+
+  // Preload next audio file when current index changes
+  useEffect(() => {
+    if (audioFiles.length > 0 && currentAudioIndex < audioFiles.length - 1) {
+      const nextFile = audioFiles[currentAudioIndex + 1];
+      if (nextFile && !preloadedAudio.has(nextFile.id)) {
+        preloadAudioFile(nextFile);
+      }
+    }
+  }, [currentAudioIndex, audioFiles, preloadedAudio, preloadAudioFile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -321,12 +516,15 @@ function DemoFeedbackContent() {
                         key={file.id}
                         type="button"
                         onClick={() => setCurrentAudioIndex(index)}
-                        className={`px-3 py-1.5 rounded text-sm transition-all ${
+                        className={`px-3 py-1.5 rounded text-sm transition-all flex items-center gap-2 ${
                           index === currentAudioIndex
                             ? 'bg-purple-500 text-white'
                             : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700/70'
                         }`}
                       >
+                        {preloadedAudio.has(file.id) && (
+                          <div className="w-2 h-2 rounded-full bg-green-400" title="Preloaded"></div>
+                        )}
                         {file.name}
                       </button>
                     ))}
@@ -341,23 +539,59 @@ function DemoFeedbackContent() {
                 </div>
               )}
               
-              <div ref={waveContainerRef} className="w-full" />
-              {audioError && (
-                <div className="text-sm text-red-400 mt-2">{audioError}</div>
+              {/* Loading skeleton for waveform */}
+              {playerLoading && (
+                <div className="w-full h-16 bg-gray-800/50 rounded-lg flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-purple-400">
+                    <div className="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                    <span className="text-sm">
+                      {loadingStage === 'initializing' && 'Initializing...'}
+                      {loadingStage === 'loading' && `Loading audio... ${audioLoadingProgress}%`}
+                      {loadingStage === 'decoding' && `Processing audio... ${audioLoadingProgress}%`}
+                      {loadingStage === 'ready' && 'Ready!'}
+                    </span>
+                  </div>
+                </div>
               )}
-              {!audioError && (
-                <div className="mt-3 flex gap-2">
+              
+              {/* Progress bar */}
+              {playerLoading && audioLoadingProgress > 0 && (
+                <div className="w-full bg-gray-700/50 rounded-full h-2 mt-2 overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full transition-all duration-500 ease-out relative"
+                    style={{ width: `${audioLoadingProgress}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Waveform container */}
+              <div ref={waveContainerRef} className={`w-full ${playerLoading ? 'hidden' : ''}`} />
+              
+              {audioError && (
+                <div className="text-sm text-red-400 mt-2 flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  </div>
+                  {audioError}
+                </div>
+              )}
+              
+              {!audioError && isPlayerReady && (
+                <div className="mt-3 flex gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={() => wavesurferRef.current?.playPause()}
-                    className="px-3 py-1.5 bg-purple-500/30 hover:bg-purple-500/50 rounded text-white text-sm"
+                    className="px-3 py-1.5 bg-purple-500/30 hover:bg-purple-500/50 rounded text-white text-sm transition-all duration-200"
                   >
                     Play / Pause
                   </button>
                   <button
                     type="button"
                     onClick={() => wavesurferRef.current?.stop()}
-                    className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700/70 rounded text-white text-sm"
+                    className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700/70 rounded text-white text-sm transition-all duration-200"
                   >
                     Stop
                   </button>
@@ -367,7 +601,7 @@ function DemoFeedbackContent() {
                         type="button"
                         onClick={() => setCurrentAudioIndex(Math.max(0, currentAudioIndex - 1))}
                         disabled={currentAudioIndex === 0}
-                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm"
+                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm transition-all duration-200"
                       >
                         Previous
                       </button>
@@ -375,12 +609,21 @@ function DemoFeedbackContent() {
                         type="button"
                         onClick={() => setCurrentAudioIndex(Math.min(audioFiles.length - 1, currentAudioIndex + 1))}
                         disabled={currentAudioIndex === audioFiles.length - 1}
-                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm"
+                        className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/50 disabled:bg-gray-600/30 disabled:text-gray-500 rounded text-white text-sm transition-all duration-200"
                       >
                         Next
                       </button>
                     </>
                   )}
+                </div>
+              )}
+              
+              {/* Loading state for controls */}
+              {playerLoading && !audioError && (
+                <div className="mt-3 flex gap-2">
+                  <div className="px-3 py-1.5 bg-gray-600/30 rounded text-gray-500 text-sm">
+                    Loading controls...
+                  </div>
                 </div>
               )}
             </div>
