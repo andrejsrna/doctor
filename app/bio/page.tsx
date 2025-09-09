@@ -5,20 +5,13 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 interface Post {
-  id: number
-  type: string
-  date: string
-  title: {
-    rendered: string
-  }
-  excerpt?: {
-    rendered: string
-  }
+  id: string
+  type: 'news' | 'release'
+  publishedAt: string | null
+  title: string
   slug: string
-  acf: {
-    url?: string
-    thumbnail?: string
-  }
+  coverImageUrl?: string | null
+  artistName?: string | null
 }
 
 export default function BioLinksPage() {
@@ -31,65 +24,21 @@ export default function BioLinksPage() {
 
   const fetchPosts = async (pageNum: number) => {
     try {
-      const types = ['bio_links', 'posts', 'news']
-      const fetchPromises = types.map(type => {
-        // Keep the original type name for the API request
-        const embedParam = '&_embed'  // Simplified since it's the same for all types
-        
-        return fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?page=${pageNum}&per_page=${postsPerPage}${embedParam}`)
-          .then(async res => {
-            // Check if the response is ok
-            if (!res.ok) {
-              // If response is not ok, return empty array instead of throwing
-              console.warn(`No data for ${type} on page ${pageNum}`)
-              return []
-            }
-            
-            // Store total pages info
-            const total = res.headers.get('X-WP-TotalPages')
-            if (total && pageNum >= parseInt(total)) {
-              setHasMore(false)
-            }
-            
-            const data = await res.json()
-            return data
-          })
-          .then(posts => {
-            if (!Array.isArray(posts)) {
-              console.warn(`Invalid response for type ${type}:`, posts)
-              return []
-            }
-            // Store the original type without modification
-            return posts.map(post => ({
-              ...post,
-              type: type === 'posts' ? 'post' : type === 'news' ? 'news' : 'bio_link'
-            }))
-          })
-          .catch(error => {
-            console.error(`Error fetching ${type}:`, error)
-            return []
-          })
-      })
-
-      const results = await Promise.all(fetchPromises)
-      const allPosts = results.flat()
-
-      // Only process if we have posts
-      if (allPosts.length > 0) {
-        // Sort by date, newest first
-        const sortedPosts = allPosts.sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        )
-
-        if (pageNum === 1) {
-          setPosts(sortedPosts)
-        } else {
-          setPosts(prev => [...prev, ...sortedPosts])
-        }
-      } else if (pageNum > 1) {
-        // If we got no posts on a page after the first, we've reached the end
-        setHasMore(false)
+      const response = await fetch(`/api/bio?page=${pageNum}&limit=${postsPerPage}`)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch posts: ${response.status}`)
       }
+      
+      const data = await response.json()
+      
+      if (pageNum === 1) {
+        setPosts(data.items)
+      } else {
+        setPosts(prev => [...prev, ...data.items])
+      }
+      
+      setHasMore(data.hasMore)
       
     } catch (error) {
       console.error('Error fetching posts:', error)
@@ -116,26 +65,19 @@ export default function BioLinksPage() {
   }
 
   const getPostUrl = (post: Post) => {
-    console.log('Post type:', post.type, 'Slug:', post.slug) // Add this for debugging
-
-    // If it's a bio link with url, use that
-    if (post.type === 'bio_link' && post.acf?.url) {
-      return post.acf.url
-    }
-
-    // Otherwise use internal routing
     switch (post.type) {
       case 'news':
         return `/news/${post.slug}`
-      case 'post':
+      case 'release':
         return `/music/${post.slug}`
       default:
-        console.warn('Unknown post type:', post.type) // Add this for debugging
+        console.warn('Unknown post type:', post.type)
         return '#'
     }
   }
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: string | null) => {
+    if (!date) return 'No date'
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -166,28 +108,22 @@ export default function BioLinksPage() {
             >
               <Link 
                 href={getPostUrl(post)}
-                target={post.type === 'bio_link' ? '_blank' : undefined}
-                rel={post.type === 'bio_link' ? 'noopener noreferrer' : undefined}
                 className="block"
               >
                 <div className="flex flex-col space-y-2">
                   <span className="text-sm text-purple-500 font-medium uppercase">
-                    {post.type === 'bio_link' ? 'Link' : post.type === 'post' ? 'Music' : 'News'}
+                    {post.type === 'release' ? 'Music' : 'News'}
                   </span>
-                  <h2 
-                    className="text-xl font-semibold text-white"
-                    dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                  />
-                  {post.excerpt?.rendered && (
-                    <div 
-                      className="text-gray-400 text-sm"
-                      dangerouslySetInnerHTML={{ 
-                        __html: post.excerpt.rendered.substring(0, 150) + '...'
-                      }}
-                    />
+                  <h2 className="text-xl font-semibold text-white">
+                    {post.title}
+                  </h2>
+                  {post.artistName && (
+                    <p className="text-purple-400 text-sm">
+                      by {post.artistName}
+                    </p>
                   )}
                   <time className="text-sm text-gray-500">
-                    {formatDate(post.date)}
+                    {formatDate(post.publishedAt)}
                   </time>
                 </div>
               </Link>
