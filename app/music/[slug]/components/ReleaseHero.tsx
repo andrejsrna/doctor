@@ -8,6 +8,7 @@ import { trackStreamingClick } from '@/app/utils/analytics'
 import OutboundInterstitial, { getOutboundDismissed } from '@/app/components/OutboundInterstitial'
 import { useState } from 'react'
 import { ENABLE_OUTBOUND_INTERSTITIAL } from '@/app/utils/flags'
+import { useProgressiveImage } from '@/app/hooks/useProgressiveImage'
 
 interface ReleaseHeroProps {
   title: string
@@ -29,6 +30,11 @@ export default function ReleaseHero({
   const shouldReduce = useReducedMotion()
   const [interstitialOpen, setInterstitialOpen] = useState(false)
   const [pending, setPending] = useState<{ platform: string; href: string } | null>(null)
+  
+  // Progressive image loading
+  const { src, blurDataURL, isLoaded } = useProgressiveImage({
+    src: imageUrl || '',
+  })
   const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
       e.preventDefault()
@@ -42,15 +48,32 @@ export default function ReleaseHero({
   return (
     <div className="relative flex items-center justify-center text-center px-4 pt-48 pb-24">
       {imageUrl && (
-        <Image
-          src={imageUrl}
-          alt={title}
-          fill
-          className="object-cover object-center z-0"
-          priority
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-          quality={85}
-        />
+        <>
+          {/* Blur placeholder */}
+          <Image
+            src={blurDataURL}
+            alt=""
+            fill
+            className={`object-cover object-center z-0 transition-opacity duration-500 ${
+              isLoaded ? 'opacity-0' : 'opacity-100'
+            }`}
+            priority
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            quality={10}
+          />
+          {/* Main image */}
+          <Image
+            src={src}
+            alt={title}
+            fill
+            className={`object-cover object-center z-0 transition-opacity duration-500 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            priority
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            quality={85}
+          />
+        </>
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
       <div className="absolute inset-0 bg-black/50 z-10" />
@@ -91,37 +114,42 @@ export default function ReleaseHero({
                 Get on Gumroad
               </Button>
             </a>
-          ) : youtubeUrl ? (
-            <a 
-              href={youtubeUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e)}
-            >
-              <Button variant="toxic" size="lg" className="group">
-                <FaYoutube className="w-6 h-6 mr-3" />
-                Listen on YouTube
-              </Button>
-            </a>
-          ) : beatportUrl ? (
-            <a 
-              href={beatportUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e)}
-            >
-              <Button variant="toxic" size="lg" className="group">
-                <Image
-                  src="/beatport.svg"
-                  alt=""
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 mr-3"
-                />
-                Buy on Beatport
-              </Button>
-            </a>
-          ) : null}
+          ) : (
+            <>
+              {youtubeUrl && (
+                <a 
+                  href={youtubeUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e)}
+                >
+                  <Button variant="toxic" size="lg" className="group">
+                    <FaYoutube className="w-6 h-6 mr-3" />
+                    Listen on YouTube
+                  </Button>
+                </a>
+              )}
+              {beatportUrl && (
+                <a 
+                  href={beatportUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e)}
+                >
+                  <Button variant="toxic" size="lg" className="group">
+                    <Image
+                      src="/beatport.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 mr-3"
+                    />
+                    Buy on Beatport
+                  </Button>
+                </a>
+              )}
+            </>
+          )}
         </motion.div>
       </div>
       <OutboundInterstitial

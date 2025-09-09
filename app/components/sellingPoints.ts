@@ -32,7 +32,7 @@ export const sellingPoints = {
     "Aggressive yet precise sound design",
     "Analog grit meets digital precision",
     "Mixdown built for weight and clarity",
-    "3D stereo imaging, dancefloor focused"
+
   ],
 
   // Structure & Arrangement
@@ -60,41 +60,6 @@ export const sellingPoints = {
     "Mono-safe sub, wide tops",
     "Punchy master, big-room ready"
   ],
-
-  // Support & Recognition
-  support: [
-    "Early support from trusted selectors",
-    "Road-tested in European clubs",
-    "Premiered on underground radio",
-    "Video teaser live now",
-    "Supports: playlists and premieres incoming"
-  ],
-
-  // Bonus Content
-  bonusContent: [
-    "VIP mix included",
-    "Instrumental and radio edit included",
-    "Stems pack available for remixers",
-    "Clean version for broadcast",
-    "Acapella available on request"
-  ],
-
-  // Release Details
-  releaseDetails: [
-    "Debut on DNB Doctor Records",
-    "Cross-border collaboration, two scenes collide",
-    "Inspired by dystopian sci-fi",
-    "Charity release supporting mental health",
-    "Limited run, numbered vinyl",
-    "Bandcamp exclusive bonuses inside",
-    "Striking artwork, collectible sleeve"
-  ],
-
-  // Influences & Comparisons
-  influences: [
-    "FFO: Mefjus / Phace energy",
-    "FFO: Noisia / IMANU vibes"
-  ]
 }
 
 // Function to get random selling points for a release
