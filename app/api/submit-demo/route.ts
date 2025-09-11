@@ -60,10 +60,12 @@ export async function POST(request: Request) {
       },
     })
 
-    // Send email
+    // Send email to both admin emails
+    const adminEmails = ['fatush23@gmail.com', 'releases@dnbdoctor.com'];
+    
     await transporter.sendMail({
       from: `"DnB Doctor Demo Submission" <${process.env.SMTP_FROM}>`,
-      to: process.env.ADMIN_EMAIL,
+      to: adminEmails.join(', '),
       replyTo: `"${formData.artistName}" <${formData.email}>`,
       subject: 'New Demo Submission',
       text: `
