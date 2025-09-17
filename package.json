@@ -57,6 +57,7 @@
     "prisma": "^6.13.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "react-datepicker": "^7.5.0",
     "react-facebook-pixel": "^1.0.4",
     "react-hook-form": "^7.62.0",
     "react-hot-toast": "2.4.1",

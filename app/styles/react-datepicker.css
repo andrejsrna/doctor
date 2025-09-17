@@ -1,0 +1,68 @@
+.admin-datepicker-popper {
+  z-index: 40;
+}
+
+.admin-datepicker-popper .react-datepicker {
+  background-color: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(168, 139, 250, 0.35);
+  color: #e5e7eb;
+  box-shadow: 0 15px 40px -20px rgba(96, 165, 250, 0.45);
+}
+
+.admin-datepicker-popper .react-datepicker__triangle {
+  display: none;
+}
+
+.admin-datepicker-popper .react-datepicker__header {
+  background-color: rgba(30, 41, 59, 0.85);
+  border-bottom: 1px solid rgba(168, 139, 250, 0.2);
+}
+
+.admin-datepicker-popper .react-datepicker__current-month,
+.admin-datepicker-popper .react-datepicker-time__header,
+.admin-datepicker-popper .react-datepicker-year-header {
+  color: #f9fafb;
+}
+
+.admin-datepicker-popper .react-datepicker__day-name,
+.admin-datepicker-popper .react-datepicker__day,
+.admin-datepicker-popper .react-datepicker__time-name {
+  color: #e5e7eb;
+}
+
+.admin-datepicker-popper .react-datepicker__day:hover,
+.admin-datepicker-popper .react-datepicker__month-text:hover,
+.admin-datepicker-popper .react-datepicker__quarter-text:hover,
+.admin-datepicker-popper .react-datepicker__year-text:hover {
+  background-color: rgba(168, 139, 250, 0.2);
+}
+
+.admin-datepicker-popper .react-datepicker__day--keyboard-selected,
+.admin-datepicker-popper .react-datepicker__day--selected,
+.admin-datepicker-popper .react-datepicker__month-text--keyboard-selected,
+.admin-datepicker-popper .react-datepicker__month-text--selected,
+.admin-datepicker-popper .react-datepicker__quarter-text--keyboard-selected,
+.admin-datepicker-popper .react-datepicker__quarter-text--selected,
+.admin-datepicker-popper .react-datepicker__year-text--keyboard-selected,
+.admin-datepicker-popper .react-datepicker__year-text--selected {
+  background-color: rgba(168, 139, 250, 0.75);
+  color: #0f172a;
+}
+
+.admin-datepicker-popper .react-datepicker__navigation-icon::before {
+  border-color: rgba(168, 139, 250, 0.8);
+}
+
+.admin-datepicker-popper .react-datepicker__navigation--previous,
+.admin-datepicker-popper .react-datepicker__navigation--next {
+  top: 12px;
+}
+
+.admin-datepicker-popper .react-datepicker__day--outside-month {
+  color: rgba(148, 163, 184, 0.45);
+}
+
+.admin-datepicker-popper .react-datepicker__close-icon::after {
+  background-color: rgba(148, 163, 184, 0.35);
+  color: #f9fafb;
+}
