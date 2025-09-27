@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/app/lib/auth"
 
@@ -18,6 +19,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
   if (!session?.user) return unauthorized()
   const params = await ctx.params
   const data = await request.json()
+  const previous = await prisma.release.findUnique({ where: { id: params.id }, select: { slug: true } })
   const updated = await prisma.release.update({
     where: { id: params.id },
     data: {
@@ -41,6 +43,19 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
       publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
     },
   })
+  try {
+    const oldSlug = previous?.slug
+    const newSlug = updated.slug
+    if (oldSlug) revalidatePath(`/music/${oldSlug}`)
+    if (newSlug && newSlug !== oldSlug) revalidatePath(`/music/${newSlug}`)
+    revalidatePath(`/music`)
+    revalidatePath(`/`)
+    revalidatePath(`/new-fans`)
+    revalidatePath(`/api/releases`)
+    if (newSlug) revalidatePath(`/api/releases/${newSlug}`)
+  } catch (e) {
+    console.error("Failed to revalidate paths for release update", e)
+  }
   return NextResponse.json({ item: updated })
 }
 

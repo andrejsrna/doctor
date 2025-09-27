@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
@@ -68,6 +69,20 @@ export async function POST(request: NextRequest) {
       publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
     },
   })
+  try {
+    // New content affects homepage hero/featured and lists
+    revalidatePath(`/`)
+    revalidatePath(`/new-fans`)
+    revalidatePath(`/music`)
+    // Single page and APIs
+    if (created.slug) {
+      revalidatePath(`/music/${created.slug}`)
+      revalidatePath(`/api/releases/${created.slug}`)
+    }
+    revalidatePath(`/api/releases`)
+  } catch (e) {
+    console.error("Failed to revalidate paths after release create", e)
+  }
   return NextResponse.json({ item: created })
 }
 
@@ -77,6 +92,9 @@ export async function PATCH(request: NextRequest) {
   validateAdminOrigin(request)
   const { id, ...data } = await request.json()
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
+
+  // Fetch previous values to handle slug change invalidation
+  const previous = await prisma.release.findUnique({ where: { id }, select: { slug: true } })
 
   const updated = await prisma.release.update({
     where: { id },
@@ -100,6 +118,23 @@ export async function PATCH(request: NextRequest) {
       publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
     },
   })
+
+  // Revalidate single page and listings
+  try {
+    const oldSlug = previous?.slug
+    const newSlug = updated.slug
+    if (oldSlug) revalidatePath(`/music/${oldSlug}`)
+    if (newSlug && newSlug !== oldSlug) revalidatePath(`/music/${newSlug}`)
+    // Listings and home/landing pages using latest/featured music
+    revalidatePath(`/music`)
+    revalidatePath(`/`)
+    revalidatePath(`/new-fans`)
+    // API endpoints consumed by clients
+    revalidatePath(`/api/releases`)
+    if (newSlug) revalidatePath(`/api/releases/${newSlug}`)
+  } catch (e) {
+    console.error("Failed to revalidate paths for release update", e)
+  }
   return NextResponse.json({ item: updated })
 }
 
