@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import toast from 'react-hot-toast'
 import { useMemo, useState } from "react"
-import { FaPlus, FaSearch, FaTrash, FaEdit } from "react-icons/fa"
+import { FaPlus, FaSearch, FaTrash, FaEdit, FaEye } from "react-icons/fa"
 
 interface NewsItem { id: string; slug: string; title: string; coverImageUrl?: string | null; publishedAt?: string | null }
 interface Pagination { page: number; limit: number; total: number; pages: number }
@@ -74,8 +74,17 @@ export default function NewsClient({ items, pagination }: { items: NewsItem[]; p
               <div className="text-xs text-gray-400 mt-1">Published: {formatDate(item.publishedAt)}</div>
             </div>
             <div className="flex items-center gap-2">
-              <Link href={`/admin/news/${item.id}`} className="p-2 rounded hover:bg-purple-500/10 text-blue-300"><FaEdit /></Link>
-              <button onClick={() => remove(item.id)} className="p-2 rounded hover:bg-red-500/10 text-red-300"><FaTrash /></button>
+              <Link 
+                href={`/news/${item.slug}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded hover:bg-green-500/10 text-green-300"
+                title="View news"
+              >
+                <FaEye />
+              </Link>
+              <Link href={`/admin/news/${item.id}`} className="p-2 rounded hover:bg-purple-500/10 text-blue-300" title="Edit news"><FaEdit /></Link>
+              <button onClick={() => remove(item.id)} className="p-2 rounded hover:bg-red-500/10 text-red-300" title="Delete news"><FaTrash /></button>
             </div>
           </div>
         ))}

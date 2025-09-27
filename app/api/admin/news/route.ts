@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
@@ -30,6 +31,13 @@ export async function POST(request: NextRequest) {
   const created = await prisma.news.create({ data: {
     slug: data.slug, title: data.title, content: data.content || null, coverImageUrl: data.coverImageUrl || null, coverImageKey: data.coverImageKey || null, scsc: data.scsc || null, relatedArtistName: data.relatedArtistName || null, publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
   } })
+  try {
+    // Refresh listings and single page
+    revalidatePath(`/news`)
+    if (created.slug) revalidatePath(`/news/${created.slug}`)
+  } catch (e) {
+    console.error('Failed to revalidate paths after news create', e)
+  }
   return NextResponse.json({ item: created })
 }
 
@@ -39,9 +47,20 @@ export async function PATCH(request: NextRequest) {
   validateAdminOrigin(request)
   const { id, ...data } = await request.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  const previous = await prisma.news.findUnique({ where: { id }, select: { slug: true } })
   const updated = await prisma.news.update({ where: { id }, data: {
     slug: data.slug ?? undefined, title: data.title ?? undefined, content: data.content ?? undefined, coverImageUrl: data.coverImageUrl ?? undefined, coverImageKey: data.coverImageKey ?? undefined, scsc: data.scsc ?? undefined, relatedArtistName: data.relatedArtistName ?? undefined, publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
   } })
+  try {
+    // Refresh listings and single page (handle slug change)
+    revalidatePath(`/news`)
+    const oldSlug = previous?.slug
+    const newSlug = updated.slug
+    if (oldSlug) revalidatePath(`/news/${oldSlug}`)
+    if (newSlug && newSlug !== oldSlug) revalidatePath(`/news/${newSlug}`)
+  } catch (e) {
+    console.error('Failed to revalidate paths after news update', e)
+  }
   return NextResponse.json({ item: updated })
 }
 
