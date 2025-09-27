@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FaEnvelopeOpenText, FaCheckCircle, FaListUl } from "react-icons/fa";
-import type { Category, NewsletterTemplateOption } from "../../types";
+import type { Category, NewsletterTemplateOption } from "../types";
 import { NEWSLETTER_TEMPLATE_OPTIONS } from "../constants/templates";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
