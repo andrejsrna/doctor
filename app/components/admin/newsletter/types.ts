@@ -36,3 +36,12 @@ export interface NewsletterStats {
   activeSubscribers: number;
   pendingSubscribers: number;
 }
+
+export interface NewsletterTemplateOption {
+  id: string;
+  name: string;
+  description: string;
+  subject: string;
+  preview: string;
+  body: string;
+}

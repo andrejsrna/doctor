@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback } from "react";
+import { FaEnvelope, FaRegFileAlt } from "react-icons/fa";
 import SearchInput from "./SearchInput";
 
 interface Category {
@@ -21,6 +22,8 @@ const SimpleControls = memo(function SimpleControls({
   categories,
   onAddSubscriber,
   onManageCategories,
+  onSendCustomNewsletter,
+  onViewTemplates,
 }: {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -31,6 +34,8 @@ const SimpleControls = memo(function SimpleControls({
   categories: Category[];
   onAddSubscriber: () => void;
   onManageCategories: () => void;
+  onSendCustomNewsletter: () => void;
+  onViewTemplates: () => void;
 }) {
   const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterStatus(e.target.value);
@@ -76,14 +81,26 @@ const SimpleControls = memo(function SimpleControls({
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <button onClick={onAddSubscriber} className="px-4 py-2 bg-purple-900/50 text-purple-300 rounded-lg hover:bg-purple-900/70">Add Subscriber</button>
         <button onClick={onManageCategories} className="px-4 py-2 bg-blue-900/50 text-blue-300 rounded-lg hover:bg-blue-900/70">Manage Categories</button>
+        <button
+          onClick={onViewTemplates}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-900/40 text-purple-200 rounded-lg hover:bg-purple-900/60"
+        >
+          <FaRegFileAlt className="h-4 w-4" />
+          Newsletter Templates
+        </button>
+        <button
+          onClick={onSendCustomNewsletter}
+          className="flex items-center gap-2 px-4 py-2 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70"
+        >
+          <FaEnvelope className="h-4 w-4" />
+          Send a custom newsletter
+        </button>
       </div>
     </div>
   );
 });
 
 export default SimpleControls;
-
-
