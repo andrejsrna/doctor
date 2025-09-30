@@ -93,6 +93,31 @@ export default function BioLinksPage() {
   return (
     <div className="min-h-screen py-32 px-4">
       <div className="max-w-4xl mx-auto">
+        <div className="flex justify-center mb-10">
+          <Link
+            href="https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 px-6 py-3 text-white font-semibold shadow-lg shadow-purple-500/30 transition-transform hover:scale-[1.02]"
+          >
+            Monthly Neurofunk Selection
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
+            >
+              <path
+                d="M5 12h14m0 0-6-6m6 6-6 6"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+        </div>
         <h1 className="text-4xl font-bold text-center mb-8 bg-clip-text text-transparent 
           bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
           Latest Updates
