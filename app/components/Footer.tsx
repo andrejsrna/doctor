@@ -307,6 +307,42 @@ export default function Footer() {
                   Neurofunk Drum & Bass
                 </Link>
               </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/neurofunk-dnb" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  Neurofunk DnB
+                </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/neurofunk-spotify" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  Neurofunk Spotify Playlists
+                </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/albums" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  DnB Albums
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>

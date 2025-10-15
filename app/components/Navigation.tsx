@@ -92,7 +92,7 @@ export default function Navigation() {
     { title: 'All Releases', href: '/music' },
     { title: 'Single Releases', href: '/music?category=single-tracks' },
     { title: 'EPs', href: '/music?category=eps' },
-    { title: 'LPs', href: '/music?category=albums' },
+    { title: 'LPs', href: '/albums' },
     { title: 'Music Packs', href: '/music-packs' },
     { title: 'Sample Packs', href: '/sample-packs' },
     { title: 'Search for Music', href: '/music?focus=search' },

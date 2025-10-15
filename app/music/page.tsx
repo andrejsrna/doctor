@@ -38,8 +38,8 @@ export default async function MusicPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'Latest DnB Releases',
-    description: 'Latest drum and bass releases, newest DnB tracks, and fresh neurofunk music',
+    name: 'Drum and Bass New Releases',
+    description: 'Drum and bass new releases updated daily - discover the latest DnB tracks, newest neurofunk music, and fresh releases from top artists',
     url: 'https://dnbdoctor.com/music',
     numberOfItems: initialPosts.length,
     itemListElement: initialPosts.map((post, index) => ({
@@ -48,7 +48,7 @@ export default async function MusicPage() {
       item: {
         '@type': 'MusicRecording',
         name: post.title,
-        description: `Latest DnB release - ${post.title}`,
+        description: `New drum and bass release - ${post.title}`,
         genre: 'Drum and Bass',
         url: `https://dnbdoctor.com/music/${post.slug}`,
         image: post.coverImageUrl || undefined,

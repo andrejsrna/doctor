@@ -7,13 +7,20 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '12')
   const search = (searchParams.get('search') || '').trim()
   const category = searchParams.get('category') || ''
+  const albumCategoriesParam = searchParams.get('albumCategories') || ''
+  const albumCategories = albumCategoriesParam ? albumCategoriesParam.split(',').filter(Boolean) : []
 
   const where: {
     title?: { contains: string; mode: 'insensitive' }
-    categories?: { has: string }
+    categories?: { has: string } | { hasSome: string[] }
   } = {}
   if (search) where.title = { contains: search, mode: 'insensitive' as const }
-  if (category) where.categories = { has: category }
+  if (category) {
+    where.categories = { has: category }
+  } else if (albumCategories.length > 0) {
+    // If no specific category selected but albumCategories provided, filter by those
+    where.categories = { hasSome: albumCategories }
+  }
 
   const skip = (page - 1) * limit
 

@@ -3,17 +3,17 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
-import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaFilter, FaSearch, FaSoundcloud, FaSpotify, FaApple, FaYoutube } from 'react-icons/fa'
+import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaSearch, FaSoundcloud, FaSpotify, FaApple, FaYoutube } from 'react-icons/fa'
 import Link from 'next/link'
 import Button from '../components/Button'
 import EngagementCTA from '../components/EngagementCTA'
 import { useSearchParams } from 'next/navigation'
-import NiceSelect from '../components/NiceSelect'
 
 type ReleaseItem = {
   id: string
   title: string
   slug: string
+  artistName?: string | null
   coverImageUrl?: string | null
   previewUrl?: string | null
   soundcloud?: string | null
@@ -22,9 +22,20 @@ type ReleaseItem = {
   beatport?: string | null
   youtubeMusic?: string | null
   publishedAt?: string | null
+  categories?: string[]
 }
 
-export default function MusicClient({ initialPosts, categories, initialTotalPages }: { initialPosts: ReleaseItem[]; categories: string[]; initialTotalPages: number }) {
+export default function AlbumsClient({ 
+  initialPosts, 
+  categories,
+  albumCategories,
+  initialTotalPages 
+}: { 
+  initialPosts: ReleaseItem[]
+  categories: string[]
+  albumCategories: string[]
+  initialTotalPages: number 
+}) {
   const shouldReduce = useReducedMotion()
   const [currentPage, setCurrentPage] = useState(1)
   const [playingId, setPlayingId] = useState<string | null>(null)
@@ -37,7 +48,6 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
 
   const sectionRef = useRef<HTMLElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  // hero removed
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   const postsPerPage = 12
@@ -99,6 +109,7 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
         limit: String(postsPerPage),
         category: selectedCategory,
         search: searchQuery,
+        albumCategories: albumCategories.join(','), // Pass album categories to API
       })
       const res = await fetch(`/api/releases?${qs.toString()}`, { signal: controller.signal })
       if (!res.ok) throw new Error('Failed')
@@ -128,8 +139,6 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, categories])
-
-  // simplified: hero removed
 
   // Fetch when page increments beyond initial
   useEffect(() => {
@@ -197,41 +206,114 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
 
   return (
     <>
-      {/* JSON-LD moved to server in page.tsx */}
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/music-bg.jpeg"
+            alt="Drum and Bass Albums Background"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-green-900/40 via-black/80 to-black" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.05)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-60" />
+        </div>
 
-      {/* hero removed */}
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <motion.h2 
+              className="text-green-500 font-mono text-xl mb-6 inline-block"
+              animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Complete Collections & Full-Length Releases
+            </motion.h2>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-500 via-purple-500 to-pink-500">
+                New Drum and Bass
+              </span><br />
+              <span className="text-white">Albums</span>
+            </h1>
 
+            <motion.p 
+              className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto mb-12 leading-relaxed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              Discover the latest drum and bass albums and LP releases. New DnB albums updated daily with fresh neurofunk, liquid, and dark DnB album collections.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex flex-col sm:flex-row justify-center items-center gap-6"
+            >
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  href="/music"
+                  variant="toxic"
+                  size="lg"
+                  className="group"
+                >
+                  Browse All Releases
+                  <motion.span
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="ml-2"
+                  >
+                    →
+                  </motion.span>
+                </Button>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  href="/submit-demo"
+                  variant="infected"
+                  size="lg"
+                >
+                  Submit Your Album
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Albums Section */}
       <section className="py-20 px-4 relative" ref={sectionRef}>
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-center">
-            <span className="text-white">Drum and Bass </span>
-            <span className="text-purple-500">New Releases</span>
-          </h1>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-center">
+            <span className="text-white">Latest </span>
+            <span className="text-purple-500">DnB Albums</span>
+          </h2>
           <p className="text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
-            Discover the latest drum and bass tracks updated daily. Stream new DnB releases, fresh neurofunk music, and the hottest tracks from top artists.
+            Explore complete drum and bass album collections, full-length LPs, and extended play releases from top DnB artists and labels.
           </p>
 
-          <div className="mb-8 flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500" />
-              <div className="pl-6">
-                <NiceSelect
-                  value={selectedCategory}
-                  options={[{ value: '', label: 'All Categories' }, ...categories]}
-                  onChange={(val) => {
-                    setSelectedCategory(val)
-                    setCurrentPage(1)
-                  }}
-                />
-              </div>
-            </div>
-            <div className="flex-1 relative group">
+          <div className="mb-8">
+            <div className="relative group max-w-2xl mx-auto">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500 group-hover:text-pink-500 transition-colors duration-300" />
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search drum and bass new releases, tracks, artists..."
+                placeholder="Search drum and bass albums, artists, labels..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
@@ -241,8 +323,6 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
               />
             </div>
           </div>
-
-          <h2 className="text-2xl font-bold mb-8 text-center text-white">Latest <span className="text-purple-500">Tracks</span></h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts?.map((post: ReleaseItem, index: number) => (
@@ -278,9 +358,26 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                  <h3 className="text-xl font-bold text-white mb-4 line-clamp-2">
-                    <Link href={`/music/${post.slug}`} className="hover:text-purple-300 transition-colors">{post.title}</Link>
-                  </h3>
+                  <div className="mb-2">
+                    {post.artistName && (
+                      <p className="text-purple-400 text-sm font-medium mb-1">
+                        {post.artistName}
+                      </p>
+                    )}
+                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
+                      <Link href={`/music/${post.slug}`} className="hover:text-purple-300 transition-colors">{post.title}</Link>
+                    </h3>
+                    {post.categories && post.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {post.categories.slice(0, 2).map((category, idx) => (
+                          <span key={idx} className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="flex gap-3">
                     {post.previewUrl && (
                       <motion.div whileHover={shouldReduce ? undefined : { scale: 1.02 }} className="flex-1">
@@ -355,7 +452,7 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
 
           {!isLoading && currentPage >= totalPages && posts.length > 0 && (
             <div className="mt-12 text-center">
-              <p className="text-gray-400">That’s all for now.</p>
+              <p className="text-gray-400">That&apos;s all the albums for now.</p>
               <div className="mt-4 flex justify-center gap-3">
                 <Button href="/newsletter" variant="infected">Stay Connected</Button>
                 <Button href="https://www.instagram.com/dnbdoctor/" variant="toxic">Follow on IG</Button>
@@ -365,7 +462,7 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
 
           {posts?.length === 0 && !isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 px-6 rounded-lg border border-purple-500/30 bg-purple-500/5 backdrop-blur-sm">
-              <p className="text-gray-400">No releases found matching your criteria</p>
+              <p className="text-gray-400">No albums found matching your criteria</p>
             </motion.div>
           )}
 
@@ -373,18 +470,63 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-[400px] flex items-center justify-center">
               <div className="animate-pulse text-purple-500 flex items-center gap-3">
                 <FaMusic className="w-6 h-6 animate-spin" />
-                <span>Loading...</span>
+                <span>Loading albums...</span>
               </div>
             </motion.div>
           )}
         </div>
       </section>
 
+      {/* SEO Content Section */}
+      <section className="py-20 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
+        <div className="max-w-4xl mx-auto relative z-10">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold mb-12 text-center"
+          >
+            Why Choose <span className="text-green-500">DnB Albums</span>?
+          </motion.h2>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="prose prose-lg prose-invert max-w-none"
+          >
+            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              Drum and bass albums offer a complete musical journey, showcasing an artist&apos;s full creative vision across multiple tracks. 
+              Unlike single releases, albums provide the space for complex storytelling, thematic development, and diverse sonic exploration within the DnB genre.
+            </p>
+            
+            <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              From neurofunk albums that push the boundaries of sound design to liquid DnB collections that explore emotional depth, 
+              each album represents a carefully crafted artistic statement. These full-length releases often feature collaborations, 
+              remixes, and experimental tracks that wouldn&apos;t fit in a single release.
+            </p>
+            
+            <p className="text-gray-300 text-lg leading-relaxed">
+              Whether you&apos;re a DJ looking for cohesive sets, a producer seeking inspiration, or a fan wanting to dive deep into an artist&apos;s world, 
+              DnB albums provide the complete listening experience that single tracks simply cannot match.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Engagement CTA Section */}
       <section className="py-20 px-4 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.h2 initial={shouldReduce ? undefined : { opacity: 0, y: 20 }} whileInView={shouldReduce ? undefined : { opacity: 1, y: 0 }} viewport={shouldReduce ? undefined : { once: true }} className="text-4xl md:text-5xl font-bold mb-12 text-center">
-            Stay Updated with <span className="text-purple-500">New Drum and Bass Releases</span>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold mb-12 text-center"
+          >
+            Stay Updated with <span className="text-purple-500">New DnB Albums</span>
           </motion.h2>
           <EngagementCTA />
         </div>
@@ -392,6 +534,3 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
     </>
   )
 }
-
-
-
