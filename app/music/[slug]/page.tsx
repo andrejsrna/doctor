@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { StreamingLink } from '@/app/types/release'
 import ReleaseHero from './components/ReleaseHero'
@@ -25,6 +26,61 @@ export async function generateStaticParams() {
   return items.map(i => ({ slug: i.slug }))
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const release = await prisma.release.findUnique({ where: { slug } })
+  
+  if (!release) {
+    return {
+      title: 'Release Not Found',
+      description: 'This release could not be found.',
+    }
+  }
+
+  const imageUrl = getReleaseImageUrl({ coverImageUrl: release.coverImageUrl, coverImageKey: release.coverImageKey })
+  const cleanDescription = release.content 
+    ? sanitizeHtml(release.content).replace(/<[^>]+>/g, '').slice(0, 200) 
+    : `Listen to ${release.title} on DnB Doctor - Neurofunk & Drum and Bass label`
+  
+  const canonicalUrl = `https://dnbdoctor.com/music/${slug}`
+  const artistName = release.artistName || 'DnB Doctor'
+
+  return {
+    title: release.title,
+    description: cleanDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'music.album',
+      title: release.title,
+      description: cleanDescription,
+      url: canonicalUrl,
+      siteName: 'DnB Doctor',
+      images: imageUrl ? [{
+        url: imageUrl,
+        width: 1200,
+        height: 1200,
+        alt: release.title,
+      }] : [],
+      ...(release.publishedAt && { publishedTime: release.publishedAt.toISOString() }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: release.title,
+      description: cleanDescription,
+      images: imageUrl ? [imageUrl] : [],
+      creator: '@dnbdoctor',
+    },
+    other: {
+      // Music-specific Open Graph tags
+      'music:musician': artistName,
+      ...(release.publishedAt && { 'music:release_date': release.publishedAt.toISOString().split('T')[0] }),
+      ...(release.spotify && { 'music:song': release.spotify }),
+    },
+  }
+}
+
 export default async function ReleasePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const release = await prisma.release.findUnique({ where: { slug } })
@@ -45,17 +101,119 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   const safeTitle = sanitizeHtml(release.title)
   const safeContent = sanitizeHtml(release.content || '')
+  const cleanDescription = safeContent.replace(/<[^>]+>/g, '').slice(0, 200)
+  const artistName = release.artistName || 'DnB Doctor'
 
-  const jsonLd = {
+  // Determine if it's an album/EP or single based on categories
+  const isAlbum = release.categories.some(cat => 
+    cat.toLowerCase().includes('album') || 
+    cat.toLowerCase().includes('ep') || 
+    cat.toLowerCase().includes('lp')
+  )
+
+  // Build audio objects for streaming links
+  const audioObjects = []
+  if (release.spotify) {
+    audioObjects.push({
+      '@type': 'AudioObject',
+      name: `${safeTitle} on Spotify`,
+      encodingFormat: 'audio/mpeg',
+      contentUrl: release.spotify,
+      embedUrl: release.spotify,
+    })
+  }
+  if (release.soundcloud) {
+    audioObjects.push({
+      '@type': 'AudioObject',
+      name: `${safeTitle} on SoundCloud`,
+      encodingFormat: 'audio/mpeg',
+      contentUrl: release.soundcloud,
+      embedUrl: release.soundcloud,
+    })
+  }
+  if (release.youtubeMusic) {
+    audioObjects.push({
+      '@type': 'AudioObject',
+      name: `${safeTitle} on YouTube Music`,
+      encodingFormat: 'video/mp4',
+      contentUrl: release.youtubeMusic,
+      embedUrl: release.youtubeMusic,
+    })
+  }
+
+  // Build the artist object
+  const byArtist = {
+    '@type': 'MusicGroup',
+    name: artistName,
+    genre: 'Neurofunk',
+    url: `https://dnbdoctor.com/artists/${artistName.toLowerCase().replace(/\s+/g, '-')}`,
+  }
+
+  // Main JSON-LD structure
+  const jsonLd = isAlbum ? {
     '@context': 'https://schema.org',
-    '@type': 'MusicRecording',
+    '@type': 'MusicAlbum',
     name: safeTitle,
-    description: safeContent.replace(/<[^>]+>/g, '').slice(0, 200),
-    genre: 'Drum and Bass',
+    description: cleanDescription,
+    genre: ['Drum and Bass', 'Neurofunk', 'Electronic Music'],
     url: `https://dnbdoctor.com/music/${slug}`,
     image: imageUrl || undefined,
     datePublished: release.publishedAt ? release.publishedAt.toISOString() : undefined,
-    byArtist: { '@type': 'MusicGroup', name: 'DnB Doctor' },
+    albumProductionType: 'StudioAlbum',
+    albumReleaseType: release.categories.some(c => c.toLowerCase().includes('ep')) ? 'EPRelease' : 'AlbumRelease',
+    byArtist,
+    ...(audioObjects.length > 0 && { track: audioObjects }),
+    recordLabel: {
+      '@type': 'Organization',
+      name: 'DnB Doctor',
+      url: 'https://dnbdoctor.com',
+      logo: 'https://dnbdoctor.com/logo.png',
+    },
+    ...(release.beatport && { 
+      offers: {
+        '@type': 'Offer',
+        url: release.beatport,
+        availability: 'https://schema.org/InStock',
+        price: '0',
+        priceCurrency: 'USD',
+      }
+    }),
+  } : {
+    '@context': 'https://schema.org',
+    '@type': 'MusicRecording',
+    name: safeTitle,
+    description: cleanDescription,
+    genre: ['Drum and Bass', 'Neurofunk', 'Electronic Music'],
+    url: `https://dnbdoctor.com/music/${slug}`,
+    image: imageUrl || undefined,
+    datePublished: release.publishedAt ? release.publishedAt.toISOString() : undefined,
+    byArtist,
+    ...(audioObjects.length > 0 && { audio: audioObjects[0] }),
+    recordingOf: {
+      '@type': 'MusicComposition',
+      name: safeTitle,
+      composer: byArtist,
+    },
+    inAlbum: {
+      '@type': 'MusicAlbum',
+      name: safeTitle,
+      byArtist,
+    },
+    recordLabel: {
+      '@type': 'Organization',
+      name: 'DnB Doctor',
+      url: 'https://dnbdoctor.com',
+      logo: 'https://dnbdoctor.com/logo.png',
+    },
+    ...(release.beatport && { 
+      offers: {
+        '@type': 'Offer',
+        url: release.beatport,
+        availability: 'https://schema.org/InStock',
+        price: '0',
+        priceCurrency: 'USD',
+      }
+    }),
   }
 
   return (

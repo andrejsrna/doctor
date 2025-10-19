@@ -9,7 +9,6 @@ import SocialShare from '../../components/SocialShare'
 import EngagementCTA from '../../components/EngagementCTA'
 import { sanitizeHtml } from '@/lib/sanitize'
 import type { Metadata } from 'next'
-import Script from 'next/script'
 
 interface PageProps { params: Promise<{ slug: string }> }
 
@@ -54,16 +53,42 @@ export default async function NewsPostPage({ params }: PageProps) {
       )}
 
       <article className="max-w-4xl mx-auto relative z-10">
-        <Script id="article-jsonld" type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: sanitizeHtml(post.title).replace(/<[^>]*>/g, ''),
-            datePublished: post.publishedAt || undefined,
-            image: post.coverImageUrl || undefined,
-            author: post.relatedArtistName ? [{ '@type': 'Person', name: post.relatedArtistName }] : undefined,
-          })}
-        </Script>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'NewsArticle',
+          headline: sanitizeHtml(post.title).replace(/<[^>]*>/g, ''),
+          description: sanitizeHtml((post.content || '').replace(/<[^>]*>/g, '')).slice(0, 200),
+          datePublished: post.publishedAt ? post.publishedAt.toISOString() : undefined,
+          dateModified: post.updatedAt ? post.updatedAt.toISOString() : undefined,
+          image: post.coverImageUrl ? [{
+            '@type': 'ImageObject',
+            url: post.coverImageUrl,
+            width: 1200,
+            height: 630,
+          }] : undefined,
+          author: {
+            '@type': post.relatedArtistName ? 'Person' : 'Organization',
+            name: post.relatedArtistName || 'DnB Doctor',
+            ...(post.relatedArtistName && { url: `https://dnbdoctor.com/artists/${post.relatedArtistName.toLowerCase().replace(/\s+/g, '-')}` }),
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'DnB Doctor',
+            url: 'https://dnbdoctor.com',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://dnbdoctor.com/logo.png',
+              width: 600,
+              height: 60,
+            },
+          },
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `https://dnbdoctor.com/news/${slug}`,
+          },
+          articleSection: 'Music News',
+          keywords: ['Drum and Bass', 'Neurofunk', 'DnB', 'Electronic Music', post.relatedArtistName].filter(Boolean).join(', '),
+        }) }} />
         {/* Header */}
         <header className="text-center mb-12">
           <time className="text-purple-500 font-medium">
