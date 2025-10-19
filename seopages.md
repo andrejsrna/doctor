@@ -6,27 +6,22 @@ Kompletný návrh 20 SEO stránok pre dnbdoctor.com, rozdelený do 5 pilierov. K
 
 🧩 1️⃣ PILIER: Discover Drum & Bass
 
-1. What Is Drum and Bass?
-	•	URL: /what-is-drum-and-bass
-	•	Keywords: what is drum and bass, dnb meaning, drum and bass genre
-	•	Goal: Edukačná stránka pre nových návštevníkov – základné vysvetlenie žánru.
-
-2. History of Drum and Bass
+1. History of Drum and Bass
 	•	URL: /drum-and-bass-history
 	•	Keywords: drum and bass history, origins of dnb, jungle roots
 	•	Goal: Budovanie autority cez históriu žánru.
 
-3. Drum and Bass Subgenres Explained
+2. Drum and Bass Subgenres Explained
 	•	URL: /drum-and-bass-subgenres
 	•	Keywords: dnb subgenres, liquid dnb, neurofunk, jump up, techstep
 	•	Goal: Vysvetlenie podžánrov, odkaz na vlastné subprojekty (Jazz & Bass, Calm Spirit Music).
 
-4. Best Drum and Bass Artists (2025)
+3. Best Drum and Bass Artists (2025)
 	•	URL: /best-drum-and-bass-artists
 	•	Keywords: best dnb artists, top drum and bass producers 2025
 	•	Goal: Listovanie top producentov + linky na /artists.
 
-5. Best Drum and Bass Labels (2025)
+4. Best Drum and Bass Labels (2025)
 	•	URL: /drum-and-bass-labels
 	•	Keywords: drum and bass labels, top dnb labels, record labels dnb
 	•	Goal: Prelink na /submit-demo, pozícia DnB Doctor ako label autority.
