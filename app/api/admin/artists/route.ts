@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/app/lib/auth"
 
+function isSameHost(originA: string, originB: string): boolean {
+  try {
+    return new URL(originA).host === new URL(originB).host
+  } catch {
+    return false
+  }
+}
+
 function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 }
@@ -32,7 +40,9 @@ export async function POST(request: NextRequest) {
   if (!session?.user) return unauthorized()
   const origin = request.headers.get('origin')
   const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  if (origin && !isSameHost(origin, requestOrigin)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
   const data = await request.json()
   const created = await prisma.artist.create({
     data: {
@@ -55,7 +65,9 @@ export async function PATCH(request: NextRequest) {
   if (!session?.user) return unauthorized()
   const origin = request.headers.get('origin')
   const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  if (origin && !isSameHost(origin, requestOrigin)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
   const { id, ...data } = await request.json()
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
   const updated = await prisma.artist.update({
@@ -80,7 +92,9 @@ export async function DELETE(request: NextRequest) {
   if (!session?.user) return unauthorized()
   const origin = request.headers.get('origin')
   const requestOrigin = new URL(request.url).origin
-  if (origin && origin !== requestOrigin) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  if (origin && !isSameHost(origin, requestOrigin)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
+  }
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
