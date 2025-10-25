@@ -1,6 +1,6 @@
 import FeaturedTrack from "../components/FeaturedTrack";
 import LatestMusic from "../components/LatestMusic";
-import SpotifyPlaylists from "../components/SpotifyPlaylists";
+import ListenNow from "../components/ListenNow";
 import FeaturedArtists from "../components/FeaturedArtists";
 import TrustBadges from "../components/TrustBadges";
 import EngagementCTA from "../components/EngagementCTA";
@@ -65,7 +65,7 @@ export default function NewFansPage() {
           <p className="mt-2 text-gray-400">One playlist to understand our sound, plus the latest featured drop.</p>
         </div>
         <div className="space-y-12">
-          <SpotifyPlaylists />
+          <ListenNow />
           <FeaturedTrack />
           <LatestMusic />
         </div>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Button from '@/app/components/Button'
 import LatestMusic from '@/app/components/LatestMusic'
-import SpotifyPlaylists from '@/app/components/SpotifyPlaylists'
+import ListenNow from '@/app/components/ListenNow'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { FaSpotify, FaPlay } from 'react-icons/fa'
 
@@ -137,8 +137,8 @@ export default function NeurofunkSpotifyPage() {
         </div>
       </section>
 
-      {/* Spotify Playlists Section */}
-      <SpotifyPlaylists />
+      {/* Listen Now Section */}
+      <ListenNow />
 
       {/* Recommended Neurofunk Playlists Section */}
       <section className="py-20 px-4 relative">
