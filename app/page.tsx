@@ -3,7 +3,7 @@ import LatestMusic from './components/LatestMusic'
 import WhatIsNeurofunk from './components/WhatIsNeurofunk'
 import BookUsSection from './components/BookUsSection'
 import FeaturedArtists from './components/FeaturedArtists'
-import SpotifyPlaylists from './components/SpotifyPlaylists'
+import ListenNow from './components/ListenNow'
 import { Suspense } from 'react'
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
         <LatestMusic />
       </Suspense>
       <Suspense fallback={<div style={{height: 400}} />}> 
-        <SpotifyPlaylists />
+        <ListenNow />
       </Suspense>
       <WhatIsNeurofunk />
       <Suspense fallback={<div style={{height: 500}} />}> 

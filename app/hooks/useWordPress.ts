@@ -46,7 +46,7 @@ export function useLatestPosts(postsPerPage: number, page = 1, category = '', se
       }) => ({
         id: item.id,
         title: item.title,
-        coverImageUrl: item.imageUrl || item.coverImageUrl || null,
+        imageUrl: item.imageUrl || item.coverImageUrl || null,
         previewUrl: item.previewUrl || null,
         slug: item.slug,
       }))

@@ -355,6 +355,18 @@ export default function Footer() {
                   What Is Drum and Bass?
                 </Link>
               </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/drum-and-bass-history" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  History of Drum and Bass
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>
