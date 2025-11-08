@@ -3,12 +3,65 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import Script from 'next/script'
 import Button from '@/app/components/Button'
 import LatestMusic from '@/app/components/LatestMusic'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { FaSpotify, FaYoutube, FaInstagram } from 'react-icons/fa'
 
+const faqs = [
+  {
+    question: 'What is neurofunk drum & bass?',
+    answer:
+      'Neurofunk is a late-90s evolution of techstep drum & bass that blends 172–175 BPM drums with heavily modulated bass design, cinematic tension, and sci-fi atmospheres.',
+    bullets: [
+      'Born from techstep pioneers like Ed Rush & Optical and Matrix & Futurebound.',
+      'Focuses on resampling, precise mixdowns, and controlled aggression.',
+    ],
+  },
+  {
+    question: 'How is neurofunk different from classic drum & bass?',
+    answer:
+      'Where liquid or jungle lean on melody and swing, neurofunk prioritizes mechanical groove, evolving basslines, and surgical sound design built for high-energy dancefloors.',
+    bullets: [
+      'Tighter drum programming with relentless drive.',
+      'Bass layers are constantly automated for movement.',
+    ],
+  },
+  {
+    question: 'Which neurofunk labels should I follow in 2025?',
+    answer:
+      'Start with Eatbrain, Blackout, and Darkshire, then dive into DnB Doctor, Bass Rabbit, and other independent crews pushing the underground forward.',
+    bullets: [
+      'See our full breakdown on the Neurofunk Labels page.',
+      'Follow local Prague, Brno, and Vienna collectives for fresh signings.',
+    ],
+  },
+  {
+    question: 'How can I get my neurofunk demo signed?',
+    answer:
+      'Focus on unique bass narratives, clean mixdowns, and memorable intros. Share finished versions, artwork notes, and links (not file attachments) when sending demos.',
+    bullets: [
+      'Reference releases from the target label so the A&R hears the fit.',
+      'Include private streaming links plus socials and recent DJ support.',
+    ],
+  },
+]
+
 export default function NeurofunkDnbPage() {
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${faq.answer} ${faq.bullets?.join(' ') ?? ''}`.trim(),
+      },
+    })),
+  }
+
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
@@ -52,14 +105,14 @@ export default function NeurofunkDnbPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              Neurofunk DnB blends dark basslines, precise rhythms, and futuristic energy. Discover modern neurofunk sound and DNB Doctor releases.
+              Our 2025 Neurofunk DnB guide dives into fresh DnB Doctor releases, a curated Spotify playlist, and sound design tactics inspired by Prague&apos;s bass scene.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row justify-center items-center gap-6"
+              className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6"
             >
               <motion.div 
                 whileHover={{ scale: 1.05 }}
@@ -87,8 +140,21 @@ export default function NeurofunkDnbPage() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
-                  href="/submit-demo"
+                  href="/neurofunk-spotify"
                   variant="infected"
+                  size="lg"
+                >
+                  Get the Playlist
+                </Button>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  href="/submit-demo"
+                  variant="decayed"
                   size="lg"
                 >
                   Submit Your Track
@@ -222,6 +288,78 @@ export default function NeurofunkDnbPage() {
         </div>
       </section>
 
+      {/* Playlist & Toolkit Section */}
+      <section className="py-20 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
+        <div className="max-w-6xl mx-auto relative z-10 grid gap-12 md:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              Stream the Neurofunk Pulse Playlist
+            </h2>
+            <p className="text-gray-300 text-lg mb-4">
+              Updated monthly with DnB Doctor releases, underground Czech cuts, and new-school neurofunk anthems. It&apos;s the fastest way to hear what we&apos;re working on before it hits festivals.
+            </p>
+            <ul className="space-y-3 text-gray-300 mb-8">
+              <li className="flex gap-3">
+                <span className="text-green-400">•</span>
+                <span>Hand-picked tracks from Prague, Vienna, and the broader EU neuro circuit.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-green-400">•</span>
+                <span>Exclusive previews of forthcoming DnB Doctor releases.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-green-400">•</span>
+                <span>Linked production notes so you can reverse-engineer the sound.</span>
+              </li>
+            </ul>
+            <div className="flex flex-wrap gap-4">
+              <Button href="/neurofunk-spotify" variant="toxic">
+                Listen on Spotify
+              </Button>
+              <Button href="/how-to-produce-neurofunk" variant="infected">
+                Sound Design Tips
+              </Button>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/20 via-black to-black p-6 h-full flex flex-col justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-green-200 mb-4">Exclusive Preview</p>
+                <h3 className="text-2xl font-semibold mb-4 text-white">Neurofunk Pulse – March 2025</h3>
+                <p className="text-gray-200 mb-6">
+                  Featuring Yehor, Asana, Razerbeam, and Darkshire affiliates. Save it, share it, and tag us when you drop it into your next set.
+                </p>
+              </div>
+              <div className="bg-black/60 border border-green-500/30 rounded-2xl p-5 space-y-3">
+                <div className="flex justify-between text-gray-300 text-sm">
+                  <span>Runtime</span>
+                  <span>58:12</span>
+                </div>
+                <div className="flex justify-between text-gray-300 text-sm">
+                  <span>New IDs</span>
+                  <span>7 unreleased</span>
+                </div>
+                <div className="w-full h-1 bg-green-500/20 rounded-full overflow-hidden">
+                  <div className="h-full w-3/4 bg-gradient-to-r from-green-500 to-pink-500" />
+                </div>
+                <p className="text-gray-400 text-xs">
+                  Want your track featured? Submit a private link via the demo portal and mention the playlist in your message.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Latest Releases Section */}
       <LatestMusic />
 
@@ -256,6 +394,46 @@ export default function NeurofunkDnbPage() {
             </p>
           </motion.div>
         </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold mb-12 text-center"
+          >
+            Neurofunk DnB FAQ
+          </motion.h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            {faqs.map((faq) => (
+              <motion.div
+                key={faq.question}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="border border-green-500/20 rounded-2xl p-6 bg-black/40"
+              >
+                <h3 className="text-xl font-semibold mb-3 text-white">{faq.question}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed mb-4">{faq.answer}</p>
+                <ul className="space-y-2 text-gray-400 text-sm">
+                  {faq.bullets.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="text-green-400">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        <Script id="faq-neurofunk-dnb" type="application/ld+json">
+          {JSON.stringify(faqJsonLd)}
+        </Script>
       </section>
 
       {/* CTA / Outro Section */}
