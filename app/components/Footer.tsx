@@ -146,6 +146,7 @@ export default function Footer() {
               {[
                 { href: '/about', text: 'About Us' },
                 { href: '/contact', text: 'Contact' },
+                { href: '/neurofunk-labels', text: 'Neurofunk Labels' },
                 { href: '/privacy-policy', text: 'Privacy Policy' },
                 { href: '/terms', text: 'Terms & Conditions' }
               ].map((link) => (
@@ -365,6 +366,18 @@ export default function Footer() {
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   History of Drum and Bass
+                </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/neurofunk-labels" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  Neurofunk Labels Guide
                 </Link>
               </motion.div>
             </motion.div>
