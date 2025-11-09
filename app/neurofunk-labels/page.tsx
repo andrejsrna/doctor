@@ -285,7 +285,7 @@ export default function NeurofunkLabelsPage() {
               ))}
             </div>
             <p className="text-gray-100 text-lg mt-8 italic">
-              "Their growth is the price of dedication, good music, and clever marketing."
+              &quot;Their growth is the price of dedication, good music, and clever marketing.&quot;
             </p>
           </motion.div>
         </div>
