@@ -11,7 +11,12 @@ function getS3() {
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
   const bucket = process.env.R2_BUCKET || process.env.R2_BUCKET_NAME
   if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) return null
-  return new S3Client({ region: "auto", endpoint, credentials: { accessKeyId, secretAccessKey } })
+  return new S3Client({
+    region: "auto",
+    endpoint,
+    forcePathStyle: true,
+    credentials: { accessKeyId, secretAccessKey },
+  })
 }
 
 export async function POST(request: NextRequest) {
@@ -59,5 +64,4 @@ export async function POST(request: NextRequest) {
   await writeFile(filePath, buffer)
   return NextResponse.json({ success: true, url: `/uploads/admin/${localName}`, key: localName })
 }
-
 
