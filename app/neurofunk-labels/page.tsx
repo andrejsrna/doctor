@@ -136,7 +136,7 @@ export default function NeurofunkLabelsPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              Life changed â€” and so did the labels. Some titans survived, others shut down, and the monopoly on attention disappeared.
+              Life changed -- and so did the labels. Some titans survived, others shut down, and the monopoly on attention disappeared.
               You no longer need the Virus or Blackout cosign to be heard; one heavyweight bootleg can travel the world overnight.
             </motion.p>
             <motion.p
@@ -147,7 +147,7 @@ export default function NeurofunkLabelsPage() {
               transition={{ delay: 0.1 }}
             >
               The Covid era forced everyone to relearn agility. Artists launched imprints, Twitch channels, Patreon communities,
-              and Bandcamp clubs. The truth? It&apos;s not the same anymore â€” and that&apos;s a good thing.
+              and Bandcamp clubs. The truth? It&apos;s not the same anymore -- and that&apos;s a good thing.
             </motion.p>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function NeurofunkLabelsPage() {
             viewport={{ once: true }}
           >
             Boutique crews scout hungry producers who want label support without losing creative control.
-            Consistency, unique sound design, and dedication still open doors â€” the rulebook just changed.
+            Consistency, unique sound design, and dedication still open doors -- the rulebook just changed.
           </motion.p>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -209,7 +209,10 @@ export default function NeurofunkLabelsPage() {
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-gray-100 text-lg">
               {europeanLabels.map((label) => (
                 <li key={label} className="flex items-center gap-3">
-                  <span className="text-green-400">â€¢</span>
+                  <span
+                    className="w-2 h-2 rounded-full bg-green-400 block"
+                    aria-hidden="true"
+                  />
                   <span>{label}</span>
                 </li>
               ))}
@@ -240,7 +243,7 @@ export default function NeurofunkLabelsPage() {
             viewport={{ once: true }}
           >
             Czech and Austrian creatives forged a true symbiosis.
-            Prague, Brno, and Vienna trade ideas weekly â€” from warehouse raves to cross-border showcases and festival takeovers.
+            Prague, Brno, and Vienna trade ideas weekly -- from warehouse raves to cross-border showcases and festival takeovers.
           </motion.p>
           <div className="grid gap-4">
             {undergroundRegions.map((region) => (
@@ -282,7 +285,7 @@ export default function NeurofunkLabelsPage() {
               ))}
             </div>
             <p className="text-gray-100 text-lg mt-8 italic">
-              â€œTheir growth is the price of dedication, good music, and clever marketing.â€
+              "Their growth is the price of dedication, good music, and clever marketing."
             </p>
           </motion.div>
         </div>
@@ -327,7 +330,7 @@ export default function NeurofunkLabelsPage() {
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">The Underground Core</h2>
             <p className="text-gray-300 text-lg mb-6">
-              Thousands of listeners per drop, but pure cultural gravity. SoundCloud crews, cassette runs, Discord syndicates â€”
+              Thousands of listeners per drop, but pure cultural gravity. SoundCloud crews, cassette runs, Discord syndicates --
               they keep the fire alive with deep rollers, halftime experiments, and multi-country collabs.
             </p>
             <p className="text-gray-400 text-sm">
@@ -383,7 +386,7 @@ export default function NeurofunkLabelsPage() {
             Anne
           </p>
           <p className="text-gray-400 mt-4 text-sm">
-            PS: My monthly Neurofunk Playlist is live on Spotify â€” soon dropping on SoundCloud via DnB Doctor.
+            PS: My monthly Neurofunk Playlist is live on Spotify -- soon dropping on SoundCloud via DnB Doctor.
           </p>
         </div>
       </section>
