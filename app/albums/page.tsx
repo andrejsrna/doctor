@@ -9,7 +9,7 @@ export default async function AlbumsPage() {
   const allCategories = await (async () => {
     const rows = await prisma.release.findMany({ select: { categories: true } })
     const set = new Set<string>()
-    for (const r of rows) (r.categories || []).forEach(c => c && set.add(c))
+    for (const r of rows) (r.categories || []).forEach((c: string | null) => c && set.add(c))
     return Array.from(set).sort((a, b) => a.localeCompare(b))
   })()
   
@@ -54,7 +54,7 @@ export default async function AlbumsPage() {
     })
   ])
 
-  const initialPosts = items.map(i => ({ 
+  const initialPosts = items.map((i: (typeof items)[number]) => ({ 
     ...i, 
     publishedAt: i.publishedAt ? i.publishedAt.toISOString() : null 
   }))
@@ -67,7 +67,7 @@ export default async function AlbumsPage() {
     description: 'Latest drum and bass albums and LP releases from DnB Doctor - discover new DnB albums, neurofunk albums, and dark DnB collections',
     url: 'https://dnbdoctor.com/albums',
     numberOfItems: initialPosts.length,
-    itemListElement: initialPosts.map((post, index) => ({
+    itemListElement: initialPosts.map((post: (typeof initialPosts)[number], index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
       item: {
