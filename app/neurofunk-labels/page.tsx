@@ -273,8 +273,8 @@ export default function NeurofunkLabelsPage() {
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">Spotlight: Darkshire</h2>
             <p className="text-gray-300 text-lg mb-8">
-              They started in the forest - now they run high-production parties across Slovakia, Hungary, and Czechia, and dedicated Austrian ravers hope they&apos;ll fill the blank Darkshire space at home soon.
-              Darkshire&apos;s growth is pure dedication, relentless storytelling, and heavy music direction.
+              They started in the forest — now they run high-production parties across Slovakia, Hungary, and Czechia. (Dedicated Austrian ravers are hoping they&apos;ll soon fill the empty Darkshire space there aswell.)
+              Darkshire&apos;s growth is the result of pure dedication, relentless storytelling, and a heavy musical vision.
             </p>
             <div className="grid gap-6 md:grid-cols-3">
               {darkshireFacts.map((fact) => (
