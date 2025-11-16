@@ -75,7 +75,7 @@ export default function NeurofunkLabelsPage() {
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/newsletter/showcase.jpeg"
+            src="/newsletter/neurofunk-labels.jpeg"
             alt="Neurofunk label ecosystem collage"
             fill
             className="object-cover"
@@ -382,7 +382,7 @@ export default function NeurofunkLabelsPage() {
           </motion.p>
           <p className="text-gray-200 text-lg font-semibold">Keep it underground. Keep it real.</p>
           <p className="text-gray-400 mt-4">
-            ðŸ’š With the heaviest neuro love,<br />
+            💚 With the heaviest neuro love,<br />
             Anne
           </p>
           <p className="text-gray-400 mt-4 text-sm">
