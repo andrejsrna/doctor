@@ -75,7 +75,7 @@ export default function NeurofunkLabelsPage() {
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/newsletter/neurofunk-labels.jpeg"
+            src="/neurofunk-labels.jpeg"
             alt="Neurofunk label ecosystem collage"
             fill
             className="object-cover"
