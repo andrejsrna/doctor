@@ -26,6 +26,7 @@ export default function ReleaseDetailPage() {
   const [autoSaving, setAutoSaving] = useState(false)
   const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string>("")
   const [slugEdited, setSlugEdited] = useState(false)
+  const [clickStats, setClickStats] = useState<Array<{ platform: string; count: number; lastClickedAt?: string | null }>>([])
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const form = useForm<ReleaseFormValues>({
@@ -62,14 +63,16 @@ export default function ReleaseDetailPage() {
       if (res.ok) {
         const data = await res.json()
         const item = data.item
+        const { streamingClicks = [], ...rest } = item
         
         // Convert publishedAt from ISO to yyyy-MM-dd format for the form
         const formData = {
-          ...item,
-          publishedAt: item.publishedAt ? new Date(item.publishedAt).toISOString().slice(0,10) : "",
+          ...rest,
+          publishedAt: rest.publishedAt ? new Date(rest.publishedAt).toISOString().slice(0,10) : "",
         }
         
         reset(formData)
+        setClickStats(streamingClicks)
         setSlugEdited(false)
         setLastSavedSnapshot(JSON.stringify(formData))
       }
@@ -202,6 +205,28 @@ export default function ReleaseDetailPage() {
         slug={values.slug}
       />
 
+      <section className="border border-purple-500/30 rounded-xl p-4 bg-black/40">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">Streaming kliky</h2>
+          <span className="text-xs text-gray-400">Beatport, Spotify, YouTube…</span>
+        </div>
+        {clickStats.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {clickStats.map((stat) => (
+              <div key={stat.platform} className="border border-purple-500/20 rounded-lg p-3 bg-black/30">
+                <div className="text-sm text-gray-400 uppercase tracking-wide">{stat.platform}</div>
+                <div className="text-2xl font-semibold text-purple-200">{stat.count.toLocaleString()} klikov</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Naposledy: {stat.lastClickedAt ? new Date(stat.lastClickedAt).toLocaleString() : '–'}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-gray-400">Zatiaľ žiadne kliky zaznamenané.</div>
+        )}
+      </section>
+
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ReleaseEditBasicFields
           register={form.register}
@@ -237,5 +262,3 @@ export default function ReleaseDetailPage() {
     </div>
   )
 }
-
-

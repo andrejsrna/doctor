@@ -9,7 +9,10 @@ function unauthorized() {
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const params = await ctx.params
-  const item = await prisma.release.findUnique({ where: { id: params.id } })
+  const item = await prisma.release.findUnique({
+    where: { id: params.id },
+    include: { streamingClicks: { orderBy: { count: "desc" } } },
+  })
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 })
   return NextResponse.json({ item })
 }
@@ -66,5 +69,4 @@ export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: 
   await prisma.release.delete({ where: { id: params.id } })
   return NextResponse.json({ ok: true })
 }
-
 

@@ -1,9 +1,5 @@
 'use client'
 
-interface GoogleAnalytics {
-  gtag: (command: string, action: string, params: object) => void;
-}
-
 export const initializeAnalytics = () => {
   if (typeof window === 'undefined') return;
   
@@ -18,7 +14,11 @@ export const initializeAnalytics = () => {
   }
 };
 
-export const trackStreamingClick = (platform: string) => {
+interface GoogleAnalytics {
+  gtag: (command: string, action: string, params: object) => void;
+}
+
+export const trackStreamingClick = (platform: string, slug?: string) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -27,7 +27,8 @@ export const trackStreamingClick = (platform: string) => {
       ReactPixel.default.track('Purchase', {
         content_name: platform,
         content_type: 'streaming_click',
-        content_category: 'Music'
+        content_category: 'Music',
+        ...(slug && { content_ids: [slug] }),
       });
     }).catch((error) => {
       console.error('Failed to track with Facebook Pixel:', error);
@@ -39,8 +40,25 @@ export const trackStreamingClick = (platform: string) => {
       w.gtag('event', 'streaming_click', {
         event_category: 'Music',
         event_label: platform,
-        value: 1
+        value: 1,
+        ...(slug && { release_slug: slug }),
       });
+    }
+
+    if (slug) {
+      const body = JSON.stringify({ slug, platform })
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        const blob = new Blob([body], { type: 'application/json' })
+        navigator.sendBeacon('/api/streaming-click', blob)
+      } else {
+        // Fire-and-forget fallback
+        fetch('/api/streaming-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+          keepalive: true,
+        }).catch(() => null)
+      }
     }
   } catch (error) {
     console.error('Tracking error:', error);

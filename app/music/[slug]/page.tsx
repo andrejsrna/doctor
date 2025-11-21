@@ -229,12 +229,13 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         youtubeUrl={release.youtubeMusic || undefined}
         description={safeContent}
         gumroadUrl={release.gumroad || undefined}
+        slug={slug}
       />
 
       <div className="relative z-10 bg-black/80 backdrop-blur-sm -mt-24">
         <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
           {!release.gumroad && (
-            <StreamingLinks links={streamingLinks} gumroadUrl={release.gumroad || undefined} />
+            <StreamingLinks links={streamingLinks} gumroadUrl={release.gumroad || undefined} slug={slug} />
           )}
 
           <InfectionDivider />

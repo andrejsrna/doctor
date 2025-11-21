@@ -13,9 +13,10 @@ import { trackStreamingClick } from '@/app/utils/analytics'
 interface StreamingLinksProps {
   links: StreamingLink[]
   gumroadUrl?: string
+  slug: string
 }
 
-const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
+const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
   const availableLinks = links.filter((link) => !!link.url)
   const shouldReduce = useReducedMotion()
   const [interstitialOpen, setInterstitialOpen] = useState(false)
@@ -28,7 +29,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
       setInterstitialOpen(true)
       return
     }
-    trackStreamingClick(platform)
+    trackStreamingClick(platform, slug)
   }
 
   const renderIcon = (icon: StreamingLink['icon']) => {
@@ -142,7 +143,7 @@ const StreamingLinks = ({ links, gumroadUrl }: StreamingLinksProps) => {
           setInterstitialOpen(false)
           setPending(null)
           if (next?.href) {
-            trackStreamingClick(next.platform)
+            trackStreamingClick(next.platform, slug)
             window.open(next.href, '_blank', 'noopener,noreferrer')
           }
         }}

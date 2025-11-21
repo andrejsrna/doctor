@@ -17,6 +17,7 @@ interface ReleaseHeroProps {
   youtubeUrl: string | undefined
   description: string
   gumroadUrl?: string
+  slug: string
 }
 
 export default function ReleaseHero({
@@ -26,6 +27,7 @@ export default function ReleaseHero({
   youtubeUrl,
   description,
   gumroadUrl,
+  slug,
 }: ReleaseHeroProps) {
   const shouldReduce = useReducedMotion()
   const [interstitialOpen, setInterstitialOpen] = useState(false)
@@ -42,7 +44,7 @@ export default function ReleaseHero({
       setInterstitialOpen(true)
       return
     }
-    trackStreamingClick(platform)
+    trackStreamingClick(platform, slug)
   }
 
   return (
@@ -159,9 +161,12 @@ export default function ReleaseHero({
           const next = pending
           setInterstitialOpen(false)
           setPending(null)
-          if (next?.href) window.open(next.href, '_blank', 'noopener,noreferrer')
+          if (next?.href) {
+            trackStreamingClick(next.platform, slug)
+            window.open(next.href, '_blank', 'noopener,noreferrer')
+          }
         }}
       />
     </div>
   )
-} 
+}

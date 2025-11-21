@@ -274,11 +274,27 @@ model Release {
   publishedAt    DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  streamingClicks StreamingClick[]
 
   @@index([publishedAt])
   @@index([slug])
   @@index([title])
   @@index([artistName])
+}
+
+model StreamingClick {
+  id            String   @id @default(cuid())
+  releaseId     String
+  platform      String
+  count         Int      @default(0)
+  lastClickedAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+
+  @@unique([releaseId, platform])
+  @@index([platform])
 }
 
 model Artist {
