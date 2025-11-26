@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 
-type NewsItem = { id: string; slug: string; title: string; coverImageUrl?: string | null; publishedAt?: string | null }
+type NewsItem = { id: string; slug: string; title: string; coverImageUrl?: string | null; publishedAt?: string | null; categories?: string[] }
 type NewsListAnimatedProps = { posts: NewsItem[]; initialTotalPages?: number; pageSize?: number }
 
 const NewsListAnimated = dynamic<NewsListAnimatedProps>(() => import('./NewsListAnimated'))
@@ -12,5 +12,4 @@ const NewsListAnimated = dynamic<NewsListAnimatedProps>(() => import('./NewsList
 export default function NewsListClient({ initialPosts, initialTotalPages, pageSize }: { initialPosts: NewsItem[]; initialTotalPages: number; pageSize: number }) {
   return <NewsListAnimated posts={initialPosts} initialTotalPages={initialTotalPages} pageSize={pageSize} />
 }
-
 

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser'
 import Image from 'next/image'
+import Link from 'next/link'
 import RelatedNews from '../../components/RelatedNews'
 import SocialShare from '../../components/SocialShare'
 import EngagementCTA from '../../components/EngagementCTA'
@@ -94,6 +95,17 @@ export default async function NewsPostPage({ params }: PageProps) {
           <time className="text-purple-500 font-medium">
             {formatDate(post.publishedAt || '')}
           </time>
+          {post.categories?.includes('Mixes') && (
+            <div className="mt-3 flex justify-center">
+              <Link
+                href="/neurofunk-dnb-mixes"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-500/40 bg-purple-600/20 text-purple-100 text-xs uppercase tracking-wide hover:border-purple-300 hover:text-white transition-colors"
+              >
+                Mixes
+                <span aria-hidden className="text-purple-200">→</span>
+              </Link>
+            </div>
+          )}
           <h1
             className="text-4xl md:text-6xl font-bold mt-4 bg-clip-text text-transparent
               bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"

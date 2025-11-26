@@ -10,7 +10,7 @@ export default async function NewsPage() {
     prisma.news.findMany({
     orderBy: { publishedAt: 'desc' },
     take: pageSize,
-    select: { id: true, slug: true, title: true, coverImageUrl: true, publishedAt: true },
+    select: { id: true, slug: true, title: true, coverImageUrl: true, publishedAt: true, categories: true },
     }),
     prisma.news.count(),
   ])

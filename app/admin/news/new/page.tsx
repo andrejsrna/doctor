@@ -1,27 +1,45 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import toast from 'react-hot-toast'
 import { useRouter } from "next/navigation"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExt from "@tiptap/extension-link"
+import DOMPurify from "isomorphic-dompurify"
 import EditorMenu from "../../releases/components/EditorMenu"
 
-interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; relatedArtistName?: string | null; publishedAt?: string | null }
+const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
+
+interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
 
 export default function NewsCreatePage() {
   const router = useRouter()
-  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', relatedArtistName: '', publishedAt: '' })
+  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
   const [saving, setSaving] = useState(false)
   const [slugEdited, setSlugEdited] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const fromEditor = useRef(false)
 
   const editor = useEditor({
     extensions: [StarterKit, LinkExt.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } })],
     content: item.content || '',
-    onUpdate: ({ editor }) => setItem(prev => ({ ...prev, content: editor.getHTML() })),
+    onUpdate: ({ editor }) => {
+      fromEditor.current = true
+      setItem(prev => ({ ...prev, content: editor.getHTML() }))
+    },
+    immediatelyRender: false,
   })
+
+  // keep TipTap in sync if state changes outside of editor
+  useEffect(() => {
+    if (!editor || typeof item.content !== 'string') return
+    if (fromEditor.current) {
+      fromEditor.current = false
+      return
+    }
+    editor.commands.setContent(item.content)
+  }, [editor, item.content])
 
   const slugify = (text: string) => text.toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '')
 
@@ -81,11 +99,20 @@ export default function NewsCreatePage() {
             <button onClick={() => imageInputRef.current?.click()} className="px-3 py-1 border border-purple-500/30 rounded">Upload</button>
           </div>
         </div>
-        <div className="md:col-span-2">
-          <label className="text-sm text-gray-400">Content</label>
-          <div className="bg-black/50 border border-purple-500/30 rounded min-h-[300px] p-2">
-            <EditorMenu editor={editor} />
-            <EditorContent editor={editor} />
+        <div className="md:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-gray-400">Content</label>
+            <div className="bg-black/50 border border-purple-500/30 rounded min-h-[300px] p-2">
+              <EditorMenu editor={editor} />
+              <EditorContent editor={editor} className="prose prose-invert prose-purple max-w-none min-h-[220px] focus:outline-none" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-400">Preview (sanitized)</label>
+            <div
+              className="min-h-[300px] px-3 py-2 bg-black/30 border border-purple-500/30 rounded prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.content || "") }}
+            />
           </div>
         </div>
         <div>
@@ -96,9 +123,38 @@ export default function NewsCreatePage() {
           <label className="text-sm text-gray-400">Related Artist Name</label>
           <input value={item.relatedArtistName || ''} onChange={e => setItem(prev => ({ ...prev, relatedArtistName: e.target.value }))} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
         </div>
+        <div>
+          <label className="text-sm text-gray-400">Categories</label>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {NEWS_CATEGORIES.map((cat) => {
+              const checked = item.categories.includes(cat)
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  aria-pressed={checked}
+                  onClick={() => {
+                    setItem((prev) => {
+                      const existing = prev.categories || []
+                      const next = checked
+                        ? existing.filter((c) => c !== cat)
+                        : Array.from(new Set([...existing, cat]))
+                      return { ...prev, categories: next.length ? next : ['General'] }
+                    })
+                  }}
+                  className={`px-3 py-2 rounded-full border transition-all ${
+                    checked
+                      ? 'border-purple-500/60 bg-purple-600/30 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]'
+                      : 'border-purple-500/20 bg-black/40 text-gray-200 hover:border-purple-500/40 hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
-
-

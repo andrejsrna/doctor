@@ -5,6 +5,16 @@ import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
 
 function unauthorized() { return NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
+const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
+
+function normalizeCategories(input: unknown): string[] {
+  if (!Array.isArray(input)) return ["General"]
+  const filtered = input
+    .map((c) => (typeof c === 'string' ? c.trim() : ''))
+    .filter(Boolean)
+    .filter((c) => NEWS_CATEGORIES.includes(c))
+  return filtered.length ? filtered : ["General"]
+}
 
 export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
@@ -28,8 +38,9 @@ export async function POST(request: NextRequest) {
   if (!session?.user) return unauthorized()
   validateAdminOrigin(request)
   const data = await request.json()
+  const categories = normalizeCategories(data.categories)
   const created = await prisma.news.create({ data: {
-    slug: data.slug, title: data.title, content: data.content || null, coverImageUrl: data.coverImageUrl || null, coverImageKey: data.coverImageKey || null, scsc: data.scsc || null, relatedArtistName: data.relatedArtistName || null, publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+    slug: data.slug, title: data.title, content: data.content || null, coverImageUrl: data.coverImageUrl || null, coverImageKey: data.coverImageKey || null, scsc: data.scsc || null, relatedArtistName: data.relatedArtistName || null, publishedAt: data.publishedAt ? new Date(data.publishedAt) : null, categories,
   } })
   try {
     // Refresh listings and single page
@@ -48,8 +59,9 @@ export async function PATCH(request: NextRequest) {
   const { id, ...data } = await request.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
   const previous = await prisma.news.findUnique({ where: { id }, select: { slug: true } })
+  const categories = data.categories ? normalizeCategories(data.categories) : undefined
   const updated = await prisma.news.update({ where: { id }, data: {
-    slug: data.slug ?? undefined, title: data.title ?? undefined, content: data.content ?? undefined, coverImageUrl: data.coverImageUrl ?? undefined, coverImageKey: data.coverImageKey ?? undefined, scsc: data.scsc ?? undefined, relatedArtistName: data.relatedArtistName ?? undefined, publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+    slug: data.slug ?? undefined, title: data.title ?? undefined, content: data.content ?? undefined, coverImageUrl: data.coverImageUrl ?? undefined, coverImageKey: data.coverImageKey ?? undefined, scsc: data.scsc ?? undefined, relatedArtistName: data.relatedArtistName ?? undefined, publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined, categories,
   } })
   try {
     // Refresh listings and single page (handle slug change)
@@ -74,5 +86,4 @@ export async function DELETE(request: NextRequest) {
   await prisma.news.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
-
 

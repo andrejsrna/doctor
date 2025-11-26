@@ -6,11 +6,14 @@ import { useRouter } from "next/navigation"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExt from "@tiptap/extension-link"
+import DOMPurify from "isomorphic-dompurify"
 import EditorMenu from "../../releases/components/EditorMenu"
 
 interface PageProps { params: Promise<{ id: string }> }
 
-interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; relatedArtistName?: string | null; publishedAt?: string | null }
+const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
+
+interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
 
 export default function NewsDetailPage({ params }: PageProps) {
   const { id } = use(params)
@@ -19,13 +22,14 @@ export default function NewsDetailPage({ params }: PageProps) {
   const [saving, setSaving] = useState(false)
   const [, setSlugEdited] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const fromEditor = useRef(false)
 
   useEffect(() => {
     const load = async () => {
       const res = await fetch(`/api/admin/news/${id}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
-        setItem(data.item)
+        setItem({ ...data.item, categories: data.item?.categories || ['General'] })
         setSlugEdited(false)
       }
     }
@@ -37,11 +41,20 @@ export default function NewsDetailPage({ params }: PageProps) {
     content: item?.content || '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
+      fromEditor.current = true
       setItem(prev => prev ? { ...prev, content: html } : prev)
-    }
+    },
+    immediatelyRender: false,
   })
 
-  useEffect(() => { if (editor && item) editor.commands.setContent(item.content || '') }, [item, editor])
+  useEffect(() => {
+    if (!editor || !item) return
+    if (fromEditor.current) {
+      fromEditor.current = false
+      return
+    }
+    editor.commands.setContent(item.content || '')
+  }, [item, editor])
 
   const save = async () => {
     if (!item) return
@@ -108,9 +121,14 @@ export default function NewsDetailPage({ params }: PageProps) {
         </div>
         <div className="md:col-span-2">
           <label className="text-sm text-gray-400">Content</label>
-          <div className="bg-black/50 border border-purple-500/30 rounded min-h-[300px] p-3">
-            <EditorMenu editor={editor} />
-            <EditorContent editor={editor} className="prose prose-invert prose-purple max-w-none min-h-[220px] focus:outline-none" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-black/50 border border-purple-500/30 rounded min-h-[300px] p-3">
+              <EditorMenu editor={editor} />
+              <EditorContent editor={editor} className="prose prose-invert prose-purple max-w-none min-h-[220px] focus:outline-none" />
+            </div>
+            <div className="min-h-[300px] px-3 py-2 bg-black/30 border border-purple-500/30 rounded prose prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.content || "") }} />
+            </div>
           </div>
         </div>
         <div>
@@ -121,9 +139,36 @@ export default function NewsDetailPage({ params }: PageProps) {
           <label className="text-sm text-gray-400">Related Artist Name</label>
           <input value={item.relatedArtistName || ''} onChange={e => setItem({ ...item, relatedArtistName: e.target.value })} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
         </div>
+        <div>
+          <label className="text-sm text-gray-400">Categories</label>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {NEWS_CATEGORIES.map((cat) => {
+              const checked = (item.categories || []).includes(cat)
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  aria-pressed={checked}
+                  onClick={() => {
+                    const existing = item.categories || []
+                    const next = checked
+                      ? existing.filter((c) => c !== cat)
+                      : Array.from(new Set([...existing, cat]))
+                    setItem({ ...item, categories: next.length ? next : ['General'] })
+                  }}
+                  className={`px-3 py-2 rounded-full border transition-all ${
+                    checked
+                      ? 'border-purple-500/60 bg-purple-600/30 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]'
+                      : 'border-purple-500/20 bg-black/40 text-gray-200 hover:border-purple-500/40 hover:text-white'
+                  }`}
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
-
-

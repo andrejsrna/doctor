@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { UseFormSetValue, UseFormWatch } from "react-hook-form"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
@@ -16,6 +16,7 @@ interface ReleaseContentEditorProps {
 
 export default function ReleaseContentEditor({ setValue, watch }: ReleaseContentEditorProps) {
   const content = watch("content")
+  const fromEditor = useRef(false)
 
   // TipTap editor – the editor is the source of truth for `content`
   const editor = useEditor({
@@ -29,13 +30,19 @@ export default function ReleaseContentEditor({ setValue, watch }: ReleaseContent
     ],
     content: content || "",
     onUpdate: ({editor}) => {
+      fromEditor.current = true
       setValue("content", editor.getHTML(), {shouldDirty: true})
     },
   })
 
   // Keep editor in sync if form gets reset externally
   useEffect(() => {
-    if (editor && typeof content === "string") editor.commands.setContent(content)
+    if (!editor || typeof content !== "string") return
+    if (fromEditor.current) {
+      fromEditor.current = false
+      return
+    }
+    editor.commands.setContent(content)
   }, [editor, content])
 
   return (

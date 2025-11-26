@@ -23,7 +23,25 @@ const fetcher = async (url: string) => {
   return res.json()
 }
 
-export function useLatestPosts(postsPerPage: number, page = 1, category = '', search = '') {
+type PostsResponse = {
+  posts: {
+    id: string
+    title: string
+    imageUrl?: string | null
+    previewUrl?: string | null
+    slug: string
+  }[]
+  totalPages: number
+  total: number
+}
+
+export function useLatestPosts(
+  postsPerPage: number,
+  page = 1,
+  category = '',
+  search = '',
+  options?: { fallbackData?: PostsResponse }
+) {
   return useSWR(
     [`releases`, postsPerPage, page, category, search],
     async () => {
@@ -52,7 +70,10 @@ export function useLatestPosts(postsPerPage: number, page = 1, category = '', se
       }))
       return { posts, totalPages: data.totalPages || 1, total: data.total || 0 }
     },
-    CACHE_CONFIG.posts
+    {
+      ...CACHE_CONFIG.posts,
+      fallbackData: options?.fallbackData,
+    }
   )
 }
 

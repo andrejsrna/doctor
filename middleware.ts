@@ -117,6 +117,7 @@ const redirects = [
     "/sample-packs",
     "/music-packs",
     "/neurofunk-drum-and-bass",
+    "/neurofunk-dnb-mixes",
     "/bulk-sale",
     "/search",
     "/unsub",

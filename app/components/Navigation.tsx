@@ -95,6 +95,7 @@ export default function Navigation() {
     { title: 'LPs', href: '/albums' },
     { title: 'Music Packs', href: '/music-packs' },
     { title: 'Sample Packs', href: '/sample-packs' },
+    { title: 'Neurofunk DnB Mixes', href: '/neurofunk-dnb-mixes' },
     { title: 'Search for Music', href: '/music?focus=search' },
   ]
 

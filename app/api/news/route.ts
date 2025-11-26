@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         slug: true,
         title: true,
         coverImageUrl: true,
+        categories: true,
         publishedAt: true,
       },
     }),
@@ -35,5 +36,4 @@ export async function GET(request: NextRequest) {
   res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400')
   return res
 }
-
 

@@ -7,7 +7,7 @@ import Button from '../components/Button'
 import { sanitizeHtml } from '@/lib/sanitize'
 import { useEffect, useMemo, useState } from 'react'
 
-type NewsItem = { id: string; slug: string; title: string; coverImageUrl?: string | null; publishedAt?: string | null }
+type NewsItem = { id: string; slug: string; title: string; coverImageUrl?: string | null; publishedAt?: string | null; categories?: string[] }
 
 function formatDate(date?: string | null) {
   if (!date) return ''
@@ -103,5 +103,4 @@ export default function NewsListAnimated({ posts, initialTotalPages, pageSize }:
     </>
   )
 }
-
 
