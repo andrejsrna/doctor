@@ -9,6 +9,7 @@ export default function FreeTrackForm() {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string>('')
   const [ok, setOk] = useState<boolean | null>(null)
+  const [website, setWebsite] = useState('') // Honeypot field
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,7 +21,7 @@ export default function FreeTrackForm() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailLc, name, group: 'FreeTrack', source: 'new_fans_free_track' })
+        body: JSON.stringify({ email: emailLc, name, website, group: 'FreeTrack', source: 'new_fans_free_track' })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Failed to subscribe')
@@ -41,6 +42,17 @@ export default function FreeTrackForm() {
 
   return (
     <form onSubmit={onSubmit} className="bg-black/50 border border-purple-500/20 rounded-xl p-6 max-w-lg mx-auto">
+      {/* Honeypot field - keeping it real simple to trap bots */}
+      <div className="absolute opacity-0 -z-10 h-0 w-0 overflow-hidden">
+        <input
+          type="text"
+          name="website"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
       <h3 className="text-xl font-semibold mb-3">Get a free track</h3>
       <p className="text-gray-400 mb-4">Join the list and we’ll email you a download link.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">

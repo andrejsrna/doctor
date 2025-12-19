@@ -7,6 +7,7 @@ interface SubscribeData {
   name?: string;
   group?: string;
   source?: string;
+  website?: string; // Honeypot
 }
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
@@ -18,7 +19,18 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, group, source }: SubscribeData = await request.json();
+    const { email, name, group, source, website }: SubscribeData = await request.json();
+
+    // Honeypot check
+    if (website) {
+      console.log(`[HONEYPOT] Bot caught for email: ${email}, website val: ${website}`);
+      // Return fake success
+      return addNoCacheHeaders(NextResponse.json({
+        success: true,
+        message: 'Check your email for the free track!',
+        subscriber: { id: 'fake', email, name }
+      }));
+    }
 
     if (!email) {
       const response = NextResponse.json(
@@ -80,8 +92,8 @@ export async function POST(request: NextRequest) {
           data: {
             status: 'ACTIVE',
             categoryId: existingSubscriber.categoryId || newsletterCategoryId,
-            notes: existingSubscriber.notes ? 
-              `${existingSubscriber.notes}\n[REACTIVATED]` : 
+            notes: existingSubscriber.notes ?
+              `${existingSubscriber.notes}\n[REACTIVATED]` :
               '[REACTIVATED]'
           }
         });
@@ -140,12 +152,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error subscribing:', error);
-    
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
+
     const response = NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to subscribe',
         details: errorMessage
       },
