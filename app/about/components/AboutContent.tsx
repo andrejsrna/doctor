@@ -22,8 +22,8 @@ export default function AboutContent() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
         </div>
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4 max-w-4xl mx-auto"
@@ -48,7 +48,7 @@ export default function AboutContent() {
           >
             <h2 className="text-3xl md:text-4xl font-bold text-purple-500">Our Mission</h2>
             <p className="text-xl text-gray-300 leading-relaxed">
-              We&apos;re dedicated to promoting and preserving drum and bass culture, 
+              We&apos;re dedicated to promoting and preserving drum and bass culture,
               connecting artists with fans, and providing a platform for the best electronic music.
             </p>
           </motion.div>
@@ -156,9 +156,17 @@ export default function AboutContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
+                name: "Anne",
+                role: "Community manager & playlist",
+                image: "/anne.jpg",
+                email: "anne@dnbdoctor.com",
+                description: "Contact me regarding playlist inquiries and curation."
+              },
+              {
                 name: "Andrej",
-                role: "Founder & Editor",
-                image: "/andrej.jpg" // Add team member images
+                role: "Distribution and releases",
+                image: "/andrej.jpg",
+                email: "releases@dnbdoctor.com"
               },
               {
                 name: "Yehor",
@@ -167,7 +175,7 @@ export default function AboutContent() {
               },
               {
                 name: "Christopher",
-                role: "Talent Scout", 
+                role: "Talent Scout",
                 image: "/christopher.jpeg" // Add team member images
               },
               {
@@ -187,9 +195,15 @@ export default function AboutContent() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="text-center"
+                className={index < 2
+                  ? "md:col-span-3 flex flex-col md:flex-row items-center gap-8 bg-white/5 p-8 rounded-2xl text-left mb-8"
+                  : "text-center"
+                }
               >
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden relative">
+                <div className={index < 2
+                  ? "w-48 h-48 relative shrink-0 rounded-full overflow-hidden"
+                  : "w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden relative"
+                }>
                   <Image
                     src={member.image}
                     alt={member.name}
@@ -197,8 +211,27 @@ export default function AboutContent() {
                     className="object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{member.name}</h3>
-                <p className="text-gray-400">{member.role}</p>
+                <div className={index < 2 ? "md:flex-1" : ""}>
+                  <h3 className={`font-bold text-white mb-2 ${index < 2 ? "text-3xl" : "text-xl"}`}>
+                    {member.name}
+                  </h3>
+                  <p className={`text-gray-400 ${index < 2 ? "text-xl" : ""}`}>
+                    {member.role}
+                  </p>
+                  {member.description && (
+                    <p className="text-gray-300 mt-4 mb-2 max-w-xl">
+                      {member.description}
+                    </p>
+                  )}
+                  {member.email && (
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="block text-sm text-purple-500 hover:text-pink-500 transition-colors mt-2"
+                    >
+                      {member.email}
+                    </a>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
