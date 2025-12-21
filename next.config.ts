@@ -6,16 +6,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', 'react-icons'],
     optimizeServerReact: true,
-    // Increase body size limit for file uploads
-    serverComponentsExternalPackages: [],
-  },
-  
-  // API route configuration for large file uploads
-  api: {
-    bodyParser: {
-      sizeLimit: '250mb', // Allow up to 250MB uploads
-    },
-    responseLimit: false,
   },
   
   // Compiler options for modern browsers
@@ -92,6 +82,16 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'dnbdoctor.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'printify.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.printify.com',
         pathname: '/**',
       },
       {

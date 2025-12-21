@@ -82,7 +82,45 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2>6. Content Usage</h2>
+              <h2>6. Shop &amp; Merch Orders</h2>
+              <p>
+                From time to time we offer physical products (merch) through our website. These items are typically
+                produced and fulfilled via a print-on-demand partner after purchase.
+              </p>
+              <ul>
+                <li>
+                  <strong>Production:</strong> production starts after your order is placed and paid. Production and shipping
+                  times vary by product and destination.
+                </li>
+                <li>
+                  <strong>Shipping:</strong> we ship to the address provided at checkout. Please double-check your details
+                  before completing payment.
+                </li>
+                <li>
+                  <strong>Returns &amp; issues:</strong> because items are made to order, we may not accept returns for
+                  change-of-mind or incorrect sizing. If your item arrives damaged, defective, or incorrect, contact us and
+                  we’ll work with you on a replacement or refund where applicable.
+                </li>
+                <li>
+                  <strong>Cancellations:</strong> if production has not started yet, we may be able to cancel or adjust the
+                  order. Once production begins, changes may not be possible.
+                </li>
+                <li>
+                  <strong>Payments:</strong> payments are processed securely by Stripe. We do not store full card details on
+                  our servers.
+                </li>
+              </ul>
+              <p>
+                For order-related help, contact us via the{' '}
+                <a href="/contact" className="text-purple-500 hover:text-purple-400">
+                  contact page
+                </a>
+                .
+              </p>
+            </section>
+
+            <section>
+              <h2>7. Content Usage</h2>
               <p>
                 You may not use our content for any commercial purpose without obtaining a license from us. 
                 This includes, but is not limited to:
@@ -96,7 +134,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2>7. Limitation of Liability</h2>
+              <h2>8. Limitation of Liability</h2>
               <p>
                 DnB Doctor shall not be liable for any indirect, incidental, special, consequential, or 
                 punitive damages resulting from your use or inability to use our services.
@@ -104,7 +142,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2>8. Changes to Terms</h2>
+              <h2>9. Changes to Terms</h2>
               <p>
                 We reserve the right to modify these terms at any time. We will notify users of any 
                 material changes by posting the new terms on this site.
@@ -112,7 +150,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2>9. Governing Law</h2>
+              <h2>10. Governing Law</h2>
               <p>
                 These terms shall be governed by and construed in accordance with the laws of the European Union, 
                 without regard to its conflict of law provisions.
@@ -120,7 +158,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2>10. Contact Information</h2>
+              <h2>11. Contact Information</h2>
               <p>
                 For any questions about these Terms & Conditions, please contact us at:{' '}
                 <a href="mailto:legal@dnbdoctor.com" className="text-purple-500 hover:text-purple-400">

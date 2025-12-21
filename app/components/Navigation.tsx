@@ -83,6 +83,7 @@ export default function Navigation() {
   const menuItems = [
     { title: 'Artists', href: '/artists' },
     { title: 'News', href: '/news' },
+    { title: 'Shop', href: '/shop' },
     { title: 'About', href: '/about' },
     { title: 'Newsletter', href: '/newsletter' },
     { title: 'Submit demo', href: '/submit-demo' },

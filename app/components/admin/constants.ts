@@ -1,4 +1,4 @@
-import { FaHome, FaInstagram, FaMusic, FaNewspaper, FaStar, FaUsers, FaChartLine, FaCog } from "react-icons/fa";
+import { FaHome, FaInstagram, FaMusic, FaNewspaper, FaStar, FaUsers, FaChartLine, FaCog, FaShoppingCart } from "react-icons/fa";
 export { productivityMessages } from "./messages";
 
 export const navigationItems = [
@@ -49,6 +49,12 @@ export const navigationItems = [
     href: "/admin/releases",
     icon: FaMusic,
     description: "Manage Releases"
+  },
+  {
+    name: "Orders",
+    href: "/admin/orders",
+    icon: FaShoppingCart,
+    description: "Shop Orders"
   },
   {
     name: "Legacy Feedback",
