@@ -33,13 +33,20 @@ export async function POST(request: NextRequest) {
 
   // Validate origin (logs but doesn't block)
   validateAdminOrigin(request)
-  if (file.size > 25 * 1024 * 1024) return NextResponse.json({ error: "File too large" }, { status: 413 })
-  const allowedKinds = new Set(["asset", "image", "audio", "cover", "preview"])
+  const maxSizeBytes = kind === "download" ? 250 * 1024 * 1024 : 25 * 1024 * 1024
+  if (file.size > maxSizeBytes) return NextResponse.json({ error: "File too large" }, { status: 413 })
+  const allowedKinds = new Set(["asset", "image", "audio", "cover", "preview", "download"])
   if (!allowedKinds.has(kind)) return NextResponse.json({ error: "Invalid kind" }, { status: 400 })
   const allowedContent =
     kind === 'image' || kind === 'cover' ? /^image\// :
     kind === 'audio' || kind === 'preview' ? /^audio\// : /^(image|audio)\//
-  if (file.type && !allowedContent.test(file.type)) return NextResponse.json({ error: "Unsupported content type" }, { status: 415 })
+  if (kind === "download") {
+    if (file.type && !/^(application\/|audio\/|video\/|image\/)/.test(file.type)) {
+      return NextResponse.json({ error: "Unsupported content type" }, { status: 415 })
+    }
+  } else {
+    if (file.type && !allowedContent.test(file.type)) return NextResponse.json({ error: "Unsupported content type" }, { status: 415 })
+  }
   if (!/^[a-z0-9-_]+$/i.test(slug)) return NextResponse.json({ error: "Invalid slug" }, { status: 400 })
   if (!/^[a-z0-9-/]+$/i.test(baseDir)) return NextResponse.json({ error: "Invalid baseDir" }, { status: 400 })
 
@@ -64,4 +71,3 @@ export async function POST(request: NextRequest) {
   await writeFile(filePath, buffer)
   return NextResponse.json({ success: true, url: `/uploads/admin/${localName}`, key: localName })
 }
-

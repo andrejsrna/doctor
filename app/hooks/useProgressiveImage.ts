@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 
 interface UseProgressiveImageProps {
   src: string
-  placeholderQuality?: number
-  placeholderBlur?: number
 }
 
 interface UseProgressiveImageReturn {
@@ -15,8 +13,6 @@ interface UseProgressiveImageReturn {
 
 export function useProgressiveImage({
   src,
-  placeholderQuality = 10,
-  placeholderBlur = 20,
 }: UseProgressiveImageProps): UseProgressiveImageReturn {
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState(false)

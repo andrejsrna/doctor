@@ -8,6 +8,10 @@ function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 }
 
+function nullable<T>(value: T | null | undefined) {
+  return value === undefined ? undefined : value
+}
+
 export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user) return unauthorized()
@@ -52,6 +56,10 @@ export async function POST(request: NextRequest) {
       slug: data.slug,
       title: data.title,
       content: data.content || null,
+      releaseType: data.releaseType || "NORMAL",
+      downloadFileUrl: data.downloadFileUrl || null,
+      downloadFileKey: data.downloadFileKey || null,
+      downloadFileName: data.downloadFileName || null,
       coverImageUrl: data.coverImageUrl || null,
       coverImageKey: data.coverImageKey || null,
       previewUrl: data.previewUrl || null,
@@ -100,22 +108,26 @@ export async function PATCH(request: NextRequest) {
     where: { id },
     data: {
       title: data.title,
-      content: data.content ?? undefined,
-      coverImageUrl: data.coverImageUrl ?? undefined,
-      coverImageKey: data.coverImageKey ?? undefined,
-      previewUrl: data.previewUrl ?? undefined,
-      spotify: data.spotify ?? undefined,
-      appleMusic: data.appleMusic ?? undefined,
-      beatport: data.beatport ?? undefined,
-      deezer: data.deezer ?? undefined,
-      soundcloud: data.soundcloud ?? undefined,
-      youtubeMusic: data.youtubeMusic ?? undefined,
-      junoDownload: data.junoDownload ?? undefined,
-      tidal: data.tidal ?? undefined,
-      gumroad: data.gumroad ?? undefined,
-      bandcamp: data.bandcamp ?? undefined,
+      content: nullable(data.content),
+      releaseType: nullable(data.releaseType),
+      downloadFileUrl: nullable(data.downloadFileUrl),
+      downloadFileKey: nullable(data.downloadFileKey),
+      downloadFileName: nullable(data.downloadFileName),
+      coverImageUrl: nullable(data.coverImageUrl),
+      coverImageKey: nullable(data.coverImageKey),
+      previewUrl: nullable(data.previewUrl),
+      spotify: nullable(data.spotify),
+      appleMusic: nullable(data.appleMusic),
+      beatport: nullable(data.beatport),
+      deezer: nullable(data.deezer),
+      soundcloud: nullable(data.soundcloud),
+      youtubeMusic: nullable(data.youtubeMusic),
+      junoDownload: nullable(data.junoDownload),
+      tidal: nullable(data.tidal),
+      gumroad: nullable(data.gumroad),
+      bandcamp: nullable(data.bandcamp),
       categories: Array.isArray(data.categories) ? data.categories : undefined,
-      publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+      publishedAt: data.publishedAt === null ? null : data.publishedAt ? new Date(data.publishedAt) : undefined,
     },
   })
 
@@ -148,5 +160,4 @@ export async function DELETE(request: NextRequest) {
   await prisma.release.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
-
 

@@ -55,7 +55,7 @@ export default function EditSubscriberModal({
       setNotes(subscriber.notes || "");
       setStatus(subscriber.status);
     }
-  }, [subscriber, isOpen]);
+  }, [subscriber, isOpen, categories]);
 
   if (!isOpen || !subscriber) return null;
 
@@ -172,5 +172,4 @@ export default function EditSubscriberModal({
     </div>
   );
 }
-
 

@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
         coverImageKey: true,
         previewUrl: true,
         publishedAt: true,
+        releaseType: true,
         spotify: true,
         appleMusic: true,
         beatport: true,
@@ -66,5 +67,4 @@ export async function GET(request: NextRequest) {
   res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400')
   return res
 }
-
 

@@ -21,8 +21,8 @@ const eslintConfig = [
       ".next/**",
       "node_modules/**",
       "public/**",
+      "postcss.config.mjs",
       "*.config.js",
-      "*.config.mjs",
       "*.config.ts"
     ]
   },

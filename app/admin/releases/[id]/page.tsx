@@ -35,6 +35,10 @@ export default function ReleaseDetailPage() {
       slug: "",
       title: "",
       content: "",
+      releaseType: "NORMAL",
+      downloadFileUrl: "",
+      downloadFileKey: "",
+      downloadFileName: "",
       coverImageUrl: "",
       previewUrl: "",
       spotify: "",
@@ -55,6 +59,8 @@ export default function ReleaseDetailPage() {
 
   const { watch, reset } = form
   const values = watch()
+  const releaseType = watch("releaseType")
+  const prevReleaseTypeRef = useRef(releaseType)
 
   // Load release data
   useEffect(() => {
@@ -79,6 +85,16 @@ export default function ReleaseDetailPage() {
     }
     load()
   }, [id, reset])
+
+  useEffect(() => {
+    const prev = prevReleaseTypeRef.current
+    prevReleaseTypeRef.current = releaseType
+    if (prev === "FREE_DOWNLOAD" && releaseType !== "FREE_DOWNLOAD") {
+      form.setValue("downloadFileUrl", "", { shouldDirty: true })
+      form.setValue("downloadFileKey", "", { shouldDirty: true })
+      form.setValue("downloadFileName", "", { shouldDirty: true })
+    }
+  }, [releaseType, form])
 
   const save = useCallback(async () => {
     setSaving(true)

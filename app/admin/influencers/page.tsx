@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
  
 import InfluencersHeader from "../../components/admin/influencers/InfluencersHeader";
 import Link from 'next/link'
@@ -42,7 +41,6 @@ interface Influencer {
 // removed Category type; no manual sync UI
 
 export default function InfluencersPage() {
-  const router = useRouter();
   const [influencers, setInfluencers] = useState<Influencer[]>([]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
@@ -165,7 +163,10 @@ export default function InfluencersPage() {
           <div className="mb-3 text-sm text-gray-400">Click Edit to open modal, or open full page for feedback details.</div>
           <InfluencersTable
             influencers={filteredInfluencers}
-            onEdit={(infl) => { router.push(`/admin/influencers/${infl.id}`); }}
+            onEdit={(infl) => {
+              setEditing(infl)
+              setEditOpen(true)
+            }}
             onDelete={(id) => confirm('Delete influencer?') && alert(`Delete ${id} coming soon`)}
           />
           <div className="mt-4 text-sm text-gray-400">Tip: Open individual page: <span className="italic">/admin/influencers/[id]</span>. Example: {filteredInfluencers[0] ? <Link href={`/admin/influencers/${filteredInfluencers[0].id}`} className="underline text-blue-300">Open first</Link> : null}</div>

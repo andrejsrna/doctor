@@ -10,7 +10,7 @@ interface EmailParams {
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true', // Use true for 465, false for other ports
+  secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1', // Use true/1 for 465, false/0 for other ports
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -18,17 +18,15 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async (params: EmailParams) => {
-  const fromName = process.env.SMTP_FROM_NAME;
-  const fromEmail = process.env.SMTP_FROM_EMAIL;
-
-  if (!fromName || !fromEmail) {
-    console.error('Missing SMTP_FROM_NAME or SMTP_FROM_EMAIL environment variables.');
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  if (!from) {
+    console.error('Missing SMTP_FROM (or SMTP_USER) environment variables.');
     throw new Error('Email service is not configured.');
   }
 
   try {
     await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
+      from,
       ...params,
     });
   } catch (error) {

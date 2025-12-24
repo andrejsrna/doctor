@@ -12,9 +12,8 @@ export async function POST(req: NextRequest) {
       ua: req.headers.get('user-agent') || undefined,
     })
     return NextResponse.json({ ok: true })
-  } catch (e) {
+  } catch {
     return NextResponse.json({ ok: false }, { status: 500 })
   }
 }
-
 

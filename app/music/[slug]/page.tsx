@@ -230,11 +230,12 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         description={safeContent}
         gumroadUrl={release.gumroad || undefined}
         slug={slug}
+        releaseType={release.releaseType}
       />
 
       <div className="relative z-10 bg-black/80 backdrop-blur-sm -mt-24">
         <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-          {!release.gumroad && (
+          {release.releaseType !== "FREE_DOWNLOAD" && !release.gumroad && (
             <StreamingLinks links={streamingLinks} gumroadUrl={release.gumroad || undefined} slug={slug} />
           )}
 

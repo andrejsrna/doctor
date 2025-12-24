@@ -250,6 +250,11 @@ enum Role {
   EDITOR
 }
 
+enum ReleaseType {
+  NORMAL
+  FREE_DOWNLOAD
+}
+
 model Release {
   id             String   @id @default(cuid())
   wpId           Int?     @unique
@@ -259,6 +264,10 @@ model Release {
   coverImageUrl  String?
   coverImageKey  String?
   previewUrl     String?
+  releaseType    ReleaseType @default(NORMAL)
+  downloadFileUrl  String?
+  downloadFileKey  String?
+  downloadFileName String?
   spotify        String?
   appleMusic     String?
   beatport       String?
@@ -275,11 +284,28 @@ model Release {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   streamingClicks StreamingClick[]
+  downloadTokens ReleaseDownloadToken[]
 
   @@index([publishedAt])
   @@index([slug])
   @@index([title])
   @@index([artistName])
+}
+
+model ReleaseDownloadToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  releaseId String
+  release   Release  @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+
+  @@index([releaseId])
+  @@index([email])
+  @@index([expiresAt])
 }
 
 model StreamingClick {

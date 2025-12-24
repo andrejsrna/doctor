@@ -18,17 +18,34 @@ export default function LoginPage() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileKey, setTurnstileKey] = useState("");
   const [isDevelopment, setIsDevelopment] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
+    const siteKey = process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY || "";
+    console.log("Turnstile site key:", siteKey ? "SET" : "MISSING");
+    setTurnstileKey(siteKey);
+
+    const dev = process.env.NODE_ENV === "development";
+    setIsDevelopment(dev);
+    const localhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    setIsLocalhost(localhost);
+
+    const enforceLockout = !(dev || localhost);
+    if (!enforceLockout) {
+      localStorage.removeItem("loginAttempts");
+      localStorage.removeItem("lockoutTime");
+      return;
+    }
+
     const storedAttempts = localStorage.getItem("loginAttempts");
     const storedLockoutTime = localStorage.getItem("lockoutTime");
-    
+
     if (storedAttempts) {
       setAttempts(parseInt(storedAttempts));
     }
-    
+
     if (storedLockoutTime) {
       const lockout = parseInt(storedLockoutTime);
       if (Date.now() < lockout) {
@@ -39,11 +56,6 @@ export default function LoginPage() {
         localStorage.removeItem("lockoutTime");
       }
     }
-
-    const siteKey = process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY || "";
-    console.log("Turnstile site key:", siteKey ? "SET" : "MISSING");
-    setTurnstileKey(siteKey);
-    setIsDevelopment(process.env.NODE_ENV === 'development');
   }, []);
 
   useEffect(() => {
@@ -63,17 +75,20 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const enforceLockout = !(isDevelopment || isLocalhost);
     
-    if (isLocked) {
+    if (enforceLockout && isLocked) {
       setError(`Account is locked. Please try again in ${getRemainingTime()}`);
       return;
     }
     
-    if (attempts >= 5) {
+    if (enforceLockout && attempts >= 5) {
+      const lockout = Date.now() + 15 * 60 * 1000
       setIsLocked(true);
-      setLockoutTime(Date.now() + 15 * 60 * 1000);
+      setLockoutTime(lockout);
       localStorage.setItem("loginAttempts", attempts.toString());
-      localStorage.setItem("lockoutTime", lockoutTime.toString());
+      localStorage.setItem("lockoutTime", lockout.toString());
       setError("Too many failed attempts. Account locked for 15 minutes.");
       return;
     }
@@ -94,11 +109,13 @@ export default function LoginPage() {
       });
       
       if (error) {
-        setAttempts(prev => {
-          const newAttempts = prev + 1;
-          localStorage.setItem("loginAttempts", newAttempts.toString());
-          return newAttempts;
-        });
+        if (enforceLockout) {
+          setAttempts(prev => {
+            const newAttempts = prev + 1;
+            localStorage.setItem("loginAttempts", newAttempts.toString());
+            return newAttempts;
+          });
+        }
         setError("Invalid credentials");
       } else {
         localStorage.removeItem("loginAttempts");

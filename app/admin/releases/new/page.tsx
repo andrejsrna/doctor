@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import { useForm } from "react-hook-form"
@@ -30,6 +30,10 @@ export default function NewReleasePage() {
       slug: "",
       title: "",
       content: "",
+      releaseType: "NORMAL",
+      downloadFileUrl: "",
+      downloadFileKey: "",
+      downloadFileName: "",
       coverImageUrl: "",
       previewUrl: "",
       spotify: "",
@@ -50,11 +54,23 @@ export default function NewReleasePage() {
 
   const { setValue, handleSubmit, formState, watch } = form
   const title = watch("title")
+  const releaseType = watch("releaseType")
+  const prevReleaseTypeRef = useRef(releaseType)
 
   // Auto-slug when title changes (until user edits slug manually)
   useEffect(() => {
     if (!slugEdited) setValue("slug", slugify(title || ""))
   }, [title, slugEdited, setValue])
+
+  useEffect(() => {
+    const prev = prevReleaseTypeRef.current
+    prevReleaseTypeRef.current = releaseType
+    if (prev === "FREE_DOWNLOAD" && releaseType !== "FREE_DOWNLOAD") {
+      setValue("downloadFileUrl", "", { shouldDirty: true })
+      setValue("downloadFileKey", "", { shouldDirty: true })
+      setValue("downloadFileName", "", { shouldDirty: true })
+    }
+  }, [releaseType, setValue])
 
   const onSubmit = useCallback(async (values: ReleaseFormValues) => {
     try {
