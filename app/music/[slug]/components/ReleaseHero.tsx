@@ -16,6 +16,7 @@ interface ReleaseHeroProps {
   imageUrl: string | undefined
   beatportUrl: string | undefined
   youtubeUrl: string | undefined
+  soundcloudUrl?: string
   description: string
   gumroadUrl?: string
   slug: string
@@ -27,6 +28,7 @@ export default function ReleaseHero({
   imageUrl,
   beatportUrl,
   youtubeUrl,
+  soundcloudUrl,
   description,
   gumroadUrl,
   slug,
@@ -56,6 +58,9 @@ export default function ReleaseHero({
   }
 
   const isFreeDownload = releaseType === 'FREE_DOWNLOAD'
+  const soundcloudEmbedSrc = soundcloudUrl
+    ? `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`
+    : null
 
   return (
     <div className="relative flex items-center justify-center text-center px-4 pt-48 pb-24">
@@ -115,103 +120,117 @@ export default function ReleaseHero({
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           {isFreeDownload ? (
-            <form
-              className="w-full max-w-md grid grid-cols-1 sm:grid-cols-2 gap-3"
-              onSubmit={async (e) => {
-                e.preventDefault()
-                setDownloadError('')
-                if (!acceptPrivacy || !acceptNewsletter) {
-                  setDownloadStatus('error')
-                  setDownloadError('Please accept the privacy policy and newsletter subscription to continue.')
-                  return
-                }
-                setDownloadStatus('loading')
-                try {
-                  const res = await fetch(`/api/releases/${slug}/request-download`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      email: downloadEmail,
-                      acceptPrivacy,
-                      acceptNewsletter,
-                    }),
-                  })
-                  if (!res.ok) {
-                    const json = await res.json().catch(() => null)
-                    throw new Error(json?.error || 'Failed to send download email')
-                  }
-                  setDownloadStatus('sent')
-                } catch (err: unknown) {
-                  const message = err instanceof Error ? err.message : 'Failed to send download email'
-                  setDownloadError(message)
-                  setDownloadStatus('error')
-                }
-              }}
-            >
-              <input
-                type="email"
-                required
-                value={downloadEmail}
-                onChange={(e) => {
-                  setDownloadEmail(e.target.value)
-                  if (downloadStatus !== 'idle') setDownloadStatus('idle')
-                }}
-                placeholder="Enter your email to download"
-                className="sm:col-span-2 px-4 py-3 bg-black/60 border border-purple-500/30 rounded-lg text-white placeholder:text-gray-500"
-              />
-
-              <Button
-                type="submit"
-                variant="infected"
-                size="lg"
-                disabled={downloadStatus === 'loading' || downloadStatus === 'sent'}
-                className="justify-center"
-              >
-                {downloadStatus === 'sent' ? 'Email sent' : downloadStatus === 'loading' ? 'Sending…' : 'Get download link'}
-              </Button>
-
-              <div className="sm:col-span-2 text-left text-xs text-gray-300 space-y-2">
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={acceptPrivacy}
-                    onChange={(e) => {
-                      setAcceptPrivacy(e.target.checked)
-                      if (downloadStatus !== 'idle') setDownloadStatus('idle')
-                    }}
-                    className="mt-0.5 accent-purple-500"
-                    required
+            <div className="w-full max-w-md space-y-3">
+              {soundcloudEmbedSrc && (
+                <div className="w-full overflow-hidden rounded-xl border border-purple-500/20 bg-black/40">
+                  <iframe
+                    title="SoundCloud player"
+                    src={soundcloudEmbedSrc}
+                    className="w-full h-[300px]"
+                    allow="autoplay"
+                    loading="lazy"
                   />
-                  <span>
-                    I agree to the{' '}
-                    <Link href="/privacy-policy" className="underline text-purple-200 hover:text-purple-100">
-                      Privacy Policy
-                    </Link>
-                    .
-                  </span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={acceptNewsletter}
-                    onChange={(e) => {
-                      setAcceptNewsletter(e.target.checked)
-                      if (downloadStatus !== 'idle') setDownloadStatus('idle')
-                    }}
-                    className="mt-0.5 accent-purple-500"
-                    required
-                  />
-                  <span>Add me to the DnB Doctor newsletter (you can unsubscribe anytime).</span>
-                </label>
-              </div>
-              {(downloadStatus === 'sent' || downloadStatus === 'error') && (
-                <div className="sm:col-span-2 text-sm text-gray-300">
-                  {downloadStatus === 'sent'
-                    ? 'Check your inbox for the download link.'
-                    : downloadError || 'Something went wrong.'}
                 </div>
               )}
-            </form>
+
+              <form
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setDownloadError('')
+                  if (!acceptPrivacy || !acceptNewsletter) {
+                    setDownloadStatus('error')
+                    setDownloadError('Please accept the privacy policy and newsletter subscription to continue.')
+                    return
+                  }
+                  setDownloadStatus('loading')
+                  try {
+                    const res = await fetch(`/api/releases/${slug}/request-download`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        email: downloadEmail,
+                        acceptPrivacy,
+                        acceptNewsletter,
+                      }),
+                    })
+                    if (!res.ok) {
+                      const json = await res.json().catch(() => null)
+                      throw new Error(json?.error || 'Failed to send download email')
+                    }
+                    setDownloadStatus('sent')
+                  } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'Failed to send download email'
+                    setDownloadError(message)
+                    setDownloadStatus('error')
+                  }
+                }}
+              >
+                <input
+                  type="email"
+                  required
+                  value={downloadEmail}
+                  onChange={(e) => {
+                    setDownloadEmail(e.target.value)
+                    if (downloadStatus !== 'idle') setDownloadStatus('idle')
+                  }}
+                  placeholder="Enter your email to download"
+                  className="sm:col-span-2 px-4 py-3 bg-black/60 border border-purple-500/30 rounded-lg text-white placeholder:text-gray-500"
+                />
+
+                <Button
+                  type="submit"
+                  variant="infected"
+                  size="lg"
+                  disabled={downloadStatus === 'loading' || downloadStatus === 'sent'}
+                  className="justify-center"
+                >
+                  {downloadStatus === 'sent' ? 'Email sent' : downloadStatus === 'loading' ? 'Sending…' : 'Get download link'}
+                </Button>
+
+                <div className="sm:col-span-2 text-left text-xs text-gray-300 space-y-2">
+                  <label className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={acceptPrivacy}
+                      onChange={(e) => {
+                        setAcceptPrivacy(e.target.checked)
+                        if (downloadStatus !== 'idle') setDownloadStatus('idle')
+                      }}
+                      className="mt-0.5 accent-purple-500"
+                      required
+                    />
+                    <span>
+                      I agree to the{' '}
+                      <Link href="/privacy-policy" className="underline text-purple-200 hover:text-purple-100">
+                        Privacy Policy
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={acceptNewsletter}
+                      onChange={(e) => {
+                        setAcceptNewsletter(e.target.checked)
+                        if (downloadStatus !== 'idle') setDownloadStatus('idle')
+                      }}
+                      className="mt-0.5 accent-purple-500"
+                      required
+                    />
+                    <span>Add me to the DnB Doctor newsletter (you can unsubscribe anytime).</span>
+                  </label>
+                </div>
+                {(downloadStatus === 'sent' || downloadStatus === 'error') && (
+                  <div className="sm:col-span-2 text-sm text-gray-300">
+                    {downloadStatus === 'sent'
+                      ? 'Check your inbox for the download link.'
+                      : downloadError || 'Something went wrong.'}
+                  </div>
+                )}
+              </form>
+            </div>
           ) : gumroadUrl ? (
             <a
               href={gumroadUrl}

@@ -227,6 +227,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         imageUrl={imageUrl}
         beatportUrl={release.beatport || undefined}
         youtubeUrl={release.youtubeMusic || undefined}
+        soundcloudUrl={release.soundcloud || undefined}
         description={safeContent}
         gumroadUrl={release.gumroad || undefined}
         slug={slug}
