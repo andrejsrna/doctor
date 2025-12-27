@@ -9,6 +9,8 @@ export const ReleaseSchema = z.object({
   downloadFileKey: z.string().nullable().optional().or(z.literal("")),
   downloadFileName: z.string().nullable().optional().or(z.literal("")),
   coverImageUrl: z.string().url().nullable().optional().or(z.literal("")),
+  artworkImageUrl: z.string().url().nullable().optional().or(z.literal("")),
+  artworkImageKey: z.string().nullable().optional().or(z.literal("")),
   previewUrl: z.string().url().nullable().optional().or(z.literal("")),
   spotify: z.string().url().nullable().optional().or(z.literal("")),
   appleMusic: z.string().url().nullable().optional().or(z.literal("")),

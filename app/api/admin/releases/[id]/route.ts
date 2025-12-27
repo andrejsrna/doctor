@@ -39,6 +39,8 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
       downloadFileName: nullable(data.downloadFileName),
       coverImageUrl: nullable(data.coverImageUrl),
       coverImageKey: nullable(data.coverImageKey),
+      artworkImageUrl: nullable(data.artworkImageUrl),
+      artworkImageKey: nullable(data.artworkImageKey),
       previewUrl: nullable(data.previewUrl),
       spotify: nullable(data.spotify),
       appleMusic: nullable(data.appleMusic),

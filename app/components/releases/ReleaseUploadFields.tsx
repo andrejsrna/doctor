@@ -13,6 +13,7 @@ interface ReleaseUploadFieldsProps {
 
 export default function ReleaseUploadFields({ setValue, watch }: ReleaseUploadFieldsProps) {
   const coverInputRef = useRef<HTMLInputElement>(null)
+  const artworkInputRef = useRef<HTMLInputElement>(null)
   const previewInputRef = useRef<HTMLInputElement>(null)
   const downloadInputRef = useRef<HTMLInputElement>(null)
 
@@ -36,6 +37,13 @@ export default function ReleaseUploadFields({ setValue, watch }: ReleaseUploadFi
     setValue("downloadFileName", file.name || "", { shouldDirty: true })
   }
 
+  const handleArtworkUpload = async (file: File) => {
+    const slug = watch("slug") || ""
+    const { url, key } = await uploadFileWithMeta({ file, kind: "artwork", slug })
+    setValue("artworkImageUrl", url || "", { shouldDirty: true })
+    setValue("artworkImageKey", key || "", { shouldDirty: true })
+  }
+
   const isFreeDownload = watch("releaseType") === "FREE_DOWNLOAD"
 
   return (
@@ -47,6 +55,18 @@ export default function ReleaseUploadFields({ setValue, watch }: ReleaseUploadFi
         value={watch("coverImageUrl") || ""}
         onChange={(v: string) => setValue("coverImageUrl", v, {shouldDirty: true})}
         onFile={(f: File) => handleUpload(f, "cover")} 
+      />
+
+      <DropZone
+        label="Artwork Image URL"
+        accept="image/*"
+        inputRef={artworkInputRef}
+        value={watch("artworkImageUrl") || ""}
+        onChange={(v: string) => {
+          setValue("artworkImageUrl", v, { shouldDirty: true })
+          setValue("artworkImageKey", "", { shouldDirty: true })
+        }}
+        onFile={handleArtworkUpload}
       />
 
       <DropZone 

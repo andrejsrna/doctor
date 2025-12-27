@@ -20,7 +20,7 @@ export async function uploadFile(opts: {file: File; kind: "cover"|"preview"; slu
   return data?.url as string
 }
 
-export async function uploadFileWithMeta(opts: { file: File; kind: "cover" | "preview" | "download"; slug: string }) {
+export async function uploadFileWithMeta(opts: { file: File; kind: "cover" | "preview" | "download" | "artwork"; slug: string }) {
   const body = new FormData()
   body.append("file", opts.file)
   body.append("kind", opts.kind)

@@ -35,6 +35,8 @@ export default function NewReleasePage() {
       downloadFileKey: "",
       downloadFileName: "",
       coverImageUrl: "",
+      artworkImageUrl: "",
+      artworkImageKey: "",
       previewUrl: "",
       spotify: "",
       appleMusic: "",

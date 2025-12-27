@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion'
 import Image from 'next/image'
-import { FaYoutube, FaHeadphonesAlt } from 'react-icons/fa'
+import { FaYoutube, FaHeadphonesAlt, FaDownload } from 'react-icons/fa'
 import Button from '@/app/components/Button'
 import { trackStreamingClick } from '@/app/utils/analytics'
 import OutboundInterstitial, { getOutboundDismissed } from '@/app/components/OutboundInterstitial'
@@ -17,7 +17,9 @@ interface ReleaseHeroProps {
   beatportUrl: string | undefined
   youtubeUrl: string | undefined
   soundcloudUrl?: string
-  description: string
+  artworkUrl?: string
+  descriptionExcerptInlineHtml: string
+  showReadFullStory?: boolean
   gumroadUrl?: string
   slug: string
   releaseType?: 'NORMAL' | 'FREE_DOWNLOAD'
@@ -29,7 +31,9 @@ export default function ReleaseHero({
   beatportUrl,
   youtubeUrl,
   soundcloudUrl,
-  description,
+  artworkUrl,
+  descriptionExcerptInlineHtml,
+  showReadFullStory,
   gumroadUrl,
   slug,
   releaseType,
@@ -63,7 +67,7 @@ export default function ReleaseHero({
     : null
 
   return (
-    <div className="relative flex items-center justify-center text-center px-4 pt-48 pb-24">
+    <div className="relative flex items-center justify-center text-center px-4 pt-32 pb-24">
       {imageUrl && (
         <>
           {/* Blur placeholder */}
@@ -105,19 +109,28 @@ export default function ReleaseHero({
           dangerouslySetInnerHTML={{ __html: title }}
         />
 
-        <motion.div
+        <motion.p
           initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
           animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
           transition={shouldReduce ? undefined : { delay: 0.1, type: 'spring', stiffness: 300 }}
-          className="prose prose-invert prose-lg text-gray-300 mx-auto"
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
+          className="text-xl md:text-2xl text-gray-200 mx-auto leading-relaxed pl-2 sm:pl-3 [&_a]:underline [&_a]:text-purple-200/90 hover:[&_a]:text-purple-100 [&_strong]:text-white [&_em]:text-gray-100"
+        >
+          <span dangerouslySetInnerHTML={{ __html: descriptionExcerptInlineHtml }} />
+          {showReadFullStory && (
+            <>
+              {' '}
+              <a href="#full-story" className="inline text-base md:text-lg text-purple-200/80 hover:text-purple-100 underline">
+              Read full story
+              </a>
+            </>
+          )}
+        </motion.p>
 
         <motion.div
           initial={shouldReduce ? undefined : { opacity: 0, scale: 0.8 }}
           animate={shouldReduce ? undefined : { opacity: 1, scale: 1 }}
           transition={shouldReduce ? undefined : { delay: 0.2, type: 'spring', stiffness: 300 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-4"
         >
           {isFreeDownload ? (
             <div className="w-full max-w-md space-y-3">
@@ -244,7 +257,7 @@ export default function ReleaseHero({
               </Button>
             </a>
           ) : (
-            <>
+            <div className="flex flex-row items-center justify-center gap-3 flex-wrap">
               {youtubeUrl && (
                 <a 
                   href={youtubeUrl} 
@@ -252,7 +265,11 @@ export default function ReleaseHero({
                   rel="noopener noreferrer"
                   onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e)}
                 >
-                  <Button variant="toxic" size="lg" className="group">
+                  <Button
+                    variant="toxic"
+                    size="lg"
+                    className="group from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
+                  >
                     <FaYoutube className="w-6 h-6 mr-3" />
                     Listen on YouTube
                   </Button>
@@ -277,7 +294,21 @@ export default function ReleaseHero({
                   </Button>
                 </a>
               )}
-            </>
+            </div>
+          )}
+
+          {artworkUrl && (
+            <div className="w-full flex justify-center pt-1">
+              <a
+                href={artworkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/0 hover:bg-white/5 text-white/60 hover:text-white/75 backdrop-blur-sm transition-colors"
+              >
+                <FaDownload className="w-4 h-4" />
+                <span className="text-sm font-medium">Download Cover Art For Free</span>
+              </a>
+            </div>
           )}
         </motion.div>
       </div>

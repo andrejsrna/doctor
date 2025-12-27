@@ -263,6 +263,8 @@ model Release {
   content        String?  @db.Text
   coverImageUrl  String?
   coverImageKey  String?
+  artworkImageUrl String?
+  artworkImageKey String?
   previewUrl     String?
   releaseType    ReleaseType @default(NORMAL)
   downloadFileUrl  String?

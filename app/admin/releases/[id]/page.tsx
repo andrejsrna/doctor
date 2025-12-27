@@ -40,6 +40,8 @@ export default function ReleaseDetailPage() {
       downloadFileKey: "",
       downloadFileName: "",
       coverImageUrl: "",
+      artworkImageUrl: "",
+      artworkImageKey: "",
       previewUrl: "",
       spotify: "",
       appleMusic: "",

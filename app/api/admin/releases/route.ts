@@ -62,6 +62,8 @@ export async function POST(request: NextRequest) {
       downloadFileName: data.downloadFileName || null,
       coverImageUrl: data.coverImageUrl || null,
       coverImageKey: data.coverImageKey || null,
+      artworkImageUrl: data.artworkImageUrl || null,
+      artworkImageKey: data.artworkImageKey || null,
       previewUrl: data.previewUrl || null,
       spotify: data.spotify || null,
       appleMusic: data.appleMusic || null,
@@ -115,6 +117,8 @@ export async function PATCH(request: NextRequest) {
       downloadFileName: nullable(data.downloadFileName),
       coverImageUrl: nullable(data.coverImageUrl),
       coverImageKey: nullable(data.coverImageKey),
+      artworkImageUrl: nullable(data.artworkImageUrl),
+      artworkImageKey: nullable(data.artworkImageKey),
       previewUrl: nullable(data.previewUrl),
       spotify: nullable(data.spotify),
       appleMusic: nullable(data.appleMusic),
@@ -160,4 +164,3 @@ export async function DELETE(request: NextRequest) {
   await prisma.release.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
-

@@ -8,7 +8,7 @@ import StreamingLinks from './components/StreamingLinks'
 import InfectionDivider from './components/InfectionDivider'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
-import { getReleaseImageUrl } from '@/app/utils/index'
+import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 
 export const revalidate = 300
 
@@ -16,6 +16,20 @@ const SocialShare = dynamic(() => import('@/app/components/SocialShare'))
 const BulkSalePromo = dynamic(() => import('@/app/components/BulkSalePromo'))
 const MoreFromArtist = dynamic(() => import('@/app/components/MoreFromArtist'))
 const RelatedNews = dynamic(() => import('@/app/components/RelatedNews'))
+
+function escapeHtml(text: string) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+function getFirstSentences(text: string, count: number) {
+  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean)
+  if (sentences.length === 0) return text
+  if (sentences.length <= count) return sentences.join(' ')
+  return sentences.slice(0, count).join(' ')
+}
 
 export async function generateStaticParams() {
   const items = await prisma.release.findMany({
@@ -87,6 +101,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   if (!release) return notFound()
 
   const imageUrl = getReleaseImageUrl({ coverImageUrl: release.coverImageUrl, coverImageKey: release.coverImageKey })
+  const artworkUrl = getArtworkImageUrl({ artworkImageUrl: release.artworkImageUrl, artworkImageKey: release.artworkImageKey })
 
   const streamingLinks: StreamingLink[] = [
     { name: 'Spotify', url: release.spotify || undefined, icon: 'spotify', color: 'text-green-400', bgColor: 'bg-green-500/10 hover:bg-green-500/20', priority: 3 },
@@ -101,6 +116,10 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   const safeTitle = sanitizeHtml(release.title)
   const safeContent = sanitizeHtml(release.content || '')
+  const plainDescription = safeContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+  const excerptPlain = getFirstSentences(plainDescription, 2)
+  const descriptionExcerptInlineHtml = escapeHtml(excerptPlain)
+  const hasMoreStory = plainDescription.length > excerptPlain.length + 5
   const cleanDescription = safeContent.replace(/<[^>]+>/g, '').slice(0, 200)
   const artistName = release.artistName || 'DnB Doctor'
 
@@ -228,7 +247,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         beatportUrl={release.beatport || undefined}
         youtubeUrl={release.youtubeMusic || undefined}
         soundcloudUrl={release.soundcloud || undefined}
-        description={safeContent}
+        artworkUrl={artworkUrl}
+        descriptionExcerptInlineHtml={descriptionExcerptInlineHtml}
+        showReadFullStory={hasMoreStory}
         gumroadUrl={release.gumroad || undefined}
         slug={slug}
         releaseType={release.releaseType}
@@ -238,6 +259,16 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
           {release.releaseType !== "FREE_DOWNLOAD" && !release.gumroad && (
             <StreamingLinks links={streamingLinks} gumroadUrl={release.gumroad || undefined} slug={slug} />
+          )}
+
+          {!!plainDescription && (
+            <section id="full-story" className="space-y-4 scroll-mt-28">
+              <h2 className="text-2xl font-bold text-white">Full story</h2>
+              <div
+                className="prose prose-invert prose-xl md:prose-2xl text-gray-200 max-w-none"
+                dangerouslySetInnerHTML={{ __html: safeContent }}
+              />
+            </section>
           )}
 
           <InfectionDivider />

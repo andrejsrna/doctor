@@ -3,12 +3,12 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import Image from 'next/image'
 import { FaHeadphonesAlt, FaAngleRight, FaSpotify, FaApple, FaDeezer, FaSoundcloud, FaDownload } from 'react-icons/fa'
-import Button from '@/app/components/Button'
 import OutboundInterstitial, { getOutboundDismissed } from '@/app/components/OutboundInterstitial'
 import { useState } from 'react'
 import { ENABLE_OUTBOUND_INTERSTITIAL } from '@/app/utils/flags'
 import { StreamingLink } from '@/app/types/release'
 import { trackStreamingClick } from '@/app/utils/analytics'
+import Button from '@/app/components/Button'
 
 interface StreamingLinksProps {
   links: StreamingLink[]
@@ -66,9 +66,7 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
       className="space-y-6"
     >
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2">
-          Select Your Favorite Service
-        </h2>
+        <h2 className="text-3xl font-bold mb-2">Where to listen</h2>
         <p className="text-gray-400">
           Listen or download on your preferred platform.
         </p>
@@ -88,23 +86,18 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
                 href={platform.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block"
+                className={`block group rounded-lg border border-white/10 backdrop-blur-sm transition-colors ${platform.bgColor}`}
                 onClick={(e) => handleStreamingClick(platform.name, platform.url!, e)}
               >
-                <Button
-                  variant="infected"
-                  className="w-full group !p-3 !justify-start"
-                >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-8 h-8 flex items-center justify-center">{renderIcon(platform.icon)}</div>
-
-                    <span className="font-semibold text-md text-left flex-grow">
-                      {platform.name}
-                    </span>
-
-                    <FaAngleRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                <div className="w-full p-3 flex items-center gap-3">
+                  <div className={`w-8 h-8 flex items-center justify-center ${platform.color}`}>
+                    {renderIcon(platform.icon)}
                   </div>
-                </Button>
+
+                  <span className={`font-semibold text-md text-left flex-grow ${platform.color}`}>{platform.name}</span>
+
+                  <FaAngleRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity text-white/70" />
+                </div>
               </a>
             </motion.div>
           ))}

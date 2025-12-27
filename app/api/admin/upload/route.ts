@@ -35,10 +35,10 @@ export async function POST(request: NextRequest) {
   validateAdminOrigin(request)
   const maxSizeBytes = kind === "download" ? 250 * 1024 * 1024 : 25 * 1024 * 1024
   if (file.size > maxSizeBytes) return NextResponse.json({ error: "File too large" }, { status: 413 })
-  const allowedKinds = new Set(["asset", "image", "audio", "cover", "preview", "download"])
+  const allowedKinds = new Set(["asset", "image", "audio", "cover", "preview", "download", "artwork"])
   if (!allowedKinds.has(kind)) return NextResponse.json({ error: "Invalid kind" }, { status: 400 })
   const allowedContent =
-    kind === 'image' || kind === 'cover' ? /^image\// :
+    kind === 'image' || kind === 'cover' || kind === 'artwork' ? /^image\// :
     kind === 'audio' || kind === 'preview' ? /^audio\// : /^(image|audio)\//
   if (kind === "download") {
     if (file.type && !/^(application\/|audio\/|video\/|image\/)/.test(file.type)) {
