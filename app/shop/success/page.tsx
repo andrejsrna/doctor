@@ -1,9 +1,12 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export const revalidate = 0
 
 export default async function ShopSuccessPage({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
+  if (!isShopEnabled()) notFound()
   const sp = await searchParams
   const sessionId = sp.session_id || ''
 
@@ -45,4 +48,3 @@ export default async function ShopSuccessPage({ searchParams }: { searchParams: 
     </div>
   )
 }
-

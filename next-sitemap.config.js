@@ -5,7 +5,7 @@ module.exports = {
   changefreq: 'daily',
   priority: 0.7,
   sitemapSize: 5000,
-  exclude: ['/unsub', '/api/*'],
+  exclude: ['/unsub', '/api/*', '/shop', '/shop/*'],
   generateIndexSitemap: true,
   additionalPaths: async () => {
     // Add dynamic paths

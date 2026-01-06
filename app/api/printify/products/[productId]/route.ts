@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPrintifyProduct, resolvePrintifyShopId, PrintifyError } from '@/lib/printify'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest, context: { params: Promise<{ productId: string }> }) {
+  if (!isShopEnabled()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   try {
     const { productId } = await context.params
     const { searchParams } = new URL(request.url)
@@ -23,4 +25,3 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pro
     )
   }
 }
-

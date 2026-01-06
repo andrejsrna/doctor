@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getStripe, getBaseUrl } from '@/lib/stripe'
 import { estimatePrintifyStandardShippingCents, getPrintifyProduct, resolvePrintifyShopId } from '@/lib/printify'
 import type Stripe from 'stripe'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export const runtime = 'nodejs'
 
@@ -15,6 +16,7 @@ const CreateCheckoutSchema = z.object({
 })
 
 export async function POST(request: NextRequest) {
+  if (!isShopEnabled()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   try {
     const body = await request.json()
     const parsed = CreateCheckoutSchema.safeParse(body)

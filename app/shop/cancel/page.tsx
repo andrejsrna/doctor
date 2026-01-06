@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export default function ShopCancelPage() {
+  if (!isShopEnabled()) notFound()
   return (
     <div className="min-h-screen bg-black text-white">
       <section className="max-w-2xl mx-auto px-4 py-20 space-y-6">
@@ -13,4 +16,3 @@ export default function ShopCancelPage() {
     </div>
   )
 }
-

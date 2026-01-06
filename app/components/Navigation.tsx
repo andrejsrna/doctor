@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import ListenMenu from './ListenMenu'
 import SearchModal from './SearchModal'
+import { isShopEnabled } from '@/app/utils/shop'
 
 // removed old ListenNowButton modal trigger in favor of ListenMenu
 
@@ -88,6 +89,7 @@ export default function Navigation() {
     { title: 'Newsletter', href: '/newsletter' },
     { title: 'Submit demo', href: '/submit-demo' },
   ]
+  const visibleMenuItems = isShopEnabled() ? menuItems : menuItems.filter((item) => item.href !== '/shop')
 
   const musicSubmenuItems = [
     { title: 'All Releases', href: '/music' },
@@ -146,7 +148,7 @@ export default function Navigation() {
                   </div>
                 </div>
                 
-                {menuItems.map((item) => (
+                {visibleMenuItems.map((item) => (
                   <Link
                     key={item.title}
                     href={item.href}
@@ -223,7 +225,7 @@ export default function Navigation() {
                 </div>
               </div>
               
-              {menuItems.map((item) => (
+              {visibleMenuItems.map((item) => (
                 <Link
                   key={item.title}
                   href={item.href}
@@ -290,7 +292,7 @@ export default function Navigation() {
               ))}
             </div>
             
-            {menuItems.map((item) => (
+            {visibleMenuItems.map((item) => (
               <Link
                 key={item.title}
                 href={item.href}

@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { getPrintifyProduct, resolvePrintifyShopId, type PrintifyProduct } from '@/lib/printify'
 import ProductGallery from '@/app/shop/ProductGallery'
 import { sanitizeHtml } from '@/lib/sanitize'
 import VariantPicker from '@/app/shop/VariantPicker'
 import TrustBadges from '@/app/shop/TrustBadges'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export const revalidate = 300
 
@@ -43,6 +45,13 @@ export async function generateMetadata({
   params: Promise<{ productId: string }>
   searchParams: Promise<{ shopId?: string }>
 }): Promise<Metadata> {
+  if (!isShopEnabled()) {
+    return {
+      title: 'Shop | DnB Doctor',
+      description: 'DnB Doctor merch — printed on demand and shipped to you.',
+      robots: { index: false, follow: false },
+    }
+  }
   const { productId } = await params
   const sp = await searchParams
 
@@ -91,6 +100,7 @@ export default async function ShopProductPage({
   params: Promise<{ productId: string }>
   searchParams: Promise<{ shopId?: string }>
 }) {
+  if (!isShopEnabled()) notFound()
   const { productId } = await params
   const sp = await searchParams
   const shopId = await resolvePrintifyShopId(sp.shopId ? Number(sp.shopId) : null)

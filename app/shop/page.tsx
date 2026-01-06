@@ -1,8 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { listPrintifyProducts, listPrintifyShops, resolvePrintifyShopId, type PrintifyProduct } from '@/lib/printify'
 import TrustBadges from '@/app/shop/TrustBadges'
+import { isShopEnabled } from '@/app/utils/shop'
 
 export const revalidate = 300
 
@@ -37,6 +39,7 @@ function stripHtml(input: string): string {
 }
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<{ shopId?: string }> }) {
+  if (!isShopEnabled()) notFound()
   const sp = await searchParams
   const requestedShopId = sp.shopId ? Number(sp.shopId) : null
 
