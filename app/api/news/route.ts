@@ -6,12 +6,17 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '12')
   const search = (searchParams.get('search') || '').trim()
+  const category = (searchParams.get('category') || '').trim()
 
-  const where: { OR?: Array<{ title?: { contains: string; mode: 'insensitive' }, content?: { contains: string; mode: 'insensitive' } }> } = {}
+  const where: {
+    OR?: Array<{ title?: { contains: string; mode: 'insensitive' }, content?: { contains: string; mode: 'insensitive' } }>
+    categories?: { has: string }
+  } = {}
   if (search) where.OR = [
     { title: { contains: search, mode: 'insensitive' as const } },
     { content: { contains: search, mode: 'insensitive' as const } },
   ]
+  if (category) where.categories = { has: category }
 
   const skip = (page - 1) * limit
   const [items, total] = await Promise.all([
@@ -36,4 +41,3 @@ export async function GET(request: NextRequest) {
   res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400')
   return res
 }
-

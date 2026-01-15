@@ -111,20 +111,29 @@ const getPlatformColor = (type: string) => {
   }
 }
 
+const splitBenefits = (benefits: string) =>
+  benefits
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+
 export default function ListenNow() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-24 md:py-28 px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30" />
 
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-14 md:mb-16"
         >
+          <p className="text-sm uppercase tracking-[0.2em] text-purple-300 mb-4">
+            Listen &amp; Follow
+          </p>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">
               Listen Now
@@ -135,7 +144,7 @@ export default function ListenNow() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {platforms.map((platform, index) => (
             <motion.div
               key={platform.id}
@@ -144,59 +153,63 @@ export default function ListenNow() {
               transition={{ duration: 0.8, delay: index * 0.1 }}
               className="relative group"
             >
-              <div className="relative bg-gradient-to-br from-purple-900/20 via-black/40 to-green-900/20 rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 overflow-hidden h-full flex flex-col">
+              <div className="relative bg-gradient-to-br from-purple-900/15 via-black/35 to-green-900/15 rounded-3xl p-8 border border-white/10 hover:border-purple-500/30 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 <div className="relative z-10 flex-1 flex flex-col">
-                  {platform.imageUrl ? (
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500 to-green-500 p-1 flex-shrink-0">
-                        <Image
-                          src={platform.imageUrl}
-                          alt={platform.title}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover rounded-lg"
-                          sizes="64px"
-                          quality={85}
-                        />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors break-words">
-                          {platform.title}
-                        </h3>
+                  <div className="flex items-start gap-5 mb-6">
+                    <div className="relative w-[72px] h-[72px] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-500/80 to-green-500/70 p-[1px] flex-shrink-0">
+                      <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center overflow-hidden">
+                        {platform.imageUrl ? (
+                          <Image
+                            src={platform.imageUrl}
+                            alt={platform.title}
+                            width={72}
+                            height={72}
+                            className="w-full h-full object-cover"
+                            sizes="72px"
+                            quality={85}
+                          />
+                        ) : (
+                          <div className="text-purple-200">{getIcon(platform.icon)}</div>
+                        )}
                       </div>
                     </div>
-                  ) : (
-                    <div className="mb-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="text-purple-400">
-                          {getIcon(platform.icon)}
-                        </div>
-                        <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
-                          {platform.title}
-                        </h3>
-                      </div>
-                    </div>
-                  )}
 
-                  <p className="text-gray-300 text-sm mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-purple-200 transition-colors break-words leading-snug">
+                        {platform.title}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {platform.isExternal ? 'External platform' : 'On DnB Doctor'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-200 text-sm leading-relaxed mb-5 line-clamp-3">
                     {platform.description}
                   </p>
 
-                  <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-3 mb-4">
-                    <p className="text-gray-400 text-xs">
-                      <span className="text-purple-400 font-semibold">Benefits: </span>
-                      {platform.benefits}
-                    </p>
+                  <div className="mb-7">
+                    <p className="text-purple-300/90 text-xs uppercase tracking-[0.2em] mb-3">Highlights</p>
+                    <ul className="text-gray-300 text-sm space-y-2">
+                      {splitBenefits(platform.benefits)
+                        .slice(0, 3)
+                        .map((b) => (
+                          <li key={b} className="flex items-start gap-2">
+                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-green-400 flex-shrink-0" />
+                            <span className="leading-relaxed">{b}</span>
+                          </li>
+                        ))}
+                    </ul>
                   </div>
 
                   <Link
                     href={platform.url}
                     target={platform.isExternal ? "_blank" : undefined}
                     rel={platform.isExternal ? "noopener noreferrer" : undefined}
-                    className={`inline-flex items-center justify-center gap-2 bg-gradient-to-r ${getPlatformColor(platform.icon)} text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg mt-auto`}
+                    className={`inline-flex items-center justify-center gap-2 bg-gradient-to-r ${getPlatformColor(platform.icon)} text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 hover:shadow-[0_14px_40px_rgba(0,0,0,0.45)] mt-auto`}
                   >
                     <span className="text-sm">
                       {getIcon(platform.icon)}
@@ -205,7 +218,7 @@ export default function ListenNow() {
                   </Link>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-green-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-green-500 opacity-60" />
               </div>
             </motion.div>
           ))}
@@ -215,7 +228,7 @@ export default function ListenNow() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-12"
+          className="text-center mt-14"
         >
           <p className="text-gray-400 text-sm">
             Follow us on all platforms to stay updated with the latest neurofunk releases and exclusive content
@@ -225,4 +238,3 @@ export default function ListenNow() {
     </section>
   )
 }
-

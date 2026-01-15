@@ -1,5 +1,8 @@
 import Hero from './components/Hero'
 import LatestMusic from './components/LatestMusic'
+import MusicPacksSection from './components/MusicPacksSection'
+import SamplePacksSection from './components/SamplePacksSection'
+import NeurofunkDnBMixesSection from './components/NeurofunkDnBMixesSection'
 import WhatIsNeurofunk from './components/WhatIsNeurofunk'
 import BookUsSection from './components/BookUsSection'
 import FeaturedArtists from './components/FeaturedArtists'
@@ -12,6 +15,15 @@ export default function Home() {
       <Hero />
       <Suspense fallback={<div style={{height: 600}} />}> 
         <LatestMusic />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 600}} />}>
+        <MusicPacksSection />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 600}} />}>
+        <SamplePacksSection />
+      </Suspense>
+      <Suspense fallback={<div style={{height: 520}} />}>
+        <NeurofunkDnBMixesSection />
       </Suspense>
       <Suspense fallback={<div style={{height: 400}} />}> 
         <ListenNow />
