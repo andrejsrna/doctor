@@ -9,6 +9,7 @@ import InfectionDivider from './components/InfectionDivider'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
+import ReleaseViewTracker from './components/ReleaseViewTracker'
 
 export const revalidate = 300
 
@@ -237,6 +238,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   return (
     <section>
+      <ReleaseViewTracker slug={slug} title={release.title} />
       <noscript>
         <div className="px-4 py-6 text-center text-gray-300">Enable JavaScript to view this page.</div>
       </noscript>
