@@ -14,7 +14,7 @@ export default function HowToProduceNeurofunkPage() {
         <div className="absolute inset-0">
           <Image
             src="/music-bg.jpeg"
-            alt="How to Produce Neurofunk"
+            alt="How to Make Neurofunk"
             fill
             className="object-cover"
             priority
@@ -40,7 +40,7 @@ export default function HowToProduceNeurofunkPage() {
             
             <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-green-500">
-                How to Produce
+                How to Make
               </span><br />
               <span className="text-white">Neurofunk</span>
             </h1>
@@ -598,4 +598,3 @@ export default function HowToProduceNeurofunkPage() {
     </div>
   )
 }
-

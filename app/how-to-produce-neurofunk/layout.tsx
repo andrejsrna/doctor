@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'How to Produce Neurofunk | Sound Design & Drum and Bass Production Guide',
+  title: 'How to Make Neurofunk | Sound Design & Drum and Bass Production Guide',
   description: 'Learn how to produce neurofunk – from bass design and drum programming to arrangement, mixing, and mastering. Complete neurofunk production guide for DnB producers.',
-  keywords: 'how to produce neurofunk, neurofunk production, neurofunk bass tutorial, neurofunk sound design, make neurofunk bass, neurofunk drums, dnb production',
+  keywords: 'how to make neurofunk, how to produce neurofunk, neurofunk production, neurofunk bass tutorial, neurofunk sound design, make neurofunk bass, neurofunk drums, dnb production',
   openGraph: {
-    title: 'How to Produce Neurofunk | Sound Design & Drum and Bass Production Guide',
+    title: 'How to Make Neurofunk | Sound Design & Drum and Bass Production Guide',
     description: 'Learn how to produce neurofunk – from bass design and drum programming to arrangement, mixing, and mastering. Complete neurofunk production guide for DnB producers.',
     type: 'article',
     url: 'https://dnbdoctor.com/how-to-produce-neurofunk',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'How to Produce Neurofunk | Sound Design & Drum and Bass Production Guide',
+    title: 'How to Make Neurofunk | Sound Design & Drum and Bass Production Guide',
     description: 'Learn how to produce neurofunk – from bass design and drum programming to arrangement, mixing, and mastering.',
     images: ['/music-bg.jpeg'],
   },
@@ -47,4 +47,3 @@ export default function HowToProduceNeurofunkLayout({
 }) {
   return children
 }
-

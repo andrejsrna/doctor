@@ -147,6 +147,7 @@ export default function Footer() {
                 { href: '/about', text: 'About Us' },
                 { href: '/contact', text: 'Contact' },
                 { href: '/neurofunk-labels', text: 'Neurofunk Labels' },
+                { href: '/how-to-produce-neurofunk', text: 'How to Make Neurofunk' },
                 { href: '/privacy-policy', text: 'Privacy Policy' },
                 { href: '/terms', text: 'Terms & Conditions' }
               ].map((link) => (
