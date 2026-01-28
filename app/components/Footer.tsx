@@ -145,6 +145,7 @@ export default function Footer() {
             >
               {[
                 { href: '/about', text: 'About Us' },
+                { href: '/core-artists', text: 'Core Artists' },
                 { href: '/contact', text: 'Contact' },
                 { href: '/neurofunk-labels', text: 'Neurofunk Labels' },
                 { href: '/how-to-produce-neurofunk', text: 'How to Make Neurofunk' },

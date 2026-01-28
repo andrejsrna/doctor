@@ -7,6 +7,8 @@ import Script from 'next/script'
 import Button from '@/app/components/Button'
 import LatestMusic from '@/app/components/LatestMusic'
 import EngagementCTA from '@/app/components/EngagementCTA'
+import SpotifyPlaylistsSection from '@/app/components/SpotifyPlaylistsSection'
+import { dnbDoctorSpotifyPlaylists } from '@/app/components/data/spotifyPlaylists'
 import { FaSpotify, FaYoutube, FaInstagram } from 'react-icons/fa'
 
 const faqs = [
@@ -288,77 +290,19 @@ export default function NeurofunkDnbPage() {
         </div>
       </section>
 
-      {/* Playlist & Toolkit Section */}
-      <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-6xl mx-auto relative z-10 grid gap-12 md:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Stream the Neurofunk Pulse Playlist
-            </h2>
-            <p className="text-gray-300 text-lg mb-4">
-              Updated monthly with DnB Doctor releases, underground Czech cuts, and new-school neurofunk anthems. It&apos;s the fastest way to hear what we&apos;re working on before it hits festivals.
-            </p>
-            <ul className="space-y-3 text-gray-300 mb-8">
-              <li className="flex gap-3">
-                <span className="text-green-400">•</span>
-                <span>Hand-picked tracks from Prague, Vienna, and the broader EU neuro circuit.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-green-400">•</span>
-                <span>Exclusive previews of forthcoming DnB Doctor releases.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-green-400">•</span>
-                <span>Linked production notes so you can reverse-engineer the sound.</span>
-              </li>
-            </ul>
-            <div className="flex flex-wrap gap-4">
-              <Button href="/neurofunk-spotify" variant="toxic">
-                Listen on Spotify
-              </Button>
-              <Button href="/how-to-produce-neurofunk" variant="infected">
-                Sound Design Tips
-              </Button>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/20 via-black to-black p-6 h-full flex flex-col justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-green-200 mb-4">Exclusive Preview</p>
-                <h3 className="text-2xl font-semibold mb-4 text-white">Neurofunk Pulse – March 2025</h3>
-                <p className="text-gray-200 mb-6">
-                  Featuring Yehor, Asana, Razerbeam, and Darkshire affiliates. Save it, share it, and tag us when you drop it into your next set.
-                </p>
-              </div>
-              <div className="bg-black/60 border border-green-500/30 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between text-gray-300 text-sm">
-                  <span>Runtime</span>
-                  <span>58:12</span>
-                </div>
-                <div className="flex justify-between text-gray-300 text-sm">
-                  <span>New IDs</span>
-                  <span>7 unreleased</span>
-                </div>
-                <div className="w-full h-1 bg-green-500/20 rounded-full overflow-hidden">
-                  <div className="h-full w-3/4 bg-gradient-to-r from-green-500 to-pink-500" />
-                </div>
-                <p className="text-gray-400 text-xs">
-                  Want your track featured? Submit a private link via the demo portal and mention the playlist in your message.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <SpotifyPlaylistsSection
+        title={
+          <>
+            Stream our <span className="text-green-500">Spotify</span> Playlists
+          </>
+        }
+        description="Curated neurofunk selections from DNB Doctor — updated regularly with dark rollers, surgical tech, and underground cuts."
+        playlists={dnbDoctorSpotifyPlaylists}
+        ctas={[
+          { href: '/neurofunk-spotify', label: 'All Playlists', variant: 'toxic' },
+          { href: 'https://open.spotify.com/user/dnbdoctor', label: 'Follow', variant: 'infected', external: true },
+        ]}
+      />
 
       {/* Latest Releases Section */}
       <LatestMusic />
