@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Cookies from 'js-cookie'
 import { FaSkull, FaSyringe, FaShieldVirus } from 'react-icons/fa'
@@ -14,23 +14,96 @@ type CookieSettings = {
 const COOKIE_CONSENT_KEY = 'cookie-consent'
 const LS_CONSENT_KEY = 'dd-cookie-consent'
 const COOKIE_EXPIRY_DAYS = 365
+const DEFAULT_GOOGLE_ADS_ID = 'AW-16864411727'
 
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handler = () => setIsVisible(true)
+    window.addEventListener('dd-open-cookie-settings', handler)
+    return () => window.removeEventListener('dd-open-cookie-settings', handler)
+  }, [])
+
+  const ensureGtagReady = useCallback((idForScriptLoad: string) => {
+    if (typeof window === 'undefined') return
+    if (!idForScriptLoad) return
+
+    window.dataLayer = window.dataLayer || []
+    window.gtag =
+      window.gtag ||
+      function gtag(...args: unknown[]) {
+        window.dataLayer?.push(args)
+      }
+
+    if (!window.__ddGtagInitialized) {
+      window.gtag('js', new Date())
+      window.__ddGtagInitialized = true
+    }
+
+    const existing = document.querySelector('script[src^="https://www.googletagmanager.com/gtag/js"]')
+    if (!existing) {
+      const src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(idForScriptLoad)}`
+      const s = document.createElement('script')
+      s.async = true
+      s.src = src
+      document.head.appendChild(s)
+    }
+  }, [])
+
+  const loadGoogleAnalytics = useCallback(() => {
+    if (typeof window === 'undefined') return
+    const gaId = process.env.NEXT_PUBLIC_GA_ID
+    if (!gaId) return
+    ensureGtagReady(gaId)
+    window.gtag?.('config', gaId, { page_title: document.title, page_location: window.location.href })
+  }, [ensureGtagReady])
+
+  const loadGoogleAds = useCallback(() => {
+    if (typeof window === 'undefined') return
+    const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || DEFAULT_GOOGLE_ADS_ID
+    if (!adsId) return
+    ensureGtagReady(adsId)
+    window.gtag?.('config', adsId)
+  }, [ensureGtagReady])
+
   // Optimalizovaná funkcia pre správu analytických nástrojov
-  const handleAnalyticsTools = (settings: CookieSettings) => {
+  const handleAnalyticsTools = useCallback((settings: CookieSettings) => {
     if (typeof window === 'undefined') return
 
     // Google Analytics
-    const gaKey = `ga-disable-${process.env.NEXT_PUBLIC_GA_ID}`
-    if (settings.analytics) {
-      ;(globalThis as unknown as Record<string, unknown>)[gaKey] = false
-    } else {
-      ;(globalThis as unknown as Record<string, unknown>)[gaKey] = true
+    const gaId = process.env.NEXT_PUBLIC_GA_ID
+    const gaKey = gaId ? `ga-disable-${gaId}` : null
+    if (gaKey) {
+      if (settings.analytics) {
+        ;(globalThis as unknown as Record<string, unknown>)[gaKey] = false
+      } else {
+        ;(globalThis as unknown as Record<string, unknown>)[gaKey] = true
+      }
+    }
+    if (!settings.analytics) {
       const cookies = ['_ga', '_gat', '_gid']
       cookies.forEach(cookie => Cookies.remove(cookie))
+    }
+
+    // Google Ads
+    if (settings.marketing) {
+      loadGoogleAds()
+    } else {
+      try {
+        window.gtag?.('consent', 'update', {
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+        })
+      } catch {
+        // ignore
+      }
+      Object.keys(Cookies.get()).forEach(cookieName => {
+        if (cookieName.startsWith('_gcl_')) Cookies.remove(cookieName)
+      })
     }
 
     // Facebook Pixel
@@ -70,23 +143,9 @@ export default function CookieConsent() {
         }
       })
     }
-  }
+  }, [loadGoogleAds])
 
-  const loadGA = () => {
-    if (typeof window === 'undefined') return
-    const gaId = process.env.NEXT_PUBLIC_GA_ID
-    if (!gaId) return
-    if ('gtag' in window) return
-    const s1 = document.createElement('script')
-    s1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
-    s1.async = true
-    document.body.appendChild(s1)
-    const s2 = document.createElement('script')
-    s2.innerHTML = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}',{page_title:document.title,page_location:window.location.href});`
-    document.body.appendChild(s2)
-  }
-
-  const loadCloudflareAnalytics = () => {
+  const loadCloudflareAnalytics = useCallback(() => {
     if (typeof window === 'undefined') return
     if (document.querySelector('script[data-cf-beacon]')) return
     const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
@@ -96,13 +155,13 @@ export default function CookieConsent() {
     sc.src = 'https://static.cloudflareinsights.com/beacon.min.js'
     sc.setAttribute('data-cf-beacon', JSON.stringify({ token }))
     document.body.appendChild(sc)
-  }
+  }, [])
 
-  const removeCloudflareAnalytics = () => {
+  const removeCloudflareAnalytics = useCallback(() => {
     if (typeof window === 'undefined') return
     const existing = document.querySelector('script[src*="cloudflareinsights.com/beacon.min.js"]')
     if (existing && existing.parentNode) existing.parentNode.removeChild(existing)
-  }
+  }, [])
 
   useEffect(() => {
     setIsMounted(true)
@@ -118,7 +177,7 @@ export default function CookieConsent() {
         handleAnalyticsTools(savedSettings);
         try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(savedSettings)) } catch {}
         if (savedSettings.analytics) {
-          loadGA()
+          loadGoogleAnalytics()
           loadCloudflareAnalytics()
         } else {
           removeCloudflareAnalytics()
@@ -129,7 +188,7 @@ export default function CookieConsent() {
         handleAnalyticsTools({ analytics: false, marketing: false });
       }
     }
-  }, [])
+  }, [handleAnalyticsTools, loadCloudflareAnalytics, loadGoogleAnalytics, removeCloudflareAnalytics])
 
   const saveConsent = (settings: CookieSettings) => {
     Cookies.set(COOKIE_CONSENT_KEY, JSON.stringify(settings), { 
@@ -139,7 +198,7 @@ export default function CookieConsent() {
     try { window.localStorage.setItem(LS_CONSENT_KEY, JSON.stringify(settings)) } catch {}
     handleAnalyticsTools(settings)
     if (settings.analytics) {
-      loadGA()
+      loadGoogleAnalytics()
       loadCloudflareAnalytics()
     } else {
       removeCloudflareAnalytics()
@@ -181,7 +240,7 @@ export default function CookieConsent() {
               and analyze our traffic. By clicking &quot;Accept All&quot;, you consent to our use of 
               cookies. Visit our{' '}
               <a 
-                href="/terms" 
+                href="/privacy-policy" 
                 className="text-purple-500 hover:text-pink-500 transition-colors duration-300 underline"
               >
                 Privacy Policy

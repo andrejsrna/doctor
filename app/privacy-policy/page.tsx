@@ -98,8 +98,8 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2>Cookies</h2>
               <p>
-                We use cookies to enhance your browsing experience and analyze website traffic. 
-                You can control cookie settings through your browser preferences.
+                We use cookies and similar technologies for essential functionality, analytics, and marketing (e.g., measuring performance and showing relevant ads). 
+                You can manage your preferences anytime via the &quot;Cookie Settings&quot; link in the footer, or through your browser preferences.
               </p>
             </section>
 

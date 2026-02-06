@@ -25,6 +25,14 @@ export default function Footer() {
     setIsMounted(true)
   }, [])
 
+  const openCookieSettings = () => {
+    try {
+      window.dispatchEvent(new Event('dd-open-cookie-settings'))
+    } catch {
+      // ignore
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -166,6 +174,15 @@ export default function Footer() {
               </Link>
                 </motion.div>
               ))}
+              <motion.button
+                type="button"
+                whileHover={{ x: 10 }}
+                onClick={openCookieSettings}
+                className="group w-fit text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                Cookie Settings
+              </motion.button>
             </motion.div>
           </div>
 
