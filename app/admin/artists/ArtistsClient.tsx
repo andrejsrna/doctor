@@ -17,14 +17,14 @@ interface Pagination { page: number; limit: number; total: number; pages: number
 export default function ArtistsClient({ items, pagination }: { items: ArtistItem[]; pagination: Pagination }) {
   const router = useRouter()
   const sp = useSearchParams()
-  const [search, setSearch] = useState(sp.get('search') || '')
+  const [search, setSearch] = useState(() => sp?.get('search') ?? '')
 
   const push = (next: URLSearchParams) => router.push(`/admin/artists?${next.toString()}`)
 
   useMemo(() => {
-    const current = sp.get('search') || ''
+    const current = sp?.get('search') ?? ''
     if (search !== current) {
-      const next = new URLSearchParams(sp)
+      const next = sp ? new URLSearchParams(sp) : new URLSearchParams()
       if (search) next.set('search', search); else next.delete('search')
       next.set('page', '1')
       push(next)
@@ -81,16 +81,14 @@ export default function ArtistsClient({ items, pagination }: { items: ArtistItem
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-3">
           <button disabled={pagination.page === 1}
-                  onClick={() => { const next = new URLSearchParams(sp); next.set('page', String(Math.max(1, pagination.page - 1))); push(next) }}
+                  onClick={() => { const next = sp ? new URLSearchParams(sp) : new URLSearchParams(); next.set('page', String(Math.max(1, pagination.page - 1))); push(next) }}
                   className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50">Prev</button>
           <div className="text-gray-400">{pagination.page} / {pagination.pages}</div>
           <button disabled={pagination.page === pagination.pages}
-                  onClick={() => { const next = new URLSearchParams(sp); next.set('page', String(Math.min(pagination.pages, pagination.page + 1))); push(next) }}
+                  onClick={() => { const next = sp ? new URLSearchParams(sp) : new URLSearchParams(); next.set('page', String(Math.min(pagination.pages, pagination.page + 1))); push(next) }}
                   className="px-3 py-1 border border-purple-500/30 rounded disabled:opacity-50">Next</button>
         </div>
       )}
     </div>
   )
 }
-
-

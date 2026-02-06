@@ -2,8 +2,6 @@ import Button from '@/app/components/Button'
 import ArtistCardsGrid from '@/app/artists/ArtistCardsGrid'
 import { prisma } from '@/lib/prisma'
 
-const showInternal = process.env.SHOW_INTERNAL_CORE_ARTIST === '1'
-
 export const revalidate = 600
 
 export default async function CoreArtistsPage() {

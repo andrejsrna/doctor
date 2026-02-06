@@ -33,7 +33,7 @@ interface WPPost {
 
 function SearchContent() {
   const searchParams = useSearchParams()
-  const urlQuery = searchParams.get('q') || ''
+  const urlQuery = searchParams?.get('q') ?? ''
   const [query, setQuery] = useState(urlQuery)
   const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)

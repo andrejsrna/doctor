@@ -61,6 +61,7 @@ export default async function FeaturedArtists() {
                   src={getImageUrl(artist)}
                   alt={artist.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 
                     group-hover:scale-110"
                 />

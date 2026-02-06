@@ -1,31 +1,26 @@
 export const subscriberApi = {
   async subscribe(data: { email: string; name?: string; group?: string; source?: string }) {
-    try {
-      const email = (data.email || '').toLowerCase().trim();
-      const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!isValidEmail.test(email)) {
-        throw new Error('Please enter a valid email address');
-      }
-      const payload = { ...data, email };
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
-
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to subscribe')
-      }
-
-      const result = await response.json()
-      return result
-    } catch (error) {
-      throw error
+    const email = (data.email || '').toLowerCase().trim();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!isValidEmail.test(email)) {
+      throw new Error('Please enter a valid email address');
     }
+    const payload = { ...data, email };
+    const response = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to subscribe')
+    }
+
+    const result = await response.json()
+    return result
   },
 
   async unsubscribe(data: { email: string; token?: string }) {

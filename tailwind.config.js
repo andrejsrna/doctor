@@ -1,24 +1,22 @@
-import typography from '@tailwindcss/typography';
-import type { Config } from "tailwindcss";
-
-export default {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
       },
       animation: {
-        'tilt': 'tilt 10s infinite linear',
+        tilt: 'tilt 10s infinite linear',
         'spin-slow': 'spin 8s linear infinite',
       },
       keyframes: {
-        'tilt': {
+        tilt: {
           '0%, 50%, 100%': {
             transform: 'rotate(0deg)',
           },
@@ -32,5 +30,6 @@ export default {
       },
     },
   },
-  plugins: [typography],
-} satisfies Config;
+  plugins: [require('@tailwindcss/typography')],
+}
+

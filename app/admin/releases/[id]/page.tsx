@@ -20,7 +20,8 @@ import {
 } from "../../../components/releases"
 
 export default function ReleaseDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
+  const id = params?.id ?? ""
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [autoSaving, setAutoSaving] = useState(false)
@@ -66,6 +67,7 @@ export default function ReleaseDetailPage() {
 
   // Load release data
   useEffect(() => {
+    if (!id) return
     const load = async () => {
       const res = await fetch(`/api/admin/releases/${id}`, { cache: 'no-store' })
       if (res.ok) {
@@ -99,6 +101,7 @@ export default function ReleaseDetailPage() {
   }, [releaseType, form])
 
   const save = useCallback(async () => {
+    if (!id) return
     setSaving(true)
     try {
       // Convert publishedAt back to ISO format for API
@@ -143,6 +146,7 @@ export default function ReleaseDetailPage() {
   }, [id, values, reset, router])
 
   const autoSave = useCallback(async () => {
+    if (!id) return
     setAutoSaving(true)
     try {
       const payload = {

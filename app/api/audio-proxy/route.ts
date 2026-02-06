@@ -44,11 +44,11 @@ export async function GET(request: Request) {
     const originalName = nameParam || inferredName
     const extMatch = /\.[A-Za-z0-9]+$/.exec(inferredName)
     const ext = extMatch ? extMatch[0] : ''
-    const asciiNameBase = originalName
+      const asciiNameBase = originalName
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '') // strip diacritics
       .replace(/[^\x20-\x7E]/g, '') // strip non-ASCII
-      .replace(/[\/\\?%*:|"<>]/g, '-')
+      .replace(/[/\\?%*:|"<>]/g, '-')
       .trim()
       || 'file'
     const asciiName = asciiNameBase.endsWith(ext) || !ext ? asciiNameBase : `${asciiNameBase}${ext}`

@@ -51,6 +51,7 @@ export default function ReleaseHero({
   const { src, blurDataURL, isLoaded } = useProgressiveImage({
     src: imageUrl || '',
   })
+  const hasBlurPlaceholder = !!imageUrl && !!blurDataURL && !isLoaded
   const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
       e.preventDefault()
@@ -71,17 +72,17 @@ export default function ReleaseHero({
       {imageUrl && (
         <>
           {/* Blur placeholder */}
-          <Image
-            src={blurDataURL}
-            alt=""
-            fill
-            className={`object-cover object-center z-0 transition-opacity duration-500 ${
-              isLoaded ? 'opacity-0' : 'opacity-100'
-            }`}
-            priority
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-            quality={10}
-          />
+          {hasBlurPlaceholder && (
+            <Image
+              src={blurDataURL}
+              alt=""
+              fill
+              className="object-cover object-center z-0 transition-opacity duration-500 opacity-100"
+              priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+              quality={10}
+            />
+          )}
           {/* Main image */}
           <Image
             src={src}

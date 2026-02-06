@@ -56,6 +56,34 @@ const hasAnalyticsConsent = () => {
   return !!consent?.analytics
 }
 
+const DEFAULT_GOOGLE_ADS_ID = 'AW-16864411727'
+
+const ensureGtagReady = (idForScriptLoad: string) => {
+  if (typeof window === 'undefined') return
+  if (!idForScriptLoad) return
+
+  window.dataLayer = window.dataLayer || []
+  window.gtag =
+    window.gtag ||
+    function gtag(...args: unknown[]) {
+      window.dataLayer?.push(args)
+    }
+
+  if (!window.__ddGtagInitialized) {
+    window.gtag('js', new Date())
+    window.__ddGtagInitialized = true
+  }
+
+  const existing = document.querySelector('script[src^="https://www.googletagmanager.com/gtag/js"]')
+  if (!existing) {
+    const src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(idForScriptLoad)}`
+    const s = document.createElement('script')
+    s.async = true
+    s.src = src
+    document.head.appendChild(s)
+  }
+}
+
 const generateEventId = () => {
   try {
     if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
@@ -87,14 +115,33 @@ const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: s
   if (typeof window === 'undefined') return
   const sendTo = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO
   if (!sendTo) return
-  if (!window.gtag) return
+
+  const adsId =
+    process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
+    process.env.NEXT_PUBLIC_GOOGLE_TAG ||
+    DEFAULT_GOOGLE_ADS_ID
+  ensureGtagReady(adsId)
+  try {
+    window.gtag?.('consent', 'update', {
+      ad_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+    })
+  } catch {
+    // ignore
+  }
+  try {
+    window.gtag?.('config', adsId)
+  } catch {
+    // ignore
+  }
 
   const rawValue = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_VALUE
   const value = rawValue ? Number.parseFloat(rawValue) : undefined
   const currency = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_CURRENCY || 'EUR'
 
   try {
-    window.gtag('event', 'conversion', {
+    window.gtag?.('event', 'conversion', {
       send_to: sendTo,
       ...(Number.isFinite(value) ? { value } : {}),
       currency,

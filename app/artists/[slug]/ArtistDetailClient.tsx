@@ -41,6 +41,7 @@ export default function ArtistDetailClient({ artist }: { artist: ArtistDetail })
                   src={artist.imageUrl}
                   alt={artist.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                   priority
                   placeholder="blur"
@@ -93,5 +94,4 @@ export default function ArtistDetailClient({ artist }: { artist: ArtistDetail })
     </>
   )
 }
-
 

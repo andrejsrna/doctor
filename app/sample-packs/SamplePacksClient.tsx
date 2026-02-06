@@ -131,6 +131,7 @@ export default function SamplePacksClient({
             src="/music-bg.jpeg"
             alt="DnB Doctor Sample Packs Background"
             fill
+            sizes="100vw"
             className="object-cover opacity-80"
             priority
           />

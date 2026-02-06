@@ -18,6 +18,7 @@ export default function AboutContent() {
             src="/aboutus.jpg" // Add your hero image
             alt="DNB Doctor Background"
             fill
+            sizes="100vw"
             className="object-cover opacity-50"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
@@ -208,6 +209,7 @@ export default function AboutContent() {
                     src={member.image}
                     alt={member.name}
                     fill
+                    sizes={index < 2 ? "192px" : "128px"}
                     className="object-cover"
                   />
                 </div>

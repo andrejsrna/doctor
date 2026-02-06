@@ -41,7 +41,7 @@ interface EmailData {
       ? `<div style="margin:0 0 16px;"><h3 style="margin:0 0 8px;font-size:16px;color:#a855f7;">Audio Files:</h3><ul style="padding-left:18px;margin:0;">${audioFiles.map(f => {
             const safeName = (f.name || '').replace(/</g,'&lt;').replace(/>/g,'&gt;')
             const safeUrl = (f.url || '').replace(/"/g,'%22')
-            return `<li style=\"color:#a855f7;margin-bottom:4px;\"><a href="${safeUrl}" style="color:#a855f7;text-decoration:underline;">${safeName}</a></li>`
+            return `<li style="color:#a855f7;margin-bottom:4px;"><a href="${safeUrl}" style="color:#a855f7;text-decoration:underline;">${safeName}</a></li>`
           }).join('')}</ul></div>`
       : '';
       

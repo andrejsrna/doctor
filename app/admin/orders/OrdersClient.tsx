@@ -40,8 +40,8 @@ function formatMoney(currency: string, amountTotal?: number | null) {
 export default function OrdersClient({ items, pagination }: { items: OrderItem[]; pagination: Pagination }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [status, setStatus] = useState(searchParams.get('status') || '')
+  const [search, setSearch] = useState(() => searchParams?.get('search') ?? '')
+  const [status, setStatus] = useState(() => searchParams?.get('status') ?? '')
   const debouncedSearch = useDebounce(search, 250)
 
   const pushParams = (next: URLSearchParams) => {
@@ -49,7 +49,7 @@ export default function OrdersClient({ items, pagination }: { items: OrderItem[]
   }
 
   const updateQuery = (key: string, value: string) => {
-    const next = new URLSearchParams(searchParams.toString())
+    const next = new URLSearchParams(searchParams?.toString() ?? '')
     if (value) next.set(key, value)
     else next.delete(key)
     next.set('page', '1')
@@ -57,7 +57,7 @@ export default function OrdersClient({ items, pagination }: { items: OrderItem[]
   }
 
   useMemo(() => {
-    const current = searchParams.get('search') || ''
+    const current = searchParams?.get('search') ?? ''
     if (debouncedSearch !== current) updateQuery('search', debouncedSearch)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch])
@@ -145,7 +145,7 @@ export default function OrdersClient({ items, pagination }: { items: OrderItem[]
           <button
             disabled={pagination.page === 1}
             onClick={() => {
-              const next = new URLSearchParams(searchParams.toString())
+              const next = new URLSearchParams(searchParams?.toString() ?? '')
               next.set('page', String(Math.max(1, pagination.page - 1)))
               pushParams(next)
             }}
@@ -159,7 +159,7 @@ export default function OrdersClient({ items, pagination }: { items: OrderItem[]
           <button
             disabled={pagination.page === pagination.pages}
             onClick={() => {
-              const next = new URLSearchParams(searchParams.toString())
+              const next = new URLSearchParams(searchParams?.toString() ?? '')
               next.set('page', String(Math.min(pagination.pages, pagination.page + 1)))
               pushParams(next)
             }}
@@ -172,4 +172,3 @@ export default function OrdersClient({ items, pagination }: { items: OrderItem[]
     </div>
   )
 }
-

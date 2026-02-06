@@ -18,6 +18,7 @@ export default function MusicPacksHero({ onBrowse }: Props) {
           src="/music-bg.jpeg" 
           alt="Music Packs - DNB Doctor Collections" 
           fill 
+          sizes="100vw"
           className="object-cover" 
           priority 
           quality={90}
@@ -138,5 +139,4 @@ export default function MusicPacksHero({ onBrowse }: Props) {
     </div>
   )
 }
-
 

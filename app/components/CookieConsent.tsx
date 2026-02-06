@@ -63,7 +63,10 @@ export default function CookieConsent() {
 
   const loadGoogleAds = useCallback(() => {
     if (typeof window === 'undefined') return
-    const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || DEFAULT_GOOGLE_ADS_ID
+    const adsId =
+      process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
+      process.env.NEXT_PUBLIC_GOOGLE_TAG ||
+      DEFAULT_GOOGLE_ADS_ID
     if (!adsId) return
     ensureGtagReady(adsId)
     window.gtag?.('config', adsId)
@@ -87,10 +90,26 @@ export default function CookieConsent() {
       const cookies = ['_ga', '_gat', '_gid']
       cookies.forEach(cookie => Cookies.remove(cookie))
     }
+    try {
+      window.gtag?.('consent', 'update', {
+        analytics_storage: settings.analytics ? 'granted' : 'denied',
+      })
+    } catch {
+      // ignore
+    }
 
     // Google Ads
     if (settings.marketing) {
       loadGoogleAds()
+      try {
+        window.gtag?.('consent', 'update', {
+          ad_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+        })
+      } catch {
+        // ignore
+      }
     } else {
       try {
         window.gtag?.('consent', 'update', {

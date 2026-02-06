@@ -15,6 +15,7 @@ export default function BookUsSection() {
           src="/party.jpg"
           alt="DJ Party"
           fill
+          sizes="100vw"
           className="object-cover opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
@@ -128,6 +129,7 @@ export default function BookUsSection() {
                 src="/dj-setup.jpg"
                 alt="DJ Setup"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transform group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />

@@ -43,8 +43,8 @@ function DemoFeedbackContent() {
   useEffect(() => {
     const fetchTrackAndMeta = async () => {
       try {
-        const token = searchParams.get('token')
-        const trackIdParam = searchParams.get('track_id') || searchParams.get('track')
+        const token = searchParams?.get('token') ?? null
+        const trackIdParam = searchParams?.get('track_id') || searchParams?.get('track')
 
         if (trackIdParam) {
           const info = await feedbackApi.getTrackInfo(parseInt(trackIdParam), token || undefined)
@@ -364,8 +364,8 @@ function DemoFeedbackContent() {
     
     if (rating === 0) return
     
-    const trackId = searchParams.get('track_id') || searchParams.get('track')
-    const token = searchParams.get('token')
+    const trackId = searchParams?.get('track_id') || searchParams?.get('track')
+    const token = searchParams?.get('token') ?? null
     
     try {
       setSubmitting(true)
@@ -466,6 +466,7 @@ function DemoFeedbackContent() {
                       src={trackInfo.cover_url}
                       alt={trackInfo.title}
                       fill
+                      sizes="128px"
                       className="object-cover rounded-lg"
                     />
                   </div>

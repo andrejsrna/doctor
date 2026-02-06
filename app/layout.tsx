@@ -4,9 +4,7 @@ import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
 import CookieConsent from "./components/CookieConsent";
 import './globals.css';
-import './styles/content-wrapper.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
-import { PostHogProvider } from "./components/PostHogProvider";
 import { Toaster } from 'react-hot-toast';
 import GlobalErrorReporter from './components/GlobalErrorReporter'
 
@@ -80,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
@@ -202,16 +200,14 @@ export default function RootLayout({
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
       >
-        <PostHogProvider>
-          <SessionProviderWrapper>
-            <GlobalErrorReporter />
-            <Navigation />
-            {children}
-            <Footer />
-            <CookieConsent />
-            <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
-          </SessionProviderWrapper>
-        </PostHogProvider>
+        <SessionProviderWrapper>
+          <GlobalErrorReporter />
+          <Navigation />
+          {children}
+          <Footer />
+          <CookieConsent />
+          <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+        </SessionProviderWrapper>
       </body>
     </html>
   );

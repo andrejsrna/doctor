@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
+const disableCsp = process.env.DISABLE_CSP === "true";
+
 const nextConfig: NextConfig = {
   // Performance optimizations
   experimental: {
@@ -64,10 +66,15 @@ const nextConfig: NextConfig = {
           key: 'Referrer-Policy',
           value: 'strict-origin-when-cross-origin'
         },
-        {
-          key: 'Content-Security-Policy',
-          value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com; media-src 'self' data: https: blob:; worker-src 'self' blob:; object-src 'none';"
-        }
+        ...(!disableCsp
+          ? ([
+              {
+                key: 'Content-Security-Policy',
+                value:
+                  "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com; media-src 'self' data: https: blob:; worker-src 'self' blob:; object-src 'none';",
+              },
+            ] as const)
+          : [])
       ]
     }
   ],
@@ -116,6 +123,7 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    qualities: [10, 75, 85],
     minimumCacheTTL: 86400,
     // Optimized device sizes for better responsive images
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -123,27 +131,10 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // Enable modern image formats
     dangerouslyAllowSVG: false,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    ...(disableCsp ? {} : { contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;" }),
   },
 
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
-  async rewrites() {
-    return [
-      {
-        source: "/ingest/static/:path*",
-        destination: "https://eu-assets.i.posthog.com/static/:path*",
-      },
-      {
-        source: "/ingest/:path*",
-        destination: "https://eu.i.posthog.com/:path*",
-      },
-      {
-        source: "/ingest/flags",
-        destination: "https://eu.i.posthog.com/flags",
-      },
-    ];
-  },
+  // No PostHog rewrites (tracking removed)
 };
 
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });

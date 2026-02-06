@@ -3,6 +3,22 @@ import { prisma } from "@/lib/prisma"
 import type { Prisma } from "@prisma/client"
 import { auth } from "@/app/lib/auth"
 
+const demoFeedbackSelect = {
+  id: true,
+  recipientEmail: true,
+  senderEmail: true,
+  subject: true,
+  rating: true,
+  feedback: true,
+  name: true,
+  submittedAt: true,
+  createdAt: true,
+  wpPostId: true,
+  files: true,
+} as const
+
+type DemoFeedbackItemRaw = Prisma.DemoFeedbackGetPayload<{ select: typeof demoFeedbackSelect }>
+
 export async function GET(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -47,28 +63,16 @@ export async function GET(request: NextRequest) {
 
   const skip = (page - 1) * limit
 
-  const [itemsRaw, total] = await Promise.all([
+  const [itemsRaw, total] = (await Promise.all([
     prisma.demoFeedback.findMany({
       where,
       orderBy: [{ submittedAt: 'desc' }, { createdAt: 'desc' }],
       skip,
       take: limit,
-      select: {
-        id: true,
-        recipientEmail: true,
-        senderEmail: true,
-        subject: true,
-        rating: true,
-        feedback: true,
-        name: true,
-        submittedAt: true,
-        createdAt: true,
-        wpPostId: true,
-        files: true,
-      },
+      select: demoFeedbackSelect,
     }),
     prisma.demoFeedback.count({ where }),
-  ])
+  ])) as [DemoFeedbackItemRaw[], number]
 
   // Map WP post IDs to release titles/slugs if available
   const wpIds = Array.from(new Set(itemsRaw.map(i => {
@@ -77,8 +81,14 @@ export async function GET(request: NextRequest) {
   }).filter((v): v is number => typeof v === 'number')))
   let releaseMap: Record<number, { title: string; slug: string } > = {}
   if (wpIds.length) {
-    const releases = await prisma.release.findMany({ where: { wpId: { in: wpIds } }, select: { wpId: true, title: true, slug: true } })
-    releaseMap = releases.reduce((acc, r) => { if (typeof r.wpId === 'number') acc[r.wpId] = { title: r.title, slug: r.slug }; return acc }, {} as Record<number, { title: string; slug: string }>)
+    const releases = (await prisma.release.findMany({
+      where: { wpId: { in: wpIds } },
+      select: { wpId: true, title: true, slug: true },
+    })) as Array<{ wpId: number | null; title: string; slug: string }>
+    releaseMap = releases.reduce<Record<number, { title: string; slug: string }>>((acc, r) => {
+      if (typeof r.wpId === 'number') acc[r.wpId] = { title: r.title, slug: r.slug }
+      return acc
+    }, {})
   }
   const items = itemsRaw.map(it => {
     const m = /post\s+(\d+)/i.exec(it.subject || '')
@@ -94,5 +104,3 @@ export async function GET(request: NextRequest) {
     pagination: { page, limit, total, pages: Math.max(1, Math.ceil(total / limit)) },
   })
 }
-
-

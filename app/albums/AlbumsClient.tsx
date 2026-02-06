@@ -125,8 +125,8 @@ export default function AlbumsClient({
   }
 
   useEffect(() => {
-    const categoryParam = searchParams.get('category')
-    const focus = searchParams.get('focus')
+    const categoryParam = searchParams?.get('category') ?? null
+    const focus = searchParams?.get('focus') ?? null
     const mapped = resolveCategoryFromParam(categoryParam)
     if (mapped !== selectedCategory) {
       setSelectedCategory(mapped)
