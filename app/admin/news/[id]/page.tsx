@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExt from "@tiptap/extension-link"
-import DOMPurify from "isomorphic-dompurify"
 import EditorMenu from "../../releases/components/EditorMenu"
+import { sanitizeHtml } from "@/app/utils/sanitize"
 
 interface PageProps { params: Promise<{ id: string }> }
 
@@ -127,7 +127,7 @@ export default function NewsDetailPage({ params }: PageProps) {
               <EditorContent editor={editor} className="prose prose-invert prose-purple max-w-none min-h-[220px] focus:outline-none" />
             </div>
             <div className="min-h-[300px] px-3 py-2 bg-black/30 border border-purple-500/30 rounded prose prose-invert max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.content || "") }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content || "") }} />
             </div>
           </div>
         </div>

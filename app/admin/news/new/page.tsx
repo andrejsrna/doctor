@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExt from "@tiptap/extension-link"
-import DOMPurify from "isomorphic-dompurify"
 import EditorMenu from "../../releases/components/EditorMenu"
+import { sanitizeHtml } from "@/app/utils/sanitize"
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
@@ -111,7 +111,7 @@ export default function NewsCreatePage() {
             <label className="text-sm text-gray-400">Preview (sanitized)</label>
             <div
               className="min-h-[300px] px-3 py-2 bg-black/30 border border-purple-500/30 rounded prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(item.content || "") }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content || "") }}
             />
           </div>
         </div>

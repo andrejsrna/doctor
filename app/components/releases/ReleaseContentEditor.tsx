@@ -5,9 +5,9 @@ import { UseFormSetValue, UseFormWatch } from "react-hook-form"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import LinkExt from "@tiptap/extension-link"
-import DOMPurify from "isomorphic-dompurify"
 import EditorMenu from "../../admin/releases/components/EditorMenu"
 import { ReleaseFormValues } from "./types"
+import { sanitizeHtml } from "@/app/utils/sanitize"
 
 interface ReleaseContentEditorProps {
   setValue: UseFormSetValue<ReleaseFormValues>
@@ -58,7 +58,7 @@ export default function ReleaseContentEditor({ setValue, watch }: ReleaseContent
         <label className="text-sm text-gray-400">Preview</label>
         <div
           className="min-h-[300px] px-3 py-2 bg-black/30 border border-purple-500/30 rounded prose prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((content as string) || "") }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml((content as string) || "") }}
         />
       </div>
     </div>
