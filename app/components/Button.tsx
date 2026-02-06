@@ -1,14 +1,20 @@
-import { ButtonHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, MouseEventHandler } from 'react'
 import Link from 'next/link';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  href?: string;
-  target?: string;
-  rel?: string;
-  variant?: 'toxic' | 'infected' | 'decayed';
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+type CommonProps = {
+  href?: string
+  target?: string
+  rel?: string
+  variant?: 'toxic' | 'infected' | 'decayed'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+  children?: React.ReactNode
+  onClick?: MouseEventHandler<HTMLElement>
 }
+
+type ButtonAsButtonProps = CommonProps & ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined }
+type ButtonAsLinkProps = CommonProps & AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }
+type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps
 
 export default function Button({
   children,
@@ -52,27 +58,42 @@ export default function Button({
     rounded-lg
   `.replace(/\s+/g, ' ').trim();
 
-  const ButtonContent = () => (
-    <span className="relative z-10 flex items-center gap-2">{children}</span>
-  );
-
    if (href) {
+     const isExternal =
+       href.startsWith('http://') ||
+       href.startsWith('https://') ||
+       href.startsWith('mailto:') ||
+       href.startsWith('tel:')
+
+     if (isExternal) {
+       return (
+         <a
+           href={href}
+           className={buttonStyles}
+           target={target}
+           rel={rel}
+           {...(props as AnchorHTMLAttributes<HTMLAnchorElement>)}
+         >
+           <span className="relative z-10 flex items-center gap-2">{children}</span>
+         </a>
+       )
+     }
      return (
        <Link
          href={href}
          className={buttonStyles}
          target={target}
          rel={rel}
-         onClick={props.onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}
+         onClick={(props as AnchorHTMLAttributes<HTMLAnchorElement>).onClick}
        >
-         <ButtonContent />
+         <span className="relative z-10 flex items-center gap-2">{children}</span>
        </Link>
      );
    }
 
    return (
-     <button className={buttonStyles} {...props}>
-       <ButtonContent />
+     <button className={buttonStyles} {...(props as ButtonHTMLAttributes<HTMLButtonElement>)}>
+       <span className="relative z-10 flex items-center gap-2">{children}</span>
      </button>
    );
 } 

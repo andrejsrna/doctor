@@ -22,7 +22,18 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
   const [interstitialOpen, setInterstitialOpen] = useState(false)
   const [pending, setPending] = useState<{ platform: string; href: string } | null>(null)
 
+  const shouldDebugAds = () => {
+    if (typeof window === 'undefined') return false
+    if (process.env.NODE_ENV !== 'production') return true
+    try {
+      return window.localStorage.getItem('__dd_debug_ads') === '1'
+    } catch {
+      return false
+    }
+  }
+
   const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
+    if (shouldDebugAds()) console.log('[Ads] StreamingLinks click', { platform, slug, href })
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
       e.preventDefault()
       setPending({ platform, href })

@@ -52,7 +52,21 @@ export default function ReleaseHero({
     src: imageUrl || '',
   })
   const hasBlurPlaceholder = !!imageUrl && !!blurDataURL && !isLoaded
+
+  const shouldDebugAds = () => {
+    if (typeof window === 'undefined') return false
+    if (process.env.NODE_ENV !== 'production') return true
+    try {
+      return window.localStorage.getItem('__dd_debug_ads') === '1'
+    } catch {
+      return false
+    }
+  }
+
   const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
+    if (shouldDebugAds()) {
+      console.debug('[Ads] ReleaseHero click', { platform, slug, interstitial: ENABLE_OUTBOUND_INTERSTITIAL })
+    }
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
       e.preventDefault()
       setPending({ platform, href })
@@ -246,54 +260,53 @@ export default function ReleaseHero({
               </form>
             </div>
           ) : gumroadUrl ? (
-            <a
+            <Button
               href={gumroadUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => handleStreamingClick('Gumroad', gumroadUrl, e)}
+              onClick={(e) => handleStreamingClick('Gumroad', gumroadUrl, e as unknown as React.MouseEvent)}
+              variant="infected"
+              size="lg"
+              className="group"
             >
-              <Button variant="infected" size="lg" className="group">
-                <FaHeadphonesAlt className="w-6 h-6 mr-3" />
-                Get on Gumroad
-              </Button>
-            </a>
+              <FaHeadphonesAlt className="w-6 h-6 mr-3" />
+              Get on Gumroad
+            </Button>
           ) : (
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap">
               {youtubeUrl && (
-                <a 
-                  href={youtubeUrl} 
-                  target="_blank" 
+                <Button
+                  href={youtubeUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e)}
+                  onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
+                  variant="toxic"
+                  size="lg"
+                  className="group from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
                 >
-                  <Button
-                    variant="toxic"
-                    size="lg"
-                    className="group from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
-                  >
-                    <FaYoutube className="w-6 h-6 mr-3" />
-                    Listen on YouTube
-                  </Button>
-                </a>
+                  <FaYoutube className="w-6 h-6 mr-3" />
+                  Listen on YouTube
+                </Button>
               )}
               {beatportUrl && (
-                <a 
-                  href={beatportUrl} 
-                  target="_blank" 
+                <Button
+                  href={beatportUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e)}
+                  onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
+                  variant="toxic"
+                  size="lg"
+                  className="group"
                 >
-                  <Button variant="toxic" size="lg" className="group">
-                    <Image
-                      src="/beatport.svg"
-                      alt=""
-                      width={24}
-                      height={24}
-                      className="w-6 h-6 mr-3"
-                    />
-                    Buy on Beatport
-                  </Button>
-                </a>
+                  <Image
+                    src="/beatport.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 mr-3"
+                  />
+                  Buy on Beatport
+                </Button>
               )}
             </div>
           )}

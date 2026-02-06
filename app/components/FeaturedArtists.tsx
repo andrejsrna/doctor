@@ -76,21 +76,17 @@ export default async function FeaturedArtists() {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <a 
+                      <Button
                         href={artist.soundcloud || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block"
+                        variant="toxic"
+                        size="sm"
+                        className="group w-full"
                       >
-                        <Button
-                          variant="toxic"
-                          size="sm"
-                          className="group w-full"
-                        >
-                          <FaSoundcloud className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
-                          <span>SoundCloud</span>
-                        </Button>
-                      </a>
+                        <FaSoundcloud className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
+                        <span>SoundCloud</span>
+                      </Button>
                     </div>
                     
                     <div className="flex-1">

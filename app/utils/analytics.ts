@@ -58,9 +58,23 @@ const hasAnalyticsConsent = () => {
 
 const DEFAULT_GOOGLE_ADS_ID = 'AW-16864411727'
 
+const shouldDebugAds = () => {
+  if (typeof window === 'undefined') return false
+  if (process.env.NODE_ENV !== 'production') return true
+  try {
+    return window.localStorage.getItem('__dd_debug_ads') === '1'
+  } catch {
+    return false
+  }
+}
+
 const ensureGtagReady = (idForScriptLoad: string) => {
   if (typeof window === 'undefined') return
   if (!idForScriptLoad) return
+
+  if (shouldDebugAds()) {
+    console.log('[Ads] ensureGtagReady()', { idForScriptLoad })
+  }
 
   window.dataLayer = window.dataLayer || []
   window.gtag =
@@ -80,7 +94,13 @@ const ensureGtagReady = (idForScriptLoad: string) => {
     const s = document.createElement('script')
     s.async = true
     s.src = src
+    if (shouldDebugAds()) {
+      s.addEventListener('load', () => console.log('[Ads] gtag.js loaded'))
+      s.addEventListener('error', () => console.warn('[Ads] gtag.js failed to load'))
+    }
     document.head.appendChild(s)
+  } else if (shouldDebugAds()) {
+    console.log('[Ads] gtag.js already present')
   }
 }
 
@@ -113,13 +133,20 @@ interface GoogleAnalytics {
 
 const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: string; slug?: string }) => {
   if (typeof window === 'undefined') return
-  const sendTo = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO
-  if (!sendTo) return
+  const sendToRaw = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO
+  const sendTo = (sendToRaw || '').trim()
+  if (!sendTo) {
+    if (shouldDebugAds()) {
+      console.warn('[Ads] Missing NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO (conversion will not be sent)')
+    }
+    return
+  }
 
-  const adsId =
+  const adsId = (
     process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
     process.env.NEXT_PUBLIC_GOOGLE_TAG ||
     DEFAULT_GOOGLE_ADS_ID
+  ).trim()
   ensureGtagReady(adsId)
   try {
     window.gtag?.('consent', 'update', {
@@ -141,6 +168,15 @@ const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: s
   const currency = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_CURRENCY || 'EUR'
 
   try {
+    if (shouldDebugAds()) {
+      console.log('[Ads] Sending conversion', {
+        send_to: sendTo,
+        transaction_id: params.eventId,
+        platform: params.platform,
+        item_id: params.slug,
+      })
+    }
+    const callbackId = params.eventId
     window.gtag?.('event', 'conversion', {
       send_to: sendTo,
       ...(Number.isFinite(value) ? { value } : {}),
@@ -148,6 +184,14 @@ const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: s
       transaction_id: params.eventId,
       ...(params.slug ? { item_id: params.slug } : {}),
       platform: params.platform,
+      ...(shouldDebugAds()
+        ? {
+            event_callback: () => {
+              console.log('[Ads] Conversion event_callback fired', { transaction_id: callbackId })
+            },
+            event_timeout: 2000,
+          }
+        : {}),
     })
   } catch {
     // ignore
@@ -158,6 +202,16 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
   if (typeof window === 'undefined') return;
 
   try {
+    if (shouldDebugAds()) {
+      console.log('[Ads] trackStreamingClick()', {
+        platform,
+        slug,
+        marketingConsent: hasMarketingConsent(),
+        analyticsConsent: hasAnalyticsConsent(),
+        hasGtag: typeof window.gtag === 'function',
+      })
+    }
+
     const eventId = generateEventId()
 
     // Facebook Pixel
@@ -176,6 +230,8 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
       }).catch(() => null)
 
       trackGoogleAdsPurchaseConversion({ eventId, platform, slug })
+    } else if (shouldDebugAds()) {
+      console.warn('[Ads] marketing consent is false; not sending Ads conversion')
     }
 
     // Google Analytics
