@@ -3,6 +3,7 @@ import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
 import CookieConsent from "./components/CookieConsent";
+import AdsAttribution from "./components/AdsAttribution";
 import './globals.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import { Toaster } from 'react-hot-toast';
@@ -206,6 +207,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <CookieConsent />
+          <AdsAttribution />
           <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
         </SessionProviderWrapper>
       </body>

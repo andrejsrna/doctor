@@ -1,6 +1,6 @@
 'use client'
 
-type CookieSettings = {
+export type CookieSettings = {
   analytics: boolean
   marketing: boolean
 }
@@ -16,7 +16,7 @@ const safeJsonParse = <T,>(value: string): T | null => {
   }
 }
 
-const readConsent = (): CookieSettings | null => {
+export const readConsent = (): CookieSettings | null => {
   if (typeof window === 'undefined') return null
 
   try {
@@ -54,6 +54,58 @@ const hasMarketingConsent = () => {
 const hasAnalyticsConsent = () => {
   const consent = readConsent()
   return !!consent?.analytics
+}
+
+const AD_CLICK_ID_KEYS = ['gclid', 'wbraid', 'gbraid'] as const
+type AdClickIdKey = typeof AD_CLICK_ID_KEYS[number]
+type AdClickIds = Partial<Record<AdClickIdKey, string>>
+
+const readCookieValue = (name: string) => {
+  try {
+    const cookie = document.cookie
+      .split('; ')
+      .find(part => part.startsWith(`${name}=`))
+      ?.split('=')[1]
+    if (!cookie) return undefined
+    return decodeURIComponent(cookie)
+  } catch {
+    return undefined
+  }
+}
+
+const readAdClickIds = (): AdClickIds => {
+  if (typeof window === 'undefined') return {}
+  const ids: AdClickIds = {}
+
+  try {
+    const params = new URLSearchParams(window.location.search)
+    AD_CLICK_ID_KEYS.forEach((key) => {
+      const value = params.get(key)
+      if (value) ids[key] = value
+    })
+  } catch {
+    // ignore
+  }
+
+  AD_CLICK_ID_KEYS.forEach((key) => {
+    if (!ids[key]) {
+      const cookieValue = readCookieValue(`dd_${key}`)
+      if (cookieValue) ids[key] = cookieValue
+    }
+  })
+
+  try {
+    AD_CLICK_ID_KEYS.forEach((key) => {
+      if (!ids[key]) {
+        const lsValue = window.localStorage.getItem(`dd_${key}`)
+        if (lsValue) ids[key] = lsValue
+      }
+    })
+  } catch {
+    // ignore
+  }
+
+  return ids
 }
 
 const DEFAULT_GOOGLE_ADS_ID = 'AW-16864411727'
@@ -246,7 +298,8 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
     }
 
     if (slug) {
-      const body = JSON.stringify({ slug, platform, eventId, eventSourceUrl: window.location.href })
+      const adClickIds = readAdClickIds()
+      const body = JSON.stringify({ slug, platform, eventId, eventSourceUrl: window.location.href, adClickIds })
       if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
         const blob = new Blob([body], { type: 'application/json' })
         navigator.sendBeacon('/api/streaming-click', blob)
