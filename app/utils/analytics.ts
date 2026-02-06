@@ -83,6 +83,30 @@ interface GoogleAnalytics {
   gtag: (command: string, action: string, params: object) => void;
 }
 
+const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: string; slug?: string }) => {
+  if (typeof window === 'undefined') return
+  const sendTo = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO
+  if (!sendTo) return
+  if (!window.gtag) return
+
+  const rawValue = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_VALUE
+  const value = rawValue ? Number.parseFloat(rawValue) : undefined
+  const currency = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_CURRENCY || 'EUR'
+
+  try {
+    window.gtag('event', 'conversion', {
+      send_to: sendTo,
+      ...(Number.isFinite(value) ? { value } : {}),
+      currency,
+      transaction_id: params.eventId,
+      ...(params.slug ? { item_id: params.slug } : {}),
+      platform: params.platform,
+    })
+  } catch {
+    // ignore
+  }
+}
+
 export const trackStreamingClick = (platform: string, slug?: string) => {
   if (typeof window === 'undefined') return;
 
@@ -103,6 +127,8 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
           ...(slug && { content_ids: [slug] }),
         }, { eventID: eventId })
       }).catch(() => null)
+
+      trackGoogleAdsPurchaseConversion({ eventId, platform, slug })
     }
 
     // Google Analytics
