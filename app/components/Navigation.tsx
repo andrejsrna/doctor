@@ -112,9 +112,11 @@ export default function Navigation() {
             <Image
               src="/logo.png"
               alt="Neurofunk Label Logo"
-              width={60}
-              height={180}
+              width={733}
+              height={593}
+              sizes="(min-width: 768px) 120px, 60px"
               className="w-[60px] md:w-[120px] md:-mt-6 mt-2 h-auto"
+              quality={100}
               priority
             />
           </Link>
@@ -181,9 +183,11 @@ export default function Navigation() {
           <Image
             src="/logo.png"
             alt="Neurofunk Label Logo"
-            width={60}
-            height={180}
+            width={733}
+            height={593}
+            sizes="(min-width: 768px) 120px, 60px"
             className="w-[60px] md:w-[120px] md:-mt-6 mt-2 h-auto"
+            quality={100}
             priority
           />
         </Link>

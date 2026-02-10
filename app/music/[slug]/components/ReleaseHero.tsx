@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import { FaYoutube, FaHeadphonesAlt, FaDownload } from 'react-icons/fa'
 import Button from '@/app/components/Button'
@@ -46,6 +46,9 @@ export default function ReleaseHero({
   const [downloadError, setDownloadError] = useState<string>('')
   const [acceptPrivacy, setAcceptPrivacy] = useState(false)
   const [acceptNewsletter, setAcceptNewsletter] = useState(false)
+
+  const { scrollY } = useScroll()
+  const parallaxY = useTransform(scrollY, [0, 700], [0, 140])
   
   // Progressive image loading
   const { src, blurDataURL, isLoaded } = useProgressiveImage({
@@ -81,34 +84,50 @@ export default function ReleaseHero({
     ? `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`
     : null
 
+  const loopTransition = { duration: 2.6, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }
+  const loopAnim = shouldReduce
+    ? undefined
+    : {
+        scale: [1, 1.04, 1],
+        filter: [
+          'drop-shadow(0 0 0px rgba(255,255,255,0))',
+          'drop-shadow(0 0 22px rgba(168,85,247,0.45))',
+          'drop-shadow(0 0 0px rgba(255,255,255,0))',
+        ],
+      }
+
   return (
-    <div className="relative flex items-center justify-center text-center px-4 pt-32 pb-24">
+    <div className="relative flex min-h-[100svh] items-center justify-center text-center px-4 pt-32 pb-24 overflow-hidden">
       {imageUrl && (
         <>
           {/* Blur placeholder */}
           {hasBlurPlaceholder && (
-            <Image
-              src={blurDataURL}
-              alt=""
-              fill
-              className="object-cover object-center z-0 transition-opacity duration-500 opacity-100"
-              priority
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-              quality={10}
-            />
+            <motion.div style={{ y: parallaxY }} className="absolute inset-0 scale-110">
+              <Image
+                src={blurDataURL}
+                alt=""
+                fill
+                className="object-cover object-center z-0 transition-opacity duration-500 opacity-100"
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+                quality={10}
+              />
+            </motion.div>
           )}
           {/* Main image */}
-          <Image
-            src={src}
-            alt={title}
-            fill
-            className={`object-cover object-center z-0 transition-opacity duration-500 ${
-              isLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            priority
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-            quality={85}
-          />
+          <motion.div style={{ y: parallaxY }} className="absolute inset-0 scale-110">
+            <Image
+              src={src}
+              alt={title}
+              fill
+              className={`object-cover object-center z-0 transition-opacity duration-500 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              priority
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+              quality={85}
+            />
+          </motion.div>
         </>
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
@@ -132,12 +151,7 @@ export default function ReleaseHero({
         >
           <span dangerouslySetInnerHTML={{ __html: descriptionExcerptInlineHtml }} />
           {showReadFullStory && (
-            <>
-              {' '}
-              <a href="#full-story" className="inline text-base md:text-lg text-purple-200/80 hover:text-purple-100 underline">
-              Read full story
-              </a>
-            </>
+            <span className="sr-only">Read full story</span>
           )}
         </motion.p>
 
@@ -275,38 +289,42 @@ export default function ReleaseHero({
           ) : (
             <div className="flex flex-row items-center justify-center gap-3 flex-wrap">
               {youtubeUrl && (
-                <Button
-                  href={youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
-                  variant="toxic"
-                  size="lg"
-                  className="group from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
-                >
-                  <FaYoutube className="w-6 h-6 mr-3" />
-                  Listen on YouTube
-                </Button>
+                <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }}>
+                  <Button
+                    href={youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
+                    variant="toxic"
+                    size="lg"
+                    className="group from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
+                  >
+                    <FaYoutube className="w-6 h-6 mr-3" />
+                    Listen on YouTube
+                  </Button>
+                </motion.div>
               )}
               {beatportUrl && (
-                <Button
-                  href={beatportUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
-                  variant="toxic"
-                  size="lg"
-                  className="group"
-                >
-                  <Image
-                    src="/beatport.svg"
-                    alt=""
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 mr-3"
-                  />
-                  Buy on Beatport
-                </Button>
+                <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }}>
+                  <Button
+                    href={beatportUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
+                    variant="toxic"
+                    size="lg"
+                    className="group"
+                  >
+                    <Image
+                      src="/beatport.svg"
+                      alt=""
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 mr-3"
+                    />
+                    Buy on Beatport
+                  </Button>
+                </motion.div>
               )}
             </div>
           )}

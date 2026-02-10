@@ -19,10 +19,10 @@ export default function PreviewPlayer({ previewUrl, title, artistName }: Preview
       {/* Preview Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 hover:bg-gray-700/70 text-white rounded-lg transition-colors"
+        className="flex items-center gap-2 px-6 py-3 bg-gray-700/70 hover:bg-gray-700/90 text-white rounded-xl transition-colors border border-white/10 hover:border-white/25 shadow-[0_0_24px_rgba(0,0,0,0.35)]"
       >
         <FaPlay className="w-4 h-4" />
-        <span className="text-sm">Preview</span>
+        <span className="text-sm md:text-base font-semibold">Preview</span>
       </button>
 
       {/* Lightbox Modal */}
