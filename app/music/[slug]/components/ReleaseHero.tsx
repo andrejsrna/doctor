@@ -84,7 +84,7 @@ export default function ReleaseHero({
     ? `https://w.soundcloud.com/player/?url=${encodeURIComponent(soundcloudUrl)}&color=%23a855f7&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`
     : null
 
-  const loopTransition = { duration: 2.6, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }
+  const loopTransition = { duration: 2.6, repeat: Infinity, repeatType: 'mirror' as const, ease: 'easeInOut' as const }
   const loopAnim = shouldReduce
     ? undefined
     : {
