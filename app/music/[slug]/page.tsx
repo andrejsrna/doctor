@@ -33,12 +33,20 @@ function getFirstSentences(text: string, count: number) {
 }
 
 export async function generateStaticParams() {
-  const items = await prisma.release.findMany({
-    orderBy: { publishedAt: 'desc' },
-    take: 50,
-    select: { slug: true },
-  })
-  return items.map(i => ({ slug: i.slug }))
+  // Build-time safety: in some CI/Docker builds the DB is not reachable.
+  // Returning [] keeps the build green; pages will be rendered on-demand.
+  if (!process.env.DATABASE_URL) return []
+
+  try {
+    const items = await prisma.release.findMany({
+      orderBy: { publishedAt: 'desc' },
+      take: 50,
+      select: { slug: true },
+    })
+    return items.map(i => ({ slug: i.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
