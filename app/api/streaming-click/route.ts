@@ -3,6 +3,22 @@ import { prisma } from "@/lib/prisma"
 import { sendMetaCapiEvent } from "@/lib/metaCapi"
 import { sendGoogleAdsConversion } from "@/lib/googleAdsConversion"
 
+// Some environments / proxies may probe API routes with GET/HEAD.
+// Also, certain clients may accidentally navigate to this route.
+// We respond with a friendly JSON payload instead of Next.js default 405 HTML.
+export async function GET() {
+  return NextResponse.json({ ok: false, error: "Method not allowed. Use POST." }, { status: 405 })
+}
+
+export async function HEAD() {
+  return new NextResponse(null, { status: 405 })
+}
+
+// Optional: handle OPTIONS defensively.
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204 })
+}
+
 export async function POST(request: NextRequest) {
   const { slug, platform, eventId, eventSourceUrl, adClickIds } = await request
     .json()
