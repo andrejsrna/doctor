@@ -4,18 +4,35 @@ import ArtistsListClient from './ArtistsListClient'
 export const revalidate = 600
 
 export default async function ArtistsPage() {
-  const artists = await prisma.artist.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 60,
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      imageUrl: true,
-      soundcloud: true,
-      spotify: true,
-    },
-  })
+  // CI/Docker builds may not have DATABASE_URL or DB connectivity.
+  // Render an empty list in that case so the build can succeed.
+  let artists: Array<{
+    id: string
+    slug: string
+    name: string
+    imageUrl: string | null
+    soundcloud: string | null
+    spotify: string | null
+  }> = []
+
+  if (process.env.DATABASE_URL) {
+    try {
+      artists = await prisma.artist.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 60,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          imageUrl: true,
+          soundcloud: true,
+          spotify: true,
+        },
+      })
+    } catch {
+      artists = []
+    }
+  }
 
   return (
     <section className="py-32 px-4 relative min-h-screen">
