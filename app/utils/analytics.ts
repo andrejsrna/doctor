@@ -183,9 +183,15 @@ interface GoogleAnalytics {
   gtag: (command: string, action: string, params: object) => void;
 }
 
+const readPublicEnv = () => {
+  if (typeof window === 'undefined') return {}
+  return ((window as unknown as { __ddPublicEnv?: Record<string, string> }).__ddPublicEnv || {})
+}
+
 const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: string; slug?: string }) => {
   if (typeof window === 'undefined') return
-  const sendToRaw = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO
+  const publicEnv = readPublicEnv()
+  const sendToRaw = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO || publicEnv.GOOGLE_ADS_PURCHASE_SEND_TO
   const sendTo = (sendToRaw || '').trim()
   if (!sendTo) {
     if (shouldDebugAds()) {
@@ -197,6 +203,7 @@ const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: s
   const adsId = (
     process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
     process.env.NEXT_PUBLIC_GOOGLE_TAG ||
+    publicEnv.GOOGLE_ADS_ID ||
     DEFAULT_GOOGLE_ADS_ID
   ).trim()
   ensureGtagReady(adsId)

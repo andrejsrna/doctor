@@ -3,6 +3,7 @@ import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
 import CookieConsent from "./components/CookieConsent";
+import PublicEnvScript from "./components/PublicEnvScript";
 import AdsAttribution from "./components/AdsAttribution";
 import './globals.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
@@ -81,6 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <PublicEnvScript />
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
         

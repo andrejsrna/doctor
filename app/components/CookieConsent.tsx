@@ -53,9 +53,15 @@ export default function CookieConsent() {
     }
   }, [])
 
+  const readPublicEnv = () => {
+    if (typeof window === 'undefined') return {}
+    return ((window as unknown as { __ddPublicEnv?: Record<string, string> }).__ddPublicEnv || {})
+  }
+
   const loadGoogleAnalytics = useCallback(() => {
     if (typeof window === 'undefined') return
-    const gaId = process.env.NEXT_PUBLIC_GA_ID
+    const publicEnv = readPublicEnv()
+    const gaId = process.env.NEXT_PUBLIC_GA_ID || publicEnv.GA_ID
     if (!gaId) return
     ensureGtagReady(gaId)
     window.gtag?.('config', gaId, { page_title: document.title, page_location: window.location.href })
@@ -63,9 +69,11 @@ export default function CookieConsent() {
 
   const loadGoogleAds = useCallback(() => {
     if (typeof window === 'undefined') return
+    const publicEnv = readPublicEnv()
     const adsId =
       process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
       process.env.NEXT_PUBLIC_GOOGLE_TAG ||
+      publicEnv.GOOGLE_ADS_ID ||
       DEFAULT_GOOGLE_ADS_ID
     if (!adsId) return
     ensureGtagReady(adsId)
@@ -127,7 +135,8 @@ export default function CookieConsent() {
 
     // Facebook Pixel
     if (settings.marketing) {
-      const pixelId = process.env.NEXT_PUBLIC_FB_PIXEL_ID as string | undefined
+      const publicEnv = readPublicEnv()
+      const pixelId = (process.env.NEXT_PUBLIC_FB_PIXEL_ID || publicEnv.FB_PIXEL_ID) as string | undefined
       if (!pixelId) return
       // Lazy load Facebook Pixel
       import('react-facebook-pixel').then((ReactPixel) => {
@@ -167,7 +176,8 @@ export default function CookieConsent() {
   const loadCloudflareAnalytics = useCallback(() => {
     if (typeof window === 'undefined') return
     if (document.querySelector('script[data-cf-beacon]')) return
-    const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN
+    const publicEnv = readPublicEnv()
+    const token = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN || publicEnv.CF_BEACON_TOKEN
     if (!token) return
     const sc = document.createElement('script')
     sc.defer = true
