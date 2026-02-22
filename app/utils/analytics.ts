@@ -114,7 +114,13 @@ const shouldDebugAds = () => {
   if (typeof window === 'undefined') return false
   if (process.env.NODE_ENV !== 'production') return true
   try {
-    return window.localStorage.getItem('__dd_debug_ads') === '1'
+    if (window.localStorage.getItem('__dd_debug_ads') === '1') return true
+  } catch {
+    // ignore
+  }
+  try {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('__dd_debug_ads') === '1'
   } catch {
     return false
   }

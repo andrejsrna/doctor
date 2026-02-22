@@ -55,22 +55,70 @@ const clearAdClickIds = () => {
   })
 }
 
+const PENDING_KEY = 'dd_pending_ad_click_ids'
+
+const storePendingAdClickIds = (ids: AdClickIds) => {
+  if (!ids || Object.keys(ids).length === 0) return
+  try {
+    const existingRaw = window.sessionStorage.getItem(PENDING_KEY)
+    const existing = existingRaw ? (JSON.parse(existingRaw) as AdClickIds) : {}
+    const merged = { ...existing, ...ids }
+    window.sessionStorage.setItem(PENDING_KEY, JSON.stringify(merged))
+  } catch {
+    // ignore
+  }
+}
+
+const readPendingAdClickIds = (): AdClickIds => {
+  try {
+    const raw = window.sessionStorage.getItem(PENDING_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw) as AdClickIds
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+const clearPendingAdClickIds = () => {
+  try {
+    window.sessionStorage.removeItem(PENDING_KEY)
+  } catch {
+    // ignore
+  }
+}
+
 export default function AdsAttribution() {
+  // Always capture gclid/wbraid/gbraid from the landing URL into sessionStorage.
+  // If the user accepts marketing later (possibly after navigating), we can still persist them.
+  useEffect(() => {
+    const ids = readAdClickIdsFromUrl()
+    if (Object.keys(ids).length > 0) storePendingAdClickIds(ids)
+  }, [])
+
   useEffect(() => {
     const consent = readConsent()
     if (!consent?.marketing) return
-    const ids = readAdClickIdsFromUrl()
-    if (Object.keys(ids).length > 0) storeAdClickIds(ids)
+
+    const ids = { ...readPendingAdClickIds(), ...readAdClickIdsFromUrl() }
+    if (Object.keys(ids).length > 0) {
+      storeAdClickIds(ids)
+      clearPendingAdClickIds()
+    }
   }, [])
 
   useEffect(() => {
     const handler = (event: Event) => {
       const detail = (event as CustomEvent).detail as { marketing?: boolean } | undefined
       if (detail?.marketing) {
-        const ids = readAdClickIdsFromUrl()
-        if (Object.keys(ids).length > 0) storeAdClickIds(ids)
+        const ids = { ...readPendingAdClickIds(), ...readAdClickIdsFromUrl() }
+        if (Object.keys(ids).length > 0) {
+          storeAdClickIds(ids)
+          clearPendingAdClickIds()
+        }
       } else if (detail && detail.marketing === false) {
         clearAdClickIds()
+        clearPendingAdClickIds()
       }
     }
     window.addEventListener('dd-consent-changed', handler)
