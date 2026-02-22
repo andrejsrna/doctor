@@ -9,7 +9,7 @@ declare global {
   interface Window {
     __ddPublicEnv?: Record<string, string>
     dataLayer?: unknown[]
-    gtag?: (...args: any[]) => void
+    gtag?: (...args: unknown[]) => void
     __ddGtagInitialized?: boolean
     gtag_report_conversion?: (url?: string) => boolean
   }
