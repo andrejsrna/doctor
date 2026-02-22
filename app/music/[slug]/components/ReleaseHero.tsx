@@ -70,13 +70,23 @@ export default function ReleaseHero({
     if (shouldDebugAds()) {
       console.debug('[Ads] ReleaseHero click', { platform, slug, interstitial: ENABLE_OUTBOUND_INTERSTITIAL })
     }
+
+    // Always prevent default navigation so conversion has time to fire.
+    e.preventDefault()
+
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
-      e.preventDefault()
       setPending({ platform, href })
       setInterstitialOpen(true)
       return
     }
+
     trackStreamingClick(platform, slug)
+
+    try {
+      window.gtag_report_conversion?.(href)
+    } catch {
+      window.open(href, '_blank', 'noopener,noreferrer')
+    }
   }
 
   const isFreeDownload = releaseType === 'FREE_DOWNLOAD'
@@ -353,7 +363,11 @@ export default function ReleaseHero({
           setPending(null)
           if (next?.href) {
             trackStreamingClick(next.platform, slug)
-            window.open(next.href, '_blank', 'noopener,noreferrer')
+            try {
+              window.gtag_report_conversion?.(next.href)
+            } catch {
+              window.open(next.href, '_blank', 'noopener,noreferrer')
+            }
           }
         }}
       />

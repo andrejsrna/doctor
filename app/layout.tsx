@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
 import CookieConsent from "./components/CookieConsent";
 import PublicEnvScript from "./components/PublicEnvScript";
+import GoogleAdsConversionSnippet from "./components/GoogleAdsConversionSnippet";
 import AdsAttribution from "./components/AdsAttribution";
 import './globals.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
@@ -209,6 +210,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <CookieConsent />
+          <GoogleAdsConversionSnippet />
           <AdsAttribution />
           <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
         </SessionProviderWrapper>

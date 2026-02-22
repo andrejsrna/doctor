@@ -34,13 +34,25 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
 
   const handleStreamingClick = (platform: string, href: string, e: React.MouseEvent) => {
     if (shouldDebugAds()) console.log('[Ads] StreamingLinks click', { platform, slug, href })
+
+    // Always prevent default navigation so we have a chance to fire conversion.
+    e.preventDefault()
+
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
-      e.preventDefault()
       setPending({ platform, href })
       setInterstitialOpen(true)
       return
     }
+
+    // Fire internal tracking (server-side conversion + Meta CAPI etc.)
     trackStreamingClick(platform, slug)
+
+    // Fire Google Ads conversion snippet and navigate.
+    try {
+      window.gtag_report_conversion?.(href)
+    } catch {
+      window.open(href, '_blank', 'noopener,noreferrer')
+    }
   }
 
   const renderIcon = (icon: StreamingLink['icon']) => {
@@ -148,7 +160,11 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
           setPending(null)
           if (next?.href) {
             trackStreamingClick(next.platform, slug)
-            window.open(next.href, '_blank', 'noopener,noreferrer')
+            try {
+              window.gtag_report_conversion?.(next.href)
+            } catch {
+              window.open(next.href, '_blank', 'noopener,noreferrer')
+            }
           }
         }}
       />
