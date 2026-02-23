@@ -4,7 +4,6 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { StreamingLink } from '@/app/types/release'
 import ReleaseHero from './components/ReleaseHero'
-import StreamingLinks from './components/StreamingLinks'
 import InfectionDivider from './components/InfectionDivider'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
@@ -111,7 +110,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   const imageUrl = getReleaseImageUrl({ coverImageUrl: release.coverImageUrl, coverImageKey: release.coverImageKey })
   const artworkUrl = getArtworkImageUrl({ artworkImageUrl: release.artworkImageUrl, artworkImageKey: release.artworkImageKey })
-
   const streamingLinks: StreamingLink[] = [
     { name: 'Spotify', url: release.spotify || undefined, icon: 'spotify', color: 'text-green-400', bgColor: 'bg-green-500/10 hover:bg-green-500/20', priority: 3 },
     { name: 'Beatport', url: release.beatport || undefined, icon: '/beatport.svg', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20', priority: 3 },
@@ -252,7 +250,8 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
             className="fixed inset-0 z-0 bg-cover bg-center opacity-35 pointer-events-none"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />
-          <div className="fixed inset-0 z-0 bg-gradient-to-b from-black via-black/80 to-black pointer-events-none" />
+          <div className="fixed inset-0 z-0 bg-black/35 pointer-events-none" />
+          <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/55 via-black/40 to-black/65 pointer-events-none" />
         </>
       )}
       <div className="relative z-10">
@@ -263,7 +262,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <ReleaseHero
           title={safeTitle}
-          imageUrl={imageUrl}
           beatportUrl={release.beatport || undefined}
           youtubeUrl={release.youtubeMusic || undefined}
           soundcloudUrl={release.soundcloud || undefined}
@@ -273,17 +271,19 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           gumroadUrl={release.gumroad || undefined}
           slug={slug}
           releaseType={release.releaseType}
+          streamingLinks={streamingLinks}
         />
 
-        <div className="relative bg-black/40 backdrop-blur-sm -mt-24">
+        <div className="relative -mt-24">
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-            {release.releaseType !== "FREE_DOWNLOAD" && !release.gumroad && (
-              <StreamingLinks links={streamingLinks} gumroadUrl={release.gumroad || undefined} slug={slug} />
-            )}
+            <InfectionDivider />
+
+            <EngagementCTA />
 
             {!!plainDescription && (
               <section id="full-story" className="space-y-4 scroll-mt-28">
-                <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-gradient-to-br from-black/95 via-black/80 to-green-900/20 p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.6)]">
+                <div className="relative overflow-hidden rounded-2xl border border-green-500/35 bg-gradient-to-br from-black/70 via-black/55 to-green-900/30 p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
                   <div className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(34,197,94,0.22),transparent_70%)]" />
                   <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-green-400/20 blur-2xl" />
                   <div className="absolute -bottom-14 -right-14 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
@@ -299,10 +299,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
                 </div>
               </section>
             )}
-
-            <InfectionDivider />
-
-            <EngagementCTA />
 
             <BulkSalePromo />
 

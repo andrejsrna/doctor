@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa'
+import { FaSkull, FaSyringe, FaBiohazard, FaBolt } from 'react-icons/fa'
 import Button from './Button'
 import { trackEvent } from '@/app/utils/analytics'
 
@@ -20,60 +20,57 @@ export default function BulkSalePromo() {
       animate={{ opacity: 1, y: 0 }}
       className="relative"
     >
-      {/* Animated Background Effects */}
-      <div className="absolute inset-0">
-        {/* Pulsing gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black to-pink-900/30 animate-pulse rounded-xl" />
-        
-        {/* Animated grid lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(168,85,247,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(168,85,247,0.1)_1px,transparent_1px)] bg-[size:24px_24px] rounded-xl" />
-        
-        {/* Moving infection spots (deterministic across SSR/CSR) */}
+      <div className="absolute inset-0 rounded-2xl overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/45 via-black/90 to-cyan-900/35" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_15%,rgba(34,211,238,0.22),transparent_42%),radial-gradient(circle_at_85%_85%,rgba(168,85,247,0.22),transparent_45%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(168,85,247,0.11)_1px,transparent_1px),linear-gradient(to_bottom,rgba(168,85,247,0.11)_1px,transparent_1px)] bg-[size:22px_22px]" />
         <Spots />
-
-        {/* Animated border glow */}
-        <div className="absolute inset-0 rounded-xl border border-purple-500/20 shadow-[inset_0_0_30px_rgba(168,85,247,0.2)]" />
+        <div className="absolute inset-0 border border-cyan-300/25 shadow-[inset_0_0_36px_rgba(34,211,238,0.15)]" />
       </div>
 
-      {/* Content */}
-      <Button
-        variant="infected"
-        className="w-full group relative overflow-hidden"
-        href="/bulk-sale"
-        onClick={handleBulkSaleClick}
-      >
-        <div className="flex items-center gap-4 p-4">
-          {/* Icon Container */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-purple-500/20 blur-xl 
-              group-hover:bg-purple-500/40 transition-all duration-500" />
-            <div className="relative z-10 bg-purple-500/30 rounded-lg p-3 flex items-center justify-center">
-              <FaBiohazard className="w-6 h-6 text-purple-300 group-hover:rotate-180 transition-transform duration-700" />
+      <div className="relative z-10 rounded-2xl border border-white/10 bg-black/25 backdrop-blur-sm p-5 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-6">
+          <div className="flex-1 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-cyan-300/45 bg-cyan-500/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-cyan-200">
+                <FaBolt className="w-3 h-3" />
+                Limited Offer
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-purple-300/45 bg-purple-500/15 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-purple-200">
+                <FaSkull className="w-3 h-3" />
+                35% Off
+              </span>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg bg-purple-500/25 border border-purple-300/30 p-2 mt-0.5">
+                <FaBiohazard className="w-5 h-5 text-purple-200" />
+              </div>
+              <div>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-white">Bulk Sale Available</h3>
+                <p className="text-sm md:text-base text-gray-300 mt-1">
+                  Save <span className="font-semibold text-cyan-200">35%</span> when purchasing multiple tracks.
+                  Perfect for DJs, podcast sets, and larger curation sessions.
+                </p>
+              </div>
             </div>
           </div>
-          
-          {/* Text Content */}
-          <div className="flex flex-col items-start flex-1">
-            <span className="text-sm opacity-70 group-hover:opacity-90 transition-opacity
-              flex items-center gap-2"
-            >
-              <FaSkull className="w-3 h-3" />
-              <span>Special Infection Package</span>
-            </span>
-            <span className="text-xl font-bold">
-              Bulk Sale Available
-            </span>
-            <span className="text-sm opacity-50 mt-1">
-              35% discount on multiple track purchases
-            </span>
-          </div>
 
-          {/* Arrow indicator */}
-          <FaSyringe className="w-5 h-5 transform rotate-45 
-            group-hover:translate-x-1 group-hover:-translate-y-1 
-            transition-transform duration-300" />
+          <div className="md:w-auto">
+            <Button
+              variant="infected"
+              className="w-full md:w-auto group relative overflow-hidden justify-center"
+              href="/bulk-sale"
+              onClick={handleBulkSaleClick}
+              size="lg"
+            >
+              <span>Open Bulk Sale</span>
+              <FaSyringe className="w-5 h-5 transform rotate-45 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+            </Button>
+            <p className="text-xs text-gray-400 mt-2 text-center md:text-right">Instant access to discounted bundle pricing.</p>
+          </div>
         </div>
-      </Button>
+      </div>
     </motion.div>
   )
 }
@@ -89,7 +86,7 @@ function Spots() {
       {configs.map((c, i) => (
         <motion.div
           key={i}
-          className="absolute w-32 h-32 rounded-full bg-purple-500/5 blur-xl"
+          className="absolute w-32 h-32 rounded-full bg-cyan-400/10 blur-2xl"
           initial={{ x: c.initX, y: c.initY }}
           animate={{ x: c.animX, y: c.animY, scale: [1, 1.2, 1] }}
           transition={{ duration: c.duration, repeat: Infinity, repeatType: 'reverse' }}
