@@ -44,15 +44,11 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
       return
     }
 
-    // Fire internal tracking (server-side conversion + Meta CAPI etc.)
+    // Fire internal tracking (DB click counter + Meta CAPI etc.)
     trackStreamingClick(platform, slug)
 
-    // Fire Google Ads conversion snippet and navigate.
-    try {
-      window.gtag_report_conversion?.(href)
-    } catch {
-      window.open(href, '_blank', 'noopener,noreferrer')
-    }
+    // Navigation
+    window.open(href, '_blank', 'noopener,noreferrer')
   }
 
   const renderIcon = (icon: StreamingLink['icon']) => {
@@ -160,11 +156,7 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
           setPending(null)
           if (next?.href) {
             trackStreamingClick(next.platform, slug)
-            try {
-              window.gtag_report_conversion?.(next.href)
-            } catch {
-              window.open(next.href, '_blank', 'noopener,noreferrer')
-            }
+            window.open(next.href, '_blank', 'noopener,noreferrer')
           }
         }}
       />

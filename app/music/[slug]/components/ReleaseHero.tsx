@@ -81,12 +81,7 @@ export default function ReleaseHero({
     }
 
     trackStreamingClick(platform, slug)
-
-    try {
-      window.gtag_report_conversion?.(href)
-    } catch {
-      window.open(href, '_blank', 'noopener,noreferrer')
-    }
+    window.open(href, '_blank', 'noopener,noreferrer')
   }
 
   const isFreeDownload = releaseType === 'FREE_DOWNLOAD'
@@ -363,11 +358,7 @@ export default function ReleaseHero({
           setPending(null)
           if (next?.href) {
             trackStreamingClick(next.platform, slug)
-            try {
-              window.gtag_report_conversion?.(next.href)
-            } catch {
-              window.open(next.href, '_blank', 'noopener,noreferrer')
-            }
+            window.open(next.href, '_blank', 'noopener,noreferrer')
           }
         }}
       />

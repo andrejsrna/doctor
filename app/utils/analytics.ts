@@ -70,60 +70,6 @@ const hasAnalyticsConsent = () => {
   return !!consent?.analytics
 }
 
-const AD_CLICK_ID_KEYS = ['gclid', 'wbraid', 'gbraid'] as const
-type AdClickIdKey = typeof AD_CLICK_ID_KEYS[number]
-type AdClickIds = Partial<Record<AdClickIdKey, string>>
-
-const readCookieValue = (name: string) => {
-  try {
-    const cookie = document.cookie
-      .split('; ')
-      .find(part => part.startsWith(`${name}=`))
-      ?.split('=')[1]
-    if (!cookie) return undefined
-    return decodeURIComponent(cookie)
-  } catch {
-    return undefined
-  }
-}
-
-const readAdClickIds = (): AdClickIds => {
-  if (typeof window === 'undefined') return {}
-  const ids: AdClickIds = {}
-
-  try {
-    const params = new URLSearchParams(window.location.search)
-    AD_CLICK_ID_KEYS.forEach((key) => {
-      const value = params.get(key)
-      if (value) ids[key] = value
-    })
-  } catch {
-    // ignore
-  }
-
-  AD_CLICK_ID_KEYS.forEach((key) => {
-    if (!ids[key]) {
-      const cookieValue = readCookieValue(`dd_${key}`)
-      if (cookieValue) ids[key] = cookieValue
-    }
-  })
-
-  try {
-    AD_CLICK_ID_KEYS.forEach((key) => {
-      if (!ids[key]) {
-        const lsValue = window.localStorage.getItem(`dd_${key}`)
-        if (lsValue) ids[key] = lsValue
-      }
-    })
-  } catch {
-    // ignore
-  }
-
-  return ids
-}
-
-const DEFAULT_GOOGLE_ADS_ID = 'AW-16864411727'
-
 const shouldDebugAds = () => {
   if (typeof window === 'undefined') return false
   if (process.env.NODE_ENV !== 'production') return true
@@ -137,42 +83,6 @@ const shouldDebugAds = () => {
     return params.get('__dd_debug_ads') === '1'
   } catch {
     return false
-  }
-}
-
-const ensureGtagReady = (idForScriptLoad: string) => {
-  if (typeof window === 'undefined') return
-  if (!idForScriptLoad) return
-
-  if (shouldDebugAds()) {
-    console.log('[Ads] ensureGtagReady()', { idForScriptLoad })
-  }
-
-  window.dataLayer = window.dataLayer || []
-  window.gtag =
-    window.gtag ||
-    function gtag(...args: unknown[]) {
-      window.dataLayer?.push(args)
-    }
-
-  if (!window.__ddGtagInitialized) {
-    window.gtag('js', new Date())
-    window.__ddGtagInitialized = true
-  }
-
-  const existing = document.querySelector('script[src^="https://www.googletagmanager.com/gtag/js"]')
-  if (!existing) {
-    const src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(idForScriptLoad)}`
-    const s = document.createElement('script')
-    s.async = true
-    s.src = src
-    if (shouldDebugAds()) {
-      s.addEventListener('load', () => console.log('[Ads] gtag.js loaded'))
-      s.addEventListener('error', () => console.warn('[Ads] gtag.js failed to load'))
-    }
-    document.head.appendChild(s)
-  } else if (shouldDebugAds()) {
-    console.log('[Ads] gtag.js already present')
   }
 }
 
@@ -199,83 +109,7 @@ export const initializeAnalytics = () => {
   }
 };
 
-interface GoogleAnalytics {
-  gtag: (command: string, action: string, params: object) => void;
-}
-
-const readPublicEnv = () => {
-  if (typeof window === 'undefined') return {}
-  return ((window as unknown as { __ddPublicEnv?: Record<string, string> }).__ddPublicEnv || {})
-}
-
-const trackGoogleAdsPurchaseConversion = (params: { eventId: string; platform: string; slug?: string }) => {
-  if (typeof window === 'undefined') return
-  const publicEnv = readPublicEnv()
-  const sendToRaw = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO || publicEnv.GOOGLE_ADS_PURCHASE_SEND_TO
-  const sendTo = (sendToRaw || '').trim()
-  if (!sendTo) {
-    if (shouldDebugAds()) {
-      console.warn('[Ads] Missing NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_SEND_TO (conversion will not be sent)')
-    }
-    return
-  }
-
-  const adsId = (
-    process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ||
-    process.env.NEXT_PUBLIC_GOOGLE_TAG ||
-    publicEnv.GOOGLE_ADS_ID ||
-    DEFAULT_GOOGLE_ADS_ID
-  ).trim()
-  ensureGtagReady(adsId)
-  try {
-    window.gtag?.('consent', 'update', {
-      ad_storage: 'granted',
-      ad_user_data: 'granted',
-      ad_personalization: 'granted',
-    })
-  } catch {
-    // ignore
-  }
-  try {
-    window.gtag?.('config', adsId)
-  } catch {
-    // ignore
-  }
-
-  const rawValue = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_VALUE
-  const value = rawValue ? Number.parseFloat(rawValue) : undefined
-  const currency = process.env.NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_CURRENCY || 'EUR'
-
-  try {
-    if (shouldDebugAds()) {
-      console.log('[Ads] Sending conversion', {
-        send_to: sendTo,
-        transaction_id: params.eventId,
-        platform: params.platform,
-        item_id: params.slug,
-      })
-    }
-    const callbackId = params.eventId
-    window.gtag?.('event', 'conversion', {
-      send_to: sendTo,
-      ...(Number.isFinite(value) ? { value } : {}),
-      currency,
-      transaction_id: params.eventId,
-      ...(params.slug ? { item_id: params.slug } : {}),
-      platform: params.platform,
-      ...(shouldDebugAds()
-        ? {
-            event_callback: () => {
-              console.log('[Ads] Conversion event_callback fired', { transaction_id: callbackId })
-            },
-            event_timeout: 2000,
-          }
-        : {}),
-    })
-  } catch {
-    // ignore
-  }
-}
+// GA4 / Google Ads tracking is configured via GTM (not in app code).
 
 export const trackStreamingClick = (platform: string, slug?: string) => {
   if (typeof window === 'undefined') return;
@@ -287,7 +121,7 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
         slug,
         marketingConsent: hasMarketingConsent(),
         analyticsConsent: hasAnalyticsConsent(),
-        hasGtag: typeof window.gtag === 'function',
+        hasGtag: false,
       })
     }
 
@@ -308,25 +142,12 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
         }, { eventID: eventId })
       }).catch(() => null)
 
-      trackGoogleAdsPurchaseConversion({ eventId, platform, slug })
     } else if (shouldDebugAds()) {
-      console.warn('[Ads] marketing consent is false; not sending Ads conversion')
-    }
-
-    // Google Analytics
-    const w = window as unknown as Window & GoogleAnalytics;
-    if (hasAnalyticsConsent() && w.gtag) {
-      w.gtag('event', 'streaming_click', {
-        event_category: 'Music',
-        event_label: platform,
-        value: 1,
-        ...(slug && { release_slug: slug }),
-      });
+      console.warn('[Ads] marketing consent is false; not sending marketing tracking')
     }
 
     if (slug) {
-      const adClickIds = readAdClickIds()
-      const body = JSON.stringify({ slug, platform, eventId, eventSourceUrl: window.location.href, adClickIds })
+      const body = JSON.stringify({ slug, platform, eventId, eventSourceUrl: window.location.href })
       if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
         const blob = new Blob([body], { type: 'application/json' })
         navigator.sendBeacon('/api/streaming-click', blob)
@@ -395,9 +216,7 @@ export const trackEvent = (eventName: string, params?: object) => {
     }
     
     // Google Analytics
-    if (hasAnalyticsConsent() && window.gtag) {
-      window.gtag('event', eventName, params)
-    }
+    // GA4 tracking is handled via GTM
   } catch (error) {
     console.error('Tracking error:', error);
   }

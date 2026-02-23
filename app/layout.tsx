@@ -5,9 +5,7 @@ import Footer from './components/Footer'
 import Script from 'next/script'
 // import CookieConsent from "./components/CookieConsent";
 import PublicEnvScript from "./components/PublicEnvScript";
-import GoogleAdsConversionSnippet from "./components/GoogleAdsConversionSnippet";
-import GoogleAnalyticsSnippet from "./components/GoogleAnalyticsSnippet";
-import AdsAttribution from "./components/AdsAttribution";
+// GA4 / Google Ads tracking is configured via GTM (not in app code).
 import './globals.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
 import { Toaster } from 'react-hot-toast';
@@ -229,10 +227,7 @@ export default function RootLayout({
           <Navigation />
           {children}
           <Footer />
-          {/* Cookie consent is handled via GTM (Cookiebot injected in the container). */}
-          <GoogleAnalyticsSnippet />
-          <GoogleAdsConversionSnippet />
-          <AdsAttribution />
+          {/* Cookie consent + GA4/Ads tracking is handled via GTM. */}
           <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
         </SessionProviderWrapper>
       </body>
