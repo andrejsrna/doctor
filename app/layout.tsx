@@ -6,6 +6,7 @@ import Script from 'next/script'
 import CookieConsent from "./components/CookieConsent";
 import PublicEnvScript from "./components/PublicEnvScript";
 import GoogleAdsConversionSnippet from "./components/GoogleAdsConversionSnippet";
+import GoogleAnalyticsSnippet from "./components/GoogleAnalyticsSnippet";
 import AdsAttribution from "./components/AdsAttribution";
 import './globals.css';
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
@@ -219,6 +220,7 @@ export default function RootLayout({
           <Footer />
           {/* Cookie consent is now handled by Cookiebot (Google CMP compatible). */}
           {/* <CookieConsent /> */}
+          <GoogleAnalyticsSnippet />
           <GoogleAdsConversionSnippet />
           <AdsAttribution />
           <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
