@@ -3,7 +3,7 @@ import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
 import Script from 'next/script'
-import CookieConsent from "./components/CookieConsent";
+// import CookieConsent from "./components/CookieConsent";
 import PublicEnvScript from "./components/PublicEnvScript";
 import GoogleAdsConversionSnippet from "./components/GoogleAdsConversionSnippet";
 import GoogleAnalyticsSnippet from "./components/GoogleAnalyticsSnippet";
@@ -92,6 +92,17 @@ export default function RootLayout({
           data-cbid="c073b273-59bf-4bc3-a64c-ca45544a6a53"
           data-blockingmode="auto"
           strategy="beforeInteractive"
+        />
+
+        {/* Google Tag Manager (blocked by Cookiebot until consent) */}
+        <Script
+          id="gtm-init"
+          strategy="beforeInteractive"
+          type="text/plain"
+          data-cookieconsent="statistics,marketing"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-KLNKW7ZQ');`,
+          }}
         />
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
@@ -213,6 +224,16 @@ export default function RootLayout({
       <body
         className={`${rajdhani.variable} antialiased bg-black text-white min-h-screen`}
       >
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KLNKW7ZQ"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+        
         <SessionProviderWrapper>
           <GlobalErrorReporter />
           <Navigation />
