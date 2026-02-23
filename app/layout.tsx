@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
 import Footer from './components/Footer'
+import Script from 'next/script'
 import CookieConsent from "./components/CookieConsent";
 import PublicEnvScript from "./components/PublicEnvScript";
 import GoogleAdsConversionSnippet from "./components/GoogleAdsConversionSnippet";
@@ -84,6 +85,13 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <PublicEnvScript />
+        <Script
+          id="Cookiebot"
+          src="https://consent.cookiebot.com/uc.js"
+          data-cbid="c073b273-59bf-4bc3-a64c-ca45544a6a53"
+          data-blockingmode="auto"
+          strategy="beforeInteractive"
+        />
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://admin.dnbdoctor.com" />
         
@@ -209,7 +217,8 @@ export default function RootLayout({
           <Navigation />
           {children}
           <Footer />
-          <CookieConsent />
+          {/* Cookie consent is now handled by Cookiebot (Google CMP compatible). */}
+          {/* <CookieConsent /> */}
           <GoogleAdsConversionSnippet />
           <AdsAttribution />
           <Toaster position="top-right" toastOptions={{ duration: 4000 }} />

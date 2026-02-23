@@ -65,6 +65,17 @@ export default function GoogleAdsConversionSnippet() {
 
     // Define Google's expected helper.
     window.gtag_report_conversion = (url?: string) => {
+      // Respect consent (Cookiebot). If marketing consent isn't granted, just navigate.
+      try {
+        const consentMarketing = Boolean((window as any)?.Cookiebot?.consent?.marketing)
+        if (!consentMarketing) {
+          if (typeof url !== 'undefined' && url) window.location.href = url
+          return false
+        }
+      } catch {
+        // ignore
+      }
+
       try {
         // Ensure gtag exists & script is injected.
         ensureGtagReady(adsId)

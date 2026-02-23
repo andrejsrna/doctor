@@ -19,6 +19,19 @@ const safeJsonParse = <T,>(value: string): T | null => {
 export const readConsent = (): CookieSettings | null => {
   if (typeof window === 'undefined') return null
 
+  // Preferred: Cookiebot
+  try {
+    const cb = (window as unknown as { Cookiebot?: { consent?: { statistics?: boolean; marketing?: boolean } } })
+      .Cookiebot
+    const c = cb?.consent
+    if (c && typeof c.statistics === 'boolean' && typeof c.marketing === 'boolean') {
+      return { analytics: Boolean(c.statistics), marketing: Boolean(c.marketing) }
+    }
+  } catch {
+    // ignore
+  }
+
+  // Legacy: localStorage
   try {
     const ls = window.localStorage.getItem(LS_CONSENT_KEY)
     if (ls) {
@@ -29,6 +42,7 @@ export const readConsent = (): CookieSettings | null => {
     // ignore
   }
 
+  // Legacy: cookie
   try {
     const cookie = document.cookie
       .split('; ')
