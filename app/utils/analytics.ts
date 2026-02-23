@@ -19,7 +19,7 @@ const safeJsonParse = <T,>(value: string): T | null => {
 export const readConsent = (): CookieSettings | null => {
   if (typeof window === 'undefined') return null
 
-  // Preferred: Cookiebot
+  // Preferred: Cookiebot (injected via GTM container)
   try {
     const cb = (window as unknown as { Cookiebot?: { consent?: { statistics?: boolean; marketing?: boolean } } })
       .Cookiebot
