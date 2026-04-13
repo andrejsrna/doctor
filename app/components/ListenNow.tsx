@@ -144,81 +144,60 @@ export default function ListenNow() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="max-w-3xl mx-auto flex flex-col gap-5">
           {platforms.map((platform, index) => (
             <motion.div
               key={platform.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
-              className="relative group"
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.07 }}
+              className="group relative"
             >
-              <div className="relative bg-gradient-to-br from-purple-900/15 via-black/35 to-green-900/15 rounded-3xl p-8 border border-white/10 hover:border-purple-500/30 transition-all duration-300 overflow-hidden h-full flex flex-col hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative flex items-center gap-6 bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-purple-500/30 rounded-2xl px-7 py-6 transition-all duration-300 overflow-hidden">
+                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                <div className="relative z-10 flex-1 flex flex-col">
-                  <div className="flex items-start gap-5 mb-6">
-                    <div className="relative w-[72px] h-[72px] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-500/80 to-green-500/70 p-[1px] flex-shrink-0">
-                      <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center overflow-hidden">
-                        {platform.imageUrl ? (
-                          <Image
-                            src={platform.imageUrl}
-                            alt={platform.title}
-                            width={72}
-                            height={72}
-                            className="w-full h-full object-cover"
-                            sizes="72px"
-                            quality={85}
-                          />
-                        ) : (
-                          <div className="text-purple-200">{getIcon(platform.icon)}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-purple-200 transition-colors break-words leading-snug">
-                        {platform.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm">
-                        {platform.isExternal ? 'External platform' : 'On DnB Doctor'}
-                      </p>
-                    </div>
+                {/* Icon / Image */}
+                <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-500/80 to-green-500/70 p-[1px] flex-shrink-0">
+                  <div className="w-full h-full rounded-2xl bg-black/70 flex items-center justify-center overflow-hidden">
+                    {platform.imageUrl ? (
+                      <Image
+                        src={platform.imageUrl}
+                        alt={platform.title}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                        sizes="80px"
+                        quality={85}
+                      />
+                    ) : (
+                      <div className="text-purple-200 scale-125">{getIcon(platform.icon)}</div>
+                    )}
                   </div>
-
-                  <p className="text-gray-200 text-sm leading-relaxed mb-5 line-clamp-3">
-                    {platform.description}
-                  </p>
-
-                  <div className="mb-7">
-                    <p className="text-purple-300/90 text-xs uppercase tracking-[0.2em] mb-3">Highlights</p>
-                    <ul className="text-gray-300 text-sm space-y-2">
-                      {splitBenefits(platform.benefits)
-                        .slice(0, 3)
-                        .map((b) => (
-                          <li key={b} className="flex items-start gap-2">
-                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-green-400 flex-shrink-0" />
-                            <span className="leading-relaxed">{b}</span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-
-                  <Link
-                    href={platform.url}
-                    target={platform.isExternal ? "_blank" : undefined}
-                    rel={platform.isExternal ? "noopener noreferrer" : undefined}
-                    className={`inline-flex items-center justify-center gap-2 bg-gradient-to-r ${getPlatformColor(platform.icon)} text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 hover:shadow-[0_14px_40px_rgba(0,0,0,0.45)] mt-auto`}
-                  >
-                    <span className="text-sm">
-                      {getIcon(platform.icon)}
-                    </span>
-                    {platform.isExternal ? 'Visit' : 'Explore'} {platform.icon === 'musicpacks' ? 'Packs' : platform.icon.charAt(0).toUpperCase() + platform.icon.slice(1)}
-                  </Link>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-green-500 opacity-60" />
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors leading-snug mb-1">
+                    {platform.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
+                    {platform.description}
+                  </p>
+                </div>
+
+                {/* CTA */}
+                <Link
+                  href={platform.url}
+                  target={platform.isExternal ? '_blank' : undefined}
+                  rel={platform.isExternal ? 'noopener noreferrer' : undefined}
+                  className={`inline-flex items-center gap-2.5 bg-gradient-to-r ${getPlatformColor(platform.icon)} text-white font-semibold py-3.5 px-7 rounded-xl transition-all duration-300 flex-shrink-0 text-base`}
+                >
+                  <span className="w-5 h-5">{getIcon(platform.icon)}</span>
+                  <span className="hidden sm:inline">
+                    {platform.isExternal ? 'Visit' : 'Explore'}
+                  </span>
+                </Link>
               </div>
             </motion.div>
           ))}
