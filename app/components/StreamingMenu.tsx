@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { FaSpotify, FaApple, FaSoundcloud, FaBandcamp, FaEllipsisV } from 'react-icons/fa'
+import { withBeatportAffiliate } from '@/lib/affiliates'
 
 interface StreamingMenuProps {
   spotify?: string | null
@@ -53,7 +54,7 @@ export default function StreamingMenu({
     },
     {
       name: 'Beatport',
-      url: beatport,
+      url: withBeatportAffiliate(beatport ?? undefined),
       icon: () => (
         <Image src="/beatport.svg" alt="Beatport" width={16} height={16} className="w-4 h-4" />
       ),

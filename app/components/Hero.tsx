@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FaSpotify, FaSoundcloud, FaYoutube } from 'react-icons/fa'
 import { prisma } from '@/lib/prisma'
+import { withBeatportAffiliate } from '@/lib/affiliates'
 import PreviewPlayer from './PreviewPlayer'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 
@@ -91,7 +92,7 @@ export default async function Hero() {
     },
     { 
       name: 'Beatport', 
-      url: release.beatport || undefined, 
+      url: withBeatportAffiliate(release.beatport ?? undefined) || undefined, 
       icon: () => (
         <Image src="/beatport.svg" alt="Beatport" width={16} height={16} className="w-4 h-4" />
       ), 

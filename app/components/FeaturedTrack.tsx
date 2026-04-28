@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FaSpotify, FaApple, FaSoundcloud, FaBandcamp, FaYoutube, FaDeezer } from 'react-icons/fa'
 import { prisma } from '@/lib/prisma'
+import { withBeatportAffiliate } from '@/lib/affiliates'
 
 interface StreamingLink {
   name: string
@@ -64,7 +65,7 @@ export default async function FeaturedTrack() {
     },
     { 
       name: 'Beatport', 
-      url: release.beatport || undefined, 
+      url: withBeatportAffiliate(release.beatport ?? undefined) || undefined, 
       icon: '/beatport.svg', 
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20',
