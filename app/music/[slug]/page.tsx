@@ -10,7 +10,7 @@ import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import AffiliateLinks from '@/app/components/AffiliateLinks'
-import { djLinks } from '@/lib/affiliates'
+import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
 
 export const revalidate = 300
 
@@ -114,7 +114,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   const artworkUrl = getArtworkImageUrl({ artworkImageUrl: release.artworkImageUrl, artworkImageKey: release.artworkImageKey })
   const streamingLinks: StreamingLink[] = [
     { name: 'Spotify', url: release.spotify || undefined, icon: 'spotify', color: 'text-green-400', bgColor: 'bg-green-500/10 hover:bg-green-500/20', priority: 3 },
-    { name: 'Beatport', url: release.beatport || undefined, icon: '/beatport.svg', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20', priority: 3 },
+    { name: 'Beatport', url: withBeatportAffiliate(release.beatport ?? undefined) || undefined, icon: '/beatport.svg', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20', priority: 3 },
     { name: 'Apple Music', url: release.appleMusic || undefined, icon: 'apple', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20', priority: 2 },
     { name: 'Deezer', url: release.deezer || undefined, icon: 'deezer', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20' },
     { name: 'SoundCloud', url: release.soundcloud || undefined, icon: 'soundcloud', color: 'text-orange-400', bgColor: 'bg-orange-500/10 hover:bg-orange-500/20', priority: 3 },
@@ -200,7 +200,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     ...(release.beatport && { 
       offers: {
         '@type': 'Offer',
-        url: release.beatport,
+        url: withBeatportAffiliate(release.beatport),
         availability: 'https://schema.org/InStock',
         price: '0',
         priceCurrency: 'USD',
@@ -236,7 +236,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     ...(release.beatport && { 
       offers: {
         '@type': 'Offer',
-        url: release.beatport,
+        url: withBeatportAffiliate(release.beatport),
         availability: 'https://schema.org/InStock',
         price: '0',
         priceCurrency: 'USD',
@@ -264,7 +264,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <ReleaseHero
           title={safeTitle}
-          beatportUrl={release.beatport || undefined}
+          beatportUrl={withBeatportAffiliate(release.beatport ?? undefined) || undefined}
           youtubeUrl={release.youtubeMusic || undefined}
           soundcloudUrl={release.soundcloud || undefined}
           artworkUrl={artworkUrl}

@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Button from '../components/Button'
 import EngagementCTA from '../components/EngagementCTA'
 import AffiliateLinks from '../components/AffiliateLinks'
-import { djLinks } from '@/lib/affiliates'
+import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
 import { useSearchParams } from 'next/navigation'
 import NiceSelect from '../components/NiceSelect'
 
@@ -337,7 +337,7 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
                         </motion.a>
                       )}
                       {post.beatport && (
-                        <motion.a href={post.beatport} target="_blank" rel="noopener noreferrer" whileHover={shouldReduce ? undefined : { scale: 1.05 }} className="flex-1 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 rounded-lg p-2 text-center transition-all duration-300">
+                        <motion.a href={withBeatportAffiliate(post.beatport)} target="_blank" rel="noopener noreferrer sponsored" whileHover={shouldReduce ? undefined : { scale: 1.05 }} className="flex-1 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 rounded-lg p-2 text-center transition-all duration-300">
                           <Image src="/beatport.svg" alt="Beatport" width={16} height={16} className="mx-auto" />
                         </motion.a>
                       )}

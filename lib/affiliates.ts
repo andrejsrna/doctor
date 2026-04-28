@@ -49,3 +49,21 @@ export const affiliateLinks: AffiliateLink[] = [
 
 export const djLinks = affiliateLinks.filter((l) => l.group === 'dj')
 export const producerLinks = affiliateLinks.filter((l) => l.group === 'producer')
+
+/**
+ * Append the Beatport affiliate param to any Beatport URL.
+ * If the URL already has query params, adds &a_aid=...; otherwise adds ?a_aid=...
+ */
+export function withBeatportAffiliate(url: string | undefined): string | undefined {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname.includes('beatport')) {
+      parsed.searchParams.set('a_aid', '69dac828ced75')
+      return parsed.toString()
+    }
+  } catch {
+    // not a valid URL, return as-is
+  }
+  return url
+}
