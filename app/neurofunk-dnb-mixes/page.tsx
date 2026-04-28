@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { sanitizeHtml } from '@/lib/sanitize'
 import type { Metadata } from 'next'
+import AffiliateLinks from '@/app/components/AffiliateLinks'
+import { djLinks } from '@/lib/affiliates'
 
 export const revalidate = 600
 
@@ -198,6 +200,20 @@ export default async function NeurofunkDnBMixesPage() {
                 No mixes published yet. Check back soon for fresh neurofunk sets.
               </div>
             )}
+          </div>
+        </div>
+      </section>
+      {/* Need Tracks for Your Sets? */}
+      <section className="py-16 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="bg-gradient-to-r from-purple-500/10 via-black/50 to-green-500/10 border border-purple-500/20 rounded-2xl p-8">
+            <h2 className="text-2xl font-bold mb-2">Need tracks for your sets?</h2>
+            <p className="text-gray-400 mb-6">Get the latest DnB on Beatport and DJCity — the go-to sources for working DJs.</p>
+            <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
+            <p className="text-xs text-gray-600 mt-4">
+              Some links are affiliate links. We may earn a commission at no extra cost to you.
+            </p>
           </div>
         </div>
       </section>

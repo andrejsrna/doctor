@@ -9,6 +9,8 @@ import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
+import AffiliateLinks from '@/app/components/AffiliateLinks'
+import { djLinks } from '@/lib/affiliates'
 
 export const revalidate = 300
 
@@ -307,6 +309,15 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
             <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
 
             <RelatedNews currentPostId={0} relatedBy={release.title} />
+
+            {/* Buy on Beatport / DJCity */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-green-200">Buy DnB Tracks Online</h3>
+              <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
+              <p className="text-xs text-gray-600">
+                Some links are affiliate links. We may earn a commission at no extra cost to you.
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FaSyringe, FaSkull } from 'react-icons/fa'
+import { FaSyringe, FaSkull, FaExternalLinkAlt } from 'react-icons/fa'
 import { useState, useEffect } from 'react'
 import { subscriberApi } from '../services/subscriberApi'
 import Button from './Button'
@@ -81,7 +81,7 @@ export default function Footer() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.03)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
       
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
           {/* Social Media Section */}
           <div className="space-y-6">
             <motion.h3 
@@ -155,6 +155,7 @@ export default function Footer() {
                 { href: '/about', text: 'About Us' },
                 { href: '/core-artists', text: 'Core Artists' },
                 { href: '/contact', text: 'Contact' },
+                { href: '/recommended-tools', text: 'Recommended Tools' },
                 { href: '/neurofunk-labels', text: 'Neurofunk Labels' },
                 { href: '/how-to-produce-neurofunk', text: 'How to Make Neurofunk' },
                 { href: '/privacy-policy', text: 'Privacy Policy' },
@@ -183,6 +184,56 @@ export default function Footer() {
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                 Cookie Settings
               </motion.button>
+            </motion.div>
+          </div>
+
+          {/* Partners / Affiliate Links */}
+          <div className="space-y-6">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-xl font-bold text-green-500 uppercase tracking-wider"
+            >
+              Partners
+            </motion.h3>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col space-y-2"
+            >
+              {[
+                { name: 'Beatport', href: 'https://www.beatport.com/?a_aid=69dac828ced75' },
+                { name: 'DJCity', href: 'https://www.djcity.com/?a_aid=69dac828ced75' },
+                { name: 'Plugin Boutique', href: 'https://www.pluginboutique.com/?a_aid=69dac828ced75' },
+                { name: 'Loopcloud', href: 'https://www.loopcloud.com/?a_aid=69dac828ced75' },
+                { name: 'Loopmasters', href: 'https://www.loopmasters.com/?a_aid=69dac828ced75' },
+              ].map((link) => (
+                <motion.a
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  whileHover={{ x: 10 }}
+                  className="group w-fit text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  {link.name}
+                  <FaExternalLinkAlt className="w-2 h-2 opacity-0 group-hover:opacity-60 transition-opacity" />
+                </motion.a>
+              ))}
+              <motion.div
+                whileHover={{ x: 10 }}
+                className="group w-fit"
+              >
+                <Link 
+                  href="/recommended-tools" 
+                  className="text-green-500/70 group-hover:text-green-500 transition-colors flex items-center gap-2 text-sm"
+                >
+                  View all →
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
 

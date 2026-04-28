@@ -7,6 +7,8 @@ import { FaArrowLeft, FaArrowRight, FaBoxOpen, FaInfoCircle, FaMusic, FaPause, F
 import { useCategories, useLatestPosts } from '../hooks/useWordPress'
 import Button from '../components/Button'
 import SamplePacksFAQ from '../components/SamplePacksFAQ'
+import AffiliateLinks from '../components/AffiliateLinks'
+import { producerLinks } from '@/lib/affiliates'
 
 type ReleaseItem = {
   id: string
@@ -477,6 +479,17 @@ export default function SamplePacksClient({
               </div>
             </motion.div>
           )}
+        </div>
+      </section>
+
+      {/* Recommended Sample Sources */}
+      <section className="py-16 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <AffiliateLinks links={producerLinks} title="Get More Samples & Tools" layout="compact" />
+          <p className="text-xs text-gray-600 mt-4">
+            Some links are affiliate links. We may earn a commission at no extra cost to you.
+          </p>
         </div>
       </section>
 

@@ -7,6 +7,8 @@ import LatestMusic from '@/app/components/LatestMusic'
 import ListenNow from '@/app/components/ListenNow'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { FaSpotify, FaPlay } from 'react-icons/fa'
+import AffiliateLinks from '@/app/components/AffiliateLinks'
+import { djLinks } from '@/lib/affiliates'
 
 export default function NeurofunkSpotifyPage() {
   return (
@@ -477,6 +479,25 @@ export default function NeurofunkSpotifyPage() {
               By following curated playlists, you help underground artists reach new listeners — and keep the neurofunk scene alive.
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Buy the Tracks */}
+      <section className="py-16 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-2xl font-bold text-center mb-8"
+          >
+            Want to <span className="text-green-500">play these tracks</span>?
+          </motion.h2>
+          <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
+          <p className="text-xs text-gray-600 text-center mt-4">
+            Some links are affiliate links. We may earn a commission at no extra cost to you.
+          </p>
         </div>
       </section>
 

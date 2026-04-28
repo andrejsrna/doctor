@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Button from '@/app/components/Button'
 import EngagementCTA from '@/app/components/EngagementCTA'
+import AffiliateLinks from '@/app/components/AffiliateLinks'
+import { producerLinks } from '@/lib/affiliates'
 
 export default function HowToProduceNeurofunkPage() {
   return (
@@ -590,6 +592,33 @@ export default function HowToProduceNeurofunkPage() {
             </p>
             <footer className="text-green-400 font-semibold">— DnB Doctor</footer>
           </motion.blockquote>
+        </div>
+      </section>
+
+      {/* Recommended Production Tools */}
+      <section className="py-20 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl font-bold mb-4 text-center"
+          >
+            Tools to <span className="text-purple-500">Level Up</span> Your Production
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-gray-400 text-center mb-10 max-w-2xl mx-auto"
+          >
+            Get the plugins, samples, and tools the pros use.
+          </motion.p>
+          <AffiliateLinks links={producerLinks} title={undefined} layout="grid" />
+          <p className="text-xs text-gray-600 text-center mt-6">
+            Some links are affiliate links. We may earn a commission at no extra cost to you.
+          </p>
         </div>
       </section>
 

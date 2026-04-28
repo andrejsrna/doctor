@@ -7,6 +7,8 @@ import { FaMusic, FaPlay, FaPause, FaInfoCircle, FaFilter, FaSearch, FaSoundclou
 import Link from 'next/link'
 import Button from '../components/Button'
 import EngagementCTA from '../components/EngagementCTA'
+import AffiliateLinks from '../components/AffiliateLinks'
+import { djLinks } from '@/lib/affiliates'
 import { useSearchParams } from 'next/navigation'
 import NiceSelect from '../components/NiceSelect'
 
@@ -387,6 +389,20 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
             Stay Updated with <span className="text-purple-500">New Drum and Bass Releases</span>
           </motion.h2>
           <EngagementCTA />
+
+          {/* DJ Sources */}
+          <motion.div
+            initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
+            whileInView={shouldReduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={shouldReduce ? undefined : { once: true }}
+            className="mt-12"
+          >
+            <h3 className="text-xl font-bold text-center mb-6">Buy tracks on <span className="text-green-500">Beatport</span> & <span className="text-green-500">DJCity</span></h3>
+            <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
+            <p className="text-xs text-gray-600 text-center mt-3">
+              Some links are affiliate links. We may earn a commission at no extra cost to you.
+            </p>
+          </motion.div>
         </div>
       </section>
     </>
