@@ -139,9 +139,24 @@ export default async function Hero() {
   return (
     <div className="relative py-24 md:py-32 px-4 overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/20 to-black" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.22)_0%,_transparent_60%)] opacity-50" />
-      <div className="absolute -top-20 left-1/2 h-72 w-[120vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,_rgba(16,185,129,0.18)_0%,_transparent_65%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black" />
+
+      {/* Grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(168,85,247,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.5) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      {/* Purple glow - top right */}
+      <div className="absolute -top-1/4 right-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px]" />
+      {/* Green glow - bottom left */}
+      <div className="absolute -bottom-1/4 left-0 w-[500px] h-[500px] bg-green-500/5 rounded-full blur-[120px]" />
+      {/* Center highlight */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-500/5 rounded-full blur-[100px]" />
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Out Now Badge */}
