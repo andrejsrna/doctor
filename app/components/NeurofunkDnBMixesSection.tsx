@@ -120,9 +120,9 @@ export default function NeurofunkDnBMixesSection() {
                           </p>
                         </div>
 
-                        <span className="text-sm text-purple-200 flex items-center gap-2 group-hover:text-white">
+                        <span className="text-sm text-purple-200 flex items-center gap-2 group-hover:text-white font-semibold">
                           Listen now
-                          <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
+                          <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1">
                             →
                           </span>
                         </span>

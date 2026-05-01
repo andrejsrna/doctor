@@ -224,10 +224,20 @@ export default async function Hero() {
                     />
                   </div>
                 )}
+                <a
+                  href="#listen-now"
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white rounded-xl transition-all duration-300 border border-purple-500/50 font-semibold shadow-[0_0_24px_rgba(168,85,247,0.35)] animate-toxic-pulse motion-reduce:animate-none"
+                  style={{ animationDelay: '0.75s' }}
+                >
+                  <span className="text-sm md:text-base">Listen now</span>
+                  <span className="inline-block transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">
+                    →
+                  </span>
+                </a>
                 <Link 
                   href={`/music/${release.slug}`}
                   className="flex items-center gap-2 px-6 py-3 bg-purple-500/30 hover:bg-purple-500/40 text-purple-100 rounded-xl transition-colors border border-purple-500/50 font-semibold shadow-[0_0_24px_rgba(168,85,247,0.35)] animate-toxic-pulse motion-reduce:animate-none"
-                  style={{ animationDelay: '0.75s' }}
+                  style={{ animationDelay: '0.95s' }}
                 >
                   <span className="text-sm md:text-base">Show More</span>
                 </Link>

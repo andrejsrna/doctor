@@ -119,7 +119,7 @@ const splitBenefits = (benefits: string) =>
 
 export default function ListenNow() {
   return (
-    <section className="py-24 md:py-28 px-4 relative overflow-hidden">
+    <section id="listen-now" className="py-24 md:py-28 px-4 relative overflow-hidden" style={{ scrollMarginTop: "80px" }}>
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30" />

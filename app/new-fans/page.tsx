@@ -34,8 +34,11 @@ export default function NewFansPage() {
             Heavy drums, precise sound design, relentless energy. Dive into essentials and join a community that breathes forward‑thinking DNB.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#listen" className="px-5 py-3 rounded-lg bg-purple-700/90 hover:bg-purple-700 border border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.25)]">
+            <a href="#listen-now" className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 border border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.25)] transition-all duration-300">
               Listen now
+              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">
+                →
+              </span>
             </a>
             <a href="#join" className="px-5 py-3 rounded-lg bg-black/50 border border-white/10 hover:border-white/20">
               Get a free track
