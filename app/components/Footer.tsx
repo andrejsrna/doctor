@@ -450,6 +450,18 @@ export default function Footer() {
                   Neurofunk Labels Guide
                 </Link>
               </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="group"
+              >
+                <Link 
+                  href="/types-of-dnb" 
+                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
+                  Types of DnB
+                </Link>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>
