@@ -34,7 +34,7 @@ const links = [
 
 export default function PromoBar() {
   return (
-    <div className="w-full bg-gradient-to-r from-purple-900/60 via-black/80 to-purple-900/60 border-b border-purple-500/15">
+    <div className="sticky top-16 md:top-20 z-40 w-full bg-gradient-to-r from-purple-900/60 via-black/80 to-purple-900/60 border-b border-purple-500/15 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-2.5">
           {links.map((link) => {
