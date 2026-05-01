@@ -130,22 +130,10 @@ export default async function FeaturedTrack() {
   return (
     <section className="py-20 relative overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(168,85,247,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.5) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* Purple glow - top right */}
-      <div className="absolute -top-1/4 right-0 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px]" />
-      {/* Green glow - bottom left */}
-      <div className="absolute -bottom-1/4 left-0 w-[500px] h-[500px] bg-green-500/5 rounded-full blur-[120px]" />
+      {/* Static subtle radial background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(168,85,247,0.1)_0%,_transparent_100%)] opacity-30" />
 
       {/* Decorative particles removed for performance */}
 
