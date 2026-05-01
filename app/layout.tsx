@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Share_Tech } from "next/font/google";
 import Navigation from "./components/Navigation";
+import PromoBar from "./components/PromoBar";
 import Footer from './components/Footer'
 import Script from 'next/script'
 // import CookieConsent from "./components/CookieConsent";
@@ -225,6 +226,7 @@ export default function RootLayout({
         <SessionProviderWrapper>
           <GlobalErrorReporter />
           <Navigation />
+          <PromoBar />
           {children}
           <Footer />
           {/* Cookie consent + GA4/Ads tracking is handled via GTM. */}
