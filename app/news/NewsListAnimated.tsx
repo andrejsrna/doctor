@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
-import { sanitizeHtml } from '@/app/utils/sanitize'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 type NewsItem = {
   id: string
@@ -108,8 +108,7 @@ function CoverImage({
         fill={fill}
         sizes={fill ? '(min-width: 768px) 800px, 100vw' : undefined}
         className={`object-cover ${className}`}
-        placeholder="blur"
-        blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+        placeholder="empty"
       />
     )
   }
