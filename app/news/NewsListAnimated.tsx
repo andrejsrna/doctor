@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 type NewsItem = {
   id: string
@@ -66,6 +67,7 @@ function FilterPills({
       {FILTER_CATEGORIES.map((cat) => (
         <button
           key={cat}
+          type="button"
           onClick={() => onChange(cat)}
           className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors duration-150 ${
             active === cat
@@ -102,12 +104,18 @@ export default function NewsListAnimated({
     setPage(1)
   }, [posts])
 
+  const FILTER_MAP: Record<string, string> = {
+    Releases:   'release',
+    Interviews: 'interview',
+    Mixes:      'mix',
+    Events:     'event',
+  }
+
   const filteredItems = useMemo(() => {
     if (activeFilter === 'All') return items
+    const term = FILTER_MAP[activeFilter] ?? activeFilter.toLowerCase()
     return items.filter((p) =>
-      p.categories?.some((c) =>
-        c.toLowerCase().includes(activeFilter.toLowerCase().replace(/s$/, ''))
-      )
+      p.categories?.some((c) => c.toLowerCase().includes(term))
     )
   }, [items, activeFilter])
 
