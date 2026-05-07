@@ -82,7 +82,70 @@ function FilterPills({
   )
 }
 
-// Placeholder — remaining components added in next tasks
+function CoverImage({
+  src,
+  alt,
+  fill = false,
+  className = '',
+}: {
+  src?: string | null
+  alt: string
+  fill?: boolean
+  className?: string
+}) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill={fill}
+        sizes={fill ? '(min-width: 768px) 800px, 100vw' : undefined}
+        className={`object-cover ${className}`}
+        placeholder="blur"
+        blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+      />
+    )
+  }
+  return (
+    <div
+      className={`bg-gradient-to-br from-[#1a0a2e] to-[#050410] ${className}`}
+      aria-hidden
+    />
+  )
+}
+
+function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) {
+  const badgeVariant = getBadgeVariant(post.categories)
+  const label = post.categories?.[0] ?? 'News'
+
+  return (
+    <motion.article
+      initial={reduce ? undefined : { opacity: 0, y: -10 }}
+      animate={reduce ? undefined : { opacity: 1, y: 0 }}
+      transition={reduce ? undefined : { duration: 0.4 }}
+      className="relative rounded-2xl overflow-hidden group cursor-pointer"
+    >
+      <Link href={`/news/${post.slug}`} className="block">
+        <div className="relative h-[340px]">
+          <CoverImage src={post.coverImageUrl} alt={post.title} fill className="transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#040410] via-[#040410]/50 to-transparent" />
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 p-7">
+          <Badge label="Featured" variant="featured" />
+          <h2
+            className="text-xl md:text-2xl font-extrabold text-white mt-2.5 leading-snug tracking-tight"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
+          />
+          <div className="flex items-center gap-3 mt-3">
+            <time className="text-gray-500 text-xs">{formatDate(post.publishedAt)}</time>
+            <span className="text-[#6F3DFF] text-xs font-semibold group-hover:text-[#a78bfa] transition-colors">Read more →</span>
+          </div>
+        </div>
+      </Link>
+    </motion.article>
+  )
+}
+
 export default function NewsListAnimated({
   posts,
   initialTotalPages,
