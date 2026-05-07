@@ -66,7 +66,7 @@ export default function Navigation() {
               {/* Logo */}
               <Link href="/" className="block shrink-0">
                 <Image
-                  src="/doctor-logo.svg"
+                  src="/logo-1.png"
                   alt="DnB Doctor"
                   width={720}
                   height={192}
