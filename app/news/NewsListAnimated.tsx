@@ -240,11 +240,19 @@ export default function NewsListAnimated({
   const loadMore = async () => {
     const nextPage = page + 1
     const limit = pageSize ?? 24
-    const res = await fetch(`/api/news?page=${nextPage}&limit=${limit}`, { cache: 'no-store' })
-    const data = await res.json()
-    setItems((prev) => [...prev, ...data.items])
-    setPage(nextPage)
+    try {
+      const res = await fetch(`/api/news?page=${nextPage}&limit=${limit}`, { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json()
+      if (!Array.isArray(data.items)) return
+      setItems((prev) => [...prev, ...data.items])
+      setPage(nextPage)
+    } catch {
+      // silently fail — user can retry by clicking Load more again
+    }
   }
+
+  const [hero, second, third, ...rest] = filteredItems
 
   return (
     <div>
@@ -262,10 +270,49 @@ export default function NewsListAnimated({
 
       <FilterPills active={activeFilter} onChange={setActiveFilter} />
 
-      <p className="text-gray-500 text-sm">
-        {filteredItems.length} articles
-        {/* remaining layout added in next tasks */}
-      </p>
+      {filteredItems.length === 0 && (
+        <div className="text-center py-16 text-gray-600">No articles found.</div>
+      )}
+
+      {/* Featured row */}
+      {hero && (
+        <div className="grid md:grid-cols-[1.7fr_1fr] gap-4 mb-4">
+          <HeroCard post={hero} reduce={shouldReduce} />
+          <div className="flex flex-col gap-4">
+            {second && <SideCard post={second} reduce={shouldReduce} delay={0.1} />}
+            {third && <SideCard post={third} reduce={shouldReduce} delay={0.2} />}
+          </div>
+        </div>
+      )}
+
+      {/* Section divider */}
+      {rest.length > 0 && (
+        <div className="flex items-center gap-4 mb-5 mt-2">
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-700 whitespace-nowrap">More News</span>
+          <div className="flex-1 h-px bg-white/[0.05]" />
+        </div>
+      )}
+
+      {/* Grid */}
+      {rest.length > 0 && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          {rest.map((post, i) => (
+            <NewsCard key={post.id} post={post} reduce={shouldReduce} index={i} />
+          ))}
+        </div>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center mt-10">
+          <button
+            type="button"
+            onClick={loadMore}
+            className="px-8 py-3 rounded-lg bg-[#111] border border-[#6F3DFF]/25 text-[#a78bfa] text-sm font-semibold hover:bg-[#6F3DFF]/10 hover:border-[#6F3DFF] hover:text-white transition-all duration-200"
+          >
+            Load more news ↓
+          </button>
+        </div>
+      )}
     </div>
   )
 }
