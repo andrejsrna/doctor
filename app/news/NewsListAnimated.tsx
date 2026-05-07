@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
-import { sanitizeHtml } from '@/lib/sanitize'
+import { sanitizeHtml } from '@/app/utils/sanitize'
 
 type NewsItem = {
   id: string
@@ -54,6 +54,13 @@ function Badge({ label, variant }: { label: string; variant: BadgeVariant }) {
 }
 
 const FILTER_CATEGORIES = ['All', 'Releases', 'Interviews', 'Mixes', 'Events']
+
+const FILTER_MAP: Record<string, string> = {
+  Releases:   'release',
+  Interviews: 'interview',
+  Mixes:      'mix',
+  Events:     'event',
+}
 
 function FilterPills({
   active,
@@ -115,9 +122,6 @@ function CoverImage({
 }
 
 function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) {
-  const badgeVariant = getBadgeVariant(post.categories)
-  const label = post.categories?.[0] ?? 'News'
-
   return (
     <motion.article
       initial={reduce ? undefined : { opacity: 0, y: -10 }}
@@ -127,7 +131,7 @@ function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) 
     >
       <Link href={`/news/${post.slug}`} className="block">
         <div className="relative h-[340px]">
-          <CoverImage src={post.coverImageUrl} alt={post.title} fill className="transition-transform duration-500 group-hover:scale-105" />
+          <CoverImage src={post.coverImageUrl} alt={post.title.replace(/<[^>]*>/g, '')} fill className="transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#040410] via-[#040410]/50 to-transparent" />
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-7">
@@ -166,13 +170,6 @@ export default function NewsListAnimated({
     setItems(posts)
     setPage(1)
   }, [posts])
-
-  const FILTER_MAP: Record<string, string> = {
-    Releases:   'release',
-    Interviews: 'interview',
-    Mixes:      'mix',
-    Events:     'event',
-  }
 
   const filteredItems = useMemo(() => {
     if (activeFilter === 'All') return items
