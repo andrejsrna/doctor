@@ -159,7 +159,8 @@ function SideCard({ post, reduce, delay }: { post: NewsItem; reduce: boolean | n
       initial={reduce ? undefined : { opacity: 0, x: 16 }}
       animate={reduce ? undefined : { opacity: 1, x: 0 }}
       transition={reduce ? undefined : { duration: 0.35, delay }}
-      className="flex flex-col bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+      whileHover={reduce ? undefined : { y: -2 }}
+      className="flex flex-col bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 transition-[border-color] duration-200 cursor-pointer"
     >
       <Link href={`/news/${post.slug}`} className="flex flex-col flex-1">
         <div className="relative h-[100px] flex-shrink-0">
@@ -187,8 +188,8 @@ function NewsCard({ post, reduce, index }: { post: NewsItem; reduce: boolean | n
       initial={reduce ? undefined : { opacity: 0, y: 20 }}
       whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
       viewport={reduce ? undefined : { once: true }}
-      transition={reduce ? undefined : { delay: index * 0.04 }}
-      className="bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 hover:shadow-[0_0_20px_rgba(111,61,255,0.08)] transition-all duration-200 cursor-pointer"
+      transition={reduce ? undefined : { delay: Math.min(index * 0.04, 0.3) }}
+      className="bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 hover:shadow-[0_0_20px_rgba(111,61,255,0.08)] transition-[border-color,box-shadow] duration-200 cursor-pointer"
     >
       <Link href={`/news/${post.slug}`} className="block">
         <div className="relative h-[160px]">
