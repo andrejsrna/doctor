@@ -137,7 +137,7 @@ export default async function Hero() {
   })()
 
   return (
-    <div className="relative py-24 md:py-32 px-4 overflow-hidden">
+    <div className="relative min-h-[calc(100vh-5rem)] flex flex-col justify-center py-8 px-4 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black" />
 
@@ -198,9 +198,11 @@ export default async function Hero() {
                     {release.artistName}
                   </p>
                 )}
-                <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3 drop-shadow-[0_0_26px_rgba(168,85,247,0.45)]">
-                  {release.title}
-                </h1>
+                <Link href={`/music/${release.slug}`} className="group">
+                  <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3 transition-all duration-300 drop-shadow-[0_0_26px_rgba(168,85,247,0.45)] group-hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.85)] group-hover:text-purple-200 relative inline-block after:block after:h-[3px] after:w-0 after:bg-gradient-to-r after:from-purple-500 after:to-pink-500 after:transition-all after:duration-300 group-hover:after:w-full">
+                    {release.title}
+                  </h1>
+                </Link>
                 <p className="text-gray-300 text-sm md:text-base">
                   Released {formatDate(release.publishedAt)}
                 </p>
@@ -214,7 +216,7 @@ export default async function Hero() {
               )}
 
               {/* CTAs */}
-              <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                   {streamingLinks.slice(0, 2).map((platform) => (
                     <a
                       key={platform.name}
@@ -232,13 +234,23 @@ export default async function Hero() {
                   ))}
                 {release.previewUrl && (
                   <div className="animate-toxic-pulse motion-reduce:animate-none" style={{ animationDelay: '0.55s' }}>
-                    <PreviewPlayer 
+                    <PreviewPlayer
                       previewUrl={release.previewUrl}
                       title={release.title}
                       artistName={release.artistName}
                     />
                   </div>
                 )}
+
+                <Link
+                  href={`/music/${release.slug}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-purple-500/30 text-purple-300 text-sm font-semibold tracking-wide hover:bg-purple-500/10 hover:border-purple-400/60 hover:text-white transition-all duration-300 group"
+                >
+                  Show more
+                  <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>
