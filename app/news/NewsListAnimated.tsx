@@ -141,7 +141,7 @@ function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) 
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
           />
           <div className="flex items-center gap-3 mt-3">
-            <time className="text-gray-500 text-xs">{formatDate(post.publishedAt)}</time>
+            <time dateTime={post.publishedAt ?? undefined} className="text-gray-500 text-xs">{formatDate(post.publishedAt)}</time>
             <span className="text-[#6F3DFF] text-xs font-semibold group-hover:text-[#a78bfa] transition-colors">Read more →</span>
           </div>
         </div>
@@ -172,7 +172,7 @@ function SideCard({ post, reduce, delay }: { post: NewsItem; reduce: boolean | n
             className="text-sm font-bold text-gray-100 mt-2 leading-snug flex-1"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
           />
-          <time className="text-gray-600 text-[11px] mt-2">{formatDate(post.publishedAt)}</time>
+          <time dateTime={post.publishedAt ?? undefined} className="text-gray-600 text-[11px] mt-2">{formatDate(post.publishedAt)}</time>
         </div>
       </Link>
     </motion.article>
@@ -201,7 +201,7 @@ function NewsCard({ post, reduce, index }: { post: NewsItem; reduce: boolean | n
             className="text-sm font-bold text-gray-100 mt-2 mb-2 leading-snug"
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
           />
-          <time className="text-gray-600 text-[11px]">{formatDate(post.publishedAt)}</time>
+          <time dateTime={post.publishedAt ?? undefined} className="text-gray-600 text-[11px]">{formatDate(post.publishedAt)}</time>
         </div>
       </Link>
     </motion.article>
@@ -221,6 +221,7 @@ export default function NewsListAnimated({
   const [items, setItems] = useState<NewsItem[]>(posts)
   const [page, setPage] = useState(1)
   const [activeFilter, setActiveFilter] = useState('All')
+  const [loadError, setLoadError] = useState(false)
   const totalPages = initialTotalPages ?? 1
   const hasMore = useMemo(() => page < totalPages, [page, totalPages])
 
@@ -238,17 +239,18 @@ export default function NewsListAnimated({
   }, [items, activeFilter])
 
   const loadMore = async () => {
+    setLoadError(false)
     const nextPage = page + 1
     const limit = pageSize ?? 24
     try {
       const res = await fetch(`/api/news?page=${nextPage}&limit=${limit}`, { cache: 'no-store' })
-      if (!res.ok) return
+      if (!res.ok) { setLoadError(true); return }
       const data = await res.json()
-      if (!Array.isArray(data.items)) return
+      if (!Array.isArray(data.items)) { setLoadError(true); return }
       setItems((prev) => [...prev, ...data.items])
       setPage(nextPage)
     } catch {
-      // silently fail — user can retry by clicking Load more again
+      setLoadError(true)
     }
   }
 
@@ -270,40 +272,42 @@ export default function NewsListAnimated({
 
       <FilterPills active={activeFilter} onChange={setActiveFilter} />
 
-      {filteredItems.length === 0 && (
+      {filteredItems.length === 0 ? (
         <div className="text-center py-16 text-gray-600">No articles found.</div>
-      )}
+      ) : (
+        <>
+          {/* Featured row */}
+          {hero && (
+            <div className="grid md:grid-cols-[1.7fr_1fr] gap-4 mb-4">
+              <HeroCard post={hero} reduce={shouldReduce} />
+              <div className="flex flex-col gap-4">
+                {second && <SideCard post={second} reduce={shouldReduce} delay={0.1} />}
+                {third && <SideCard post={third} reduce={shouldReduce} delay={0.2} />}
+              </div>
+            </div>
+          )}
 
-      {/* Featured row */}
-      {hero && (
-        <div className="grid md:grid-cols-[1.7fr_1fr] gap-4 mb-4">
-          <HeroCard post={hero} reduce={shouldReduce} />
-          <div className="flex flex-col gap-4">
-            {second && <SideCard post={second} reduce={shouldReduce} delay={0.1} />}
-            {third && <SideCard post={third} reduce={shouldReduce} delay={0.2} />}
-          </div>
-        </div>
-      )}
+          {/* Section divider */}
+          {rest.length > 0 && (
+            <div className="flex items-center gap-4 mb-5 mt-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-700 whitespace-nowrap">More News</span>
+              <div className="flex-1 h-px bg-white/[0.05]" />
+            </div>
+          )}
 
-      {/* Section divider */}
-      {rest.length > 0 && (
-        <div className="flex items-center gap-4 mb-5 mt-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-gray-700 whitespace-nowrap">More News</span>
-          <div className="flex-1 h-px bg-white/[0.05]" />
-        </div>
-      )}
-
-      {/* Grid */}
-      {rest.length > 0 && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          {rest.map((post, i) => (
-            <NewsCard key={post.id} post={post} reduce={shouldReduce} index={i} />
-          ))}
-        </div>
+          {/* Grid */}
+          {rest.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              {rest.map((post, i) => (
+                <NewsCard key={post.id} post={post} reduce={shouldReduce} index={i} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {hasMore && (
-        <div className="flex justify-center mt-10">
+        <div className="flex flex-col items-center gap-2 mt-10">
           <button
             type="button"
             onClick={loadMore}
@@ -311,6 +315,9 @@ export default function NewsListAnimated({
           >
             Load more news ↓
           </button>
+          {loadError && (
+            <p className="text-red-500/70 text-xs">Failed to load — please try again.</p>
+          )}
         </div>
       )}
     </div>
