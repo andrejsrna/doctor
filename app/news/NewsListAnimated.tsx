@@ -150,6 +150,63 @@ function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) 
   )
 }
 
+function SideCard({ post, reduce, delay }: { post: NewsItem; reduce: boolean | null; delay: number }) {
+  const variant = getBadgeVariant(post.categories)
+  const label = post.categories?.[0] ?? 'News'
+
+  return (
+    <motion.article
+      initial={reduce ? undefined : { opacity: 0, x: 16 }}
+      animate={reduce ? undefined : { opacity: 1, x: 0 }}
+      transition={reduce ? undefined : { duration: 0.35, delay }}
+      className="flex flex-col bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+    >
+      <Link href={`/news/${post.slug}`} className="flex flex-col flex-1">
+        <div className="relative h-[100px] flex-shrink-0">
+          <CoverImage src={post.coverImageUrl} alt={post.title.replace(/<[^>]*>/g, '')} fill />
+        </div>
+        <div className="p-4 flex flex-col flex-1">
+          <Badge label={label} variant={variant} />
+          <h3
+            className="text-sm font-bold text-gray-100 mt-2 leading-snug flex-1"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
+          />
+          <time className="text-gray-600 text-[11px] mt-2">{formatDate(post.publishedAt)}</time>
+        </div>
+      </Link>
+    </motion.article>
+  )
+}
+
+function NewsCard({ post, reduce, index }: { post: NewsItem; reduce: boolean | null; index: number }) {
+  const variant = getBadgeVariant(post.categories)
+  const label = post.categories?.[0] ?? 'News'
+
+  return (
+    <motion.article
+      initial={reduce ? undefined : { opacity: 0, y: 20 }}
+      whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+      viewport={reduce ? undefined : { once: true }}
+      transition={reduce ? undefined : { delay: index * 0.04 }}
+      className="bg-[#0d0d1a] border border-white/[0.04] rounded-xl overflow-hidden hover:border-[#6F3DFF]/25 hover:shadow-[0_0_20px_rgba(111,61,255,0.08)] transition-all duration-200 cursor-pointer"
+    >
+      <Link href={`/news/${post.slug}`} className="block">
+        <div className="relative h-[160px]">
+          <CoverImage src={post.coverImageUrl} alt={post.title.replace(/<[^>]*>/g, '')} fill />
+        </div>
+        <div className="p-4">
+          <Badge label={label} variant={variant} />
+          <h3
+            className="text-sm font-bold text-gray-100 mt-2 mb-2 leading-snug"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
+          />
+          <time className="text-gray-600 text-[11px]">{formatDate(post.publishedAt)}</time>
+        </div>
+      </Link>
+    </motion.article>
+  )
+}
+
 export default function NewsListAnimated({
   posts,
   initialTotalPages,
