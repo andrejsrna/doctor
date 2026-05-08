@@ -114,9 +114,13 @@ function CoverImage({
   }
   return (
     <div
-      className={`bg-gradient-to-br from-[#1a0a2e] to-[#050410] ${className}`}
+      className={`bg-gradient-to-br from-[#1a0a2e] to-[#050410] flex items-center justify-center ${fill ? 'absolute inset-0' : ''} ${className}`}
       aria-hidden
-    />
+    >
+      <svg className="w-10 h-10 text-[#6F3DFF]/30" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/>
+      </svg>
+    </div>
   )
 }
 
@@ -129,7 +133,7 @@ function HeroCard({ post, reduce }: { post: NewsItem; reduce: boolean | null }) 
       className="relative rounded-2xl overflow-hidden group cursor-pointer"
     >
       <Link href={`/news/${post.slug}`} className="block">
-        <div className="relative h-[340px]">
+        <div className="relative h-[340px] overflow-hidden">
           <CoverImage src={post.coverImageUrl} alt={post.title.replace(/<[^>]*>/g, '')} fill className="transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#040410] via-[#040410]/50 to-transparent" />
         </div>
@@ -165,7 +169,7 @@ function SideCard({ post, reduce, delay }: { post: NewsItem; reduce: boolean | n
         <div className="relative h-[100px] flex-shrink-0">
           <CoverImage src={post.coverImageUrl} alt={post.title.replace(/<[^>]*>/g, '')} fill />
         </div>
-        <div className="p-4 flex flex-col flex-1">
+        <div className="p-4 flex flex-col flex-1 items-start">
           <Badge label={label} variant={variant} />
           <h3
             className="text-sm font-bold text-gray-100 mt-2 leading-snug flex-1"

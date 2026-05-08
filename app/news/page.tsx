@@ -21,7 +21,7 @@ export default async function NewsPage() {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   return (
-    <section className="py-32 px-4 relative min-h-screen">
+    <section className="py-4 px-4 relative min-h-screen">
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent animate-pulse" />
