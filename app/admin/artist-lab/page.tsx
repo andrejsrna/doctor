@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import Link from "next/link"
 import { FaBook, FaCheckCircle, FaExternalLinkAlt, FaPlus, FaRocket, FaUserCircle } from "react-icons/fa"
 
 type LabArtist = {
@@ -34,18 +35,27 @@ export default function ArtistLabAdminPage() {
   const [accountForm, setAccountForm] = useState(defaultAccount)
   const [documentForm, setDocumentForm] = useState(defaultDocument)
   const [saving, setSaving] = useState("")
+  const hasLoadedOnce = useRef(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError("")
-    const response = await fetch("/api/admin/artist-lab/overview", { cache: "no-store" })
-    if (!response.ok) {
-      setError("Artist Lab could not be loaded")
+    try {
+      const response = await fetch("/api/admin/artist-lab/overview", { cache: "no-store" })
+      if (!response.ok) {
+        if (!hasLoadedOnce.current) setError("Artist Lab could not be loaded")
+        console.warn("Artist Lab overview refresh failed", response.status)
+        setLoading(false)
+        return
+      }
+      setData(await response.json())
+      hasLoadedOnce.current = true
       setLoading(false)
-      return
+    } catch (error) {
+      if (!hasLoadedOnce.current) setError("Artist Lab could not be loaded")
+      console.warn("Artist Lab overview refresh failed", error)
+      setLoading(false)
     }
-    setData(await response.json())
-    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -230,10 +240,10 @@ export default function ArtistLabAdminPage() {
           <h2 className="mb-4 text-xl font-black text-white">Shared documents</h2>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {data?.globalDocuments.map((doc) => (
-              <a key={doc.id} href={doc.url || "#"} target={doc.url ? "_blank" : undefined} rel={doc.url ? "noreferrer" : undefined} className="flex items-center justify-between border border-white/10 p-4 text-white hover:border-lime-300/50">
+              <Link key={doc.id} href={`/admin/artist/documents/${doc.id}`} className="flex items-center justify-between border border-white/10 p-4 text-white hover:border-lime-300/50">
                 <span>{doc.title}</span>
                 {doc.url && <FaExternalLinkAlt className="text-lime-300" />}
-              </a>
+              </Link>
             ))}
           </div>
         </section>

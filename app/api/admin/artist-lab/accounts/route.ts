@@ -3,6 +3,7 @@ import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
 import { requireRole } from "@/app/lib/roles"
 import { prisma } from "@/lib/prisma"
+import { assignArtistOnboardingTasks } from "@/lib/artistLabOnboarding"
 
 export async function POST(request: NextRequest) {
   const { response } = await requireRole(request, ["ADMIN"])
@@ -56,6 +57,8 @@ export async function POST(request: NextRequest) {
       create: { userId: user.id, artistId, role: data.memberRole || "OWNER" },
     }),
   ])
+
+  await assignArtistOnboardingTasks(prisma, artistId)
 
   return NextResponse.json({ user: updatedUser, membership })
 }

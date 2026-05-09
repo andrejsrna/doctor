@@ -24,6 +24,10 @@ export async function GET(
 
   if (!document) return NextResponse.json({ error: "Document not found" }, { status: 404 })
 
+  if (user.role === "ADMIN" && !document.artistId) {
+    return NextResponse.json({ document: { ...document, tasks: [] } })
+  }
+
   if (user.role !== "ADMIN" && document.artistId) {
     const membership = await prisma.artistMember.findFirst({
       where: { userId: user.id, artistId: document.artistId },
