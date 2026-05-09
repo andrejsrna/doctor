@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DnB Doctor — News Redesign</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #040410; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  .nav { background: #050505/95; border-bottom: 1px solid #ffffff0d; padding: 0 32px; height: 64px; display: flex; align-items: center; gap: 32px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+  .nav-logo { color: #fff; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .nav-logo span { color: #6F3DFF; }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-link { color: #888; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; cursor: pointer; }
+  .nav-link.active { color: #fff; }
+
+  /* PAGE */
+  .page { max-width: 1200px; margin: 0 auto; padding: 64px 32px 80px; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 40px; }
+  .page-header h1 { font-size: 42px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
+  .page-header h1 span { color: #6F3DFF; }
+  .page-header p { color: #666; font-size: 14px; margin-top: 8px; }
+
+  /* FILTER PILLS */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
+  .pill { padding: 7px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em; transition: all 0.15s; }
+  .pill.active { background: #6F3DFF; color: #fff; }
+  .pill.inactive { background: #111; color: #666; border: 1px solid #222; }
+  .pill.inactive:hover { border-color: #6F3DFF55; color: #aaa; }
+
+  /* FEATURED ROW */
+  .featured-row { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* HERO CARD */
+  .hero-card { border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; }
+  .hero-card-img { background: linear-gradient(135deg, #1a0a3e 0%, #0d0820 50%, #050410 100%); height: 340px; position: relative; }
+  .hero-card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #040410 0%, #040410aa 30%, transparent 65%); }
+  .hero-card-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px; z-index: 2; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .badge-featured { background: #6F3DFF; color: #fff; }
+  .badge-release { background: #74F2CE22; color: #74F2CE; border: 1px solid #74F2CE44; }
+  .badge-interview { background: #c084fc22; color: #c084fc; border: 1px solid #c084fc44; }
+  .badge-mix { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+  .badge-event { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
+  .hero-title { font-size: 22px; font-weight: 800; line-height: 1.25; letter-spacing: -0.3px; color: #fff; }
+  .hero-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .hero-date { color: #888; font-size: 12px; }
+  .hero-read { color: #6F3DFF; font-size: 12px; font-weight: 600; }
+
+  /* SIDE CARDS */
+  .side-cards { display: flex; flex-direction: column; gap: 16px; }
+  .side-card { background: #0d0d1a; border: 1px solid #ffffff0a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; display: flex; flex-direction: column; flex: 1; }
+  .side-card:hover { border-color: #6F3DFF44; transform: translateY(-2px); }
+  .side-card-img { background: linear-gradient(135deg, #0d1a2e, #050410); height: 100px; flex-shrink: 0; }
+  .side-card-img.b { background: linear-gradient(135deg, #0a1a0a, #050410); }
+  .side-card-body { padding: 14px; flex: 1; }
+  .side-card-body h3 { font-size: 14px; font-weight: 700; line-height: 1.35; color: #f0f0f0; margin-top: 6px; }
+  .side-card-meta { color: #666; font-size: 11px; margin-top: 6px; }
+
+  /* DIVIDER */
+  .section-divider { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .section-divider h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; white-space: nowrap; }
+  .section-divider-line { flex: 1; height: 1px; background: #ffffff08; }
+
+  /* MAIN GRID */
+  .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+
+  .news-card { background: #0d0d1a; border: 1px solid #ffffff0a; border-radius: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+  .news-card:hover { border-color: #6F3DFF44; box-shadow: 0 0 20px #6F3DFF15; }
+  .news-card-img { height: 160px; background: linear-gradient(135deg, #1a0a2e, #050410); }
+  .news-card-img.teal { background: linear-gradient(135deg, #0a2e1a, #050410); }
+  .news-card-img.gold { background: linear-gradient(135deg, #2e1a0a, #050410); }
+  .news-card-img.red { background: linear-gradient(135deg, #2e0a0a, #050410); }
+  .news-card-body { padding: 16px; }
+  .news-card-body h3 { font-size: 14px; font-weight: 700; line-height: 1.4; color: #f0f0f0; margin: 8px 0 6px; }
+  .news-card-meta { color: #555; font-size: 11px; }
+
+  /* LOAD MORE */
+  .load-more-wrap { text-align: center; margin-top: 40px; }
+  .load-more-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px; border-radius: 8px; background: #111; border: 1px solid #6F3DFF44; color: #a78bfa; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .load-more-btn:hover { background: #6F3DFF15; border-color: #6F3DFF; color: #fff; }
+
+  /* ANNOTATION */
+  .annotation { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; border: 1px solid #6F3DFF55; border-radius: 12px; padding: 16px 20px; max-width: 260px; font-size: 12px; color: #aaa; line-height: 1.5; }
+  .annotation strong { color: #a78bfa; display: block; margin-bottom: 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">DnB<span>Doctor</span></div>
+  <div class="nav-links">
+    <span class="nav-link">Music</span>
+    <span class="nav-link active">News</span>
+    <span class="nav-link">Artists</span>
+    <span class="nav-link">Shop</span>
+    <span class="nav-link">About</span>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>Latest <span>News</span></h1>
+    <p>Drum & Bass · Neurofunk · Electronic Music</p>
+  </div>
+
+  <!-- FILTER PILLS -->
+  <div class="filters">
+    <div class="pill active">All</div>
+    <div class="pill inactive">Releases</div>
+    <div class="pill inactive">Interviews</div>
+    <div class="pill inactive">Mixes</div>
+    <div class="pill inactive">Events</div>
+  </div>
+
+  <!-- FEATURED ROW -->
+  <div class="featured-row">
+
+    <!-- HERO -->
+    <div class="hero-card">
+      <div class="hero-card-img"></div>
+      <div class="hero-card-body">
+        <span class="badge badge-featured">Featured</span>
+        <div class="hero-title">Noisia Announces Final Farewell Tour Across Europe — 20 Years of Neurofunk</div>
+        <div class="hero-meta">
+          <span class="hero-date">8 May 2026</span>
+          <span class="hero-read">Read more →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDE CARDS -->
+    <div class="side-cards">
+      <div class="side-card">
+        <div class="side-card-img"></div>
+        <div class="side-card-body">
+          <span class="badge badge-release">New Release</span>
+          <h3>Mefjus Drops Surprise EP on Vision Recordings Without Warning</h3>
+          <div class="side-card-meta">6 May 2026</div>
+        </div>
+      </div>
+      <div class="side-card">
+        <div class="side-card-img b"></div>
+        <div class="side-card-body">
+          <span class="badge badge-interview">Interview</span>
+          <h3>Emperor on the Future of Neurofunk and His Upcoming Album</h3>
+          <div class="side-card-meta">4 May 2026</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MORE NEWS DIVIDER -->
+  <div class="section-divider">
+    <h2>More News</h2>
+    <div class="section-divider-line"></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="news-grid">
+
+    <div class="news-card">
+      <div class="news-card-img teal"></div>
+      <div class="news-card-body">
+        <span class="badge badge-release">Release</span>
+        <h3>Invisible Drops New Mix Series on SoundCloud</h3>
+        <div class="news-card-meta">2 May 2026</div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="news-card-img gold"></div>
+      <div class="news-card-body">
+        <span class="badge badge-mix">Mix</span>
+        <h3>RAM Records Signs Three New Artists in Surprise Announcement</h3>
+        <div class="news-card-meta">1 May 2026</div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="news-card-img red"></div>
+      <div class="news-card-body">
+        <span class="badge badge-event">Event</span>
+        <h3>UKF Celebrates 15 Years With Massive Online Mix Archive</h3>
+        <div class="news-card-meta">30 Apr 2026</div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="news-card-img"></div>
+      <div class="news-card-body">
+        <span class="badge badge-interview">Interview</span>
+        <h3>Icicle on Leaving Metalheadz and Starting Fresh</h3>
+        <div class="news-card-meta">28 Apr 2026</div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="news-card-img teal"></div>
+      <div class="news-card-body">
+        <span class="badge badge-release">Release</span>
+        <h3>Black Sun Empire Returns With Long Awaited Full LP</h3>
+        <div class="news-card-meta">25 Apr 2026</div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="news-card-img gold"></div>
+      <div class="news-card-body">
+        <span class="badge badge-mix">Mix</span>
+        <h3>DnB Doctor Mix Vortex Vol. 4 — 12 Exclusive Tracks</h3>
+        <div class="news-card-meta">22 Apr 2026</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOAD MORE -->
+  <div class="load-more-wrap">
+    <button class="load-more-btn">Load more news ↓</button>
+  </div>
+
+</div>
+
+<!-- ANNOTATION -->
+<div class="annotation">
+  <strong>Finálny návrh — tvoj feedback?</strong>
+  Toto je celá news stránka. Napíš v termináli čo by si zmenil alebo či to schvaľuješ.
+</div>
+
+</body>
+</html>

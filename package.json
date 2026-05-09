@@ -34,7 +34,8 @@
     "newsletter:dedupe": "tsx scripts/merge-duplicate-subscribers.ts",
     "newsletter:dedupe:apply": "tsx scripts/merge-duplicate-subscribers.ts --apply",
     "artist-lab:seed-onboarding": "tsx scripts/seed-artist-onboarding.ts",
-    "artist-lab:seed-profile-setup": "tsx scripts/seed-artist-profile-setup.ts"
+    "artist-lab:seed-profile-setup": "tsx scripts/seed-artist-profile-setup.ts",
+    "artist-lab:seed-release-week": "tsx scripts/seed-artist-release-week.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.984.0",

@@ -5,6 +5,7 @@ import { requireRole } from "@/app/lib/roles"
 import { prisma } from "@/lib/prisma"
 import { assignArtistOnboardingTasks } from "@/lib/artistLabOnboarding"
 import { assignArtistProfileSetupTasks } from "@/lib/artistLabProfileSetup"
+import { assignArtistReleaseWeekTasks } from "@/lib/artistLabReleaseWeek"
 
 export async function POST(request: NextRequest) {
   const { response } = await requireRole(request, ["ADMIN"])
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
 
   await assignArtistOnboardingTasks(prisma, artistId)
   await assignArtistProfileSetupTasks(prisma, artistId)
+  await assignArtistReleaseWeekTasks(prisma, artistId)
 
   return NextResponse.json({ user: updatedUser, membership })
 }

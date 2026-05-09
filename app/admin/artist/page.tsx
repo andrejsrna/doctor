@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { FaBookOpen, FaCheck, FaExternalLinkAlt, FaRegCircle, FaRocket } from "react-icons/fa"
+import { FaBookOpen, FaCheck, FaDiscord, FaEnvelope, FaExternalLinkAlt, FaInstagram, FaPhoneAlt, FaRegCircle, FaRocket } from "react-icons/fa"
 
 type Task = {
   id: string
@@ -143,6 +143,37 @@ export default function ArtistWorkspacePage() {
         </div>
 
         <div className="space-y-5">
+          <section className="border border-lime-300/20 bg-[#0a100d] p-6">
+            <div className="flex items-start gap-4">
+              <div className="h-20 w-20 shrink-0 overflow-hidden border border-lime-300/25 bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/andrej.jpg" alt="Andrej Srna" className="h-full w-full object-cover" />
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-[0.22em] text-lime-300">Your label contact</div>
+                <h2 className="mt-2 text-2xl font-black text-white">Andrej Srna</h2>
+                <p className="mt-2 text-sm leading-6 text-gray-400">
+                  If you need anything around releases, assets, tasks or campaign questions, message me directly.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-2 text-sm">
+              <a href="mailto:dnbdoctor1@gmail.com" className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white hover:border-lime-300/50">
+                <FaEnvelope className="text-lime-300" /> dnbdoctor1@gmail.com
+              </a>
+              <a href="https://instagram.com/asana.dnb" target="_blank" rel="noreferrer" className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white hover:border-lime-300/50">
+                <FaInstagram className="text-lime-300" /> @asana.dnb
+              </a>
+              <div className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white">
+                <FaDiscord className="text-lime-300" /> andrej.srna690987407067316257
+              </div>
+              <a href="https://wa.me/421914230321" target="_blank" rel="noreferrer" className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white hover:border-lime-300/50">
+                <FaPhoneAlt className="text-lime-300" /> +421 914 230 321
+              </a>
+            </div>
+          </section>
+
           <section className="border border-white/10 bg-black/35 p-6">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-white"><FaBookOpen /> Documents</h2>
             <div className="space-y-3">

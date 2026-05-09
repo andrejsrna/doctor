@@ -1,0 +1,81 @@
+<h2>Kategórie a filtrovanie</h2>
+<p class="subtitle">Ako má byť news stránka organizovaná?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="no-filter" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#050505;border-radius:8px;padding:14px;font-family:sans-serif;">
+        <!-- Header -->
+        <div style="text-align:center;margin-bottom:12px;">
+          <div style="color:#fff;font-size:14px;font-weight:800;letter-spacing:-0.5px;">Latest News</div>
+          <div style="color:#888;font-size:8px;margin-top:2px;">Drum & Bass · Neurofunk · Electronic</div>
+        </div>
+        <!-- Featured -->
+        <div style="background:linear-gradient(135deg,#1a0a2e,#0d0d1a);border-radius:6px;height:70px;margin-bottom:8px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,#050505 0%,transparent 60%);"></div>
+          <div style="position:absolute;bottom:7px;left:8px;">
+            <span style="background:#6F3DFF;color:#fff;font-size:7px;padding:1px 5px;border-radius:3px;">FEATURED</span>
+            <div style="color:#fff;font-size:9px;font-weight:700;margin-top:2px;">Noisia Farewell Tour Announced</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#111;border:1px solid #6F3DFF22;border-radius:4px;padding:7px;">
+            <span style="color:#74F2CE;font-size:7px;">RELEASE</span>
+            <div style="color:#fff;font-size:8px;margin-top:2px;">Mefjus EP drops</div>
+          </div>
+          <div style="background:#111;border:1px solid #6F3DFF22;border-radius:4px;padding:7px;">
+            <span style="color:#c084fc;font-size:7px;">INTERVIEW</span>
+            <div style="color:#fff;font-size:8px;margin-top:2px;">Emperor speaks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Bez filtrov</h3>
+      <p>Jednoduchý chronologický tok. Farebné štítky (RELEASE, INTERVIEW, MIX…) rozlišujú typy bez nutnosti filtrovať. Čistejší, rýchlejší na implementáciu.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="pill-filters" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#050505;border-radius:8px;padding:14px;font-family:sans-serif;">
+        <!-- Header with pills -->
+        <div style="text-align:center;margin-bottom:10px;">
+          <div style="color:#fff;font-size:14px;font-weight:800;letter-spacing:-0.5px;">Latest News</div>
+        </div>
+        <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="background:#6F3DFF;color:#fff;font-size:7px;padding:3px 8px;border-radius:20px;font-weight:600;">All</span>
+          <span style="background:#111;color:#888;font-size:7px;padding:3px 8px;border-radius:20px;border:1px solid #333;">Releases</span>
+          <span style="background:#111;color:#888;font-size:7px;padding:3px 8px;border-radius:20px;border:1px solid #333;">Interviews</span>
+          <span style="background:#111;color:#888;font-size:7px;padding:3px 8px;border-radius:20px;border:1px solid #333;">Mixes</span>
+          <span style="background:#111;color:#888;font-size:7px;padding:3px 8px;border-radius:20px;border:1px solid #333;">Events</span>
+        </div>
+        <!-- Featured -->
+        <div style="background:linear-gradient(135deg,#1a0a2e,#0d0d1a);border-radius:6px;height:60px;margin-bottom:8px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,#050505 0%,transparent 60%);"></div>
+          <div style="position:absolute;bottom:7px;left:8px;">
+            <div style="color:#fff;font-size:9px;font-weight:700;">Noisia Farewell Tour Announced</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:#111;border:1px solid #6F3DFF22;border-radius:4px;padding:7px;">
+            <div style="color:#fff;font-size:8px;">Mefjus EP drops</div>
+            <div style="color:#777;font-size:7px;margin-top:2px;">6 May</div>
+          </div>
+          <div style="background:#111;border:1px solid #6F3DFF22;border-radius:4px;padding:7px;">
+            <div style="color:#fff;font-size:8px;">Emperor speaks</div>
+            <div style="color:#777;font-size:7px;margin-top:2px;">4 May</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Filter pills</h3>
+      <p>Pill tlačidlá nad gridом — All / Releases / Interviews / Mixes / Events. Kliknutím sa filtrujú karty. Lepší UX pre väčší objem obsahu.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;font-size:13px;">Klikni alebo napíš v termináli</p>

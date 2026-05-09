@@ -1,0 +1,149 @@
+<h2>Aký layout pre News stránku?</h2>
+<p class="subtitle">Vyber štýl rozloženia článkov — každý má iný charakter a hierarchiu</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="magazine" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border:1px solid #6F3DFF33;border-radius:8px;padding:14px;font-family:sans-serif;">
+        <!-- Hero article -->
+        <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:10px;margin-bottom:10px;">
+          <div style="background:linear-gradient(135deg,#1a0a2e,#0d0d1a);border-radius:6px;height:140px;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top,#000 0%,transparent 60%);"></div>
+            <div style="position:absolute;bottom:8px;left:8px;right:8px;">
+              <div style="background:#6F3DFF;color:#fff;font-size:8px;padding:2px 6px;border-radius:3px;display:inline-block;margin-bottom:4px;">FEATURED</div>
+              <div style="color:#fff;font-size:11px;font-weight:700;line-height:1.3;">Noisia Announces Final Farewell Tour Across Europe</div>
+              <div style="color:#aaa;font-size:8px;margin-top:3px;">8 May 2026</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="background:#111;border-radius:4px;padding:8px;flex:1;">
+              <div style="color:#74F2CE;font-size:7px;margin-bottom:3px;">NEW RELEASE</div>
+              <div style="color:#fff;font-size:9px;font-weight:600;line-height:1.3;">Mefjus drops surprise EP on Vision</div>
+              <div style="color:#777;font-size:7px;margin-top:2px;">6 May 2026</div>
+            </div>
+            <div style="background:#111;border-radius:4px;padding:8px;flex:1;">
+              <div style="color:#74F2CE;font-size:7px;margin-bottom:3px;">INTERVIEW</div>
+              <div style="color:#fff;font-size:9px;font-weight:600;line-height:1.3;">Emperor on the future of neurofunk</div>
+              <div style="color:#777;font-size:7px;margin-top:2px;">4 May 2026</div>
+            </div>
+          </div>
+        </div>
+        <!-- Grid of smaller cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <div style="background:#111;border-radius:4px;padding:7px;">
+            <div style="background:#1a1a2e;border-radius:3px;height:40px;margin-bottom:5px;"></div>
+            <div style="color:#fff;font-size:8px;font-weight:600;line-height:1.3;">Invisible drops new mix</div>
+            <div style="color:#777;font-size:7px;margin-top:2px;">2 May</div>
+          </div>
+          <div style="background:#111;border-radius:4px;padding:7px;">
+            <div style="background:#1a1a2e;border-radius:3px;height:40px;margin-bottom:5px;"></div>
+            <div style="color:#fff;font-size:8px;font-weight:600;line-height:1.3;">RAM Records signs new artists</div>
+            <div style="color:#777;font-size:7px;margin-top:2px;">1 May</div>
+          </div>
+          <div style="background:#111;border-radius:4px;padding:7px;">
+            <div style="background:#1a1a2e;border-radius:3px;height:40px;margin-bottom:5px;"></div>
+            <div style="color:#fff;font-size:8px;font-weight:600;line-height:1.3;">UKF celebrates 15 years</div>
+            <div style="color:#777;font-size:7px;margin-top:2px;">30 Apr</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Magazine (editoriálny)</h3>
+      <p>Jeden veľký featured článok + 2 stredné + grid menších. Jasná hierarchia ako Resident Advisor alebo Mixmag. Najsilnejší vizuálny dojem.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="masonry" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border:1px solid #6F3DFF33;border-radius:8px;padding:14px;font-family:sans-serif;">
+        <!-- List style with images left -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;background:#111;border-radius:6px;padding:8px;">
+            <div style="background:linear-gradient(135deg,#1a0a2e,#0d0d1a);border-radius:4px;height:60px;"></div>
+            <div>
+              <div style="display:flex;gap:5px;margin-bottom:4px;">
+                <span style="background:#6F3DFF22;color:#6F3DFF;font-size:7px;padding:1px 5px;border-radius:3px;">FEATURED</span>
+                <span style="color:#777;font-size:7px;">8 May 2026</span>
+              </div>
+              <div style="color:#fff;font-size:10px;font-weight:700;line-height:1.3;margin-bottom:3px;">Noisia Announces Final Farewell Tour Across Europe</div>
+              <div style="color:#aaa;font-size:8px;line-height:1.4;">Po 20 rokoch sa trio lúči s fanúšikmi turné...</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;background:#111;border-radius:6px;padding:8px;">
+            <div style="background:linear-gradient(135deg,#0d1a1a,#0d0d1a);border-radius:4px;height:60px;"></div>
+            <div>
+              <div style="display:flex;gap:5px;margin-bottom:4px;">
+                <span style="background:#74F2CE22;color:#74F2CE;font-size:7px;padding:1px 5px;border-radius:3px;">NEW RELEASE</span>
+                <span style="color:#777;font-size:7px;">6 May 2026</span>
+              </div>
+              <div style="color:#fff;font-size:10px;font-weight:700;line-height:1.3;margin-bottom:3px;">Mefjus drops surprise EP on Vision Recordings</div>
+              <div style="color:#aaa;font-size:8px;line-height:1.4;">Nečakaný drop priamo bez oznámenia...</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:start;background:#111;border-radius:6px;padding:8px;">
+            <div style="background:linear-gradient(135deg,#1a1a0d,#0d0d1a);border-radius:4px;height:60px;"></div>
+            <div>
+              <div style="display:flex;gap:5px;margin-bottom:4px;">
+                <span style="background:#ff6b6b22;color:#ff6b6b;font-size:7px;padding:1px 5px;border-radius:3px;">INTERVIEW</span>
+                <span style="color:#777;font-size:7px;">4 May 2026</span>
+              </div>
+              <div style="color:#fff;font-size:10px;font-weight:700;line-height:1.3;margin-bottom:3px;">Emperor on the future of neurofunk in 2026</div>
+              <div style="color:#aaa;font-size:8px;line-height:1.4;">Rozhovor o vývoji žánru a novom albume...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Zoznam s obrázkami</h3>
+      <p>Horizontálne karty s cover obrázkom, kategóriou, nadpisom a krátkym excerptom. Prehľadný, rýchlo scannovateľný. Štýl ako Pitchfork alebo music blog.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dark-grid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0a0a0a;border:1px solid #6F3DFF33;border-radius:8px;padding:14px;font-family:sans-serif;">
+        <!-- Masonry-like grid with images -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="grid-column:1/-1;background:#111;border-radius:6px;overflow:hidden;position:relative;">
+            <div style="background:linear-gradient(135deg,#1a0a2e 0%,#0d0d1a 100%);height:90px;position:relative;">
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,#111 0%,transparent 50%);"></div>
+            </div>
+            <div style="padding:10px;">
+              <div style="display:flex;gap:5px;margin-bottom:5px;">
+                <span style="background:#6F3DFF;color:#fff;font-size:7px;padding:2px 6px;border-radius:3px;">FEATURED</span>
+                <span style="color:#777;font-size:7px;">8 May 2026</span>
+              </div>
+              <div style="color:#fff;font-size:11px;font-weight:700;line-height:1.3;">Noisia Announces Final Farewell Tour Across Europe</div>
+            </div>
+          </div>
+          <div style="background:#111;border-radius:6px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#0d1a1a,#0d0d1a);height:55px;"></div>
+            <div style="padding:8px;">
+              <span style="color:#74F2CE;font-size:7px;">NEW RELEASE</span>
+              <div style="color:#fff;font-size:9px;font-weight:600;margin-top:3px;line-height:1.3;">Mefjus drops surprise EP on Vision</div>
+              <div style="color:#777;font-size:7px;margin-top:3px;">6 May</div>
+            </div>
+          </div>
+          <div style="background:#111;border-radius:6px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#1a1a0a,#0d0d1a);height:55px;"></div>
+            <div style="padding:8px;">
+              <span style="color:#ff9f43;font-size:7px;">INTERVIEW</span>
+              <div style="color:#fff;font-size:9px;font-weight:600;margin-top:3px;line-height:1.3;">Emperor on the future of neurofunk</div>
+              <div style="color:#777;font-size:7px;margin-top:3px;">4 May</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Grid s cover fotkami</h3>
+      <p>Prvý článok je wide/featured, ostatné sú 2-stĺpcový grid — každý s cover obrázkom, farebnou kategóriou a nadpisom. Moderný tmavý magazín.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;font-size:13px;">Klikni na variant ktorý sa ti páči — alebo napíš v termináli čo ťa zaujalo</p>
