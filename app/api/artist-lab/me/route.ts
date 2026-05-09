@@ -13,18 +13,18 @@ export async function GET(request: NextRequest) {
       artist: {
         include: {
           labTasks: {
-            orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "desc" }],
+            orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
           },
           documents: {
-            orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+            orderBy: [{ isPinned: "desc" }, { createdAt: "asc" }],
           },
           releasePlans: {
             include: {
               tasks: {
-                orderBy: [{ status: "asc" }, { dueAt: "asc" }],
+                orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
               },
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: "asc" },
           },
         },
       },
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
   }
 
   const globalDocuments = await prisma.artistDocument.findMany({
-    where: { artistId: null },
-    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+    where: { artistId: null, isTemplate: false },
+    orderBy: [{ isPinned: "desc" }, { createdAt: "asc" }],
     take: 20,
   })
 

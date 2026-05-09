@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { FaBookOpen, FaCheck, FaDiscord, FaEnvelope, FaExternalLinkAlt, FaInstagram, FaPhoneAlt, FaRegCircle, FaRocket } from "react-icons/fa"
+import { FaBookOpen, FaCheck, FaCloudUploadAlt, FaDiscord, FaEnvelope, FaExternalLinkAlt, FaInstagram, FaPhoneAlt, FaRegCircle, FaRocket, FaUsers } from "react-icons/fa"
 
 type Task = {
   id: string
@@ -38,6 +38,18 @@ type ArtistLabData = {
   progress: number
 }
 
+const defaultDocumentOrder = [
+  "artist-onboarding-default",
+  "artist-profile-setup-default",
+  "release-week-action-plan-default",
+  "content-ideas-for-producers-default",
+  "short-video-basics-default",
+  "assets-we-need-from-you-default",
+  "how-to-share-without-spamming-default",
+  "monthly-artist-growth-routine-default",
+  "fan-engagement-basics-default",
+]
+
 export default function ArtistWorkspacePage() {
   const [data, setData] = useState<ArtistLabData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -65,7 +77,15 @@ export default function ArtistWorkspacePage() {
   const artist = data?.membership.artist
   const tasks = useMemo(() => artist?.labTasks || [], [artist?.labTasks])
   const nextTasks = useMemo(() => tasks.filter((task) => task.status !== "DONE"), [tasks])
-  const documents = [...(artist?.documents || []), ...(data?.globalDocuments || [])]
+  const documents = useMemo(() => {
+    const order = new Map(defaultDocumentOrder.map((id, index) => [id, index]))
+    return [...(artist?.documents || []), ...(data?.globalDocuments || [])].sort((a, b) => {
+      const aOrder = order.get(a.id) ?? 1000
+      const bOrder = order.get(b.id) ?? 1000
+      if (aOrder !== bOrder) return aOrder - bOrder
+      return a.title.localeCompare(b.title)
+    })
+  }, [artist?.documents, data?.globalDocuments])
 
   async function updateTask(task: Task, done: boolean) {
     setUpdatingId(task.id)
@@ -145,6 +165,29 @@ export default function ArtistWorkspacePage() {
         <div className="space-y-5">
           <section className="border border-lime-300/20 bg-[#0a100d] p-6">
             <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-lime-300/25 bg-lime-300/10 text-2xl text-lime-300">
+                <FaUsers />
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-[0.22em] text-lime-300">Sharing is caring</div>
+                <h2 className="mt-2 text-2xl font-black text-white">Build with the crew</h2>
+                <p className="mt-2 text-sm leading-6 text-gray-400">
+                  Share samples, loops and ideas with other DnB Doctor DJs and producers. Collabs, feedback and small exchanges move tracks forward faster.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
+              <Link href="/admin/artist/share" className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 font-bold text-white hover:border-lime-300/50">
+                <FaCloudUploadAlt className="text-lime-300" /> Sample drop
+              </Link>
+              <a href="https://discord.gg/8WDSWTC8A" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 font-bold text-white hover:border-lime-300/50">
+                <FaDiscord className="text-lime-300" /> Join Discord
+              </a>
+            </div>
+          </section>
+
+          <section className="border border-lime-300/20 bg-[#0a100d] p-6">
+            <div className="flex items-start gap-4">
               <div className="h-20 w-20 shrink-0 overflow-hidden border border-lime-300/25 bg-black">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/andrej.jpg" alt="Andrej Srna" className="h-full w-full object-cover" />
@@ -166,7 +209,7 @@ export default function ArtistWorkspacePage() {
                 <FaInstagram className="text-lime-300" /> @asana.dnb
               </a>
               <div className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white">
-                <FaDiscord className="text-lime-300" /> andrej.srna690987407067316257
+                <FaDiscord className="text-lime-300" /> andrej.srna#0316
               </div>
               <a href="https://wa.me/421914230321" target="_blank" rel="noreferrer" className="flex items-center gap-3 border border-white/10 px-3 py-2 text-white hover:border-lime-300/50">
                 <FaPhoneAlt className="text-lime-300" /> +421 914 230 321

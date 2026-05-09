@@ -19,12 +19,14 @@ type LabArtist = {
 type Overview = {
   artists: LabArtist[]
   globalDocuments: Array<{ id: string; title: string; description?: string | null; type: string; url?: string | null; isPinned: boolean }>
+  documentTemplates: Array<{ id: string; title: string; description?: string | null; type: string; url?: string | null; isPinned: boolean }>
   stats: { artists: number; members: number; tasks: number; completedTasks: number; overdueTasks: number; progress: number }
 }
 
 const defaultTask = { artistId: "", title: "", category: "Release Growth", priority: "NORMAL", dueAt: "", documentId: "" }
 const defaultAccount = { artistId: "", name: "", email: "", password: "" }
 const defaultDocument = { artistId: "", title: "", description: "", url: "", content: "", type: "NOTE", isPinned: false }
+const defaultTemplateAssignment = { artistId: "", templateId: "" }
 const fieldClass = "w-full border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-lime-300/60"
 
 export default function ArtistLabAdminPage() {
@@ -34,6 +36,7 @@ export default function ArtistLabAdminPage() {
   const [taskForm, setTaskForm] = useState(defaultTask)
   const [accountForm, setAccountForm] = useState(defaultAccount)
   const [documentForm, setDocumentForm] = useState(defaultDocument)
+  const [templateAssignment, setTemplateAssignment] = useState(defaultTemplateAssignment)
   const [saving, setSaving] = useState("")
   const hasLoadedOnce = useRef(false)
 
@@ -69,7 +72,14 @@ export default function ArtistLabAdminPage() {
     if (!firstArtistId) return
     setTaskForm((current) => current.artistId ? current : { ...current, artistId: firstArtistId })
     setAccountForm((current) => current.artistId ? current : { ...current, artistId: firstArtistId })
+    setTemplateAssignment((current) => current.artistId ? current : { ...current, artistId: firstArtistId })
   }, [firstArtistId])
+
+  useEffect(() => {
+    const firstTemplateId = data?.documentTemplates?.[0]?.id || ""
+    if (!firstTemplateId) return
+    setTemplateAssignment((current) => current.templateId ? current : { ...current, templateId: firstTemplateId })
+  }, [data?.documentTemplates])
 
   const selectedArtist = useMemo(() => {
     return artists.find((artist) => artist.id === taskForm.artistId) || artists[0]
@@ -128,7 +138,7 @@ export default function ArtistLabAdminPage() {
 
       {error && <div className="border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">{error}</div>}
 
-      <section className="grid gap-5 xl:grid-cols-3">
+      <section className="grid gap-5 xl:grid-cols-4">
         <form
           className="space-y-4 border border-white/10 bg-black/40 p-5"
           onSubmit={(event) => {
@@ -193,6 +203,30 @@ export default function ArtistLabAdminPage() {
           </label>
           <SubmitButton saving={saving === "Document"} label="Add document" />
         </form>
+
+        <form
+          className="space-y-4 border border-white/10 bg-black/40 p-5"
+          onSubmit={(event) => {
+            event.preventDefault()
+            submit(
+              "/api/admin/artist-lab/document-templates/assign",
+              templateAssignment,
+              () => setTemplateAssignment({ artistId: firstArtistId, templateId: data?.documentTemplates?.[0]?.id || "" }),
+              "Template"
+            )
+          }}
+        >
+          <h2 className="flex items-center gap-2 text-lg font-bold text-white"><FaBook /> Assign template</h2>
+          <SelectArtist value={templateAssignment.artistId} artists={artists} onChange={(artistId) => setTemplateAssignment({ ...templateAssignment, artistId })} />
+          <select required value={templateAssignment.templateId} onChange={(e) => setTemplateAssignment({ ...templateAssignment, templateId: e.target.value })} className={fieldClass}>
+            <option value="" disabled>Select template</option>
+            {(data?.documentTemplates || []).map((doc) => <option key={doc.id} value={doc.id}>{doc.title}</option>)}
+          </select>
+          <p className="text-xs leading-5 text-gray-500">
+            Creates a private artist document with its checklist. Templates are not visible to artists until assigned.
+          </p>
+          <SubmitButton saving={saving === "Template"} label="Assign template" />
+        </form>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
@@ -244,6 +278,20 @@ export default function ArtistLabAdminPage() {
                 <span>{doc.title}</span>
                 {doc.url && <FaExternalLinkAlt className="text-lime-300" />}
               </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {(data?.documentTemplates || []).length > 0 && (
+        <section className="border border-white/10 bg-black/30 p-6">
+          <h2 className="mb-4 text-xl font-black text-white">Document templates</h2>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {data?.documentTemplates.map((doc) => (
+              <div key={doc.id} className="border border-white/10 p-4 text-white">
+                <div className="font-semibold">{doc.title}</div>
+                {doc.description && <p className="mt-2 text-sm leading-5 text-gray-500">{doc.description}</p>}
+              </div>
             ))}
           </div>
         </section>

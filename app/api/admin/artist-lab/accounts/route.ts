@@ -6,6 +6,12 @@ import { prisma } from "@/lib/prisma"
 import { assignArtistOnboardingTasks } from "@/lib/artistLabOnboarding"
 import { assignArtistProfileSetupTasks } from "@/lib/artistLabProfileSetup"
 import { assignArtistReleaseWeekTasks } from "@/lib/artistLabReleaseWeek"
+import { assignArtistContentIdeasTasks } from "@/lib/artistLabContentIdeas"
+import { assignArtistShortVideoTasks } from "@/lib/artistLabShortVideo"
+import { assignArtistAssetsTasks } from "@/lib/artistLabAssets"
+import { assignArtistNoSpamSharingTasks } from "@/lib/artistLabNoSpamSharing"
+import { assignArtistMonthlyRoutineTasks } from "@/lib/artistLabMonthlyRoutine"
+import { assignArtistFanEngagementTasks } from "@/lib/artistLabFanEngagement"
 
 export async function POST(request: NextRequest) {
   const { response } = await requireRole(request, ["ADMIN"])
@@ -63,6 +69,12 @@ export async function POST(request: NextRequest) {
   await assignArtistOnboardingTasks(prisma, artistId)
   await assignArtistProfileSetupTasks(prisma, artistId)
   await assignArtistReleaseWeekTasks(prisma, artistId)
+  await assignArtistContentIdeasTasks(prisma, artistId)
+  await assignArtistShortVideoTasks(prisma, artistId)
+  await assignArtistAssetsTasks(prisma, artistId)
+  await assignArtistNoSpamSharingTasks(prisma, artistId)
+  await assignArtistMonthlyRoutineTasks(prisma, artistId)
+  await assignArtistFanEngagementTasks(prisma, artistId)
 
   return NextResponse.json({ user: updatedUser, membership })
 }

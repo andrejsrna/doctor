@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       url: data.url || null,
       content: data.content || null,
       isPinned: Boolean(data.isPinned),
+      isTemplate: Boolean(data.isTemplate),
     },
   })
 

@@ -446,6 +446,7 @@ model ArtistDocument {
   url         String?
   content     String?            @db.Text
   isPinned    Boolean            @default(false)
+  isTemplate  Boolean            @default(false)
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
@@ -454,6 +455,7 @@ model ArtistDocument {
 
   @@index([artistId])
   @@index([isPinned])
+  @@index([isTemplate])
 }
 
 enum ArtistMemberRole {

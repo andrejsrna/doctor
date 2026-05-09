@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client"
 
 export const ARTIST_RELEASE_WEEK_DOCUMENT_ID = "release-week-action-plan-default"
+export const ARTIST_RELEASE_WEEK_TEMPLATE_ID = "release-week-action-plan-template"
 const title = "Release Week Action Plan"
 const category = "Release Week"
 
@@ -120,6 +121,31 @@ export async function ensureArtistReleaseWeekDocument(prisma: PrismaClient) {
   })
 }
 
+export async function ensureArtistReleaseWeekDocumentTemplate(prisma: PrismaClient) {
+  return prisma.artistDocument.upsert({
+    where: { id: ARTIST_RELEASE_WEEK_TEMPLATE_ID },
+    update: {
+      artistId: null,
+      title,
+      description: "Manual template for a specific release week. Assign it again whenever an artist has a new release.",
+      type: "NOTE",
+      content,
+      isPinned: false,
+      isTemplate: true,
+    },
+    create: {
+      id: ARTIST_RELEASE_WEEK_TEMPLATE_ID,
+      artistId: null,
+      title,
+      description: "Manual template for a specific release week. Assign it again whenever an artist has a new release.",
+      type: "NOTE",
+      content,
+      isPinned: false,
+      isTemplate: true,
+    },
+  })
+}
+
 export async function ensureArtistReleaseWeekTemplates(prisma: PrismaClient) {
   await Promise.all(
     checklist.map((task, index) =>
@@ -181,8 +207,42 @@ export async function assignArtistReleaseWeekTasks(prisma: PrismaClient, artistI
   return created
 }
 
+export async function assignArtistReleaseWeekChecklist(prisma: PrismaClient, artistId: string) {
+  const template = await ensureArtistReleaseWeekDocumentTemplate(prisma)
+  await ensureArtistReleaseWeekTemplates(prisma)
+
+  const document = await prisma.artistDocument.create({
+    data: {
+      artistId,
+      title: template.title,
+      description: template.description,
+      type: template.type,
+      url: template.url,
+      content: template.content,
+      isPinned: true,
+      isTemplate: false,
+    },
+  })
+
+  await prisma.artistTask.createMany({
+    data: checklist.map((task, index) => ({
+      artistId,
+      documentId: document.id,
+      templateId: `release-week-template-${index + 1}`,
+      title: task.title,
+      description: task.description,
+      category,
+      priority: task.priority,
+      status: "TODO",
+    })),
+  })
+
+  return { document, tasks: checklist.length }
+}
+
 export async function seedArtistReleaseWeek(prisma: PrismaClient) {
   const document = await ensureArtistReleaseWeekDocument(prisma)
+  await ensureArtistReleaseWeekDocumentTemplate(prisma)
   await ensureArtistReleaseWeekTemplates(prisma)
 
   const artists = await prisma.artist.findMany({ select: { id: true } })

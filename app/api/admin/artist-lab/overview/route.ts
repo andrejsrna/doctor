@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   const { response } = await requireRole(request, ["ADMIN"])
   if (response) return response
 
-  const [artists, globalDocuments, templates, totals] = await Promise.all([
+  const [artists, globalDocuments, documentTemplates, templates, totals] = await Promise.all([
     prisma.artist.findMany({
       orderBy: { updatedAt: "desc" },
       include: {
@@ -25,21 +25,26 @@ export async function GET(request: NextRequest) {
             dueAt: true,
             completedAt: true,
           },
-          orderBy: [{ status: "asc" }, { dueAt: "asc" }],
+          orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
         },
         documents: {
           select: { id: true, title: true, type: true, url: true, isPinned: true },
-          orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+          orderBy: [{ isPinned: "desc" }, { createdAt: "asc" }],
         },
         releasePlans: {
           select: { id: true, name: true, status: true, releaseDate: true },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "asc" },
         },
       },
     }),
     prisma.artistDocument.findMany({
-      where: { artistId: null },
-      orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+      where: { artistId: null, isTemplate: false },
+      orderBy: [{ isPinned: "desc" }, { createdAt: "asc" }],
+      take: 20,
+    }),
+    prisma.artistDocument.findMany({
+      where: { artistId: null, isTemplate: true },
+      orderBy: [{ createdAt: "asc" }],
       take: 20,
     }),
     prisma.artistTaskTemplate.findMany({
@@ -74,6 +79,7 @@ export async function GET(request: NextRequest) {
       }
     }),
     globalDocuments,
+    documentTemplates,
     templates,
     stats: {
       artists: artists.length,

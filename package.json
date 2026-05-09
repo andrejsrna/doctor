@@ -35,7 +35,14 @@
     "newsletter:dedupe:apply": "tsx scripts/merge-duplicate-subscribers.ts --apply",
     "artist-lab:seed-onboarding": "tsx scripts/seed-artist-onboarding.ts",
     "artist-lab:seed-profile-setup": "tsx scripts/seed-artist-profile-setup.ts",
-    "artist-lab:seed-release-week": "tsx scripts/seed-artist-release-week.ts"
+    "artist-lab:seed-release-week": "tsx scripts/seed-artist-release-week.ts",
+    "artist-lab:seed-content-ideas": "tsx scripts/seed-artist-content-ideas.ts",
+    "artist-lab:seed-short-video": "tsx scripts/seed-artist-short-video.ts",
+    "artist-lab:seed-assets": "tsx scripts/seed-artist-assets.ts",
+    "artist-lab:seed-no-spam-sharing": "tsx scripts/seed-artist-no-spam-sharing.ts",
+    "artist-lab:seed-monthly-routine": "tsx scripts/seed-artist-monthly-routine.ts",
+    "artist-lab:seed-fan-engagement": "tsx scripts/seed-artist-fan-engagement.ts",
+    "artist-lab:seed-pre-release-assets": "tsx scripts/seed-artist-pre-release-assets.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.984.0",

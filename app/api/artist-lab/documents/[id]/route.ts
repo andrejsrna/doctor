@@ -17,12 +17,16 @@ export async function GET(
     include: {
       artist: { select: { id: true, name: true, slug: true } },
       tasks: {
-        orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "desc" }],
+        orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
       },
     },
   })
 
   if (!document) return NextResponse.json({ error: "Document not found" }, { status: 404 })
+
+  if (document.isTemplate && user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Document not found" }, { status: 404 })
+  }
 
   if (user.role === "ADMIN" && !document.artistId) {
     return NextResponse.json({ document: { ...document, tasks: [] } })
@@ -45,7 +49,7 @@ export async function GET(
     if (membership) {
       const tasks = await prisma.artistTask.findMany({
         where: { documentId: document.id, artistId: membership.artistId },
-        orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "desc" }],
+        orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
       })
       return NextResponse.json({ document: { ...document, tasks } })
     }
