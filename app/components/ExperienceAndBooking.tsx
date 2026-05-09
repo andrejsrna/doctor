@@ -32,19 +32,12 @@ const bookingFeatures = [
 export default function ExperienceAndBooking() {
   return (
     <section className="relative py-32 overflow-hidden">
-      {/* Layered background */}
-      <div className="absolute inset-0">
-        <Image
-          src="/party.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover opacity-[0.07]"
-          priority={false}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(168,85,247,0.08),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.02)_1px,transparent_1px)] bg-[size:2.5rem_2.5rem]" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-[#030308]">
+        <div className="absolute top-0 left-1/4 w-[700px] h-[500px] bg-[#6F3DFF]/10 rounded-full blur-[140px] -translate-y-1/3" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-[var(--color-secondary)]/5 rounded-full blur-[120px] translate-y-1/4" />
+        <div className="absolute top-1/2 left-0 w-[300px] h-[600px] bg-[#6F3DFF]/5 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4">
