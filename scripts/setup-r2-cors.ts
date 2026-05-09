@@ -1,7 +1,4 @@
 import { PutBucketCorsCommand, S3Client } from "@aws-sdk/client-s3"
-import * as dotenv from "dotenv"
-
-dotenv.config({ path: ".env.local" })
 
 async function main() {
   const endpoint = process.env.R2_ENDPOINT
