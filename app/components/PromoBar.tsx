@@ -28,7 +28,7 @@ const links = [
     href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15',
     internal: false,
     icon: FaSpotify,
-    iconColor: 'text-green-500',
+    iconColor: 'text-secondary',
   },
 ]
 

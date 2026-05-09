@@ -44,7 +44,7 @@ export default async function CoreArtistsPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4),rgba(0,0,0,1))]" />
 
         <div className="relative max-w-5xl mx-auto px-4 pt-28 pb-14 md:pt-36 md:pb-20">
-          <p className="text-green-500/90 uppercase tracking-[0.25em] text-xs font-semibold">
+          <p className="text-secondary/90 uppercase tracking-[0.25em] text-xs font-semibold">
             DnB Doctor
           </p>
           <h1 className="mt-4 text-4xl md:text-6xl font-bold tracking-tight">
@@ -80,7 +80,7 @@ export default async function CoreArtistsPage() {
             </p>
             <div className="mt-5 space-y-2 text-gray-300">
               <p>
-                <span className="text-green-500 font-semibold">Not exclusive.</span>{' '}
+                <span className="text-secondary font-semibold">Not exclusive.</span>{' '}
                 Not contractual. But committed.
               </p>
               <p>
@@ -94,19 +94,19 @@ export default async function CoreArtistsPage() {
             <h2 className="text-2xl font-bold mb-4">What We Stand For</h2>
             <ul className="space-y-3 text-gray-300">
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Dark &amp; technical Drum &amp; Bass</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Quality over quantity</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Music made for sound systems, not algorithms</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Strong visuals and clear identity</span>
               </li>
             </ul>
@@ -121,23 +121,23 @@ export default async function CoreArtistsPage() {
             <h2 className="text-2xl font-bold mb-4">What CORE ARTISTS Get</h2>
             <ul className="space-y-3 text-gray-300">
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Planned releases with a long-term vision</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Promo priority across label channels</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Strong, consistent visual identity</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Regular presence on compilations &amp; showcases</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Direct creative feedback and collaboration</span>
               </li>
             </ul>
@@ -150,19 +150,19 @@ export default async function CoreArtistsPage() {
             <h2 className="text-2xl font-bold mb-4">What We Expect</h2>
             <ul className="space-y-3 text-gray-300">
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Clear communication and reliability</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Fair representation of the label</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Respect for the shared direction</span>
               </li>
               <li className="flex gap-3">
-                <span className="text-green-500">✓</span>
+                <span className="text-secondary">✓</span>
                 <span>Long-term mindset</span>
               </li>
             </ul>

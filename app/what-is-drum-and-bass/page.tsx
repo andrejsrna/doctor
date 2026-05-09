@@ -144,7 +144,7 @@ export default function WhatIsDrumAndBassPage() {
             transition={{ duration: 1 }}
           >
             <motion.h2 
-              className="text-green-500 font-mono text-xl mb-6 inline-block"
+              className="text-secondary font-mono text-xl mb-6 inline-block"
               animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -254,7 +254,7 @@ export default function WhatIsDrumAndBassPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            🧠 The Meaning of <span className="text-green-500">DnB</span>
+            🧠 The Meaning of <span className="text-secondary">DnB</span>
           </motion.h2>
           
           <motion.div 
@@ -365,7 +365,7 @@ export default function WhatIsDrumAndBassPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            ⚙️ The Modern <span className="text-green-500">Drum and Bass</span> Sound
+            ⚙️ The Modern <span className="text-secondary">Drum and Bass</span> Sound
           </motion.h2>
           
           <motion.div 
@@ -476,7 +476,7 @@ export default function WhatIsDrumAndBassPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            🧩 DnB <span className="text-green-500">Subgenres</span>
+            🧩 DnB <span className="text-secondary">Subgenres</span>
           </motion.h2>
           
           <motion.div 
@@ -557,7 +557,7 @@ export default function WhatIsDrumAndBassPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            Where to <span className="text-green-500">Start</span> Listening
+            Where to <span className="text-secondary">Start</span> Listening
           </motion.h2>
 
           <motion.div

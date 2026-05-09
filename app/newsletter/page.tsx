@@ -104,7 +104,7 @@ export default function NewsletterPage() {
                     transition-all duration-300 disabled:opacity-50 hover:border-purple-500/50"
                 />
                 {status === 'success' && (
-                  <FaCheck className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500" />
+                  <FaCheck className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary" />
                 )}
                 {status === 'error' && (
                   <FaTimesCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500" />
@@ -168,7 +168,7 @@ export default function NewsletterPage() {
               className={`mt-4 p-4 rounded-lg border ${
                 status === 'error' 
                   ? 'border-red-500/30 bg-red-500/10 text-red-500' 
-                  : 'border-green-500/30 bg-green-500/10 text-green-500'
+                  : 'border-green-500/30 bg-green-500/10 text-secondary'
               }`}
             >
               <p className="flex items-center justify-center gap-2">

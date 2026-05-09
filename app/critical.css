@@ -43,7 +43,8 @@ body {
 .text-white { color: #ffffff; }
 .text-gray-300 { color: #d1d5db; }
 .text-gray-400 { color: #9ca3af; }
-.text-green-500 { color: #22c55e; }
+.text-green-500 { color: var(--color-secondary, #01ef01); }
+.text-secondary { color: var(--color-secondary, #01ef01); }
 .text-purple-500 { color: #a855f7; }
 .text-transparent { color: transparent; }
 .bg-black { background-color: #000000; }

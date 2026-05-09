@@ -39,8 +39,8 @@ export default function NeurofunkSpotifyPage() {
               animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              <FaSpotify className="text-green-500 text-3xl" />
-              <h2 className="text-green-500 font-mono text-xl">
+              <FaSpotify className="text-secondary text-3xl" />
+              <h2 className="text-secondary font-mono text-xl">
                 Curated Neurofunk Playlists
               </h2>
             </motion.div>
@@ -117,7 +117,7 @@ export default function NeurofunkSpotifyPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            Explore the <span className="text-green-500">Dark Side</span> of Drum and Bass
+            Explore the <span className="text-secondary">Dark Side</span> of Drum and Bass
           </motion.h2>
           
           <motion.div 
@@ -308,7 +308,7 @@ export default function NeurofunkSpotifyPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            Top <span className="text-green-500">Neurofunk Artists</span> You&apos;ll Hear
+            Top <span className="text-secondary">Neurofunk Artists</span> You&apos;ll Hear
           </motion.h2>
           
           <motion.div 
@@ -325,7 +325,7 @@ export default function NeurofunkSpotifyPage() {
             
             <ul className="space-y-3 text-gray-300 text-lg mb-6">
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span><strong className="text-green-400">Noisia, Phace, Black Sun Empire</strong> – the foundations of neurofunk</span>
               </li>
               <li className="flex items-start gap-3">
@@ -391,7 +391,7 @@ export default function NeurofunkSpotifyPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-8"
           >
-            Follow & <span className="text-green-500">Stay Connected</span>
+            Follow & <span className="text-secondary">Stay Connected</span>
           </motion.h2>
           
           <motion.p 
@@ -413,15 +413,15 @@ export default function NeurofunkSpotifyPage() {
             className="space-y-3 text-gray-300 text-lg mb-12 max-w-xl mx-auto"
           >
             <li className="flex items-center justify-center gap-3">
-              <span className="text-green-500">✓</span>
+              <span className="text-secondary">✓</span>
               <span>New neurofunk releases</span>
             </li>
             <li className="flex items-center justify-center gap-3">
-              <span className="text-green-500">✓</span>
+              <span className="text-secondary">✓</span>
               <span>Exclusive pre-release previews</span>
             </li>
             <li className="flex items-center justify-center gap-3">
-              <span className="text-green-500">✓</span>
+              <span className="text-secondary">✓</span>
               <span>Behind-the-scenes stories from our artists</span>
             </li>
           </motion.ul>
@@ -492,7 +492,7 @@ export default function NeurofunkSpotifyPage() {
             viewport={{ once: true }}
             className="text-2xl font-bold text-center mb-8"
           >
-            Want to <span className="text-green-500">play these tracks</span>?
+            Want to <span className="text-secondary">play these tracks</span>?
           </motion.h2>
           <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
           <p className="text-xs text-gray-600 text-center mt-4">

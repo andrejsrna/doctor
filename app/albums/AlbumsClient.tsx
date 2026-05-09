@@ -229,7 +229,7 @@ export default function AlbumsClient({
             transition={{ duration: 1 }}
           >
             <motion.h2 
-              className="text-green-500 font-mono text-xl mb-6 inline-block"
+              className="text-secondary font-mono text-xl mb-6 inline-block"
               animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -488,7 +488,7 @@ export default function AlbumsClient({
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            Why Choose <span className="text-green-500">DnB Albums</span>?
+            Why Choose <span className="text-secondary">DnB Albums</span>?
           </motion.h2>
           
           <motion.div 

@@ -136,7 +136,7 @@ export default function DrumAndBassSubgenresPage() {
         <div className="max-w-5xl mx-auto relative z-10">
           <p className="text-green-400 font-mono text-sm mb-4">Guide</p>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Drum and Bass <span className="text-green-500">Subgenres</span> (DnB)
+            Drum and Bass <span className="text-secondary">Subgenres</span> (DnB)
           </h1>
           <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
             DnB isn’t one sound — it’s a spectrum. Here’s a clean map of the most common subgenres, what each

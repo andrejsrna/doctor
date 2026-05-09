@@ -23,7 +23,7 @@ export type ArtistDetail = {
 export default function ArtistDetailClient({ artist }: { artist: ArtistDetail }) {
   const socials = [
     { name: 'SoundCloud', url: artist.soundcloud, icon: FaSoundcloud, color: 'hover:text-orange-500' },
-    { name: 'Spotify', url: artist.spotify, icon: FaSpotify, color: 'hover:text-green-500' },
+    { name: 'Spotify', url: artist.spotify, icon: FaSpotify, color: 'hover:text-secondary' },
     { name: 'Facebook', url: artist.facebook, icon: FaFacebook, color: 'hover:text-blue-500' },
     { name: 'Instagram', url: artist.instagram, icon: FaInstagram, color: 'hover:text-pink-500' },
   ]

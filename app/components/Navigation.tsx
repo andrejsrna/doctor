@@ -80,7 +80,7 @@ export default function Navigation() {
               <div className="hidden md:flex items-center gap-6 flex-1">
                 {/* Music dropdown */}
                 <div className="relative group">
-                  <button className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
+                  <button className="text-gray-300 hover:text-secondary transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
                     Music
                     <svg className="w-3 h-3 transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M19 9l-7 7-7-7" />
@@ -89,7 +89,7 @@ export default function Navigation() {
                   <div className="absolute top-full left-0 mt-2 w-52 bg-black/95 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <div className="py-2">
                       {musicSubmenuItems.map((item) => (
-                        <Link key={item.href} href={item.href} className="block px-4 py-2 text-gray-300 hover:text-green-500 hover:bg-green-500/10 transition-colors text-sm">
+                        <Link key={item.href} href={item.href} className="block px-4 py-2 text-gray-300 hover:text-secondary hover:bg-green-500/10 transition-colors text-sm">
                           {item.title}
                         </Link>
                       ))}
@@ -101,7 +101,7 @@ export default function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-gray-300 hover:text-green-500 transition-colors font-medium tracking-wide text-sm uppercase"
+                    className="text-gray-300 hover:text-secondary transition-colors font-medium tracking-wide text-sm uppercase"
                   >
                     {item.title}
                   </Link>
@@ -110,7 +110,7 @@ export default function Navigation() {
 
               {/* Desktop right side */}
               <div className="hidden md:flex items-center gap-4 ml-auto shrink-0">
-                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-green-500 transition-colors" aria-label="Search">
+                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-secondary transition-colors" aria-label="Search">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
@@ -120,7 +120,7 @@ export default function Navigation() {
 
               {/* Mobile right side */}
               <div className="mobile-only flex items-center gap-2 ml-auto shrink-0">
-                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-green-500 p-2" aria-label="Search">
+                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-secondary p-2" aria-label="Search">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
@@ -128,7 +128,7 @@ export default function Navigation() {
                 <button
                   type="button"
                   onClick={() => setIsOpen((prev) => !prev)}
-                  className="text-gray-300 hover:text-green-500 p-2"
+                  className="text-gray-300 hover:text-secondary p-2"
                   aria-label="Toggle menu"
                 >
                   {isOpen ? (
@@ -155,7 +155,7 @@ export default function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="block px-3 py-2 text-gray-300 hover:text-green-500 text-sm font-medium transition-colors"
+                    className="block px-3 py-2 text-gray-300 hover:text-secondary text-sm font-medium transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.title}
@@ -166,7 +166,7 @@ export default function Navigation() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="block px-3 py-2 text-gray-300 hover:text-green-500 text-sm font-medium uppercase tracking-wide transition-colors"
+                      className="block px-3 py-2 text-gray-300 hover:text-secondary text-sm font-medium uppercase tracking-wide transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
                       {item.title}

@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        secondary: 'var(--color-secondary)',
       },
       animation: {
         tilt: 'tilt 10s infinite linear',

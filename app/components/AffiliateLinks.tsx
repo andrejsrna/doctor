@@ -60,7 +60,7 @@ export default function AffiliateLinks({
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-xl font-bold text-green-500 uppercase tracking-wider mb-6"
+          className="text-xl font-bold text-secondary uppercase tracking-wider mb-6"
         >
           {title}
         </motion.h3>
@@ -81,11 +81,11 @@ export default function AffiliateLinks({
               hover:border-green-500/50 transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-2">
-              <h4 className="text-lg font-bold text-white group-hover:text-green-500 transition-colors">
+              <h4 className="text-lg font-bold text-white group-hover:text-secondary transition-colors">
                 {link.name}
               </h4>
               <svg
-                className="w-4 h-4 text-gray-500 group-hover:text-green-500 transition-all
+                className="w-4 h-4 text-gray-500 group-hover:text-secondary transition-all
                   group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export default function AffiliateLinks({
               </svg>
             </div>
             {link.tagline && (
-              <p className="text-sm text-green-500/70 group-hover:text-green-500 transition-colors mb-1">
+              <p className="text-sm text-secondary/70 group-hover:text-secondary transition-colors mb-1">
                 {link.tagline}
               </p>
             )}

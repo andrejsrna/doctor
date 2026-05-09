@@ -55,9 +55,9 @@ export default function RecommendedToolsClient() {
             viewport={{ once: true }}
             className="flex items-center gap-4 mb-10"
           >
-            <FaHeadphones className="w-8 h-8 text-green-500" />
+            <FaHeadphones className="w-8 h-8 text-secondary" />
             <h2 className="text-4xl font-bold text-white">
-              For <span className="text-green-500">DJs</span>
+              For <span className="text-secondary">DJs</span>
             </h2>
           </motion.div>
           <p className="text-gray-400 mb-10 max-w-3xl">

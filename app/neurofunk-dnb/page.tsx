@@ -88,7 +88,7 @@ export default function NeurofunkDnbPage() {
             transition={{ duration: 1 }}
           >
             <motion.h2 
-              className="text-green-500 font-mono text-xl mb-6 inline-block"
+              className="text-secondary font-mono text-xl mb-6 inline-block"
               animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
@@ -177,7 +177,7 @@ export default function NeurofunkDnbPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            What Is <span className="text-green-500">Neurofunk</span> Drum and Bass
+            What Is <span className="text-secondary">Neurofunk</span> Drum and Bass
           </motion.h2>
           
           <motion.div 
@@ -241,7 +241,7 @@ export default function NeurofunkDnbPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-12 text-center"
           >
-            <span className="text-green-500">DNB Doctor</span> and the Next Wave of Neurofunk
+            <span className="text-secondary">DNB Doctor</span> and the Next Wave of Neurofunk
           </motion.h2>
           
           <motion.div 
@@ -293,7 +293,7 @@ export default function NeurofunkDnbPage() {
       <SpotifyPlaylistsSection
         title={
           <>
-            Stream our <span className="text-green-500">Spotify</span> Playlists
+            Stream our <span className="text-secondary">Spotify</span> Playlists
           </>
         }
         description="Curated neurofunk selections from DNB Doctor — updated regularly with dark rollers, surgical tech, and underground cuts."
@@ -390,7 +390,7 @@ export default function NeurofunkDnbPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-8"
           >
-            🎧 Join the <span className="text-green-500">DNB Doctor</span> movement
+            🎧 Join the <span className="text-secondary">DNB Doctor</span> movement
           </motion.h2>
           
           <motion.p 

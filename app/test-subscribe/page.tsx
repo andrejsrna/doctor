@@ -57,7 +57,7 @@ export default function TestSubscribePage() {
           <div className={`mt-4 p-4 rounded ${
             status === 'error' 
               ? 'bg-red-500/10 border border-red-500/30 text-red-500' 
-              : 'bg-green-500/10 border border-green-500/30 text-green-500'
+              : 'bg-green-500/10 border border-green-500/30 text-secondary'
           }`}>
             {message}
           </div>

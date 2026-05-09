@@ -137,7 +137,7 @@ export default function SubscribeCTA() {
               className={`mt-4 ${
                 status === 'error' 
                   ? 'text-red-500 bg-red-500/10 border border-red-500/30' 
-                  : 'text-green-500 bg-green-500/10 border border-green-500/30'
+                  : 'text-secondary bg-green-500/10 border border-green-500/30'
               } py-2 px-4 rounded-lg`}
             >
               {message}

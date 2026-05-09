@@ -19,7 +19,7 @@ export default function ArtistsListAnimated({ artists }: { artists: ArtistCardIt
       <div className="flex flex-col items-center gap-4 mb-10">
         <p className="text-gray-300 text-center max-w-3xl">
           Building catalogs over time. See what it means to be a{' '}
-          <span className="text-green-500 font-semibold">CORE ARTIST</span> at DnB Doctor.
+          <span className="text-secondary font-semibold">CORE ARTIST</span> at DnB Doctor.
         </p>
         <Button href="/core-artists" variant="toxic" className="justify-center">
           CORE ARTISTS

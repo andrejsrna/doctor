@@ -46,7 +46,7 @@ const GuidelinesPage = () => {
             <h3 className="text-xl font-medium mb-4">Genre</h3>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="text-green-500">✅</span>
+                <span className="text-secondary">✅</span>
                 <p>Neurofunk, techy DnB, deep and dark vibes</p>
               </div>
               <div className="flex items-start gap-2">
@@ -60,7 +60,7 @@ const GuidelinesPage = () => {
             <h3 className="text-xl font-medium mb-4">Quality Standard</h3>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="text-green-500">✅</span>
+                <span className="text-secondary">✅</span>
                 <p>Proper mixdown & mastering preferred (but we can handle mastering if needed)</p>
               </div>
               <div className="flex items-start gap-2">
@@ -74,7 +74,7 @@ const GuidelinesPage = () => {
             <h3 className="text-xl font-medium mb-4">Originality</h3>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="text-green-500">✅</span>
+                <span className="text-secondary">✅</span>
                 <p>Your own work, no bootlegs or unlicensed samples</p>
               </div>
               <div className="flex items-start gap-2">

@@ -74,7 +74,7 @@ export default function WhatIsNeurofunk() {
               viewport={{ once: true }}
               className="space-y-4"
             >
-              <h2 className="text-sm uppercase tracking-wider text-green-500 font-mono">About Us</h2>
+              <h2 className="text-sm uppercase tracking-wider text-secondary font-mono">About Us</h2>
               <h3 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 via-purple-500 to-green-500">
                 The DnB Doctor Experience
               </h3>
@@ -120,7 +120,7 @@ export default function WhatIsNeurofunk() {
                   >
                     <div className="absolute inset-0 bg-green-500/5 rounded-lg -z-10 group-hover:bg-green-500/10 transition-colors" />
                     <div className="p-4">
-                      <h4 className="text-green-500 font-bold mb-2">{item.title}</h4>
+                      <h4 className="text-secondary font-bold mb-2">{item.title}</h4>
                       <p className="text-sm text-gray-400">{item.description}</p>
                     </div>
                   </motion.div>

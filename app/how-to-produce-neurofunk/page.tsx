@@ -177,7 +177,7 @@ export default function HowToProduceNeurofunkPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-8"
           >
-            🧬 Step 1: Start with the <span className="text-green-500">Groove</span>
+            🧬 Step 1: Start with the <span className="text-secondary">Groove</span>
           </motion.h2>
           
           <motion.div 
@@ -192,19 +192,19 @@ export default function HowToProduceNeurofunkPage() {
 
             <ul className="space-y-3 text-gray-300 mb-6">
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span><strong>Kick:</strong> short, controlled low end (around 50–70 Hz)</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span><strong>Snare:</strong> crisp transient, fundamental around 180–200 Hz</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span><strong>Hi-hats:</strong> syncopated layers, subtle shuffle</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span><strong>Ghost notes:</strong> light, fast hits that keep motion in the beat</span>
               </li>
             </ul>
@@ -343,7 +343,7 @@ export default function HowToProduceNeurofunkPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-8"
           >
-            🧩 Step 4: Arrangement & <span className="text-green-500">Flow</span>
+            🧩 Step 4: Arrangement & <span className="text-secondary">Flow</span>
           </motion.h2>
           
           <motion.div 
@@ -505,7 +505,7 @@ export default function HowToProduceNeurofunkPage() {
             viewport={{ once: true }}
             className="text-4xl md:text-5xl font-bold mb-8"
           >
-            🧠 Step 7: Learn, Collaborate, <span className="text-green-500">Release</span>
+            🧠 Step 7: Learn, Collaborate, <span className="text-secondary">Release</span>
           </motion.h2>
           
           <motion.div 
@@ -520,15 +520,15 @@ export default function HowToProduceNeurofunkPage() {
 
             <ul className="space-y-3 text-gray-300 mb-8">
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span>Join Discords and forums like Neurofunk Grid or Bass Rabbit.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span>Follow labels like <strong>DnB Doctor</strong>, <strong>Neuropunk</strong>, and <strong>Close2Death</strong>.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">•</span>
+                <span className="text-secondary mt-1">•</span>
                 <span>Submit demos once your mixdown feels ready: <Link href="/submit-demo" className="text-green-400 underline hover:text-green-300">Submit Demo →</Link></span>
               </li>
             </ul>

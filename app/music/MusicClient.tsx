@@ -397,7 +397,7 @@ export default function MusicClient({ initialPosts, categories, initialTotalPage
             viewport={shouldReduce ? undefined : { once: true }}
             className="mt-12"
           >
-            <h3 className="text-xl font-bold text-center mb-6">Buy tracks on <span className="text-green-500">Beatport</span> & <span className="text-green-500">DJCity</span></h3>
+            <h3 className="text-xl font-bold text-center mb-6">Buy tracks on <span className="text-secondary">Beatport</span> & <span className="text-secondary">DJCity</span></h3>
             <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
             <p className="text-xs text-gray-600 text-center mt-3">
               Some links are affiliate links. We may earn a commission at no extra cost to you.

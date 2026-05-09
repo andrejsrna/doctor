@@ -28,7 +28,7 @@ const FEATURES = [
     icon: FaNewspaper,
     title: 'Mixes & Podcasts',
     description: 'Fresh mixes and podcasts from our locally grown artists.',
-    accent: '#74F2CE',
+    accent: 'var(--color-secondary)',
   },
   {
     icon: FaUsers,
@@ -40,7 +40,7 @@ const FEATURES = [
     icon: FaMusic,
     title: 'Artist Spotlight',
     description: 'In-depth features and interviews with leading artists and newcomers.',
-    accent: '#74F2CE',
+    accent: 'var(--color-secondary)',
   },
 ]
 
@@ -80,23 +80,17 @@ export default function AboutContent() {
     <div className="min-h-screen bg-[#050505] text-white">
 
       {/* ─── HERO ────────────────────────────────────── */}
-      <section className="relative h-[90vh] min-h-[600px] flex items-end overflow-hidden">
+      <section className="relative min-h-[70vh] flex items-end overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/aboutus.jpg"
-            alt="DnB Doctor"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-[#050505]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#6F3DFF]/25 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d0020] via-[#050505] to-[#050505]" />
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-[#6F3DFF]/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[var(--color-secondary)]/5 rounded-full blur-[100px] translate-x-1/4 translate-y-1/4" />
+          <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(111,61,255,0.03) 80px, rgba(111,61,255,0.03) 81px), repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(111,61,255,0.03) 80px, rgba(111,61,255,0.03) 81px)' }} />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-24">
           <motion.div variants={fadeUp} initial="hidden" animate="show">
-            <span className="inline-flex items-center gap-2 text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-8 border border-[#74F2CE]/25 px-3 py-1.5">
+            <span className="inline-flex items-center gap-2 text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.3em] mb-8 border border-[var(--color-secondary)]/25 px-3 py-1.5">
               Since 2015 · Neurofunk · DNB
             </span>
           </motion.div>
@@ -129,7 +123,7 @@ export default function AboutContent() {
       <section className="py-32 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-[220px_1fr] gap-16 items-start">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
-            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">01 / Mission</div>
+            <div className="text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.3em] mb-3">01 / Mission</div>
             <div className="w-10 h-[2px] bg-[#6F3DFF]" />
           </motion.div>
 
@@ -188,7 +182,7 @@ export default function AboutContent() {
       <section className="py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-16">
-            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">02 / What we do</div>
+            <div className="text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.3em] mb-3">02 / What we do</div>
             <h2 className="text-4xl md:text-5xl font-black text-white">The platform.</h2>
           </motion.div>
 
@@ -217,7 +211,7 @@ export default function AboutContent() {
       <section className="py-32 px-6 bg-[#030303]">
         <div className="max-w-7xl mx-auto">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-16">
-            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">03 / People</div>
+            <div className="text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.3em] mb-3">03 / People</div>
             <h2 className="text-4xl md:text-5xl font-black text-white">Meet the crew.</h2>
           </motion.div>
 
@@ -237,7 +231,7 @@ export default function AboutContent() {
                   <Image src={member.image} alt={member.name} fill sizes="80px" className="object-cover grayscale" />
                 </div>
                 <div>
-                  <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.2em] mb-1.5">{member.role}</div>
+                  <div className="text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.2em] mb-1.5">{member.role}</div>
                   <h3 className="text-2xl font-black text-white mb-2">{member.name}</h3>
                   {member.description && (
                     <p className="text-gray-500 text-sm leading-relaxed mb-3">{member.description}</p>
@@ -245,7 +239,7 @@ export default function AboutContent() {
                   {member.email && (
                     <a
                       href={`mailto:${member.email}`}
-                      className="text-sm text-[#6F3DFF] hover:text-[#74F2CE] transition-colors"
+                      className="text-sm text-[#6F3DFF] hover:text-[var(--color-secondary)] transition-colors"
                     >
                       {member.email}
                     </a>
@@ -284,7 +278,7 @@ export default function AboutContent() {
             className="mt-10 text-gray-600 text-sm"
           >
             We&apos;re looking for more team members.{' '}
-            <Link href="/contact" className="text-[#6F3DFF] hover:text-[#74F2CE] transition-colors">
+            <Link href="/contact" className="text-[#6F3DFF] hover:text-[var(--color-secondary)] transition-colors">
               Get in touch →
             </Link>
           </motion.p>

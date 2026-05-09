@@ -88,7 +88,7 @@ export default function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-xl font-bold text-green-500 uppercase tracking-wider"
+              className="text-xl font-bold text-secondary uppercase tracking-wider"
             >
               Follow Us
             </motion.h3>
@@ -125,7 +125,7 @@ export default function Footer() {
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
                 whileHover={{ scale: 1.1, rotate: 12 }}
-                className="text-gray-400 hover:text-green-500 transition-colors"
+                className="text-gray-400 hover:text-secondary transition-colors"
               >
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M4 4h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm2 3v9h12V7H6zm-3 9V7H2v11a2 2 0 0 0 2 2h16v-2H5a2 2 0 0 1-2-2z"/>
@@ -141,7 +141,7 @@ export default function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-xl font-bold text-green-500 uppercase tracking-wider"
+              className="text-xl font-bold text-secondary uppercase tracking-wider"
             >
               Quick Links
             </motion.h3>
@@ -168,7 +168,7 @@ export default function Footer() {
                 >
                   <Link 
                     href={link.href} 
-                    className="text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+                    className="text-gray-400 group-hover:text-secondary transition-colors flex items-center gap-2"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                     {link.text}
@@ -179,7 +179,7 @@ export default function Footer() {
                 type="button"
                 whileHover={{ x: 10 }}
                 onClick={openCookieSettings}
-                className="group w-fit text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+                className="group w-fit text-gray-400 group-hover:text-secondary transition-colors flex items-center gap-2"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                 Cookie Settings
@@ -193,7 +193,7 @@ export default function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-xl font-bold text-green-500 uppercase tracking-wider"
+              className="text-xl font-bold text-secondary uppercase tracking-wider"
             >
               Partners
             </motion.h3>
@@ -216,7 +216,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer sponsored"
                   whileHover={{ x: 10 }}
-                  className="group w-fit text-gray-400 group-hover:text-green-500 transition-colors flex items-center gap-2"
+                  className="group w-fit text-gray-400 group-hover:text-secondary transition-colors flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   {link.name}
@@ -229,7 +229,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/recommended-tools" 
-                  className="text-green-500/70 group-hover:text-green-500 transition-colors flex items-center gap-2 text-sm"
+                  className="text-secondary/70 group-hover:text-secondary transition-colors flex items-center gap-2 text-sm"
                 >
                   View all →
                 </Link>
@@ -243,7 +243,7 @@ export default function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-xl font-bold text-green-500 uppercase tracking-wider"
+              className="text-xl font-bold text-secondary uppercase tracking-wider"
             >
               Stay Updated
             </motion.h3>
@@ -308,7 +308,7 @@ export default function Footer() {
                     onChange={(e) => setAcceptedPrivacy(e.target.checked)}
                     disabled={status === 'loading'}
                     className="w-4 h-4 rounded border-green-500/30 bg-black/50 
-                      text-green-500 focus:ring-green-500 focus:ring-offset-0
+                      text-secondary focus:ring-green-500 focus:ring-offset-0
                       hover:border-green-500/50 transition-colors duration-300
                       cursor-pointer"
                     required
@@ -318,7 +318,7 @@ export default function Footer() {
                   I agree to the{' '}
                   <Link 
                     href="/privacy-policy" 
-                    className="text-green-500 group-hover:text-pink-500 underline transition-colors duration-300"
+                    className="text-secondary group-hover:text-pink-500 underline transition-colors duration-300"
                     target="_blank"
                   >
                     privacy policy
@@ -333,7 +333,7 @@ export default function Footer() {
                   className={`text-sm ${
                     status === 'error' 
                       ? 'text-red-500 bg-red-500/10 border border-red-500/30' 
-                      : 'text-green-500 bg-green-500/10 border border-green-500/30'
+                      : 'text-secondary bg-green-500/10 border border-green-500/30'
                   } py-2 px-4 rounded-lg`}
                 >
                   {message}
@@ -355,7 +355,7 @@ export default function Footer() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-lg font-bold text-green-500 uppercase tracking-wider mb-4"
+              className="text-lg font-bold text-secondary uppercase tracking-wider mb-4"
             >
               Other Links
             </motion.h3>
@@ -372,7 +372,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/neurofunk-drum-and-bass" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   Neurofunk Drum & Bass
@@ -384,7 +384,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/neurofunk-dnb" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   Neurofunk DnB
@@ -396,7 +396,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/neurofunk-spotify" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   Neurofunk Spotify Playlists
@@ -408,7 +408,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/albums" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   DnB Albums
@@ -420,7 +420,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/what-is-drum-and-bass" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   What Is Drum and Bass?
@@ -432,7 +432,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/drum-and-bass-history" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   History of Drum and Bass
@@ -444,7 +444,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/neurofunk-labels" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   Neurofunk Labels Guide
@@ -456,7 +456,7 @@ export default function Footer() {
               >
                 <Link 
                   href="/types-of-dnb" 
-                  className="text-gray-400 group-hover:text-green-500 transition-colors duration-300 flex items-center gap-2"
+                  className="text-gray-400 group-hover:text-secondary transition-colors duration-300 flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500/50 group-hover:bg-green-500 transition-colors" />
                   Types of DnB
@@ -477,7 +477,7 @@ export default function Footer() {
             © {new Date().getFullYear()} DnB Doctor. All rights reserved.{' '}
             <Link 
               href="https://synthbit.cz" 
-              className="text-green-500 hover:text-pink-500 underline transition-colors duration-300"
+              className="text-secondary hover:text-pink-500 underline transition-colors duration-300"
             >
               SynthBit, s.r.o.
             </Link>

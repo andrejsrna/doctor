@@ -352,7 +352,7 @@ export default function SubmitDemoPage() {
                     className={`mt-6 p-4 rounded-xl flex items-center gap-2 justify-center ${
                       status === 'error' 
                         ? 'bg-red-500/10 border border-red-500/30 text-red-500' 
-                        : 'bg-green-500/10 border border-green-500/30 text-green-500'
+                        : 'bg-green-500/10 border border-green-500/30 text-secondary'
                     }`}
                   >
                     {status === 'error' ? (
