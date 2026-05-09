@@ -4,6 +4,7 @@ import { validateAdminOrigin } from "@/app/lib/adminUtils"
 import { requireRole } from "@/app/lib/roles"
 import { prisma } from "@/lib/prisma"
 import { assignArtistOnboardingTasks } from "@/lib/artistLabOnboarding"
+import { assignArtistProfileSetupTasks } from "@/lib/artistLabProfileSetup"
 
 export async function POST(request: NextRequest) {
   const { response } = await requireRole(request, ["ADMIN"])
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
   ])
 
   await assignArtistOnboardingTasks(prisma, artistId)
+  await assignArtistProfileSetupTasks(prisma, artistId)
 
   return NextResponse.json({ user: updatedUser, membership })
 }
