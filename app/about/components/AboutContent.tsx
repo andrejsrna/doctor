@@ -8,227 +8,244 @@ import Link from 'next/link'
 import Gallery from '@/app/components/Gallery'
 import Button from '@/app/components/Button'
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  show: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+  }),
+}
+
+const FEATURES = [
+  {
+    icon: FaHeadphones,
+    title: 'Top Releases',
+    description: 'Heavyweight releases from the best artists in the scene.',
+    accent: '#6F3DFF',
+  },
+  {
+    icon: FaNewspaper,
+    title: 'Mixes & Podcasts',
+    description: 'Fresh mixes and podcasts from our locally grown artists.',
+    accent: '#74F2CE',
+  },
+  {
+    icon: FaUsers,
+    title: 'Community',
+    description: 'Connect with fellow drum and bass enthusiasts from around the globe.',
+    accent: '#6F3DFF',
+  },
+  {
+    icon: FaMusic,
+    title: 'Artist Spotlight',
+    description: 'In-depth features and interviews with leading artists and newcomers.',
+    accent: '#74F2CE',
+  },
+]
+
+const STATS = [
+  { number: '100+', label: 'Releases' },
+  { number: '50+', label: 'Artists' },
+  { number: '50K+', label: 'Monthly Listeners' },
+  { number: '10K+', label: 'Social Followers' },
+]
+
+const FEATURED_CREW = [
+  {
+    name: 'Anne',
+    role: 'Community manager & playlist',
+    image: '/anne.jpg',
+    email: 'anne@dnbdoctor.com',
+    description: 'Contact me regarding playlist inquiries and curation.',
+  },
+  {
+    name: 'Andrej',
+    role: 'Distribution and releases',
+    image: '/andrej.jpg',
+    email: 'releases@dnbdoctor.com',
+    description: null,
+  },
+]
+
+const CREW = [
+  { name: 'Yehor', role: 'Sound Engineer', image: '/yehor.jpg' },
+  { name: 'Christopher', role: 'Talent Scout', image: '/christopher.jpeg' },
+  { name: 'Jaroslav', role: 'Creative Strategist', image: '/jaroslav.jpeg' },
+  { name: 'Your Name Here', role: 'Suggest Your Role', image: '/avatar.jpeg' },
+]
+
 export default function AboutContent() {
   return (
-    <div className="min-h-screen bg-black">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center">
+    <div className="min-h-screen bg-[#050505] text-white">
+
+      {/* ─── HERO ────────────────────────────────────── */}
+      <section className="relative h-[90vh] min-h-[600px] flex items-end overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/aboutus.jpg" // Add your hero image
-            alt="DNB Doctor Background"
+            src="/aboutus.jpg"
+            alt="DnB Doctor"
             fill
+            priority
             sizes="100vw"
-            className="object-cover opacity-50"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-[#050505]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#6F3DFF]/25 via-transparent to-transparent" />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
-            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
-            About DnB Doctor
-          </h1>
-          <p className="text-xl text-gray-300">
-            Your premier destination for drum and bass music, news, and culture
-          </p>
-        </motion.div>
-      </section>
-
-      {/* Mission Statement */}
-      <section className="py-24 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-purple-500">Our Mission</h2>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              We&apos;re dedicated to promoting and preserving drum and bass culture,
-              connecting artists with fans, and providing a platform for the best electronic music.
-            </p>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-24">
+          <motion.div variants={fadeUp} initial="hidden" animate="show">
+            <span className="inline-flex items-center gap-2 text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-8 border border-[#74F2CE]/25 px-3 py-1.5">
+              Since 2015 · Neurofunk · DNB
+            </span>
           </motion.div>
+
+          <motion.h1
+            variants={fadeUp}
+            custom={1}
+            initial="hidden"
+            animate="show"
+            className="text-7xl md:text-[clamp(4rem,12vw,130px)] font-black leading-none tracking-tight"
+          >
+            <span className="text-white">DnB</span>
+            <br />
+            <span className="text-[#6F3DFF]">Doctor.</span>
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            custom={2}
+            initial="hidden"
+            animate="show"
+            className="mt-8 max-w-lg text-gray-400 text-lg leading-relaxed"
+          >
+            Your premier destination for drum and bass music, news, and culture.
+          </motion.p>
         </div>
       </section>
 
-      {/* Experience Button Section */}
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block"
-            whileHover={{ scale: 1.05 }}
-          >
-            <Button
-              href="/music"
-              variant="infected"
-              size="lg"
-              className="group text-2xl py-6 px-12"
+      {/* ─── MISSION ─────────────────────────────────── */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[220px_1fr] gap-16 items-start">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}>
+            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">01 / Mission</div>
+            <div className="w-10 h-[2px] bg-[#6F3DFF]" />
+          </motion.div>
+
+          <div>
+            <motion.p
+              variants={fadeUp}
+              custom={1}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-bold text-white leading-snug"
             >
-              <FaSyringe className="w-6 h-6 mr-3 transform group-hover:rotate-45 transition-transform duration-500" />
-              <span>The DnB Doctor Experience</span>
-            </Button>
+              We&apos;re dedicated to promoting and preserving drum and bass culture —
+              <span className="text-[#6F3DFF]"> connecting artists with fans</span> and providing
+              a platform for the best electronic music on the planet.
+            </motion.p>
+
+            <motion.div
+              variants={fadeUp}
+              custom={2}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="mt-12"
+            >
+              <Button href="/music" variant="infected" size="lg" className="group">
+                <FaSyringe className="w-5 h-5 transform group-hover:rotate-45 transition-transform duration-500" />
+                The DnB Doctor Experience
+              </Button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STATS ───────────────────────────────────── */}
+      <section className="border-y border-white/5">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+          {STATS.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              variants={fadeUp}
+              custom={i}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              className="py-12 px-8"
+            >
+              <div className="text-5xl md:text-6xl font-black text-[#6F3DFF] leading-none">{stat.number}</div>
+              <div className="mt-3 text-xs uppercase tracking-[0.22em] text-gray-500">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── WHAT WE DO ──────────────────────────────── */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-16">
+            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">02 / What we do</div>
+            <h2 className="text-4xl md:text-5xl font-black text-white">The platform.</h2>
           </motion.div>
-        </div>
-      </section>
 
-      {/* Features Grid */}
-      <section className="py-24 px-4 bg-gradient-to-b from-purple-900/20 to-pink-900/20">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              {
-                icon: FaHeadphones,
-                title: "Top Releases",
-                description: "Heavyweight releases from the best artists in the scene"
-              },
-              {
-                icon: FaNewspaper,
-                title: "Mixes and Podcasts",
-                description: "Fresh mixes and podcasts from the our local grown artists"
-              },
-              {
-                icon: FaUsers,
-                title: "Community",
-                description: "Connect with fellow drum and bass enthusiasts from around the globe"
-              },
-              {
-                icon: FaMusic,
-                title: "Artist Spotlight",
-                description: "In-depth features and interviews with leading artists and newcomers"
-              }
-            ].map((feature, index) => (
+          <div className="grid md:grid-cols-2 gap-px bg-white/5">
+            {FEATURES.map((item, i) => (
               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-8 rounded-2xl bg-black/50 border border-purple-500/20 backdrop-blur-sm
-                  hover:border-purple-500/40 transition-all duration-300"
+                key={item.title}
+                variants={fadeUp}
+                custom={i * 0.4}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="bg-[#050505] p-10 hover:bg-[#0b0715] transition-colors duration-300 group"
               >
-                <feature.icon className="w-12 h-12 text-purple-500 mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
+                <div className="w-1 h-10 mb-8 rounded-full" style={{ backgroundColor: item.accent }} />
+                <item.icon className="w-7 h-7 mb-5 transition-transform duration-300 group-hover:scale-110" style={{ color: item.accent }} />
+                <h3 className="text-xl font-black text-white mb-2">{item.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { number: "100+", label: "Releases" },
-              { number: "50+", label: "Artists" },
-              { number: "50K+", label: "Monthly Listeners" },
-              { number: "10K+", label: "Social Followers" }
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent 
-                  bg-gradient-to-r from-purple-500 to-pink-500 mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-400">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ─── TEAM ────────────────────────────────────── */}
+      <section className="py-32 px-6 bg-[#030303]">
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-16">
+            <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.3em] mb-3">03 / People</div>
+            <h2 className="text-4xl md:text-5xl font-black text-white">Meet the crew.</h2>
+          </motion.div>
 
-      {/* Team Section (Optional) */}
-      <section className="py-24 px-4 bg-black/80">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-purple-500 mb-16">Meet the Team</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Anne",
-                role: "Community manager & playlist",
-                image: "/anne.jpg",
-                email: "anne@dnbdoctor.com",
-                description: "Contact me regarding playlist inquiries and curation."
-              },
-              {
-                name: "Andrej",
-                role: "Distribution and releases",
-                image: "/andrej.jpg",
-                email: "releases@dnbdoctor.com"
-              },
-              {
-                name: "Yehor",
-                role: "Sound Engineer",
-                image: "/yehor.jpg" // Add team member images
-              },
-              {
-                name: "Christopher",
-                role: "Talent Scout",
-                image: "/christopher.jpeg" // Add team member images
-              },
-              {
-                name: "Jaroslav",
-                role: "Creative strategist",
-                image: "/jaroslav.jpeg" // Add team member images
-              },
-              {
-                name: "Your Name Here",
-                role: "Suggest Your Own Role",
-                image: "/avatar.jpeg" // Add team member images
-              },
-              // Add more team members...
-            ].map((member, index) => (
+          {/* Featured two */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {FEATURED_CREW.map((member, i) => (
               <motion.div
                 key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={index < 2
-                  ? "md:col-span-3 flex flex-col md:flex-row items-center gap-8 bg-white/5 p-8 rounded-2xl text-left mb-8"
-                  : "text-center"
-                }
+                variants={fadeUp}
+                custom={i}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="flex gap-6 items-start bg-[#0a0a0a] border border-white/5 p-8 hover:border-[#6F3DFF]/35 transition-colors duration-300"
               >
-                <div className={index < 2
-                  ? "w-48 h-48 relative shrink-0 rounded-full overflow-hidden"
-                  : "w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden relative"
-                }>
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    sizes={index < 2 ? "192px" : "128px"}
-                    className="object-cover"
-                  />
+                <div className="w-20 h-20 shrink-0 relative overflow-hidden">
+                  <Image src={member.image} alt={member.name} fill sizes="80px" className="object-cover grayscale" />
                 </div>
-                <div className={index < 2 ? "md:flex-1" : ""}>
-                  <h3 className={`font-bold text-white mb-2 ${index < 2 ? "text-3xl" : "text-xl"}`}>
-                    {member.name}
-                  </h3>
-                  <p className={`text-gray-400 ${index < 2 ? "text-xl" : ""}`}>
-                    {member.role}
-                  </p>
+                <div>
+                  <div className="text-[#74F2CE] text-xs font-mono uppercase tracking-[0.2em] mb-1.5">{member.role}</div>
+                  <h3 className="text-2xl font-black text-white mb-2">{member.name}</h3>
                   {member.description && (
-                    <p className="text-gray-300 mt-4 mb-2 max-w-xl">
-                      {member.description}
-                    </p>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-3">{member.description}</p>
                   )}
                   {member.email && (
                     <a
                       href={`mailto:${member.email}`}
-                      className="block text-sm text-purple-500 hover:text-pink-500 transition-colors mt-2"
+                      className="text-sm text-[#6F3DFF] hover:text-[#74F2CE] transition-colors"
                     >
                       {member.email}
                     </a>
@@ -237,19 +254,52 @@ export default function AboutContent() {
               </motion.div>
             ))}
           </div>
-          <p className="text-gray-400 text-sm mt-4">We are looking for more team members, if you are interested, <Link href="/contact" className="text-purple-500 hover:text-pink-500 transition-colors duration-300">please contact us</Link></p>
+
+          {/* Supporting crew */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {CREW.map((member, i) => (
+              <motion.div
+                key={member.name}
+                variants={fadeUp}
+                custom={i * 0.4}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="bg-[#0a0a0a] border border-white/5 p-5 hover:border-[#6F3DFF]/35 transition-colors duration-300 group"
+              >
+                <div className="w-full aspect-square relative overflow-hidden mb-4 grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <Image src={member.image} alt={member.name} fill sizes="200px" className="object-cover" />
+                </div>
+                <div className="text-[#6F3DFF] text-xs font-mono uppercase tracking-[0.15em] mb-1">{member.role}</div>
+                <h3 className="font-black text-white">{member.name}</h3>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="mt-10 text-gray-600 text-sm"
+          >
+            We&apos;re looking for more team members.{' '}
+            <Link href="/contact" className="text-[#6F3DFF] hover:text-[#74F2CE] transition-colors">
+              Get in touch →
+            </Link>
+          </motion.p>
         </div>
       </section>
 
+      {/* ─── GALLERY ─────────────────────────────────── */}
       <Gallery />
 
-      {/* Newsletter Section */}
-
-      <section className="py-24 px-4">
+      {/* ─── NEWSLETTER ──────────────────────────────── */}
+      <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <SubscribeCTA />
         </div>
       </section>
     </div>
   )
-} 
+}
