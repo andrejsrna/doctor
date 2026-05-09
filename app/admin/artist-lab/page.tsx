@@ -106,7 +106,7 @@ export default function ArtistLabAdminPage() {
   if (loading) return <div className="px-6 py-16 text-center text-gray-400">Loading Artist Lab...</div>
 
   return (
-    <div className="space-y-8 px-4">
+    <div className="space-y-8">
       <header className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="border border-lime-400/20 bg-[#090d0b] p-8">
           <div className="mb-8 flex items-center gap-3 text-lime-300">

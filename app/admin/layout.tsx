@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminHeaderClient name={session?.user?.name || "Admin"} />
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 py-8">{children}</div>
+      <div className="mx-auto max-w-7xl py-8">{children}</div>
     </div>
   );
 }

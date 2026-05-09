@@ -106,7 +106,7 @@ export default function ArtistWorkspacePage() {
   if (error && !data) return <div className="mx-4 border border-red-500/30 bg-red-950/40 p-6 text-red-200">{error}</div>
 
   return (
-    <div className="space-y-8 px-4">
+    <div className="space-y-8">
       <header className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="border border-lime-400/20 bg-[#080c0a] p-8">
           <div className="mb-6 flex items-center gap-3 text-lime-300">

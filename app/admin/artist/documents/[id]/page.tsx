@@ -70,7 +70,7 @@ export default function ArtistDocumentPage() {
   if (error && !document) return <div className="mx-4 border border-red-500/30 bg-red-950/40 p-6 text-red-200">{error}</div>
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4">
+    <div className="mx-auto max-w-7xl space-y-8">
       <Link href="/admin/artist" className="inline-flex items-center gap-2 text-sm text-lime-300 hover:text-lime-200">
         <FaArrowLeft /> Back to workspace
       </Link>
