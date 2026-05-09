@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', 'react-icons'],
     optimizeServerReact: true,
+    proxyClientMaxBodySize: '5gb',
   },
   
   // Compiler options for modern browsers

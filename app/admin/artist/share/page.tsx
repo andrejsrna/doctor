@@ -92,7 +92,7 @@ export default function ArtistSharePage() {
         <FaCloudUploadAlt className="mx-auto mb-5 text-5xl text-lime-300" />
         <h2 className="text-2xl font-black text-white">Drop files here</h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-400">
-          Audio, video, images or zip packs. Max 10 files at once, 250MB per file. Use clear file names like <span className="text-lime-200">artist-loop-174bpm.wav</span>.
+          Audio, video, images or zip packs. Max 10 files at once, 5GB per file. Use clear file names like <span className="text-lime-200">artist-loop-174bpm.wav</span>.
         </p>
         <button
           type="button"
