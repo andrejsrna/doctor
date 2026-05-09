@@ -11,6 +11,7 @@ type UploadedFile = {
   key: string
   url: string | null
   uploadedAt?: string | null
+  artist?: string
 }
 
 type UploadProgress = {
@@ -237,7 +238,10 @@ export default function ArtistSharePage() {
             <div key={`${file.key}-${file.name}`} className="grid gap-3 border border-white/10 p-4 md:grid-cols-[1fr_auto]">
               <div>
                 <div className="font-semibold text-white">{file.name}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.16em] text-gray-500">{formatSize(file.size)} / {file.type}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.16em] text-gray-500">
+                  {formatSize(file.size)} / {file.type}
+                  {file.artist && <span className="ml-3 text-lime-300/60">{file.artist}</span>}
+                </div>
                 {file.uploadedAt && <div className="mt-1 text-xs text-gray-600">{new Date(file.uploadedAt).toLocaleString()}</div>}
                 <div className="mt-2 break-all text-sm text-gray-400">{file.url || file.key}</div>
               </div>
