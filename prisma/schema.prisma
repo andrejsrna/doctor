@@ -11,11 +11,11 @@ datasource db {
 }
 
 model Account {
-  id                    String   @id @default(cuid())
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
   userId                String
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -23,8 +23,8 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@map("account")
 }
@@ -44,22 +44,24 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  role          Role      @default(USER)
+  id                   String         @id @default(cuid())
+  name                 String
+  email                String         @unique
+  emailVerified        Boolean        @default(false)
+  image                String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  sessions             Session[]
+  accounts             Account[]
+  role                 Role           @default(USER)
+  artistMemberships    ArtistMember[]
+  completedArtistTasks ArtistTask[]   @relation("ArtistTaskCompletedBy")
 
   @@map("user")
 }
 
 model Verification {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
@@ -70,35 +72,35 @@ model Verification {
 }
 
 model Subscriber {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String           @id @default(cuid())
+  email         String           @unique
   name          String?
-  subscribedAt  DateTime @default(now())
+  subscribedAt  DateTime         @default(now())
   status        SubscriberStatus @default(ACTIVE)
   source        String?
-  tags          String[] @default([])
+  tags          String[]         @default([])
   categoryId    String?
-  category      Category? @relation(fields: [categoryId], references: [id])
+  category      Category?        @relation(fields: [categoryId], references: [id])
   notes         String?
   lastEmailSent DateTime?
-  emailCount    Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  emailCount    Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
-  emailLogs     EmailLog[]
-  influencer    Influencer?
+  emailLogs  EmailLog[]
+  influencer Influencer?
 
   @@map("subscribers")
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String
-  color       String
-  description String
-  influencersEnabled Boolean @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String
+  color              String
+  description        String
+  influencersEnabled Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   subscribers Subscriber[]
   campaigns   EmailCampaign[]
@@ -107,34 +109,34 @@ model Category {
 }
 
 model EmailCampaign {
-  id          String   @id @default(cuid())
-  name        String
-  subject     String
-  body        String
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  sentAt      DateTime?
-  sentCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String    @id @default(cuid())
+  name       String
+  subject    String
+  body       String
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  sentAt     DateTime?
+  sentCount  Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  emailLogs   EmailLog[]
+  emailLogs EmailLog[]
 
   @@map("email_campaigns")
 }
 
 model EmailLog {
-  id        String      @id @default(cuid())
-  campaignId String
+  id           String      @id @default(cuid())
+  campaignId   String
   subscriberId String
-  email     String
-  status    EmailStatus @default(PENDING)
-  sentAt    DateTime?
-  openedAt  DateTime?
-  clickedAt DateTime?
-  error     String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  email        String
+  status       EmailStatus @default(PENDING)
+  sentAt       DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  error        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   subscriber Subscriber    @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
@@ -145,23 +147,23 @@ model EmailLog {
 }
 
 model Influencer {
-  id          String   @id @default(cuid())
-  email       String   @unique
+  id          String             @id @default(cuid())
+  email       String             @unique
   name        String?
-  platform    String?  // Instagram, YouTube, TikTok, etc.
-  handle      String?  // @username
+  platform    String? // Instagram, YouTube, TikTok, etc.
+  handle      String? // @username
   followers   Int?
-  engagement  Float?   // engagement rate
-  category    String?  // DJ, Producer, Blogger, Promoter, etc.
+  engagement  Float? // engagement rate
+  category    String? // DJ, Producer, Blogger, Promoter, etc.
   location    String?
   notes       String?
-  status      InfluencerStatus @default(ACTIVE)
+  status      InfluencerStatus   @default(ACTIVE)
   priority    InfluencerPriority @default(MEDIUM)
   lastContact DateTime?
   nextContact DateTime?
   tags        String[] // ["dnb", "neurofunk", "vinyl", etc.]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   subscriber Subscriber? @relation(fields: [email], references: [email])
 
@@ -199,15 +201,15 @@ enum InfluencerPriority {
 }
 
 model DemoSubmission {
-  id          String   @id @default(cuid())
-  email       String
-  artistName  String
-  genre       String
-  trackLink   String
-  status      DemoStatus @default(PENDING)
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String     @id @default(cuid())
+  email      String
+  artistName String
+  genre      String
+  trackLink  String
+  status     DemoStatus @default(PENDING)
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@index([email])
   @@index([status])
@@ -223,22 +225,22 @@ enum DemoStatus {
 }
 
 model DemoFeedback {
-  id              String   @id @default(cuid())
-  token           String   @unique
-  recipientEmail  String
-  senderEmail     String?
-  subject         String
-  message         String
-  files           Json
-  rating          Int?
-  feedback        String?
-  name            String?
-  submittedAt     DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  trackToken      String?
-  wpPostId        Int?
-  source          String?
+  id             String    @id @default(cuid())
+  token          String    @unique
+  recipientEmail String
+  senderEmail    String?
+  subject        String
+  message        String
+  files          Json
+  rating         Int?
+  feedback       String?
+  name           String?
+  submittedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  trackToken     String?
+  wpPostId       Int?
+  source         String?
 
   @@index([recipientEmail])
   @@index([createdAt])
@@ -248,6 +250,7 @@ enum Role {
   ADMIN
   USER
   EDITOR
+  ARTIST
 }
 
 enum ReleaseType {
@@ -256,37 +259,38 @@ enum ReleaseType {
 }
 
 model Release {
-  id             String   @id @default(cuid())
-  wpId           Int?     @unique
-  slug           String   @unique
-  title          String
-  content        String?  @db.Text
-  coverImageUrl  String?
-  coverImageKey  String?
-  artworkImageUrl String?
-  artworkImageKey String?
-  previewUrl     String?
-  releaseType    ReleaseType @default(NORMAL)
-  downloadFileUrl  String?
-  downloadFileKey  String?
-  downloadFileName String?
-  spotify        String?
-  appleMusic     String?
-  beatport       String?
-  deezer         String?
-  soundcloud     String?
-  youtubeMusic   String?
-  junoDownload   String?
-  tidal          String?
-  gumroad        String?
-  bandcamp       String?
-  artistName     String?
-  categories     String[] @default([])
-  publishedAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  streamingClicks StreamingClick[]
-  downloadTokens ReleaseDownloadToken[]
+  id                 String                 @id @default(cuid())
+  wpId               Int?                   @unique
+  slug               String                 @unique
+  title              String
+  content            String?                @db.Text
+  coverImageUrl      String?
+  coverImageKey      String?
+  artworkImageUrl    String?
+  artworkImageKey    String?
+  previewUrl         String?
+  releaseType        ReleaseType            @default(NORMAL)
+  downloadFileUrl    String?
+  downloadFileKey    String?
+  downloadFileName   String?
+  spotify            String?
+  appleMusic         String?
+  beatport           String?
+  deezer             String?
+  soundcloud         String?
+  youtubeMusic       String?
+  junoDownload       String?
+  tidal              String?
+  gumroad            String?
+  bandcamp           String?
+  artistName         String?
+  categories         String[]               @default([])
+  publishedAt        DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  streamingClicks    StreamingClick[]
+  downloadTokens     ReleaseDownloadToken[]
+  artistReleasePlans ArtistReleasePlan[]
 
   @@index([publishedAt])
   @@index([slug])
@@ -295,15 +299,15 @@ model Release {
 }
 
 model ReleaseDownloadToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
+  id        String    @id @default(cuid())
+  token     String    @unique
   email     String
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   releaseId String
-  release   Release  @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  release   Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
 
   @@index([releaseId])
   @@index([email])
@@ -326,38 +330,174 @@ model StreamingClick {
 }
 
 model Artist {
-  id         String   @id @default(cuid())
-  wpId       Int?     @unique
-  slug       String   @unique
-  name       String
-  bio        String?  @db.Text
-  imageUrl   String?
-  imageKey   String?
-  soundcloud String?
-  spotify    String?
-  facebook   String?
-  instagram  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String              @id @default(cuid())
+  wpId         Int?                @unique
+  slug         String              @unique
+  name         String
+  bio          String?             @db.Text
+  imageUrl     String?
+  imageKey     String?
+  soundcloud   String?
+  spotify      String?
+  facebook     String?
+  instagram    String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  members      ArtistMember[]
+  labTasks     ArtistTask[]
+  documents    ArtistDocument[]
+  releasePlans ArtistReleasePlan[]
 
   @@index([slug])
   @@index([name])
 }
 
+model ArtistMember {
+  id        String           @id @default(cuid())
+  userId    String
+  artistId  String
+  role      ArtistMemberRole @default(OWNER)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artistId])
+  @@index([artistId])
+  @@index([userId])
+}
+
+model ArtistTaskTemplate {
+  id          String             @id @default(cuid())
+  title       String
+  description String?            @db.Text
+  category    String
+  priority    ArtistTaskPriority @default(NORMAL)
+  sortOrder   Int                @default(0)
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  tasks ArtistTask[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ArtistReleasePlan {
+  id          String                  @id @default(cuid())
+  artistId    String
+  releaseId   String?
+  name        String
+  releaseDate DateTime?
+  status      ArtistReleasePlanStatus @default(PLANNED)
+  notes       String?                 @db.Text
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  artist  Artist       @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  release Release?     @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+  tasks   ArtistTask[]
+
+  @@index([artistId])
+  @@index([releaseId])
+  @@index([status])
+}
+
+model ArtistTask {
+  id            String             @id @default(cuid())
+  artistId      String
+  templateId    String?
+  releasePlanId String?
+  title         String
+  description   String?            @db.Text
+  category      String
+  priority      ArtistTaskPriority @default(NORMAL)
+  status        ArtistTaskStatus   @default(TODO)
+  dueAt         DateTime?
+  completedAt   DateTime?
+  completedById String?
+  notes         String?            @db.Text
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  artist      Artist              @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  template    ArtistTaskTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  releasePlan ArtistReleasePlan?  @relation(fields: [releasePlanId], references: [id], onDelete: Cascade)
+  completedBy User?               @relation("ArtistTaskCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
+
+  @@index([artistId])
+  @@index([templateId])
+  @@index([releasePlanId])
+  @@index([status])
+  @@index([dueAt])
+}
+
+model ArtistDocument {
+  id          String             @id @default(cuid())
+  artistId    String?
+  title       String
+  description String?            @db.Text
+  type        ArtistDocumentType @default(LINK)
+  url         String?
+  content     String?            @db.Text
+  isPinned    Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@index([artistId])
+  @@index([isPinned])
+}
+
+enum ArtistMemberRole {
+  OWNER
+  MANAGER
+  MEMBER
+}
+
+enum ArtistTaskPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum ArtistTaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  SKIPPED
+}
+
+enum ArtistReleasePlanStatus {
+  PLANNED
+  ACTIVE
+  COMPLETE
+  ARCHIVED
+}
+
+enum ArtistDocumentType {
+  LINK
+  FILE
+  NOTE
+}
+
 model News {
-  id                 String   @id @default(cuid())
-  wpId               Int?     @unique
-  slug               String   @unique
-  title              String
-  content            String?  @db.Text
-  coverImageUrl      String?
-  coverImageKey      String?
-  scsc               String?
-  relatedArtistName  String?
-  publishedAt        DateTime?
-  categories         String[] @default([])
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                String    @id @default(cuid())
+  wpId              Int?      @unique
+  slug              String    @unique
+  title             String
+  content           String?   @db.Text
+  coverImageUrl     String?
+  coverImageKey     String?
+  scsc              String?
+  relatedArtistName String?
+  publishedAt       DateTime?
+  categories        String[]  @default([])
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@index([publishedAt])
   @@index([slug])
@@ -373,30 +513,30 @@ enum ShopOrderStatus {
 }
 
 model ShopOrder {
-  id                   String          @id @default(cuid())
+  id                    String          @id @default(cuid())
   stripeSessionId       String          @unique
   stripePaymentIntentId String?
-  status               ShopOrderStatus @default(PENDING)
+  status                ShopOrderStatus @default(PENDING)
 
-  currency             String          @default("usd")
-  amountTotal          Int?
+  currency    String @default("usd")
+  amountTotal Int?
 
-  printifyShopId       Int?
-  printifyProductId    String
-  printifyVariantId    Int
-  quantity             Int
+  printifyShopId    Int?
+  printifyProductId String
+  printifyVariantId Int
+  quantity          Int
 
-  customerEmail        String?
-  customerName         String?
-  shippingAddress      Json?
+  customerEmail   String?
+  customerName    String?
+  shippingAddress Json?
 
-  stripeRaw            Json?
-  printifyOrderId      String?
-  printifyRaw          Json?
+  stripeRaw               Json?
+  printifyOrderId         String?
+  printifyRaw             Json?
   notificationEmailSentAt DateTime?
 
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([createdAt])

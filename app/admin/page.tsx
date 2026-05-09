@@ -51,7 +51,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  type SessionUser = { name?: string | null; role?: "ADMIN" | "EDITOR" | "USER" };
+  type SessionUser = { name?: string | null; role?: "ADMIN" | "EDITOR" | "ARTIST" | "USER" };
   const user = (session?.user || {}) as SessionUser;
   const userRole = user.role;
 
@@ -85,6 +85,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (userRole === 'EDITOR') {
       router.replace('/admin/demos');
+    }
+    if (userRole === 'ARTIST') {
+      router.replace('/admin/artist');
     }
   }, [userRole, router]);
 
@@ -128,6 +131,9 @@ export default function AdminPage() {
     }
     if (userRole === 'EDITOR') {
       return navigationItems.filter(item => item.href === '/admin/demos');
+    }
+    if (userRole === 'ARTIST') {
+      return navigationItems.filter(item => item.href === '/admin/artist');
     }
     // Other roles: show nothing
     return [];

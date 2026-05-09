@@ -14,7 +14,7 @@ export default function AdminHeaderClient({ name }: { name: string }) {
         <p className="text-sm text-gray-400">Welcome, {name || "Admin"}</p>
       </div>
       <div className="flex items-center gap-3">
-        {pathname !== "/admin" && (
+        {pathname !== "/admin" && pathname !== "/admin/artist" && (
           <button
             onClick={() => router.push("/admin")}
             className="px-4 py-2 font-bold text-white bg-gradient-to-r from-purple-900/80 via-purple-700/80 to-purple-900/80 hover:from-purple-800/80 hover:via-purple-600/80 hover:to-purple-800/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 rounded-lg transition-all duration-200 flex items-center gap-2"
@@ -28,5 +28,4 @@ export default function AdminHeaderClient({ name }: { name: string }) {
     </div>
   )
 }
-
 
