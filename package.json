@@ -32,7 +32,8 @@
     "migrate:news-images": "tsx scripts/migrate-news-images-to-r2.ts",
     "newsletter:rename-vip": "tsx scripts/rename-vip-to-newsletter.ts",
     "newsletter:dedupe": "tsx scripts/merge-duplicate-subscribers.ts",
-    "newsletter:dedupe:apply": "tsx scripts/merge-duplicate-subscribers.ts --apply"
+    "newsletter:dedupe:apply": "tsx scripts/merge-duplicate-subscribers.ts --apply",
+    "artist-lab:seed-onboarding": "tsx scripts/seed-artist-onboarding.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.984.0",

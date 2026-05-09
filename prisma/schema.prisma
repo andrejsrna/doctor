@@ -410,6 +410,7 @@ model ArtistTask {
   artistId      String
   templateId    String?
   releasePlanId String?
+  documentId    String?
   title         String
   description   String?            @db.Text
   category      String
@@ -425,11 +426,13 @@ model ArtistTask {
   artist      Artist              @relation(fields: [artistId], references: [id], onDelete: Cascade)
   template    ArtistTaskTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   releasePlan ArtistReleasePlan?  @relation(fields: [releasePlanId], references: [id], onDelete: Cascade)
+  document    ArtistDocument?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
   completedBy User?               @relation("ArtistTaskCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
 
   @@index([artistId])
   @@index([templateId])
   @@index([releasePlanId])
+  @@index([documentId])
   @@index([status])
   @@index([dueAt])
 }
@@ -446,7 +449,8 @@ model ArtistDocument {
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
-  artist Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artist Artist?      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tasks  ArtistTask[]
 
   @@index([artistId])
   @@index([isPinned])

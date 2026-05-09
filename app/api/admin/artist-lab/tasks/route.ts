@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       priority: data.priority || "NORMAL",
       dueAt: data.dueAt ? new Date(data.dueAt) : null,
       releasePlanId: data.releasePlanId || null,
+      documentId: data.documentId || null,
     },
   })
 

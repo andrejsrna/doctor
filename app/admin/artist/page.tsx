@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { FaBookOpen, FaCheck, FaExternalLinkAlt, FaRegCircle, FaRocket } from "react-icons/fa"
 
 type Task = {
@@ -146,13 +147,13 @@ export default function ArtistWorkspacePage() {
             <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-white"><FaBookOpen /> Documents</h2>
             <div className="space-y-3">
               {documents.map((doc) => (
-                <a key={doc.id} href={doc.url || "#"} target={doc.url ? "_blank" : undefined} rel={doc.url ? "noreferrer" : undefined} className="flex items-center justify-between border border-white/10 p-4 text-white hover:border-lime-300/50">
+                <Link key={doc.id} href={`/admin/artist/documents/${doc.id}`} className="flex items-center justify-between border border-white/10 p-4 text-white hover:border-lime-300/50">
                   <span>
                     <span className="block font-semibold">{doc.title}</span>
                     {doc.description && <span className="mt-1 block text-sm text-gray-500">{doc.description}</span>}
                   </span>
                   {doc.url && <FaExternalLinkAlt className="text-lime-300" />}
-                </a>
+                </Link>
               ))}
               {documents.length === 0 && <div className="text-sm text-gray-500">No documents yet.</div>}
             </div>

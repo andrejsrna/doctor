@@ -21,9 +21,9 @@ type Overview = {
   stats: { artists: number; members: number; tasks: number; completedTasks: number; overdueTasks: number; progress: number }
 }
 
-const defaultTask = { artistId: "", title: "", category: "Release Growth", priority: "NORMAL", dueAt: "" }
+const defaultTask = { artistId: "", title: "", category: "Release Growth", priority: "NORMAL", dueAt: "", documentId: "" }
 const defaultAccount = { artistId: "", name: "", email: "", password: "" }
-const defaultDocument = { artistId: "", title: "", description: "", url: "", type: "LINK", isPinned: false }
+const defaultDocument = { artistId: "", title: "", description: "", url: "", content: "", type: "NOTE", isPinned: false }
 const fieldClass = "w-full border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-lime-300/60"
 
 export default function ArtistLabAdminPage() {
@@ -152,6 +152,11 @@ export default function ArtistLabAdminPage() {
               <option value="HIGH">High</option>
             </select>
           </div>
+          <select value={taskForm.documentId} onChange={(e) => setTaskForm({ ...taskForm, documentId: e.target.value })} className={fieldClass}>
+            <option value="">No document checklist</option>
+            {(data?.globalDocuments || []).map((doc) => <option key={doc.id} value={doc.id}>{doc.title}</option>)}
+            {(selectedArtist?.documents || []).map((doc) => <option key={doc.id} value={doc.id}>{doc.title}</option>)}
+          </select>
           <input type="date" value={taskForm.dueAt} onChange={(e) => setTaskForm({ ...taskForm, dueAt: e.target.value })} className={fieldClass} />
           <SubmitButton saving={saving === "Task"} label="Add task" />
         </form>
@@ -169,7 +174,9 @@ export default function ArtistLabAdminPage() {
             {artists.map((artist) => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
           </select>
           <input required value={documentForm.title} onChange={(e) => setDocumentForm({ ...documentForm, title: e.target.value })} placeholder="Document title" className={fieldClass} />
-          <input value={documentForm.url} onChange={(e) => setDocumentForm({ ...documentForm, url: e.target.value })} placeholder="https://..." className={fieldClass} />
+          <input value={documentForm.description} onChange={(e) => setDocumentForm({ ...documentForm, description: e.target.value })} placeholder="Short description" className={fieldClass} />
+          <input value={documentForm.url} onChange={(e) => setDocumentForm({ ...documentForm, url: e.target.value })} placeholder="Optional external URL" className={fieldClass} />
+          <textarea value={documentForm.content} onChange={(e) => setDocumentForm({ ...documentForm, content: e.target.value })} placeholder="Markdown content" rows={6} className={fieldClass} />
           <label className="flex items-center gap-2 text-sm text-gray-300">
             <input type="checkbox" checked={documentForm.isPinned} onChange={(e) => setDocumentForm({ ...documentForm, isPinned: e.target.checked })} />
             Pin document
