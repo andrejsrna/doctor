@@ -1,4 +1,4 @@
-import { FaHome, FaInstagram, FaMusic, FaNewspaper, FaStar, FaUsers, FaChartLine, FaCog, FaShoppingCart, FaRocket } from "react-icons/fa";
+import { FaHome, FaInstagram, FaMusic, FaNewspaper, FaStar, FaUsers, FaChartLine, FaCog, FaShoppingCart, FaRocket, FaUserPlus } from "react-icons/fa";
 export { productivityMessages } from "./messages";
 
 export const navigationItems = [
@@ -31,6 +31,12 @@ export const navigationItems = [
     href: "/admin/artists",
     icon: FaUsers,
     description: "Manage Artists"
+  },
+  {
+    name: "New Artist",
+    href: "/admin/artists/new",
+    icon: FaUserPlus,
+    description: "Create Artist Profile"
   },
   {
     name: "Artist Lab",
