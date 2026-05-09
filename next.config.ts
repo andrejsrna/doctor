@@ -17,7 +17,13 @@ const nextConfig: NextConfig = {
   },
   
   // Headers for performance and security
-  headers: async () => [
+  headers: async () => {
+    const r2Origin = (() => {
+      try { return process.env.R2_ENDPOINT ? new URL(process.env.R2_ENDPOINT).origin : "" }
+      catch { return "" }
+    })()
+    const r2ConnectSrc = [r2Origin, "https://*.r2.cloudflarestorage.com"].filter(Boolean).join(" ")
+    return [
     {
       source: '/admin/:path*',
       headers: [
@@ -72,13 +78,14 @@ const nextConfig: NextConfig = {
               {
                 key: 'Content-Security-Policy',
                 value:
-                  "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob: https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com https://embed.music.apple.com; media-src 'self' data: https: blob:; worker-src 'self' blob:; object-src 'none';",
+                  `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com data:; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob: https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://graph.facebook.com https://connect.facebook.net https://www.facebook.com https://admin.dnbdoctor.com https://*.dnbdoctor.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com ${r2ConnectSrc} data: blob:; frame-src 'self' https://challenges.cloudflare.com https://w.soundcloud.com https://www.youtube.com https://open.spotify.com https://embed.music.apple.com; media-src 'self' data: https: blob:; worker-src 'self' blob:; object-src 'none';`,
               },
             ] as const)
           : [])
       ]
     }
-  ],
+    ]
+  },
 
   // Compression and caching
   compress: true,
