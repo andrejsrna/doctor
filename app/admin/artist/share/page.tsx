@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { DragEvent, useRef, useState } from "react"
+import { DragEvent, useCallback, useEffect, useRef, useState } from "react"
 import { FaArrowLeft, FaCloudUploadAlt, FaCopy, FaExternalLinkAlt, FaFolderOpen, FaMusic } from "react-icons/fa"
 
 type UploadedFile = {
@@ -10,6 +10,7 @@ type UploadedFile = {
   type: string
   key: string
   url: string | null
+  uploadedAt?: string | null
 }
 
 function formatSize(bytes: number) {
@@ -23,8 +24,27 @@ export default function ArtistSharePage() {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [dragging, setDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [loadingFiles, setLoadingFiles] = useState(true)
   const [error, setError] = useState("")
   const [files, setFiles] = useState<UploadedFile[]>([])
+
+  const loadFiles = useCallback(async () => {
+    setLoadingFiles(true)
+    const response = await fetch("/api/artist-lab/share/files", { cache: "no-store" })
+    setLoadingFiles(false)
+
+    const payload = await response.json().catch(() => null)
+    if (!response.ok) {
+      setError(payload?.error || "Files could not be loaded")
+      return
+    }
+
+    setFiles(payload?.files || [])
+  }, [])
+
+  useEffect(() => {
+    loadFiles()
+  }, [loadFiles])
 
   async function upload(selected: FileList | File[]) {
     const list = Array.from(selected)
@@ -32,22 +52,36 @@ export default function ArtistSharePage() {
 
     setUploading(true)
     setError("")
-    const body = new FormData()
-    list.forEach((file) => body.append("files", file))
+    try {
+      for (const file of list) {
+        const presignResponse = await fetch("/api/artist-lab/share/presign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: file.name, size: file.size, type: file.type || "application/octet-stream" }),
+        })
 
-    const response = await fetch("/api/artist-lab/share/upload", {
-      method: "POST",
-      body,
-    })
-    setUploading(false)
+        const presignPayload = await presignResponse.json().catch(() => null)
+        if (!presignResponse.ok) {
+          throw new Error(presignPayload?.error || `Upload could not start for ${file.name}`)
+        }
 
-    const payload = await response.json().catch(() => null)
-    if (!response.ok) {
-      setError(payload?.error || "Upload failed")
-      return
+        const uploadResponse = await fetch(presignPayload.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": file.type || "application/octet-stream" },
+          body: file,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed for ${file.name}. R2 returned ${uploadResponse.status}.`)
+        }
+      }
+
+      await loadFiles()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Upload failed")
+    } finally {
+      setUploading(false)
     }
-
-    setFiles((current) => [...(payload.files || []), ...current])
   }
 
   function onDrop(event: DragEvent<HTMLDivElement>) {
@@ -118,11 +152,13 @@ export default function ArtistSharePage() {
       <section className="border border-white/10 bg-black/35 p-6">
         <h2 className="mb-4 text-xl font-black text-white">Uploaded links</h2>
         <div className="space-y-3">
+          {loadingFiles && <div className="text-sm text-gray-500">Loading shared files...</div>}
           {files.map((file) => (
             <div key={`${file.key}-${file.name}`} className="grid gap-3 border border-white/10 p-4 md:grid-cols-[1fr_auto]">
               <div>
                 <div className="font-semibold text-white">{file.name}</div>
                 <div className="mt-1 text-xs uppercase tracking-[0.16em] text-gray-500">{formatSize(file.size)} / {file.type}</div>
+                {file.uploadedAt && <div className="mt-1 text-xs text-gray-600">{new Date(file.uploadedAt).toLocaleString()}</div>}
                 <div className="mt-2 break-all text-sm text-gray-400">{file.url || file.key}</div>
               </div>
               <div className="flex items-center gap-2">
@@ -137,7 +173,7 @@ export default function ArtistSharePage() {
               </div>
             </div>
           ))}
-          {files.length === 0 && <div className="text-sm text-gray-500">Uploaded files will appear here with shareable links.</div>}
+          {!loadingFiles && files.length === 0 && <div className="text-sm text-gray-500">Uploaded files will appear here with shareable links.</div>}
         </div>
       </section>
     </div>
