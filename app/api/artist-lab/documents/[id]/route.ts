@@ -29,7 +29,18 @@ export async function GET(
   }
 
   if (user.role === "ADMIN" && !document.artistId) {
-    return NextResponse.json({ document: { ...document, tasks: [] } })
+    const membership = await prisma.artistMember.findFirst({
+      select: { artistId: true },
+    })
+
+    if (!membership) return NextResponse.json({ document: { ...document, tasks: [] } })
+
+    const tasks = await prisma.artistTask.findMany({
+      where: { documentId: document.id, artistId: membership.artistId },
+      orderBy: [{ status: "asc" }, { dueAt: "asc" }, { createdAt: "asc" }],
+    })
+
+    return NextResponse.json({ document: { ...document, tasks } })
   }
 
   if (user.role !== "ADMIN" && document.artistId) {
