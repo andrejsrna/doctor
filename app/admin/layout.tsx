@@ -7,12 +7,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await auth.api.getSession({ headers: hdrs }).catch(() => null);
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      <div className="bg-black/50 backdrop-blur-sm border-b pt-32 container mx-auto border-purple-500/20 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="border-b border-purple-500/20 bg-black/50 pt-4 shadow-2xl backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 py-4">
           <AdminHeaderClient name={session?.user?.name || "Admin"} />
         </div>
       </div>
-      <div className="container mx-auto py-8">{children}</div>
+      <div className="mx-auto max-w-7xl px-4 py-8">{children}</div>
     </div>
   );
 }
