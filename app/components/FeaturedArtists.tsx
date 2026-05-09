@@ -26,15 +26,10 @@ export default async function FeaturedArtists() {
 
   return (
     <section className="py-24 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <Image
-          src="/pattern.png"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+      {/* Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#6F3DFF]/8 rounded-full blur-[130px] translate-x-1/3 -translate-y-1/4" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--color-secondary)]/4 rounded-full blur-[110px] -translate-x-1/4 translate-y-1/4" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
