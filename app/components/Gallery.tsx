@@ -40,7 +40,7 @@ const galleryItems = [
   },
   {
     type: 'image',
-    src: '/gallery/asana-plays-double-trouble-prague-2025.jpg',
+    src: '/gallery/asana-prague-2025.jpg',
     alt: 'Asana plays Double Trouble Prague',
     title: 'Double Trouble Prague',
     year: '2025',
