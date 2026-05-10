@@ -8,6 +8,8 @@ import FeaturedArtists from './components/FeaturedArtists'
 import ListenNow from './components/ListenNow'
 import { Suspense } from 'react'
 
+export const revalidate = 300
+
 export default function Home() {
   return (
     <main>

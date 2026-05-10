@@ -14,6 +14,8 @@ export const metadata = {
   description: "Start here: hear our sound, meet the artists, and join the community.",
 };
 
+export const revalidate = 300
+
 export default function NewFansPage() {
   return (
     <main className="text-white">
@@ -125,5 +127,4 @@ export default function NewFansPage() {
     </main>
   );
 }
-
 
