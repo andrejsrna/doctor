@@ -158,6 +158,147 @@ export default function AboutContent() {
         </div>
       </section>
 
+      {/* ─── DOCTOR & YOU ────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[#020208]">
+        {/* Grid texture */}
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(111,61,255,0.018) 60px, rgba(111,61,255,0.018) 61px), repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(111,61,255,0.018) 60px, rgba(111,61,255,0.018) 61px)' }} />
+
+        {/* Column header bar */}
+        <div className="relative z-10 grid md:grid-cols-2 border-b border-white/[0.06]">
+          <div className="px-8 md:px-14 py-5 border-r border-white/[0.06] flex items-center gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#6F3DFF] animate-pulse" />
+            <span className="text-[#6F3DFF] font-mono text-[9px] tracking-[0.4em] uppercase">SUBJECT_01 · LABEL · EST. 2015</span>
+          </div>
+          <div className="px-8 md:px-14 py-5 flex items-center gap-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#01ef01] animate-pulse" />
+            <span className="text-[#01ef01] font-mono text-[9px] tracking-[0.4em] uppercase">SUBJECT_02 · LISTENER · STATUS: ACTIVE</span>
+          </div>
+        </div>
+
+        {/* Main split */}
+        <div className="relative z-10 grid md:grid-cols-2">
+
+          {/* ── THE DOCTOR panel ── */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="relative px-8 md:px-14 py-20 border-r border-white/[0.06] overflow-hidden"
+          >
+            {/* Decorative Rx */}
+            <div
+              aria-hidden
+              className="absolute -right-6 top-6 text-[clamp(120px,18vw,200px)] font-black leading-none select-none pointer-events-none text-[#6F3DFF]"
+              style={{ opacity: 0.045, fontVariantNumeric: 'tabular-nums' }}
+            >
+              Rx
+            </div>
+
+            <div className="relative">
+              <div className="text-[#6F3DFF] font-mono text-[10px] tracking-[0.38em] uppercase mb-10">The Doctor.</div>
+
+              <h2 className="text-[clamp(2.6rem,5.5vw,4.5rem)] font-black uppercase leading-[0.88] tracking-[-0.02em] mb-14 text-white">
+                Ten years.<br />
+                One obsession.<br />
+                No apologies.
+              </h2>
+
+              <ul className="space-y-7">
+                {[
+                  ['01', 'Surgical curation — only the heaviest drops make the cut.'],
+                  ['02', 'Independent since 2015. Beholden to no one but the music.'],
+                  ['03', '100+ releases. 50+ artists. One relentless standard.'],
+                ].map(([num, text]) => (
+                  <motion.li
+                    key={num}
+                    variants={fadeUp}
+                    custom={Number(num) * 0.3}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true }}
+                    className="flex gap-5 items-start group"
+                  >
+                    <span className="font-mono text-xs text-[#6F3DFF]/40 shrink-0 mt-0.5 group-hover:text-[#6F3DFF] transition-colors duration-300 tabular-nums">
+                      {num}
+                    </span>
+                    <span className="text-gray-400 text-sm leading-relaxed font-mono">{text}</span>
+                  </motion.li>
+                ))}
+              </ul>
+
+              <div className="mt-14 inline-flex items-center gap-3 border border-[#6F3DFF]/20 px-5 py-2.5 hover:border-[#6F3DFF]/50 transition-colors duration-300">
+                <span className="w-1 h-5 bg-[#6F3DFF] inline-block" />
+                <span className="text-[#6F3DFF] font-mono text-[9px] tracking-[0.35em] uppercase">DIAGNOSIS: NEUROFUNK · PRESCRIPTION: ACTIVE</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* ── YOU panel ── */}
+          <motion.div
+            variants={fadeUp}
+            custom={0.2}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="relative px-8 md:px-14 py-20 overflow-hidden"
+          >
+            {/* Decorative YOU */}
+            <div
+              aria-hidden
+              className="absolute -right-4 top-6 text-[clamp(100px,14vw,160px)] font-black leading-none select-none pointer-events-none text-[#01ef01]"
+              style={{ opacity: 0.04 }}
+            >
+              YOU
+            </div>
+
+            <div className="relative">
+              <div className="text-[#01ef01] font-mono text-[10px] tracking-[0.38em] uppercase mb-10">You.</div>
+
+              <h2 className="text-[clamp(2.6rem,5.5vw,4.5rem)] font-black uppercase leading-[0.88] tracking-[-0.02em] mb-14 text-white">
+                You hear<br />
+                what others<br />
+                can only feel.
+              </h2>
+
+              <ul className="space-y-7">
+                {[
+                  ['01', 'You came for the bass. You stayed for everything else.'],
+                  ['02', 'You know the difference between heavy and just loud.'],
+                  ['03', 'You don\'t need an explanation. The drop speaks for itself.'],
+                ].map(([num, text]) => (
+                  <motion.li
+                    key={num}
+                    variants={fadeUp}
+                    custom={Number(num) * 0.3 + 0.2}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true }}
+                    className="flex gap-5 items-start group"
+                  >
+                    <span className="font-mono text-xs text-[#01ef01]/40 shrink-0 mt-0.5 group-hover:text-[#01ef01] transition-colors duration-300 tabular-nums">
+                      {num}
+                    </span>
+                    <span className="text-gray-400 text-sm leading-relaxed font-mono">{text}</span>
+                  </motion.li>
+                ))}
+              </ul>
+
+              <div className="mt-14 inline-flex items-center gap-3 border border-[#01ef01]/20 px-5 py-2.5 hover:border-[#01ef01]/50 transition-colors duration-300">
+                <span className="w-1 h-5 bg-[#01ef01] inline-block" />
+                <span className="text-[#01ef01] font-mono text-[9px] tracking-[0.35em] uppercase">CLASSIFICATION: ONE OF US</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Bottom diagnostics bar */}
+        <div className="relative z-10 border-t border-white/[0.06] px-8 md:px-14 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+          <span className="font-mono text-[9px] text-white/15 tracking-[0.35em] uppercase">DNB-DOCTOR-DIAGNOSTICS // REF-2015-NEUROFUNK</span>
+          <span className="font-mono text-[9px] text-white/15 tracking-[0.35em] uppercase">SYSTEM: ONLINE // BASS: PRESCRIBED</span>
+        </div>
+      </section>
+
       {/* ─── STATS ───────────────────────────────────── */}
       <section className="border-y border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
