@@ -38,6 +38,14 @@ const galleryItems = [
     year: '2024',
     description: 'Prague. Heavy. Exactly how it should be.',
   },
+  {
+    type: 'image',
+    src: '/gallery/asana-plays-double-trouble-prague-2025.jpg',
+    alt: 'Asana plays Double Trouble Prague',
+    title: 'Double Trouble Prague',
+    year: '2025',
+    description: 'Asana on the decks — Double Trouble, Prague.',
+  },
 ]
 
 const fadeUp = {

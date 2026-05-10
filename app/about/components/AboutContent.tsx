@@ -319,35 +319,6 @@ export default function AboutContent() {
         </div>
       </section>
 
-      {/* ─── WHAT WE DO ──────────────────────────────── */}
-      <section className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mb-16">
-            <div className="text-[var(--color-secondary)] text-xs font-mono uppercase tracking-[0.3em] mb-3">02 / What we do</div>
-            <h2 className="text-4xl md:text-5xl font-black text-white">The platform.</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-px bg-white/5">
-            {FEATURES.map((item, i) => (
-              <motion.div
-                key={item.title}
-                variants={fadeUp}
-                custom={i * 0.4}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true }}
-                className="bg-[#050505] p-10 hover:bg-[#0b0715] transition-colors duration-300 group"
-              >
-                <div className="w-1 h-10 mb-8 rounded-full" style={{ backgroundColor: item.accent }} />
-                <item.icon className="w-7 h-7 mb-5 transition-transform duration-300 group-hover:scale-110" style={{ color: item.accent }} />
-                <h3 className="text-xl font-black text-white mb-2">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── TEAM ────────────────────────────────────── */}
       <section className="py-32 px-6 bg-[#030303]">
         <div className="max-w-7xl mx-auto">
