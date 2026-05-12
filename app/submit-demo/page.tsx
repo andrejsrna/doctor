@@ -4,7 +4,8 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FaCheck, FaSpinner,
-  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle
+  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle,
+  FaHandshake, FaVolumeUp, FaChartLine, FaCoins, FaShieldAlt, FaBullhorn
 } from 'react-icons/fa'
 import { Turnstile } from '@marsidev/react-turnstile'
 import Button from '../components/Button'
@@ -17,6 +18,45 @@ interface FormData {
   acceptGuidelines: boolean
   acceptPrivacy: boolean
 }
+
+const collaborationFaq = [
+  {
+    question: 'How does a release with DnB Doctor usually work?',
+    answer:
+      'If we feel the track fits the label, we talk through the release plan, assets, loudness target, promotion and timeline with you directly. We try to keep the process clear and practical: good audio, proper presentation, and steady communication before the release goes live.',
+    icon: FaHandshake
+  },
+  {
+    question: 'Do you pay artists?',
+    answer:
+      'Yes. We usually offer a fixed fee per accepted track. The fee is set individually for each release based on the artist, current statistics, audience size, track potential and the scope of the campaign. If a track performs exceptionally well, we are open to paying an extra bonus.',
+    icon: FaCoins
+  },
+  {
+    question: 'Why fixed fees instead of normal royalties?',
+    answer:
+      'Streaming income in underground drum and bass is honestly very small. In reality, we still lose money on most releases because promotion, distribution, design and time cost more than the track earns back. The fixed fee is our way to give artists at least some motivating cash upfront, while many labels pay no royalties at all.',
+    icon: FaShieldAlt
+  },
+  {
+    question: 'How loud should the final master be?',
+    answer:
+      'We care a lot about volume and punch. For our sound, releases usually need to feel club-ready and aggressive, often around -4 to -3 LUFS when the mix can handle it without falling apart. Loudness is not the only thing that matters, but the track has to hit hard.',
+    icon: FaVolumeUp
+  },
+  {
+    question: 'Why is DnB Doctor added as a collaborating artist?',
+    answer:
+      'On selected releases we add the DnB Doctor artist profile as a collaborator to help boost algorithmic reach and connect the track with the label audience. It can help with discovery, playlist signals, release radar behaviour and overall visibility around the campaign.',
+    icon: FaChartLine
+  },
+  {
+    question: 'Can artists trust the label?',
+    answer:
+      'We work with artists who keep coming back for more releases, and we care about long-term relationships more than one-off uploads. We are direct about the numbers, what we can realistically do, and where the release stands. If something needs more work, we say it clearly.',
+    icon: FaBullhorn
+  }
+]
 
 export default function SubmitDemoPage() {
   const [formData, setFormData] = useState<FormData>({
@@ -365,6 +405,55 @@ export default function SubmitDemoPage() {
                 )}
               </AnimatePresence>
             </div>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="bg-black py-16 border-t border-purple-500/10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-6xl mx-auto px-4"
+        >
+          <div className="max-w-3xl mb-10">
+            <p className="text-purple-400 text-sm font-semibold uppercase tracking-[0.2em] mb-3">
+              Artist collaboration FAQ
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              What happens after we like your demo?
+            </h2>
+            <p className="text-gray-300 leading-relaxed">
+              We want artists to know the deal before sending music. Here is how we think about
+              fees, mastering loudness, algorithm support and long-term label cooperation.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {collaborationFaq.map((item, index) => (
+              <motion.div
+                key={item.question}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.06 }}
+                className="bg-black/40 border border-purple-500/15 rounded-xl p-6 backdrop-blur-sm hover:border-purple-500/40 transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      {item.question}
+                    </h3>
+                    <p className="text-gray-300 leading-relaxed">
+                      {item.answer}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>
