@@ -160,7 +160,7 @@ export default function ReleaseHero({
       }
 
   return (
-    <div className="relative flex min-h-[100svh] items-center justify-center text-center px-4 pt-32 pb-24 overflow-hidden">
+    <div className="relative flex min-h-[100svh] items-center justify-center text-center px-4 pt-16 pb-24 overflow-hidden">
       <div className="relative z-20 space-y-6 max-w-3xl">
         <motion.h1
           initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
