@@ -56,21 +56,22 @@ function getYoutubeEmbed(url?: string): string | null {
   }
 }
 
-function getPlatformChipTheme(name: string) {
+function getPlatformButtonTheme(name: string) {
   const lower = name.toLowerCase()
-  if (lower.includes('spotify')) return 'border-green-400/40 bg-green-500/15 text-green-200 hover:border-green-300/60'
-  if (lower.includes('apple')) return 'border-pink-400/40 bg-pink-500/15 text-pink-200 hover:border-pink-300/60'
-  if (lower.includes('soundcloud')) return 'border-orange-400/40 bg-orange-500/15 text-orange-200 hover:border-orange-300/60'
-  if (lower.includes('deezer')) return 'border-fuchsia-400/40 bg-fuchsia-500/15 text-fuchsia-200 hover:border-fuchsia-300/60'
-  if (lower.includes('tidal')) return 'border-cyan-400/40 bg-cyan-500/15 text-cyan-200 hover:border-cyan-300/60'
-  if (lower.includes('bandcamp') || lower.includes('juno')) return 'border-blue-400/40 bg-blue-500/15 text-blue-200 hover:border-blue-300/60'
-  return 'border-white/20 bg-white/5 text-gray-200 hover:border-white/35'
+  if (lower.includes('spotify')) return 'bg-gradient-to-r from-green-900/80 via-green-700/80 to-green-900/80 text-green-200'
+  if (lower.includes('apple')) return 'bg-gradient-to-r from-pink-900/80 via-pink-700/80 to-pink-900/80 text-pink-200'
+  if (lower.includes('soundcloud')) return 'bg-gradient-to-r from-orange-900/80 via-orange-700/80 to-orange-900/80 text-orange-200'
+  if (lower.includes('deezer')) return 'bg-gradient-to-r from-fuchsia-900/80 via-fuchsia-700/80 to-fuchsia-900/80 text-fuchsia-200'
+  if (lower.includes('tidal')) return 'bg-gradient-to-r from-cyan-900/80 via-cyan-700/80 to-cyan-900/80 text-cyan-200'
+  if (lower.includes('bandcamp')) return 'bg-gradient-to-r from-teal-900/80 via-teal-700/80 to-teal-900/80 text-teal-200'
+  if (lower.includes('juno')) return 'bg-gradient-to-r from-indigo-900/80 via-indigo-700/80 to-indigo-900/80 text-indigo-200'
+  return 'bg-gradient-to-r from-gray-900/80 via-gray-700/80 to-gray-900/80 text-gray-200'
 }
 
 function renderStreamingIcon(icon: StreamingLink['icon']) {
   if (typeof icon === 'string') {
     if (icon.startsWith('/')) {
-      return <Image src={icon} alt="" width={14} height={14} className="w-3.5 h-3.5" />
+      return <Image src={icon} alt="" width={24} height={24} className="w-6 h-6" />
     }
     const map: Record<string, ComponentType<{ className?: string }>> = {
       spotify: FaSpotify,
@@ -80,10 +81,10 @@ function renderStreamingIcon(icon: StreamingLink['icon']) {
       download: FaDownload,
     }
     const Icon = map[icon.toLowerCase()] || FaHeadphonesAlt
-    return <Icon className="w-3.5 h-3.5" />
+    return <Icon className="w-6 h-6" />
   }
   const Icon = icon
-  return <Icon className="w-3.5 h-3.5" />
+  return <Icon className="w-6 h-6" />
 }
 
 export default function ReleaseHero({
@@ -169,18 +170,6 @@ export default function ReleaseHero({
             drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]"
           dangerouslySetInnerHTML={{ __html: title }}
         />
-
-        <motion.p
-          initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
-          animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
-          transition={shouldReduce ? undefined : { delay: 0.1, type: 'spring', stiffness: 300 }}
-          className="text-xl md:text-2xl text-gray-200 mx-auto leading-relaxed pl-2 sm:pl-3 [&_a]:underline [&_a]:text-purple-200/90 hover:[&_a]:text-purple-100 [&_strong]:text-white [&_em]:text-gray-100"
-        >
-          <span dangerouslySetInnerHTML={{ __html: descriptionExcerptInlineHtml }} />
-          {showReadFullStory && (
-            <span className="sr-only">Read full story</span>
-          )}
-        </motion.p>
 
         <motion.div
           initial={shouldReduce ? undefined : { opacity: 0, scale: 0.8 }}
@@ -320,47 +309,6 @@ export default function ReleaseHero({
               transition={shouldReduce ? undefined : { delay: 0.15, type: 'spring', stiffness: 260, damping: 22 }}
               className="w-full max-w-3xl rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md p-3 sm:p-4 space-y-3"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {youtubeUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }} className="w-full">
-                    <Button
-                      href={youtubeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
-                      variant="toxic"
-                      size="lg"
-                      className="group w-full justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
-                    >
-                      <FaYoutube className="w-6 h-6 mr-3" />
-                      Listen on YouTube
-                    </Button>
-                  </motion.div>
-                )}
-                {beatportUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }} className="w-full">
-                    <Button
-                      href={beatportUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
-                      variant="toxic"
-                      size="lg"
-                      className="group w-full justify-center"
-                    >
-                      <Image
-                        src="/beatport.svg"
-                        alt=""
-                        width={24}
-                        height={24}
-                        className="w-6 h-6 mr-3"
-                      />
-                      Buy on Beatport
-                    </Button>
-                  </motion.div>
-                )}
-              </div>
-
               {(youtubeEmbedSrc || soundcloudEmbedSrc) && (
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-black/50">
                   {youtubeEmbedSrc ? (
@@ -384,23 +332,59 @@ export default function ReleaseHero({
                 </div>
               )}
 
-              {visibleStreamingLinks.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {visibleStreamingLinks.map((link) => (
-                    <a
-                      key={link.name}
-                      href={link.url}
+              <div className="flex flex-wrap justify-center gap-3">
+                {youtubeUrl && (
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }}>
+                    <Button
+                      href={youtubeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={(e) => handleStreamingClick(link.name, link.url!, e as unknown as React.MouseEvent)}
-                      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${getPlatformChipTheme(link.name)}`}
+                      onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
+                      variant="toxic"
+                      size="lg"
+                      className="group justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
                     >
-                      <span className="opacity-90">{renderStreamingIcon(link.icon)}</span>
-                      {link.name}
-                    </a>
-                  ))}
-                </div>
-              )}
+                      <FaYoutube className="w-6 h-6 mr-3" />
+                      Listen on YouTube
+                    </Button>
+                  </motion.div>
+                )}
+                {beatportUrl && (
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }}>
+                    <Button
+                      href={beatportUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
+                      variant="toxic"
+                      size="lg"
+                      className="group justify-center from-cyan-900/80 via-cyan-700/80 to-cyan-900/80 text-cyan-200"
+                    >
+                      <Image
+                        src="/beatport.svg"
+                        alt=""
+                        width={24}
+                        height={24}
+                        className="w-6 h-6 mr-3"
+                      />
+                      Buy on Beatport
+                    </Button>
+                  </motion.div>
+                )}
+                {visibleStreamingLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => handleStreamingClick(link.name, link.url!, e as unknown as React.MouseEvent)}
+                    className={`inline-flex items-center gap-2 rounded-lg px-8 py-4 text-lg font-bold min-w-[200px] justify-center transition-opacity hover:opacity-90 ${getPlatformButtonTheme(link.name)}`}
+                  >
+                    <span className="opacity-90 flex items-center">{renderStreamingIcon(link.icon)}</span>
+                    {link.name}
+                  </a>
+                ))}
+              </div>
             </motion.div>
           )}
 

@@ -281,8 +281,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
             <InfectionDivider />
 
-            <EngagementCTA />
-
             {!!plainDescription && (
               <section id="full-story" className="space-y-4 scroll-mt-28">
                 <div className="relative overflow-hidden rounded-2xl border border-green-500/35 bg-gradient-to-br from-black/70 via-black/55 to-green-900/30 p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
@@ -301,6 +299,8 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
                 </div>
               </section>
             )}
+
+            <EngagementCTA />
 
             <BulkSalePromo />
 
