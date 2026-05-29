@@ -6,12 +6,9 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import ListenMenu from './ListenMenu'
 import SearchModal from './SearchModal'
-import { isShopEnabled } from '@/app/utils/shop'
-
 const menuItems = [
   { title: 'Artists', href: '/artists' },
   { title: 'News', href: '/news' },
-  { title: 'Shop', href: '/shop' },
   { title: 'About', href: '/about' },
   { title: 'Newsletter', href: '/newsletter' },
   { title: 'Submit demo', href: '/submit-demo' },
@@ -46,9 +43,7 @@ export default function Navigation() {
     setIsOpen(false)
   }, [pathname])
 
-  const visibleMenuItems = isShopEnabled()
-    ? menuItems
-    : menuItems.filter((item) => item.href !== '/shop')
+  const visibleMenuItems = menuItems
 
   return (
     <>
