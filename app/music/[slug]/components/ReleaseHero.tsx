@@ -161,7 +161,7 @@ export default function ReleaseHero({
 
   return (
     <div className="relative flex min-h-[100svh] items-center justify-center text-center px-4 pt-16 pb-24 overflow-hidden">
-      <div className="relative z-20 space-y-6 max-w-3xl">
+      <div className="relative z-20 space-y-6 max-w-4xl">
         <motion.h1
           initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
           animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
@@ -307,7 +307,7 @@ export default function ReleaseHero({
               initial={shouldReduce ? undefined : { opacity: 0, y: 12 }}
               animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
               transition={shouldReduce ? undefined : { delay: 0.15, type: 'spring', stiffness: 260, damping: 22 }}
-              className="w-full max-w-4xl rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md p-3 sm:p-4 space-y-3"
+              className="w-full rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md p-3 sm:p-4 space-y-3"
             >
               {(youtubeEmbedSrc || soundcloudEmbedSrc) && (
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-black/50">
