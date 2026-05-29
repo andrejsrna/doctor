@@ -4,7 +4,6 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { StreamingLink } from '@/app/types/release'
 import ReleaseHero from './components/ReleaseHero'
-import InfectionDivider from './components/InfectionDivider'
 import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
@@ -279,8 +278,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <div className="relative -mt-24">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-            <InfectionDivider />
-
             {!!plainDescription && (
               <section id="full-story" className="space-y-4 scroll-mt-28">
                 <div className="relative overflow-hidden rounded-2xl border border-green-500/35 bg-gradient-to-br from-black/70 via-black/55 to-green-900/30 p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
