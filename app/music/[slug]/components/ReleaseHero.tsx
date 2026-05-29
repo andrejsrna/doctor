@@ -161,7 +161,7 @@ export default function ReleaseHero({
 
   return (
     <div className="relative flex items-center justify-center text-center px-4 pt-16 pb-24 overflow-hidden">
-      <div className="relative z-20 space-y-6 max-w-4xl">
+      <div className="relative z-20 space-y-6 w-full max-w-4xl">
         <motion.h1
           initial={shouldReduce ? undefined : { opacity: 0, y: 20 }}
           animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
@@ -175,7 +175,7 @@ export default function ReleaseHero({
           initial={shouldReduce ? undefined : { opacity: 0, scale: 0.8 }}
           animate={shouldReduce ? undefined : { opacity: 1, scale: 1 }}
           transition={shouldReduce ? undefined : { delay: 0.2, type: 'spring', stiffness: 300 }}
-          className="flex flex-col items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-4 w-full"
         >
           {isFreeDownload ? (
             <div className="w-full max-w-md space-y-3">
