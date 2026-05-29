@@ -307,7 +307,7 @@ export default function ReleaseHero({
               initial={shouldReduce ? undefined : { opacity: 0, y: 12 }}
               animate={shouldReduce ? undefined : { opacity: 1, y: 0 }}
               transition={shouldReduce ? undefined : { delay: 0.15, type: 'spring', stiffness: 260, damping: 22 }}
-              className="w-full max-w-3xl rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md p-3 sm:p-4 space-y-3"
+              className="w-full max-w-4xl rounded-2xl border border-white/15 bg-black/45 backdrop-blur-md p-3 sm:p-4 space-y-3"
             >
               {(youtubeEmbedSrc || soundcloudEmbedSrc) && (
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-black/50">
