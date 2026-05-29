@@ -332,9 +332,9 @@ export default function ReleaseHero({
                 </div>
               )}
 
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex flex-col gap-3">
                 {youtubeUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }}>
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }} className="w-full">
                     <Button
                       href={youtubeUrl}
                       target="_blank"
@@ -342,7 +342,7 @@ export default function ReleaseHero({
                       onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
                       variant="toxic"
                       size="lg"
-                      className="group justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
+                      className="group w-full justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
                     >
                       <FaYoutube className="w-6 h-6 mr-3" />
                       Listen on YouTube
@@ -350,7 +350,7 @@ export default function ReleaseHero({
                   </motion.div>
                 )}
                 {beatportUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }}>
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }} className="w-full">
                     <Button
                       href={beatportUrl}
                       target="_blank"
@@ -358,7 +358,7 @@ export default function ReleaseHero({
                       onClick={(e) => handleStreamingClick('Beatport', beatportUrl, e as unknown as React.MouseEvent)}
                       variant="toxic"
                       size="lg"
-                      className="group justify-center from-cyan-900/80 via-cyan-700/80 to-cyan-900/80 text-cyan-200"
+                      className="group w-full justify-center from-cyan-900/80 via-cyan-700/80 to-cyan-900/80 text-cyan-200"
                     >
                       <Image
                         src="/beatport.svg"
@@ -378,7 +378,7 @@ export default function ReleaseHero({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => handleStreamingClick(link.name, link.url!, e as unknown as React.MouseEvent)}
-                    className={`inline-flex items-center gap-2 rounded-lg px-8 py-4 text-lg font-bold min-w-[200px] justify-center transition-opacity hover:opacity-90 ${getPlatformButtonTheme(link.name)}`}
+                    className={`inline-flex w-full items-center gap-2 rounded-lg px-8 py-4 text-lg font-bold justify-center transition-opacity hover:opacity-90 ${getPlatformButtonTheme(link.name)}`}
                   >
                     <span className="opacity-90 flex items-center">{renderStreamingIcon(link.icon)}</span>
                     {link.name}
