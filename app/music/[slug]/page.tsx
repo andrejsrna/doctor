@@ -8,6 +8,7 @@ import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
+import Breadcrumb from '@/app/components/Breadcrumb'
 import AffiliateLinks from '@/app/components/AffiliateLinks'
 import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
 
@@ -176,6 +177,16 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     url: `https://dnbdoctor.com/artists/${artistName.toLowerCase().replace(/\s+/g, '-')}`,
   }
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dnbdoctor.com' },
+      { '@type': 'ListItem', position: 2, name: 'Music', item: 'https://dnbdoctor.com/music' },
+      { '@type': 'ListItem', position: 3, name: safeTitle, item: `https://dnbdoctor.com/music/${slug}` },
+    ],
+  }
+
   // Main JSON-LD structure
   const jsonLd = isAlbum ? {
     '@context': 'https://schema.org',
@@ -261,6 +272,14 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           <div className="px-4 py-6 text-center text-gray-300">Enable JavaScript to view this page.</div>
         </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+        <div className="relative z-20 max-w-4xl mx-auto px-4 pt-6">
+          <Breadcrumb items={[
+            { label: 'Home', href: '/' },
+            { label: 'Music', href: '/music' },
+            { label: release.title },
+          ]} />
+        </div>
         <ReleaseHero
           title={safeTitle}
           beatportUrl={withBeatportAffiliate(release.beatport ?? undefined) || undefined}
