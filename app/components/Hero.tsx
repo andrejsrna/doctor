@@ -160,7 +160,18 @@ export default async function Hero() {
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Out Now Badge */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 space-y-5">
+          <div>
+            <p className="text-xs md:text-sm font-bold tracking-[0.35em] text-purple-400/70 uppercase mb-3">
+              DnB Doctor
+            </p>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-white/90 tracking-tight leading-tight">
+              Neurofunk &amp; Drum and Bass
+            </h2>
+            <p className="mt-2 text-sm md:text-base text-gray-400 max-w-xl mx-auto">
+              Dark. Surgical. Infectious. — A label built for those who feel the low end.
+            </p>
+          </div>
           <span className="inline-block px-6 py-2.5 bg-purple-500/20 text-purple-200 rounded-full text-sm md:text-base font-semibold border border-purple-500/40 tracking-[0.2em]">
             OUT NOW
           </span>
