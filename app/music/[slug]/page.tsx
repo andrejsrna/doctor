@@ -297,11 +297,11 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
               </section>
             )}
 
+            <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
+
             <EngagementCTA />
 
             <SocialShare url={`https://dnbdoctor.com/music/${slug}`} title={safeTitle} />
-
-            <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
 
             <BulkSalePromo />
 
