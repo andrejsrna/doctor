@@ -22,7 +22,7 @@ export const getOutboundDismissed = () => {
   return Number.isFinite(ts) && Date.now() < ts
 }
 
-export const setOutboundDismissed = (days = 1) => {
+export const setOutboundDismissed = (days = 30) => {
   if (typeof window === 'undefined') return
   const until = Date.now() + days * 24 * 60 * 60 * 1000
   localStorage.setItem(DISMISS_KEY, String(until))
@@ -105,7 +105,7 @@ export default function OutboundInterstitial({ isOpen, onClose, onContinue }: Ou
             <Button variant="toxic" className="w-full mb-3" onClick={handleContinue}>Continue</Button>
             <label className="flex items-center gap-2 text-xs text-gray-400">
               <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
-              Don&apos;t show this again for a day
+              Don&apos;t show this again for a month
             </label>
             </motion.div>
           </div>
