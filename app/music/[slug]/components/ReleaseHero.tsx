@@ -333,24 +333,8 @@ export default function ReleaseHero({
               )}
 
               <div className="flex flex-col gap-3">
-                {youtubeUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }} className="w-full">
-                    <Button
-                      href={youtubeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
-                      variant="toxic"
-                      size="lg"
-                      className="group w-full justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
-                    >
-                      <FaYoutube className="w-6 h-6 mr-3" />
-                      Listen on YouTube
-                    </Button>
-                  </motion.div>
-                )}
                 {beatportUrl && (
-                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }} className="w-full">
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }} className="w-full">
                     <Button
                       href={beatportUrl}
                       target="_blank"
@@ -368,6 +352,22 @@ export default function ReleaseHero({
                         className="w-6 h-6 mr-3"
                       />
                       Buy on Beatport
+                    </Button>
+                  </motion.div>
+                )}
+                {youtubeUrl && (
+                  <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.5 }} className="w-full">
+                    <Button
+                      href={youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => handleStreamingClick('YouTube', youtubeUrl, e as unknown as React.MouseEvent)}
+                      variant="toxic"
+                      size="lg"
+                      className="group w-full justify-center from-red-900/80 via-red-700/80 to-red-900/80 text-red-200"
+                    >
+                      <FaYoutube className="w-6 h-6 mr-3" />
+                      Listen on YouTube
                     </Button>
                   </motion.div>
                 )}

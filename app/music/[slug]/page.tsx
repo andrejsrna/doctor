@@ -112,14 +112,14 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   const imageUrl = getReleaseImageUrl({ coverImageUrl: release.coverImageUrl, coverImageKey: release.coverImageKey })
   const artworkUrl = getArtworkImageUrl({ artworkImageUrl: release.artworkImageUrl, artworkImageKey: release.artworkImageKey })
   const streamingLinks: StreamingLink[] = [
-    { name: 'Spotify', url: release.spotify || undefined, icon: 'spotify', color: 'text-green-400', bgColor: 'bg-green-500/10 hover:bg-green-500/20', priority: 3 },
+    { name: 'Spotify', url: release.spotify || undefined, icon: 'spotify', color: 'text-green-400', bgColor: 'bg-green-500/10 hover:bg-green-500/20', priority: 5 },
     { name: 'Beatport', url: withBeatportAffiliate(release.beatport ?? undefined) || undefined, icon: '/beatport.svg', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10 hover:bg-cyan-500/20', priority: 3 },
-    { name: 'Apple Music', url: release.appleMusic || undefined, icon: 'apple', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20', priority: 2 },
-    { name: 'Deezer', url: release.deezer || undefined, icon: 'deezer', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20' },
-    { name: 'SoundCloud', url: release.soundcloud || undefined, icon: 'soundcloud', color: 'text-orange-400', bgColor: 'bg-orange-500/10 hover:bg-orange-500/20', priority: 3 },
-    { name: 'JunoDownload', url: release.junoDownload || undefined, icon: 'download', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20', priority: 1 },
-    { name: 'Tidal', url: release.tidal || undefined, icon: '/tidal.svg', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20' },
-    { name: 'Bandcamp', url: release.bandcamp || undefined, icon: 'download', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20' },
+    { name: 'JunoDownload', url: release.junoDownload || undefined, icon: 'download', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20', priority: 4 },
+    { name: 'Bandcamp', url: release.bandcamp || undefined, icon: 'download', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20', priority: 3 },
+    { name: 'SoundCloud', url: release.soundcloud || undefined, icon: 'soundcloud', color: 'text-orange-400', bgColor: 'bg-orange-500/10 hover:bg-orange-500/20', priority: 2 },
+    { name: 'Tidal', url: release.tidal || undefined, icon: '/tidal.svg', color: 'text-blue-400', bgColor: 'bg-blue-500/10 hover:bg-blue-500/20', priority: 1 },
+    { name: 'Deezer', url: release.deezer || undefined, icon: 'deezer', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20', priority: 0 },
+    { name: 'Apple Music', url: release.appleMusic || undefined, icon: 'apple', color: 'text-pink-400', bgColor: 'bg-pink-500/10 hover:bg-pink-500/20', priority: 0 },
   ]
 
   const safeTitle = sanitizeHtml(release.title)
