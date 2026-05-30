@@ -8,7 +8,6 @@ import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
-import Breadcrumb from '@/app/components/Breadcrumb'
 import AffiliateLinks from '@/app/components/AffiliateLinks'
 import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
 
@@ -273,13 +272,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
-        <div className="relative z-20 max-w-4xl mx-auto px-4 pt-6">
-          <Breadcrumb items={[
-            { label: 'Home', href: '/' },
-            { label: 'Music', href: '/music' },
-            { label: release.title },
-          ]} />
-        </div>
         <ReleaseHero
           title={safeTitle}
           beatportUrl={withBeatportAffiliate(release.beatport ?? undefined) || undefined}

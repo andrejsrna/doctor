@@ -11,6 +11,7 @@ import { ENABLE_OUTBOUND_INTERSTITIAL } from '@/app/utils/flags'
 import Link from 'next/link'
 import type { StreamingLink } from '@/app/types/release'
 import type { ComponentType } from 'react'
+import Breadcrumb from '@/app/components/Breadcrumb'
 
 interface ReleaseHeroProps {
   title: string
@@ -170,6 +171,14 @@ export default function ReleaseHero({
             drop-shadow-[0_0_20px_rgba(168,85,247,0.6)]"
           dangerouslySetInnerHTML={{ __html: title }}
         />
+
+        <div className="flex justify-center">
+          <Breadcrumb items={[
+            { label: 'Home', href: '/' },
+            { label: 'Music', href: '/music' },
+            { label: title },
+          ]} />
+        </div>
 
         <motion.div
           initial={shouldReduce ? undefined : { opacity: 0, scale: 0.8 }}
