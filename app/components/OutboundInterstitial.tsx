@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Button from './Button'
-import { FaYoutube, FaSpotify, FaEnvelope } from 'react-icons/fa'
+import { FaYoutube, FaSpotify, FaEnvelope, FaArrowRight } from 'react-icons/fa'
 import { createPortal } from 'react-dom'
 
 interface OutboundInterstitialProps {
@@ -102,7 +102,7 @@ export default function OutboundInterstitial({ isOpen, onClose, onContinue }: Ou
                 </Button>
               </a>
             </div>
-            <Button variant="toxic" className="w-full mb-3" onClick={handleContinue}>Continue</Button>
+            <Button variant="toxic" className="w-full mb-3" onClick={handleContinue}>Continue <FaArrowRight className="w-4 h-4" /></Button>
             <label className="flex items-center gap-2 text-xs text-gray-400">
               <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
               Don&apos;t show this again for a month
