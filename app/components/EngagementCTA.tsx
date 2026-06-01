@@ -79,7 +79,7 @@ export default function EngagementCTA() {
       <div className="relative space-y-5">
         <div className="text-center space-y-2">
           <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">Stay Connected</p>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white">Don&apos;t Miss the Next Drop</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white">Don&apos;t Miss the<br />Next Drop</h2>
         </div>
 
         <div className="flex flex-col gap-3">
