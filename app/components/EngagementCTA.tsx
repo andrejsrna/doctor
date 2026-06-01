@@ -90,7 +90,7 @@ export default function EngagementCTA() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ delay: index * 0.07, duration: 0.3 }}
-              className={`rounded-xl border p-4 flex items-center gap-4 ${item.cardStyle} ${
+              className={`rounded-xl border p-4 flex flex-col gap-3 md:flex-row md:items-center md:gap-4 ${item.cardStyle} ${
                 item.priority === 'high' ? 'ring-1 ring-cyan-300/35 shadow-[0_8px_30px_rgba(6,182,212,0.15)]' : ''
               }`}
             >
@@ -102,7 +102,7 @@ export default function EngagementCTA() {
                 <p className="text-gray-300 text-sm mt-0.5 leading-snug">{item.description}</p>
               </div>
 
-              <div className="shrink-0">
+              <div className="shrink-0 w-full md:w-auto">
                 <Button
                   href={item.href}
                   target={item.href.startsWith('http') ? '_blank' : '_self'}
@@ -110,7 +110,7 @@ export default function EngagementCTA() {
                   onClick={() => handleEngagementClick(item.buttonText)}
                   variant={item.variant}
                   size="md"
-                  className="whitespace-nowrap"
+                  className="whitespace-nowrap w-full md:w-auto"
                 >
                   {item.buttonText}
                 </Button>
