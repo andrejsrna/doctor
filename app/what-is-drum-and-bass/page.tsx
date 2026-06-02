@@ -155,6 +155,9 @@ export default function WhatIsDrumAndBassPage() {
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-500 via-purple-500 to-pink-500">
                 What Is Drum and Bass?
               </span>
+              <span className="block text-2xl md:text-4xl mt-3 text-gray-400 font-normal tracking-normal">
+                The Only Guide You Need
+              </span>
             </h1>
 
             <motion.p 

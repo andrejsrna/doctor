@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Types of DnB: Complete Guide to Drum and Bass Styles | DNB Doctor',
-  description: 'Discover all types of DnB (Drum and Bass): Liquid, Neurofunk, Jump-Up, Jungle, Techstep, and more. Learn the differences between each DnB type with examples.',
+  title: 'Types of DnB: All 6 Drum & Bass Styles Compared (with Examples)',
+  description: 'Liquid vs Neurofunk vs Jump-Up vs Jungle — what is each type of DnB really like? Compare all 6 styles with sound examples, BPMs, and artist picks.',
   keywords: ['types of dnb', 'dnb types', 'drum and bass styles', 'dnb subgenres', 'types of drum and bass'],
 }
 
