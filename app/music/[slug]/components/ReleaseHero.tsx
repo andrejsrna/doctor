@@ -381,17 +381,23 @@ export default function ReleaseHero({
                   </motion.div>
                 )}
                 {visibleStreamingLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => handleStreamingClick(link.name, link.url!, e as unknown as React.MouseEvent)}
-                    className={`inline-flex w-full items-center gap-2 rounded-lg px-8 py-4 text-lg font-bold justify-center transition-opacity hover:opacity-90 ${getPlatformButtonTheme(link.name)}`}
-                  >
-                    <span className="opacity-90 flex items-center">{renderStreamingIcon(link.icon)}</span>
-                    {link.name}
-                  </a>
+                  <div key={link.name} className="w-full">
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => handleStreamingClick(link.name, link.url!, e as unknown as React.MouseEvent)}
+                      className={`inline-flex w-full items-center gap-2 rounded-lg px-8 py-4 text-lg font-bold justify-center transition-opacity hover:opacity-90 ${getPlatformButtonTheme(link.name)}`}
+                    >
+                      <span className="opacity-90 flex items-center">{renderStreamingIcon(link.icon)}</span>
+                      {link.name}
+                    </a>
+                    {link.deprecated && (
+                      <p className="mt-1 text-center text-xs text-gray-500">
+                        New purchases no longer available. Previously bought tracks can still be downloaded via your Juno account.
+                      </p>
+                    )}
+                  </div>
                 ))}
               </div>
             </motion.div>

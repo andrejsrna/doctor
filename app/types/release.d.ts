@@ -7,4 +7,5 @@ export interface StreamingLink {
   color: string
   bgColor: string
   priority?: number
+  deprecated?: boolean
 } 
