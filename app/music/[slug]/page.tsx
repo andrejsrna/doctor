@@ -284,30 +284,12 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           slug={slug}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
+          storyProtocolHtml={plainDescription || undefined}
         />
 
         <div className="relative -mt-24">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-            {!!plainDescription && (
-              <section id="full-story" className="space-y-4 scroll-mt-28">
-                <div className="relative overflow-hidden rounded-2xl border border-green-500/35 bg-gradient-to-br from-black/70 via-black/55 to-green-900/30 p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                  <div className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(34,197,94,0.22),transparent_70%)]" />
-                  <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-green-400/20 blur-2xl" />
-                  <div className="absolute -bottom-14 -right-14 h-40 w-40 rounded-full bg-emerald-300/10 blur-3xl" />
-                  <div className="relative">
-                    <h2 className="text-2xl md:text-3xl font-extrabold text-green-200 tracking-wide drop-shadow-[0_0_18px_rgba(34,197,94,0.45)]">
-                      Story Protocol
-                    </h2>
-                    <div
-                      className="mt-6 prose prose-invert prose-xl md:prose-2xl max-w-none text-gray-200 prose-headings:text-green-100 prose-a:text-green-200/90 hover:prose-a:text-green-100 prose-strong:text-white"
-                      dangerouslySetInnerHTML={{ __html: safeContent }}
-                    />
-                  </div>
-                </div>
-              </section>
-            )}
-
             <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
 
             <EngagementCTA />

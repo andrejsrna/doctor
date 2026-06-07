@@ -25,6 +25,7 @@ interface ReleaseHeroProps {
   slug: string
   releaseType?: 'NORMAL' | 'FREE_DOWNLOAD'
   streamingLinks?: StreamingLink[]
+  storyProtocolHtml?: string
 }
 
 function getYoutubeEmbed(url?: string): string | null {
@@ -100,6 +101,7 @@ export default function ReleaseHero({
   slug,
   releaseType,
   streamingLinks = [],
+  storyProtocolHtml,
 }: ReleaseHeroProps) {
   const shouldReduce = useReducedMotion()
   const [interstitialOpen, setInterstitialOpen] = useState(false)
@@ -109,6 +111,7 @@ export default function ReleaseHero({
   const [downloadError, setDownloadError] = useState<string>('')
   const [acceptPrivacy, setAcceptPrivacy] = useState(false)
   const [acceptNewsletter, setAcceptNewsletter] = useState(false)
+  const [storyOpen, setStoryOpen] = useState(false)
 
   const shouldDebugAds = () => {
     if (typeof window === 'undefined') return false
@@ -414,6 +417,42 @@ export default function ReleaseHero({
                 <FaDownload className="w-4 h-4" />
                 <span className="text-sm font-medium">Download Cover Art For Free</span>
               </a>
+            </div>
+          )}
+
+          {/* Story Protocol Accordion */}
+          {storyProtocolHtml && (
+            <div className="w-full max-w-2xl mx-auto mt-2">
+              <button
+                type="button"
+                onClick={() => setStoryOpen(!storyOpen)}
+                className="w-full flex items-center justify-between gap-3 px-5 py-3 rounded-xl border border-green-500/25 bg-gradient-to-r from-green-900/20 via-black/40 to-green-900/20 backdrop-blur-sm hover:border-green-500/40 transition-all group"
+                aria-expanded={storyOpen}
+              >
+                <span className="flex items-center gap-2 text-green-300 font-bold text-sm tracking-wide uppercase">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                  Story Protocol
+                </span>
+                <svg
+                  className={`w-4 h-4 text-green-400 transition-transform duration-300 ${storyOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${storyOpen ? 'max-h-[600px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}
+              >
+                <div className="rounded-xl border border-green-500/15 bg-black/50 backdrop-blur-md p-5">
+                  <div
+                    className="prose prose-invert prose-sm md:prose-base max-w-none text-gray-300 prose-headings:text-green-100 prose-a:text-green-200/90 hover:prose-a:text-green-100 prose-strong:text-white"
+                    dangerouslySetInnerHTML={{ __html: storyProtocolHtml }}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </motion.div>
