@@ -284,7 +284,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           slug={slug}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
-          storyProtocolHtml={plainDescription || undefined}
+          storyProtocolHtml={safeContent || undefined}
         />
 
         <div className="relative -mt-24">

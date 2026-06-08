@@ -344,6 +344,47 @@ export default function ReleaseHero({
                 </div>
               )}
 
+              {storyProtocolHtml && (
+                <div className="w-full rounded-xl border border-green-500/20 bg-gradient-to-br from-black/65 via-black/50 to-green-950/25 backdrop-blur-md overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setStoryOpen(!storyOpen)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 border-b border-green-500/10 hover:bg-green-500/5 transition-colors"
+                    aria-expanded={storyOpen}
+                  >
+                    <span className="flex items-center gap-2 text-green-300 font-bold text-sm tracking-wide uppercase">
+                      <span className="inline-block w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.7)]" />
+                      Story Protocol
+                    </span>
+                    <span className="flex items-center gap-2 text-xs text-green-200/70">
+                      {storyOpen ? 'Hide' : 'Read full'}
+                      <svg
+                        className={`w-4 h-4 text-green-400 transition-transform duration-300 ${storyOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </button>
+                  <div className="relative px-4 py-3 text-left">
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${storyOpen ? 'max-h-[700px]' : 'max-h-24'}`}
+                    >
+                      <div
+                        className="prose prose-invert prose-sm max-w-none text-gray-300 leading-relaxed prose-headings:text-green-100 prose-a:text-green-200/90 hover:prose-a:text-green-100 prose-strong:text-white"
+                        dangerouslySetInnerHTML={{ __html: storyProtocolHtml }}
+                      />
+                    </div>
+                    {!storyOpen && (
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-3">
                 {beatportUrl && (
                   <motion.div animate={loopAnim} transition={{ ...loopTransition, delay: 0.1 }} className="w-full">
@@ -417,42 +458,6 @@ export default function ReleaseHero({
                 <FaDownload className="w-4 h-4" />
                 <span className="text-sm font-medium">Download Cover Art For Free</span>
               </a>
-            </div>
-          )}
-
-          {/* Story Protocol Accordion */}
-          {storyProtocolHtml && (
-            <div className="w-full max-w-2xl mx-auto mt-2">
-              <button
-                type="button"
-                onClick={() => setStoryOpen(!storyOpen)}
-                className="w-full flex items-center justify-between gap-3 px-5 py-3 rounded-xl border border-green-500/25 bg-gradient-to-r from-green-900/20 via-black/40 to-green-900/20 backdrop-blur-sm hover:border-green-500/40 transition-all group"
-                aria-expanded={storyOpen}
-              >
-                <span className="flex items-center gap-2 text-green-300 font-bold text-sm tracking-wide uppercase">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                  Story Protocol
-                </span>
-                <svg
-                  className={`w-4 h-4 text-green-400 transition-transform duration-300 ${storyOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${storyOpen ? 'max-h-[600px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}
-              >
-                <div className="rounded-xl border border-green-500/15 bg-black/50 backdrop-blur-md p-5">
-                  <div
-                    className="prose prose-invert prose-sm md:prose-base max-w-none text-gray-300 prose-headings:text-green-100 prose-a:text-green-200/90 hover:prose-a:text-green-100 prose-strong:text-white"
-                    dangerouslySetInnerHTML={{ __html: storyProtocolHtml }}
-                  />
-                </div>
-              </div>
             </div>
           )}
         </motion.div>
