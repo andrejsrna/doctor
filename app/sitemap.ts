@@ -82,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/why-nobody-listens-to-your-neurofunk-tracks`,
+      url: `${baseUrl}/news/why-nobody-listens-to-your-neurofunk-tracks`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

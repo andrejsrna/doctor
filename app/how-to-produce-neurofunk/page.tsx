@@ -118,7 +118,7 @@ export default function HowToProduceNeurofunkPage() {
               Production is only half of the system. Learn how to turn neurofunk releases into real listeners and fans.
             </p>
             <Link
-              href="/why-nobody-listens-to-your-neurofunk-tracks"
+              href="/news/why-nobody-listens-to-your-neurofunk-tracks"
               className="inline-flex font-semibold text-green-300 underline-offset-4 hover:underline"
             >
               Read: Why Nobody Listens to Your Neurofunk Tracks →
