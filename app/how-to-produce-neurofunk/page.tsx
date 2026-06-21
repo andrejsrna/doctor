@@ -100,6 +100,30 @@ export default function HowToProduceNeurofunkPage() {
               If you&apos;ve ever wondered <strong className="text-purple-400">how to make neurofunk</strong>, this guide breaks down the essential elements: from bass design and drum layering to arrangement and mixdown.
             </p>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.25 }}
+            className="mt-10 rounded-2xl border border-green-500/30 bg-green-500/10 p-6"
+          >
+            <p className="mb-3 font-mono text-sm uppercase tracking-[0.2em] text-green-300">
+              Artist Growth
+            </p>
+            <h2 className="mb-3 text-2xl font-bold text-white">
+              Finished tracks but nobody listens?
+            </h2>
+            <p className="mb-4 text-gray-300">
+              Production is only half of the system. Learn how to turn neurofunk releases into real listeners and fans.
+            </p>
+            <Link
+              href="/why-nobody-listens-to-your-neurofunk-tracks"
+              className="inline-flex font-semibold text-green-300 underline-offset-4 hover:underline"
+            >
+              Read: Why Nobody Listens to Your Neurofunk Tracks →
+            </Link>
+          </motion.div>
         </div>
       </section>
 
