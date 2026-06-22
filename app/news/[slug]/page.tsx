@@ -124,7 +124,7 @@ export default async function NewsPostPage({ params }: PageProps) {
         )}
 
         {/* Content using html-react-parser */}
-        <div className="prose prose-invert prose-purple max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:text-gray-300 prose-a:text-purple-400 hover:prose-a:text-pink-400">
+        <div className="prose prose-invert prose-purple max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:text-gray-300 prose-a:font-semibold prose-a:text-purple-300 prose-a:underline prose-a:decoration-purple-400 prose-a:decoration-2 prose-a:underline-offset-4 hover:prose-a:text-pink-300 hover:prose-a:decoration-pink-400">
           {parse(post.content || '', {
             replace: (domNode) => {
               if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
