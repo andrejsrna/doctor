@@ -11,14 +11,15 @@ import { sanitizeHtml } from "@/app/utils/sanitize"
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
-interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
 
 export default function NewsCreatePage() {
   const router = useRouter()
-  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', tracklist: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
+  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', tracklist: '', mixDownloadUrl: '', mixDownloadKey: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
   const [saving, setSaving] = useState(false)
   const [slugEdited, setSlugEdited] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const mixDownloadInputRef = useRef<HTMLInputElement>(null)
   const fromEditor = useRef(false)
 
   const editor = useEditor({
@@ -54,6 +55,26 @@ export default function NewsCreatePage() {
     const data = await res.json()
     setItem(prev => ({ ...prev, coverImageUrl: data.url || prev.coverImageUrl }))
     toast.success('Image uploaded')
+  }
+
+  const uploadMixDownload = async (file: File) => {
+    const slug = item.slug || slugify(item.title) || ''
+    if (!slug) { toast.error('Add a title or slug before uploading'); return }
+    const body = new FormData()
+    body.append('file', file)
+    body.append('kind', 'download')
+    body.append('slug', slug)
+    body.append('baseDir', 'news')
+    const res = await fetch('/api/admin/upload', { method: 'POST', body })
+    if (!res.ok) { const e = await res.json().catch(() => null); toast.error(e?.error || 'Mix upload failed'); return }
+    const data = await res.json()
+    setItem(prev => ({ ...prev, mixDownloadUrl: data.url || prev.mixDownloadUrl, mixDownloadKey: data.key || prev.mixDownloadKey }))
+    toast.success('Mix uploaded')
+  }
+
+  const clearMixDownload = () => {
+    setItem(prev => ({ ...prev, mixDownloadUrl: '', mixDownloadKey: '' }))
+    if (mixDownloadInputRef.current) mixDownloadInputRef.current.value = ''
   }
 
   const save = async () => {
@@ -133,6 +154,29 @@ export default function NewsCreatePage() {
             className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded font-mono text-sm"
           />
           <p className="mt-1 text-xs text-gray-500">One track per line. Displayed only on news articles in the Mixes category.</p>
+        </div>
+        <div className="md:col-span-2 rounded-lg border border-purple-500/20 bg-purple-950/10 p-4">
+          <label className="text-sm text-gray-400">Download Mix (for Mixes)</label>
+          <input
+            value={item.mixDownloadUrl || ''}
+            onChange={e => setItem(prev => ({ ...prev, mixDownloadUrl: e.target.value }))}
+            placeholder="Upload a file or paste a direct download URL"
+            className="mt-1 w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded"
+          />
+          <input
+            ref={mixDownloadInputRef}
+            type="file"
+            accept="audio/*,video/*,application/zip,application/x-zip-compressed,application/octet-stream"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) uploadMixDownload(f) }}
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => mixDownloadInputRef.current?.click()} className="px-3 py-1 border border-purple-500/30 rounded hover:border-purple-400/60">Upload mix to R2</button>
+            {(item.mixDownloadUrl || item.mixDownloadKey) && <button type="button" onClick={clearMixDownload} className="px-3 py-1 border border-red-500/30 text-red-200 rounded hover:border-red-400/60">Clear</button>}
+            {item.mixDownloadUrl && <a href={item.mixDownloadUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-purple-300 underline underline-offset-4">Open file</a>}
+          </div>
+          {item.mixDownloadKey && <p className="mt-2 text-xs text-gray-500 font-mono break-all">R2 key: {item.mixDownloadKey}</p>}
+          <p className="mt-1 text-xs text-gray-500">Displayed as a download CTA only on Mixes articles.</p>
         </div>
         <div>
           <label className="text-sm text-gray-400">Categories</label>

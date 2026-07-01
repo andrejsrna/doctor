@@ -25,6 +25,7 @@ export default async function NewsPostPage({ params }: PageProps) {
     .map((line) => line.trim())
     .filter(Boolean)
   const showTracklist = post.categories?.includes('Mixes') && tracklistItems.length > 0
+  const showMixDownload = post.categories?.includes('Mixes') && Boolean(post.mixDownloadUrl)
 
   const formatDate = (date: string | Date) => {
     const d = typeof date === 'string' ? new Date(date) : date
@@ -183,6 +184,29 @@ export default async function NewsPostPage({ params }: PageProps) {
             }
           })}
         </div>
+
+        {showMixDownload && (
+          <section className="mt-12 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-br from-cyan-950/30 via-purple-950/20 to-black p-6 md:p-8 shadow-[0_0_40px_rgba(34,211,238,0.12)]">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-cyan-300">Download Mix</p>
+                <h2 className="text-2xl md:text-3xl font-black text-white">Take the full mix offline</h2>
+                <p className="max-w-2xl text-sm md:text-base text-gray-300">
+                  Download the mix file directly and keep it ready for the road, studio, or late-night listening.
+                </p>
+              </div>
+              <a
+                href={post.mixDownloadUrl!}
+                download
+                className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-xl border border-cyan-300/40 bg-cyan-400/15 px-6 py-4 font-bold text-cyan-100 transition-all hover:border-cyan-200 hover:bg-cyan-300/25 hover:text-white hover:shadow-[0_0_24px_rgba(34,211,238,0.25)]"
+              >
+                <span className="text-xl" aria-hidden>↓</span>
+                <span>Download Mix</span>
+                <span className="text-cyan-200 transition-transform group-hover:translate-x-1" aria-hidden>→</span>
+              </a>
+            </div>
+          </section>
+        )}
 
         {showTracklist && (
           <section className="mt-12 rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/40 via-black/70 to-black/90 p-6 md:p-8 shadow-[0_0_35px_rgba(109,40,217,0.16)]">

@@ -500,6 +500,8 @@ model News {
   coverImageKey     String?
   scsc              String?
   tracklist         String?   @db.Text
+  mixDownloadUrl    String?
+  mixDownloadKey    String?
   relatedArtistName String?
   publishedAt       DateTime?
   categories        String[]  @default([])
