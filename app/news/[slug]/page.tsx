@@ -17,9 +17,16 @@ export const revalidate = 300
 
 export default async function NewsPostPage({ params }: PageProps) {
   const { slug } = await params
-  const post = await prisma.news.findUnique({ where: { slug } })
+  const post = await prisma.news.findUnique({
+    where: { slug },
+    include: {
+      mixArtist: {
+        select: { id: true, slug: true, name: true, bio: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true },
+      },
+    },
+  })
   if (!post) return notFound()
-  const artistName = post.relatedArtistName || ''
+  const artistName = post.mixArtist?.name || post.relatedArtistName || ''
   const tracklistItems = (post.tracklist || '')
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -74,9 +81,10 @@ export default async function NewsPostPage({ params }: PageProps) {
             height: 630,
           }] : undefined,
           author: {
-            '@type': post.relatedArtistName ? 'Person' : 'Organization',
-            name: post.relatedArtistName || 'DnB Doctor',
-            ...(post.relatedArtistName && { url: `https://dnbdoctor.com/artists/${post.relatedArtistName.toLowerCase().replace(/\s+/g, '-')}` }),
+            '@type': post.mixArtist || post.relatedArtistName ? 'Person' : 'Organization',
+            name: post.mixArtist?.name || post.relatedArtistName || 'DnB Doctor',
+            ...(post.mixArtist && { url: `https://dnbdoctor.com/artists/${post.mixArtist.slug}` }),
+            ...(!post.mixArtist && post.relatedArtistName && { url: `https://dnbdoctor.com/artists/${post.relatedArtistName.toLowerCase().replace(/\s+/g, '-')}` }),
           },
           publisher: {
             '@type': 'Organization',
@@ -127,6 +135,35 @@ export default async function NewsPostPage({ params }: PageProps) {
               dangerouslySetInnerHTML={{ __html: post.scsc }}
             />
           </div>
+        )}
+
+        {post.mixArtist && (
+          <section className="mb-12 overflow-hidden rounded-2xl border border-pink-500/25 bg-gradient-to-br from-pink-950/25 via-purple-950/20 to-black p-5 md:p-6 shadow-[0_0_32px_rgba(236,72,153,0.12)]">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <Link href={`/artists/${post.mixArtist.slug}`} className="group relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-purple-950/40">
+                {post.mixArtist.imageUrl ? (
+                  <Image src={post.mixArtist.imageUrl} alt={post.mixArtist.name} fill sizes="96px" className="object-cover transition-transform group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-3xl font-black text-purple-200">{post.mixArtist.name.slice(0, 1)}</div>
+                )}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pink-300">Featured Mix Artist</p>
+                <Link href={`/artists/${post.mixArtist.slug}`} className="mt-1 inline-block text-2xl md:text-3xl font-black text-white hover:text-pink-200 transition-colors">
+                  {post.mixArtist.name}
+                </Link>
+                {post.mixArtist.bio && (
+                  <p className="mt-2 line-clamp-2 text-sm text-gray-300">{post.mixArtist.bio.replace(/<[^>]*>/g, '')}</p>
+                )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link href={`/artists/${post.mixArtist.slug}`} className="rounded-full border border-pink-400/30 bg-pink-500/10 px-3 py-1 text-xs font-semibold text-pink-100 hover:border-pink-300/60">Artist profile</Link>
+                  {post.mixArtist.soundcloud && <a href={post.mixArtist.soundcloud} target="_blank" rel="noopener noreferrer" className="rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-100 hover:border-orange-300/60">SoundCloud</a>}
+                  {post.mixArtist.spotify && <a href={post.mixArtist.spotify} target="_blank" rel="noopener noreferrer" className="rounded-full border border-green-400/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-100 hover:border-green-300/60">Spotify</a>}
+                  {post.mixArtist.instagram && <a href={post.mixArtist.instagram} target="_blank" rel="noopener noreferrer" className="rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-100 hover:border-purple-300/60">Instagram</a>}
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
         {/* Content using html-react-parser */}
@@ -209,25 +246,30 @@ export default async function NewsPostPage({ params }: PageProps) {
         )}
 
         {showTracklist && (
-          <section className="mt-12 rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/40 via-black/70 to-black/90 p-6 md:p-8 shadow-[0_0_35px_rgba(109,40,217,0.16)]">
-            <div className="mb-6 flex items-center gap-3">
-              <span className="h-px w-10 bg-purple-400" />
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-purple-300">Mix Tracklist</p>
+          <details className="group mt-12 rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/40 via-black/70 to-black/90 p-0 shadow-[0_0_35px_rgba(109,40,217,0.16)]">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 md:p-8">
+              <div className="flex items-center gap-3">
+                <span className="h-px w-10 bg-purple-400" />
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-purple-300">Mix Tracklist</p>
+              </div>
+              <span className="rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 text-sm font-bold text-purple-100 transition-transform group-open:rotate-180">⌄</span>
+            </summary>
+            <div className="px-6 pb-6 md:px-8 md:pb-8">
+              <ol className="space-y-3">
+                {tracklistItems.map((track, index) => (
+                  <li
+                    key={`${track}-${index}`}
+                    className="group/item flex gap-4 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-purple-400/35 hover:bg-purple-500/10"
+                  >
+                    <span className="w-9 shrink-0 font-mono text-sm text-purple-300/80">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-gray-200 group-hover/item:text-white">{track.replace(/^\d+[.)\-\s]+/, '')}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <ol className="space-y-3">
-              {tracklistItems.map((track, index) => (
-                <li
-                  key={`${track}-${index}`}
-                  className="group flex gap-4 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-purple-400/35 hover:bg-purple-500/10"
-                >
-                  <span className="w-9 shrink-0 font-mono text-sm text-purple-300/80">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="text-gray-200 group-hover:text-white">{track.replace(/^\d+[.)\-\s]+/, '')}</span>
-                </li>
-              ))}
-            </ol>
-          </section>
+          </details>
         )}
 
         <div className="h-12" />
@@ -250,7 +292,7 @@ export default async function NewsPostPage({ params }: PageProps) {
         <EngagementCTA />
 
         {post && (
-          <RelatedNews currentPostId={post.wpId || 0} relatedBy={post.relatedArtistName || post.title} />
+          <RelatedNews currentPostId={post.wpId || 0} relatedBy={artistName || post.title} />
         )}
       </article>
     </section>

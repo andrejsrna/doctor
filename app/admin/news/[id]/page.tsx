@@ -13,12 +13,14 @@ interface PageProps { params: Promise<{ id: string }> }
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
-interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; mixArtistId?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface ArtistOption { id: string; name: string; slug: string; imageUrl?: string | null }
 
 export default function NewsDetailPage({ params }: PageProps) {
   const { id } = use(params)
   const router = useRouter()
   const [item, setItem] = useState<NewsItem | null>(null)
+  const [artists, setArtists] = useState<ArtistOption[]>([])
   const [saving, setSaving] = useState(false)
   const [, setSlugEdited] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
@@ -36,6 +38,16 @@ export default function NewsDetailPage({ params }: PageProps) {
     }
     load()
   }, [id])
+
+  useEffect(() => {
+    const loadArtists = async () => {
+      const res = await fetch('/api/admin/artists?limit=200', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json()
+      setArtists(data.items || [])
+    }
+    loadArtists()
+  }, [])
 
   const editor = useEditor({
     extensions: [StarterKit, LinkExt.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } })],
@@ -163,6 +175,20 @@ export default function NewsDetailPage({ params }: PageProps) {
         <div>
           <label className="text-sm text-gray-400">SoundCloud Embed (scsc)</label>
           <input value={item.scsc || ''} onChange={e => setItem({ ...item, scsc: e.target.value })} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        </div>
+        <div>
+          <label className="text-sm text-gray-400">Mix Artist (from Artists DB)</label>
+          <select
+            value={item.mixArtistId || ''}
+            onChange={e => {
+              const artist = artists.find(a => a.id === e.target.value)
+              setItem({ ...item, mixArtistId: e.target.value || '', relatedArtistName: artist?.name || item.relatedArtistName || '' })
+            }}
+            className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded"
+          >
+            <option value="">No mix artist selected</option>
+            {artists.map(artist => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
+          </select>
         </div>
         <div>
           <label className="text-sm text-gray-400">Related Artist Name</label>

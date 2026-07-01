@@ -37,6 +37,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     tracklist: data.tracklist ?? undefined,
     mixDownloadUrl: data.mixDownloadUrl ?? undefined,
     mixDownloadKey: data.mixDownloadKey ?? undefined,
+    mixArtistId: data.mixArtistId === '' ? null : data.mixArtistId ?? undefined,
     relatedArtistName: data.relatedArtistName ?? undefined,
     publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
     categories,

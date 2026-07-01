@@ -347,6 +347,7 @@ model Artist {
   labTasks     ArtistTask[]
   documents    ArtistDocument[]
   releasePlans ArtistReleasePlan[]
+  mixNews      News[]              @relation("NewsMixArtist")
 
   @@index([slug])
   @@index([name])
@@ -502,6 +503,8 @@ model News {
   tracklist         String?   @db.Text
   mixDownloadUrl    String?
   mixDownloadKey    String?
+  mixArtistId       String?
+  mixArtist         Artist?   @relation("NewsMixArtist", fields: [mixArtistId], references: [id], onDelete: SetNull)
   relatedArtistName String?
   publishedAt       DateTime?
   categories        String[]  @default([])
@@ -511,6 +514,7 @@ model News {
   @@index([publishedAt])
   @@index([slug])
   @@index([title])
+  @@index([mixArtistId])
 }
 
 enum ShopOrderStatus {
