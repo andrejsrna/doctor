@@ -60,16 +60,23 @@ export default function NewsCreatePage() {
   const uploadMixDownload = async (file: File) => {
     const slug = item.slug || slugify(item.title) || ''
     if (!slug) { toast.error('Add a title or slug before uploading'); return }
-    const body = new FormData()
-    body.append('file', file)
-    body.append('kind', 'download')
-    body.append('slug', slug)
-    body.append('baseDir', 'news')
-    const res = await fetch('/api/admin/upload', { method: 'POST', body })
-    if (!res.ok) { const e = await res.json().catch(() => null); toast.error(e?.error || 'Mix upload failed'); return }
-    const data = await res.json()
-    setItem(prev => ({ ...prev, mixDownloadUrl: data.url || prev.mixDownloadUrl, mixDownloadKey: data.key || prev.mixDownloadKey }))
-    toast.success('Mix uploaded')
+    const presignRes = await fetch('/api/admin/upload/presign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: file.name, size: file.size, type: file.type || 'application/octet-stream', kind: 'download', slug, baseDir: 'news' }),
+    })
+    const presign = await presignRes.json().catch(() => null)
+    if (!presignRes.ok) { toast.error(presign?.error || 'Mix upload could not start'); return }
+
+    const uploadRes = await fetch(presign.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      body: file,
+    })
+    if (!uploadRes.ok) { toast.error(`R2 upload failed (${uploadRes.status})`); return }
+
+    setItem(prev => ({ ...prev, mixDownloadUrl: presign.url || prev.mixDownloadUrl, mixDownloadKey: presign.key || prev.mixDownloadKey }))
+    toast.success('Mix uploaded to R2')
   }
 
   const clearMixDownload = () => {
