@@ -34,6 +34,8 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     coverImageUrl: data.coverImageUrl ?? undefined,
     coverImageKey: data.coverImageKey ?? undefined,
     scsc: data.scsc ?? undefined,
+    youtubeUrl: data.youtubeUrl ?? undefined,
+    soundcloudUrl: data.soundcloudUrl ?? undefined,
     tracklist: data.tracklist ?? undefined,
     mixDownloadUrl: data.mixDownloadUrl ?? undefined,
     mixDownloadKey: data.mixDownloadKey ?? undefined,

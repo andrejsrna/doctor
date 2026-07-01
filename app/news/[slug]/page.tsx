@@ -15,6 +15,32 @@ interface PageProps { params: Promise<{ slug: string }> }
 
 export const revalidate = 300
 
+function getYouTubeEmbedUrl(url?: string | null): string | null {
+  if (!url) return null
+  try {
+    const parsed = new URL(url.trim())
+    let id = ''
+    if (parsed.hostname.includes('youtu.be')) id = parsed.pathname.replace('/', '')
+    else if (parsed.pathname.startsWith('/shorts/')) id = parsed.pathname.split('/')[2] || ''
+    else if (parsed.pathname.startsWith('/embed/')) id = parsed.pathname.split('/')[2] || ''
+    else id = parsed.searchParams.get('v') || ''
+    return id ? `https://www.youtube.com/embed/${id}` : null
+  } catch {
+    return null
+  }
+}
+
+function getSoundCloudEmbedUrl(url?: string | null): string | null {
+  if (!url) return null
+  try {
+    const parsed = new URL(url.trim())
+    if (!parsed.hostname.includes('soundcloud.com')) return null
+    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(parsed.toString())}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true`
+  } catch {
+    return null
+  }
+}
+
 export default async function NewsPostPage({ params }: PageProps) {
   const { slug } = await params
   const post = await prisma.news.findUnique({
@@ -33,6 +59,8 @@ export default async function NewsPostPage({ params }: PageProps) {
     .filter(Boolean)
   const showTracklist = post.categories?.includes('Mixes') && tracklistItems.length > 0
   const showMixDownload = post.categories?.includes('Mixes') && Boolean(post.mixDownloadUrl)
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(post.youtubeUrl)
+  const soundcloudEmbedUrl = getSoundCloudEmbedUrl(post.soundcloudUrl)
 
   const formatDate = (date: string | Date) => {
     const d = typeof date === 'string' ? new Date(date) : date
@@ -135,6 +163,41 @@ export default async function NewsPostPage({ params }: PageProps) {
               dangerouslySetInnerHTML={{ __html: post.scsc }}
             />
           </div>
+        )}
+
+        {(youtubeEmbedUrl || soundcloudEmbedUrl) && (
+          <section className="mb-12 space-y-6">
+            {youtubeEmbedUrl && (
+              <div className="overflow-hidden rounded-2xl border border-red-500/25 bg-black/50 shadow-[0_0_32px_rgba(239,68,68,0.12)]">
+                <div className="border-b border-white/10 px-5 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-red-300">YouTube</p>
+                </div>
+                <div className="aspect-video w-full">
+                  <iframe
+                    src={youtubeEmbedUrl}
+                    title={`${post.title} YouTube embed`}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
+
+            {soundcloudEmbedUrl && (
+              <div className="overflow-hidden rounded-2xl border border-orange-500/25 bg-black/50 shadow-[0_0_32px_rgba(249,115,22,0.12)]">
+                <div className="border-b border-white/10 px-5 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-orange-300">SoundCloud</p>
+                </div>
+                <iframe
+                  src={soundcloudEmbedUrl}
+                  title={`${post.title} SoundCloud embed`}
+                  className="h-[320px] w-full"
+                  allow="autoplay"
+                />
+              </div>
+            )}
+          </section>
         )}
 
         {post.mixArtist && (

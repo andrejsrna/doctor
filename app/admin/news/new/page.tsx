@@ -11,12 +11,12 @@ import { sanitizeHtml } from "@/app/utils/sanitize"
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
-interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; mixArtistId?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; youtubeUrl?: string | null; soundcloudUrl?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; mixArtistId?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
 interface ArtistOption { id: string; name: string; slug: string; imageUrl?: string | null }
 
 export default function NewsCreatePage() {
   const router = useRouter()
-  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', tracklist: '', mixDownloadUrl: '', mixDownloadKey: '', mixArtistId: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
+  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', youtubeUrl: '', soundcloudUrl: '', tracklist: '', mixDownloadUrl: '', mixDownloadKey: '', mixArtistId: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
   const [artists, setArtists] = useState<ArtistOption[]>([])
   const [saving, setSaving] = useState(false)
   const [slugEdited, setSlugEdited] = useState(false)
@@ -156,8 +156,28 @@ export default function NewsCreatePage() {
           </div>
         </div>
         <div>
-          <label className="text-sm text-gray-400">SoundCloud Embed (scsc)</label>
+          <label className="text-sm text-gray-400">SoundCloud Embed HTML (legacy scsc)</label>
           <input value={item.scsc || ''} onChange={e => setItem(prev => ({ ...prev, scsc: e.target.value }))} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        </div>
+        <div>
+          <label className="text-sm text-gray-400">YouTube URL</label>
+          <input
+            value={item.youtubeUrl || ''}
+            onChange={e => setItem(prev => ({ ...prev, youtubeUrl: e.target.value }))}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded"
+          />
+          <p className="mt-1 text-xs text-gray-500">Paste a regular YouTube link; the article turns it into an embed.</p>
+        </div>
+        <div>
+          <label className="text-sm text-gray-400">SoundCloud URL</label>
+          <input
+            value={item.soundcloudUrl || ''}
+            onChange={e => setItem(prev => ({ ...prev, soundcloudUrl: e.target.value }))}
+            placeholder="https://soundcloud.com/..."
+            className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded"
+          />
+          <p className="mt-1 text-xs text-gray-500">Paste a regular SoundCloud track/set link; no iframe needed.</p>
         </div>
         <div>
           <label className="text-sm text-gray-400">Mix Artist (from Artists DB)</label>
