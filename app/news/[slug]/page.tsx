@@ -20,6 +20,11 @@ export default async function NewsPostPage({ params }: PageProps) {
   const post = await prisma.news.findUnique({ where: { slug } })
   if (!post) return notFound()
   const artistName = post.relatedArtistName || ''
+  const tracklistItems = (post.tracklist || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+  const showTracklist = post.categories?.includes('Mixes') && tracklistItems.length > 0
 
   const formatDate = (date: string | Date) => {
     const d = typeof date === 'string' ? new Date(date) : date
@@ -178,6 +183,28 @@ export default async function NewsPostPage({ params }: PageProps) {
             }
           })}
         </div>
+
+        {showTracklist && (
+          <section className="mt-12 rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/40 via-black/70 to-black/90 p-6 md:p-8 shadow-[0_0_35px_rgba(109,40,217,0.16)]">
+            <div className="mb-6 flex items-center gap-3">
+              <span className="h-px w-10 bg-purple-400" />
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-purple-300">Mix Tracklist</p>
+            </div>
+            <ol className="space-y-3">
+              {tracklistItems.map((track, index) => (
+                <li
+                  key={`${track}-${index}`}
+                  className="group flex gap-4 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-purple-400/35 hover:bg-purple-500/10"
+                >
+                  <span className="w-9 shrink-0 font-mono text-sm text-purple-300/80">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-gray-200 group-hover:text-white">{track.replace(/^\d+[.)\-\s]+/, '')}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
 
         <div className="h-12" />
 

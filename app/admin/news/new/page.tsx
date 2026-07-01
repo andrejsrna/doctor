@@ -11,11 +11,11 @@ import { sanitizeHtml } from "@/app/utils/sanitize"
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
-interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface NewsItem { slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; tracklist?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
 
 export default function NewsCreatePage() {
   const router = useRouter()
-  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
+  const [item, setItem] = useState<NewsItem>({ slug: '', title: '', content: '', coverImageUrl: '', scsc: '', tracklist: '', relatedArtistName: '', publishedAt: '', categories: ['General'] })
   const [saving, setSaving] = useState(false)
   const [slugEdited, setSlugEdited] = useState(false)
   const imageInputRef = useRef<HTMLInputElement>(null)
@@ -122,6 +122,17 @@ export default function NewsCreatePage() {
         <div>
           <label className="text-sm text-gray-400">Related Artist Name</label>
           <input value={item.relatedArtistName || ''} onChange={e => setItem(prev => ({ ...prev, relatedArtistName: e.target.value }))} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="text-sm text-gray-400">Tracklist (for Mixes)</label>
+          <textarea
+            value={item.tracklist || ''}
+            onChange={e => setItem(prev => ({ ...prev, tracklist: e.target.value }))}
+            rows={8}
+            placeholder="01. Artist - Track Title\n02. Artist - Track Title"
+            className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded font-mono text-sm"
+          />
+          <p className="mt-1 text-xs text-gray-500">One track per line. Displayed only on news articles in the Mixes category.</p>
         </div>
         <div>
           <label className="text-sm text-gray-400">Categories</label>

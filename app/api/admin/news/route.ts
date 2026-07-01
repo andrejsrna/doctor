@@ -40,7 +40,16 @@ export async function POST(request: NextRequest) {
   const data = await request.json()
   const categories = normalizeCategories(data.categories)
   const created = await prisma.news.create({ data: {
-    slug: data.slug, title: data.title, content: data.content || null, coverImageUrl: data.coverImageUrl || null, coverImageKey: data.coverImageKey || null, scsc: data.scsc || null, relatedArtistName: data.relatedArtistName || null, publishedAt: data.publishedAt ? new Date(data.publishedAt) : null, categories,
+    slug: data.slug,
+    title: data.title,
+    content: data.content || null,
+    coverImageUrl: data.coverImageUrl || null,
+    coverImageKey: data.coverImageKey || null,
+    scsc: data.scsc || null,
+    tracklist: data.tracklist || null,
+    relatedArtistName: data.relatedArtistName || null,
+    publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+    categories,
   } })
   try {
     // Refresh listings and single page
@@ -61,7 +70,16 @@ export async function PATCH(request: NextRequest) {
   const previous = await prisma.news.findUnique({ where: { id }, select: { slug: true } })
   const categories = data.categories ? normalizeCategories(data.categories) : undefined
   const updated = await prisma.news.update({ where: { id }, data: {
-    slug: data.slug ?? undefined, title: data.title ?? undefined, content: data.content ?? undefined, coverImageUrl: data.coverImageUrl ?? undefined, coverImageKey: data.coverImageKey ?? undefined, scsc: data.scsc ?? undefined, relatedArtistName: data.relatedArtistName ?? undefined, publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined, categories,
+    slug: data.slug ?? undefined,
+    title: data.title ?? undefined,
+    content: data.content ?? undefined,
+    coverImageUrl: data.coverImageUrl ?? undefined,
+    coverImageKey: data.coverImageKey ?? undefined,
+    scsc: data.scsc ?? undefined,
+    tracklist: data.tracklist ?? undefined,
+    relatedArtistName: data.relatedArtistName ?? undefined,
+    publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+    categories,
   } })
   try {
     // Refresh listings and single page (handle slug change)

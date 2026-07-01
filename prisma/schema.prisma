@@ -499,6 +499,7 @@ model News {
   coverImageUrl     String?
   coverImageKey     String?
   scsc              String?
+  tracklist         String?   @db.Text
   relatedArtistName String?
   publishedAt       DateTime?
   categories        String[]  @default([])
