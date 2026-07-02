@@ -313,7 +313,7 @@ export default async function NewsPostPage({ params }: PageProps) {
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 md:p-8">
               <div className="flex items-center gap-3">
                 <span className="h-px w-10 bg-purple-400" />
-                <p className="mb-0 text-xs font-semibold uppercase tracking-[0.35em] text-purple-300">Mix Tracklist</p>
+                <p className="!mb-0 text-xs font-semibold uppercase tracking-[0.35em] text-purple-300" style={{ marginBottom: 0 }}>Mix Tracklist</p>
               </div>
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-purple-400/30 bg-purple-500/10 text-purple-100 transition-transform group-open:rotate-180" aria-hidden>
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
