@@ -6,11 +6,19 @@ import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import ListenMenu from './ListenMenu'
 import SearchModal from './SearchModal'
-const menuItems = [
+
+interface MenuItem {
+  title: string
+  href: string
+  external?: boolean
+}
+
+const menuItems: MenuItem[] = [
   { title: 'Artists', href: '/artists' },
   { title: 'News', href: '/news' },
   { title: 'About', href: '/about' },
   { title: 'Newsletter', href: '/newsletter' },
+  { title: 'Merch', href: 'https://dnbdoctor.bandcamp.com/merch/dnb-doctor-rx-tee', external: true },
   { title: 'Submit demo', href: '/submit-demo' },
 ]
 
@@ -96,6 +104,8 @@ export default function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener noreferrer' : undefined}
                     className="text-gray-300 hover:text-secondary transition-colors font-medium tracking-wide text-sm uppercase"
                   >
                     {item.title}
@@ -161,6 +171,8 @@ export default function Navigation() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      target={item.external ? '_blank' : undefined}
+                      rel={item.external ? 'noopener noreferrer' : undefined}
                       className="block px-3 py-2 text-gray-300 hover:text-secondary text-sm font-medium uppercase tracking-wide transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
