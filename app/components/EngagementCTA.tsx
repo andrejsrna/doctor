@@ -52,6 +52,17 @@ const ctaItems: {
     variant: 'infected',
   },
   {
+    icon: FaDiscord,
+    iconColor: 'text-indigo-300',
+    cardStyle: 'border-indigo-500/35 bg-gradient-to-br from-indigo-900/35 via-black/65 to-black/80',
+    kicker: 'Community',
+    title: 'Join the Discord',
+    description: 'Connect with the DnB Doctor community, catch updates early and talk neurofunk with the crew.',
+    buttonText: 'Join Discord',
+    href: 'https://discord.gg/sKZHtDrwn',
+    variant: 'infected',
+  },
+  {
     icon: FaYoutube,
     iconColor: 'text-red-300',
     cardStyle: 'border-red-500/35 bg-gradient-to-br from-red-900/30 via-black/65 to-black/80',
