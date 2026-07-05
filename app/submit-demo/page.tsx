@@ -404,6 +404,25 @@ export default function SubmitDemoPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {status === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 text-center text-sm text-gray-400"
+                >
+                  Want feedback or just to talk shop while you wait?{' '}
+                  <a
+                    href="https://discord.gg/sKZHtDrwn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-400 hover:text-indigo-300 underline"
+                  >
+                    Join our Discord
+                  </a>
+                  .
+                </motion.div>
+              )}
             </div>
           </div>
         </motion.div>

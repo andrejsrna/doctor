@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
+import { FaDiscord } from 'react-icons/fa'
 import ListenMenu from './ListenMenu'
 import SearchModal from './SearchModal'
 
@@ -179,6 +180,16 @@ export default function Navigation() {
                       {item.title}
                     </Link>
                   ))}
+                  <a
+                    href="https://discord.gg/sKZHtDrwn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-indigo-400 text-sm font-medium uppercase tracking-wide transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <FaDiscord className="w-4 h-4" />
+                    Discord
+                  </a>
                 </div>
                 <div className="border-t border-white/5 pt-3 px-3">
                   <ListenMenu />

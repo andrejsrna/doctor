@@ -2,13 +2,14 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { FaSyringe, FaSkull, FaExternalLinkAlt } from 'react-icons/fa'
+import { FaSyringe, FaSkull, FaExternalLinkAlt, FaDiscord } from 'react-icons/fa'
 import { useState, useEffect } from 'react'
 import { subscriberApi } from '../services/subscriberApi'
 import Button from './Button'
 import toast from 'react-hot-toast'
 
 const socialLinks = [
+  { name: 'Discord', href: 'https://discord.gg/sKZHtDrwn', icon: 'discord' as const, hoverColor: 'hover:text-indigo-400' },
   { name: 'Facebook', href: 'https://www.facebook.com/dnbdoctor', icon: 'facebook' as const, hoverColor: 'hover:text-blue-500' },
   { name: 'Instagram', href: 'https://www.instagram.com/dnbdoctor/', icon: 'instagram' as const, hoverColor: 'hover:text-pink-500' },
   { name: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1', icon: 'youtube' as const, hoverColor: 'hover:text-red-500' },
@@ -106,6 +107,9 @@ export default function Footer() {
                   whileHover={{ scale: 1.1, rotate: 12 }}
                   className={`text-gray-400 ${link.hoverColor} transition-colors`}
                 >
+                  {link.icon === 'discord' && (
+                    <FaDiscord className="w-6 h-6" />
+                  )}
                   {link.icon === 'facebook' && (
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.2l-.4 3h-1.8v7A10 10 0 0 0 22 12z"/></svg>
                   )}

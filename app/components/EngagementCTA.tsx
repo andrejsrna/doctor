@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaSpotify, FaYoutube, FaEnvelope, FaInstagram } from 'react-icons/fa'
+import { FaSpotify, FaYoutube, FaEnvelope, FaInstagram, FaDiscord } from 'react-icons/fa'
 import Button from './Button'
 import { trackEvent } from '@/app/utils/analytics'
 

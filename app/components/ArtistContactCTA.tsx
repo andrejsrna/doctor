@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaEnvelope, FaArrowRight, FaUserMd, FaPaperPlane } from 'react-icons/fa'
+import { FaEnvelope, FaArrowRight, FaUserMd, FaPaperPlane, FaDiscord } from 'react-icons/fa'
 import Button from './Button'
 
 interface ArtistContactCTAProps {

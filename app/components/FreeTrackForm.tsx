@@ -65,6 +65,20 @@ export default function FreeTrackForm() {
       {msg && (
         <div className={`mt-3 text-sm ${ok ? 'text-green-400' : 'text-red-400'}`}>{msg}</div>
       )}
+      {ok && (
+        <div className="mt-2 text-sm text-gray-400">
+          Want more while you wait?{' '}
+          <a
+            href="https://discord.gg/sKZHtDrwn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-400 hover:text-indigo-300 underline"
+          >
+            Join our Discord
+          </a>
+          .
+        </div>
+      )}
     </form>
   )
 }
