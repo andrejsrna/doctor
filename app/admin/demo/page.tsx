@@ -110,59 +110,97 @@ export default function DemoPage() {
   }, [showEmailModal, debouncedReleaseQuery]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = event.target.files;
-    if (!uploadedFiles) return;
+    const input = event.currentTarget;
+    const selectedFiles = Array.from(input.files || []);
+    if (selectedFiles.length === 0) return;
 
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      
-      for (let i = 0; i < uploadedFiles.length; i++) {
-        const file = uploadedFiles[i];
-        // Accept both audio and image files
-        if (file.type.startsWith('audio/') || file.type.startsWith('image/')) {
-          formData.append('files', file);
+      const uploaded: DemoFile[] = [];
+      const skipped: Array<{ name: string; reason: string }> = [];
+      const errors: Array<{ name: string; error: string }> = [];
+
+      // Upload files directly to R2 so large audio files do not pass through
+      // the Cloudflare-proxied Next.js request body.
+      for (const file of selectedFiles) {
+        const isAudio = file.type.startsWith('audio/');
+        const isImage = file.type.startsWith('image/');
+
+        if (!isAudio && !isImage) {
+          skipped.push({ name: file.name, reason: 'Unsupported file type' });
+          continue;
+        }
+
+        const maxSize = isAudio ? 200 * 1024 * 1024 : 20 * 1024 * 1024;
+        if (file.size > maxSize) {
+          skipped.push({
+            name: file.name,
+            reason: `File too large (${Math.round(file.size / 1024 / 1024)}MB, limit: ${Math.round(maxSize / 1024 / 1024)}MB)`,
+          });
+          continue;
+        }
+
+        try {
+          const contentType = file.type || 'application/octet-stream';
+          const presignResponse = await fetch('/api/admin/upload/presign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: file.name,
+              type: contentType,
+              size: file.size,
+              kind: 'mailout',
+              slug: 'uploads',
+              baseDir: isImage ? 'images' : 'demos',
+            }),
+          });
+          const presign = await presignResponse.json().catch(() => null);
+          if (!presignResponse.ok || !presign?.uploadUrl) {
+            throw new Error(presign?.error || 'Upload could not start');
+          }
+
+          const uploadResponse = await fetch(presign.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': contentType },
+            body: file,
+          });
+          if (!uploadResponse.ok) {
+            throw new Error(`R2 returned ${uploadResponse.status}`);
+          }
+
+          const path = presign.url || presign.key;
+          if (!path) throw new Error('Upload URL is missing');
+
+          uploaded.push({
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            fileCategory: isImage ? 'image' : 'audio',
+            path,
+            url: presign.url || undefined,
+            uploadedAt: new Date().toISOString(),
+          });
+        } catch (error) {
+          errors.push({
+            name: file.name,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
         }
       }
 
-      const response = await fetch('/api/admin/upload-demo', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setFiles(prev => [...prev, ...result.files]);
-        
-        // Show detailed feedback
-        if (result.success) {
-          toast.success(result.message);
-          
-          // Show warnings for skipped files
-          if (result.skipped?.length > 0) {
-            result.skipped.forEach((skip: { name: string; reason: string }) => {
-              toast.error(`Skipped ${skip.name}: ${skip.reason}`, { duration: 5000 });
-            });
-          }
-          
-          // Show errors for failed uploads
-          if (result.errors?.length > 0) {
-            result.errors.forEach((err: { name: string; error: string }) => {
-              toast.error(`Failed to upload ${err.name}: ${err.error}`, { duration: 6000 });
-            });
-          }
-        } else {
-          toast.error(result.message || 'Upload failed');
-        }
-      } else {
-        const error = await response.json();
-        toast.error(`Upload failed: ${error.error}`)
+      if (uploaded.length > 0) {
+        setFiles(prev => [...prev, ...uploaded]);
+        toast.success(`Uploaded ${uploaded.length} file${uploaded.length === 1 ? '' : 's'} successfully`);
       }
+      skipped.forEach(file => toast.error(`Skipped ${file.name}: ${file.reason}`, { duration: 5000 }));
+      errors.forEach(file => toast.error(`Failed to upload ${file.name}: ${file.error}`, { duration: 6000 }));
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Upload failed')
     } finally {
+      input.value = '';
       setUploading(false);
     }
   };
@@ -588,4 +626,4 @@ DnB Doctor Team"
       )}
     </div>
   );
-} 
+}
