@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import toast from 'react-hot-toast'
 import { useDebounce } from "../../hooks/useDebounce";
 import { motion } from "framer-motion";
-import { FaMusic, FaUpload, FaEnvelope, FaTrash, FaPlay, FaImage } from "react-icons/fa";
+import { FaMusic, FaUpload, FaEnvelope, FaTrash, FaPlay, FaImage, FaLink, FaClock } from "react-icons/fa";
 
 interface DemoFile {
   id: string;
@@ -44,6 +44,44 @@ export default function DemoPage() {
   const debouncedReleaseQuery = useDebounce(releaseQuery, 300);
   const [releaseOptions, setReleaseOptions] = useState<Array<{ id: string; title: string; wpId?: number; coverImageUrl?: string | null }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sent demos history from DB
+  const [sentDemos, setSentDemos] = useState<Array<{
+    id: string;
+    recipientEmail: string;
+    subject: string;
+    createdAt: string;
+    files: Array<{ id: string; name: string; path: string }>;
+  }>>([]);
+  const [loadingSent, setLoadingSent] = useState(false);
+
+  const fetchSentDemos = async () => {
+    setLoadingSent(true);
+    try {
+      const response = await fetch('/api/admin/feedback?limit=20', { cache: 'no-store' });
+      if (response.ok) {
+        const data = await response.json();
+        setSentDemos(data.items || []);
+      }
+    } catch (error) {
+      console.error('Error fetching sent demos:', error);
+    } finally {
+      setLoadingSent(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSentDemos();
+  }, []);
+
+  const copyLink = async (link: string) => {
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.success('Link copied');
+    } catch {
+      toast.error('Copy failed');
+    }
+  };
 
   // default template inlined in effect
 
@@ -418,6 +456,90 @@ export default function DemoPage() {
             Send via Email
           </motion.button>
         </div>
+      </motion.div>
+
+      {/* Sent Demos History */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-black/50 border border-blue-500/20 rounded-xl p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <FaClock className="w-6 h-6 text-blue-400" />
+            <div>
+              <h2 className="text-2xl font-bold text-white">Sent Demos</h2>
+              <p className="text-gray-400 text-sm">Previously distributed demos — click to copy link</p>
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={fetchSentDemos}
+            disabled={loadingSent}
+            className="px-4 py-2 bg-blue-900/50 text-blue-200 rounded-lg hover:bg-blue-900/70 disabled:opacity-50 transition-all duration-200 text-sm"
+          >
+            {loadingSent ? 'Loading...' : 'Refresh'}
+          </motion.button>
+        </div>
+
+        {loadingSent ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          </div>
+        ) : sentDemos.length === 0 ? (
+          <div className="text-center py-8">
+            <FaEnvelope className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-400">No demos sent yet</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {sentDemos.map((demo) => {
+              const fileList = Array.isArray(demo.files) ? demo.files : [];
+              return (
+                <div
+                  key={demo.id}
+                  className="bg-black/30 border border-blue-500/20 rounded-lg p-4 hover:border-blue-500/40 transition-all duration-200"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium truncate">{demo.subject || '(no subject)'}</p>
+                      <p className="text-xs text-gray-400">To: {demo.recipientEmail}</p>
+                    </div>
+                    <span className="text-xs text-gray-500 shrink-0">{formatDate(demo.createdAt)}</span>
+                  </div>
+                  {fileList.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {fileList.map((file, idx) => (
+                        <div key={file.id || idx} className="flex items-center gap-2 bg-black/40 rounded-md px-3 py-2">
+                          <FaMusic className="w-3 h-3 text-blue-400 shrink-0" />
+                          <span className="text-sm text-gray-300 truncate flex-1">{file.name}</span>
+                          <button
+                            onClick={() => copyLink(file.path)}
+                            className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded transition-colors shrink-0"
+                            title="Copy link"
+                          >
+                            <FaLink className="w-3 h-3" />
+                          </button>
+                          <a
+                            href={file.path}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors shrink-0"
+                            title="Open"
+                          >
+                            <FaPlay className="w-3 h-3" />
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </motion.div>
 
       {showEmailModal && (
