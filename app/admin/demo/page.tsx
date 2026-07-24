@@ -48,6 +48,7 @@ export default function DemoPage() {
   // Sent demos history from DB
   const [sentDemos, setSentDemos] = useState<Array<{
     id: string;
+    token: string;
     recipientEmail: string;
     subject: string;
     createdAt: string;
@@ -58,10 +59,23 @@ export default function DemoPage() {
   const fetchSentDemos = async () => {
     setLoadingSent(true);
     try {
-      const response = await fetch('/api/admin/feedback?limit=20', { cache: 'no-store' });
+      const response = await fetch('/api/admin/feedback?limit=200', { cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
-        setSentDemos(data.items || []);
+        const allItems = data.items || [];
+
+        // Deduplicate by files signature — same files = same demo batch
+        const seen = new Map<string, typeof sentDemos[number]>();
+        for (const item of allItems) {
+          const files = Array.isArray(item.files) ? item.files : [];
+          // Build a stable signature from sorted file paths
+          const sig = files.map((f: { path: string }) => f.path).sort().join('|');
+          if (!sig) continue; // skip entries with no files
+          if (!seen.has(sig)) {
+            seen.set(sig, { ...item, files });
+          }
+        }
+        setSentDemos(Array.from(seen.values()));
       }
     } catch (error) {
       console.error('Error fetching sent demos:', error);
@@ -497,6 +511,9 @@ export default function DemoPage() {
           <div className="space-y-3">
             {sentDemos.map((demo) => {
               const fileList = Array.isArray(demo.files) ? demo.files : [];
+              const feedbackUrl = typeof window !== 'undefined' && demo.token
+                ? `${window.location.origin}/demo-feedback?token=${demo.token}`
+                : '';
               return (
                 <div
                   key={demo.id}
@@ -509,6 +526,31 @@ export default function DemoPage() {
                     </div>
                     <span className="text-xs text-gray-500 shrink-0">{formatDate(demo.createdAt)}</span>
                   </div>
+
+                  {/* Feedback page link */}
+                  {feedbackUrl && (
+                    <div className="mb-2 flex items-center gap-2 bg-blue-900/20 border border-blue-500/20 rounded-md px-3 py-2">
+                      <span className="text-xs text-blue-300 font-medium shrink-0">Demo Page:</span>
+                      <span className="text-xs text-blue-200 truncate flex-1">{feedbackUrl}</span>
+                      <button
+                        onClick={() => copyLink(feedbackUrl)}
+                        className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-900/30 rounded transition-colors shrink-0"
+                        title="Copy demo page link"
+                      >
+                        <FaLink className="w-3 h-3" />
+                      </button>
+                      <a
+                        href={feedbackUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors shrink-0"
+                        title="Open demo page"
+                      >
+                        <FaPlay className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+
                   {fileList.length > 0 && (
                     <div className="mt-2 space-y-1">
                       {fileList.map((file, idx) => (

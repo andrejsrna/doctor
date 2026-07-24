@@ -5,6 +5,7 @@ import { auth } from "@/app/lib/auth"
 
 const demoFeedbackSelect = {
   id: true,
+  token: true,
   recipientEmail: true,
   senderEmail: true,
   subject: true,
