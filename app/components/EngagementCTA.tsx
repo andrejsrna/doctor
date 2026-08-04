@@ -59,7 +59,7 @@ const ctaItems: {
     title: 'Join the Discord',
     description: 'Connect with the DnB Doctor community, catch updates early and talk neurofunk with the crew.',
     buttonText: 'Join Discord',
-    href: 'https://discord.gg/sKZHtDrwn',
+    href: 'https://discord.gg/GE2HWFdgXG',
     variant: 'infected',
   },
   {

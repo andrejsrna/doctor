@@ -69,7 +69,7 @@ export default function FreeTrackForm() {
         <div className="mt-2 text-sm text-gray-400">
           Want more while you wait?{' '}
           <a
-            href="https://discord.gg/sKZHtDrwn"
+            href="https://discord.gg/GE2HWFdgXG"
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-400 hover:text-indigo-300 underline"

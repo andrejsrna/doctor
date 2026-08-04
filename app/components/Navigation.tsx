@@ -181,7 +181,7 @@ export default function Navigation() {
                     </Link>
                   ))}
                   <a
-                    href="https://discord.gg/sKZHtDrwn"
+                    href="https://discord.gg/GE2HWFdgXG"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-indigo-400 text-sm font-medium uppercase tracking-wide transition-colors"

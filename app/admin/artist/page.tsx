@@ -180,7 +180,7 @@ export default function ArtistWorkspacePage() {
               <Link href="/admin/artist/share" className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 font-bold text-white hover:border-lime-300/50">
                 <FaCloudUploadAlt className="text-lime-300" /> Sample drop
               </Link>
-              <a href="https://discord.gg/8WDSWTC8A" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 font-bold text-white hover:border-lime-300/50">
+              <a href="https://discord.gg/GE2HWFdgXG" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 border border-white/10 px-3 py-3 font-bold text-white hover:border-lime-300/50">
                 <FaDiscord className="text-lime-300" /> Join Discord
               </a>
             </div>

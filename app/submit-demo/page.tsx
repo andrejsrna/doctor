@@ -413,7 +413,7 @@ export default function SubmitDemoPage() {
                 >
                   Want feedback or just to talk shop while you wait?{' '}
                   <a
-                    href="https://discord.gg/sKZHtDrwn"
+                    href="https://discord.gg/GE2HWFdgXG"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-400 hover:text-indigo-300 underline"

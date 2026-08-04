@@ -9,7 +9,7 @@ import Button from './Button'
 import toast from 'react-hot-toast'
 
 const socialLinks = [
-  { name: 'Discord', href: 'https://discord.gg/sKZHtDrwn', icon: 'discord' as const, hoverColor: 'hover:text-indigo-400' },
+  { name: 'Discord', href: 'https://discord.gg/GE2HWFdgXG', icon: 'discord' as const, hoverColor: 'hover:text-indigo-400' },
   { name: 'Facebook', href: 'https://www.facebook.com/dnbdoctor', icon: 'facebook' as const, hoverColor: 'hover:text-blue-500' },
   { name: 'Instagram', href: 'https://www.instagram.com/dnbdoctor/', icon: 'instagram' as const, hoverColor: 'hover:text-pink-500' },
   { name: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1', icon: 'youtube' as const, hoverColor: 'hover:text-red-500' },
