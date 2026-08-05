@@ -78,7 +78,7 @@ export default async function NewsPostPage({ params }: PageProps) {
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
 
       {getImageUrl() && (
-        <div className="relative w-full max-w-4xl mx-auto mb-12 aspect-[21/9] rounded-2xl overflow-hidden">
+        <div className="relative w-full max-w-4xl mx-auto mb-12 aspect-[16/9] rounded-2xl overflow-hidden">
           <Image
             src={getImageUrl()!}
             alt={post?.title || ''}
