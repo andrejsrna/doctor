@@ -19,6 +19,7 @@ interface EmailData {
   recipients: string;
   newsletterCategory?: string;
   wpPostId?: number;
+  releaseDate?: string;
 }
 
 // helper not needed anymore; paths normalized inline
@@ -232,6 +233,7 @@ export async function POST(request: NextRequest) {
           email: recipient,
           artist: releaseInfo.artistName || 'our artist',
           track: releaseInfo.title || 'this track',
+          releaseDate: emailData.releaseDate || '',
           category: subscriber?.category?.name || 'our newsletter',
           subscribedAt: subscriber?.subscribedAt ? new Date(subscriber.subscribedAt).toLocaleDateString() : 'recently'
         };

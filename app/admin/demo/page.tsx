@@ -28,8 +28,8 @@ interface NewsletterCategory {
 
 export default function DemoPage() {
   const [files, setFiles] = useState<DemoFile[]>([]);
-  // No selection needed: always send all uploaded files
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, { name: string; percent: number; status: 'uploading' | 'success' | 'error'; error?: string }>>({});
   const [sending, setSending] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailData, setEmailData] = useState({
@@ -37,7 +37,8 @@ export default function DemoPage() {
     message: "",
     recipients: "",
     newsletterCategory: "",
-    wpPostId: ""
+    wpPostId: "",
+    releaseDate: ""
   });
   const [newsletterCategories, setNewsletterCategories] = useState<NewsletterCategory[]>([]);
   const [releaseQuery, setReleaseQuery] = useState("");
@@ -112,7 +113,8 @@ export default function DemoPage() {
         message: prev.message || "Hello {name},\n\nWe have a new track we’d love you to check out.\n\nArtist: {artist}\nTrack: {track}\n\nLet us know what you think.\n\nBest regards,\nDnB Doctor Team",
         recipients: prev.recipients,
         newsletterCategory: prev.newsletterCategory,
-        wpPostId: prev.wpPostId
+        wpPostId: prev.wpPostId,
+        releaseDate: prev.releaseDate
       }));
     }
   }, [showEmailModal]);
@@ -168,32 +170,48 @@ export default function DemoPage() {
 
     setUploading(true);
 
+    // Initialize progress map
+    const initialProgress: Record<string, { name: string; percent: number; status: 'uploading' | 'success' | 'error'; error?: string }> = {};
+    selectedFiles.forEach(f => {
+      initialProgress[f.name] = { name: f.name, percent: 5, status: 'uploading' };
+    });
+    setUploadProgress(initialProgress);
+
     try {
       const uploaded: DemoFile[] = [];
       const skipped: Array<{ name: string; reason: string }> = [];
       const errors: Array<{ name: string; error: string }> = [];
 
-      // Upload files directly to R2 so large audio files do not pass through
-      // the Cloudflare-proxied Next.js request body.
       for (const file of selectedFiles) {
         const isAudio = file.type.startsWith('audio/');
         const isImage = file.type.startsWith('image/');
 
         if (!isAudio && !isImage) {
           skipped.push({ name: file.name, reason: 'Unsupported file type' });
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 0, status: 'error', error: 'Unsupported file type' }
+          }));
           continue;
         }
 
         const maxSize = isAudio ? 200 * 1024 * 1024 : 20 * 1024 * 1024;
         if (file.size > maxSize) {
-          skipped.push({
-            name: file.name,
-            reason: `File too large (${Math.round(file.size / 1024 / 1024)}MB, limit: ${Math.round(maxSize / 1024 / 1024)}MB)`,
-          });
+          const reason = `File too large (${Math.round(file.size / 1024 / 1024)}MB, limit: ${Math.round(maxSize / 1024 / 1024)}MB)`;
+          skipped.push({ name: file.name, reason });
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 0, status: 'error', error: reason }
+          }));
           continue;
         }
 
         try {
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 20, status: 'uploading' }
+          }));
+
           const contentType = file.type || 'application/octet-stream';
           const presignResponse = await fetch('/api/admin/upload/presign', {
             method: 'POST',
@@ -212,14 +230,39 @@ export default function DemoPage() {
             throw new Error(presign?.error || 'Upload could not start');
           }
 
-          const uploadResponse = await fetch(presign.uploadUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': contentType },
-            body: file,
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 50, status: 'uploading' }
+          }));
+
+          // Use XMLHttpRequest to track real upload progress
+          await new Promise<void>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', presign.uploadUrl);
+            xhr.setRequestHeader('Content-Type', contentType);
+
+            xhr.upload.onprogress = (e) => {
+              if (e.lengthComputable) {
+                // Scale from 50% to 95%
+                const pct = Math.round(50 + (e.loaded / e.total) * 45);
+                setUploadProgress(prev => ({
+                  ...prev,
+                  [file.name]: { name: file.name, percent: pct, status: 'uploading' }
+                }));
+              }
+            };
+
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve();
+              } else {
+                reject(new Error(`R2 returned ${xhr.status}`));
+              }
+            };
+
+            xhr.onerror = () => reject(new Error('Network error during upload'));
+            xhr.send(file);
           });
-          if (!uploadResponse.ok) {
-            throw new Error(`R2 returned ${uploadResponse.status}`);
-          }
 
           const path = presign.url || presign.key;
           if (!path) throw new Error('Upload URL is missing');
@@ -234,11 +277,18 @@ export default function DemoPage() {
             url: presign.url || undefined,
             uploadedAt: new Date().toISOString(),
           });
+
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 100, status: 'success' }
+          }));
         } catch (error) {
-          errors.push({
-            name: file.name,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          });
+          const errMsg = error instanceof Error ? error.message : 'Unknown error';
+          errors.push({ name: file.name, error: errMsg });
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { name: file.name, percent: 0, status: 'error', error: errMsg }
+          }));
         }
       }
 
@@ -250,7 +300,7 @@ export default function DemoPage() {
       errors.forEach(file => toast.error(`Failed to upload ${file.name}: ${file.error}`, { duration: 6000 }));
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Upload failed')
+      toast.error('Upload failed');
     } finally {
       input.value = '';
       setUploading(false);
@@ -363,6 +413,37 @@ export default function DemoPage() {
           onChange={handleFileUpload}
           className="hidden"
         />
+
+        {/* Live Upload Status & Progress */}
+        {Object.keys(uploadProgress).length > 0 && (
+          <div className="mb-6 space-y-2 bg-black/40 border border-purple-500/30 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-purple-300 mb-2">Upload Status</h3>
+            {Object.entries(uploadProgress).map(([fileName, prog]) => (
+              <div key={fileName} className="space-y-1">
+                <div className="flex justify-between text-xs text-gray-300">
+                  <span className="truncate max-w-[70%]">{prog.name}</span>
+                  <span>
+                    {prog.status === 'uploading' && `${prog.percent}%`}
+                    {prog.status === 'success' && <span className="text-green-400 font-medium">Done ✓</span>}
+                    {prog.status === 'error' && <span className="text-red-400 font-medium">{prog.error || 'Failed'}</span>}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      prog.status === 'success'
+                        ? 'bg-green-500'
+                        : prog.status === 'error'
+                        ? 'bg-red-500'
+                        : 'bg-purple-500 animate-pulse'
+                    }`}
+                    style={{ width: `${prog.percent}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="grid gap-4">
           {files.map((file) => (
@@ -658,6 +739,18 @@ export default function DemoPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-300 mb-2">
+                  Target Release Date (optional)
+                </label>
+                <input
+                  type="date"
+                  value={emailData.releaseDate}
+                  onChange={(e) => setEmailData(prev => ({ ...prev, releaseDate: e.target.value }))}
+                  className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-300 mb-2">
                   Link to Release (optional)
                 </label>
                 <div className="space-y-2">
@@ -745,7 +838,7 @@ DnB Doctor Team"
                   }
                 </p>
                 <p className="text-xs text-gray-400 mb-3">
-                  Available placeholders: {'{name}'} (recipient name), {'{email}'} (email address), {'{artist}'} (artist name), {'{track}'} (track name), {'{category}'} (newsletter category), {'{subscribedAt}'} (subscription date)
+                  Available placeholders: {'{name}'} (recipient name), {'{email}'} (email address), {'{artist}'} (artist name), {'{track}'} (track name), {'{releaseDate}'} (target release date), {'{category}'} (newsletter category), {'{subscribedAt}'} (subscription date)
                 </p>
                 
                 {/* Preview section */}
