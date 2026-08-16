@@ -16,6 +16,7 @@ export const revalidate = 300
 const SocialShare = dynamic(() => import('@/app/components/SocialShare'))
 const BulkSalePromo = dynamic(() => import('@/app/components/BulkSalePromo'))
 const MoreFromArtist = dynamic(() => import('@/app/components/MoreFromArtist'))
+const YouMayAlsoLike = dynamic(() => import('@/app/components/YouMayAlsoLike'))
 const RelatedNews = dynamic(() => import('@/app/components/RelatedNews'))
 
 function escapeHtml(text: string) {
@@ -291,6 +292,8 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
             <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
+
+            <YouMayAlsoLike currentSlug={slug} />
 
             <EngagementCTA />
 
