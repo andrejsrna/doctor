@@ -298,6 +298,19 @@ model Release {
   @@index([artistName])
 }
 
+model ReleaseCalendarEntry {
+  id              String   @id @default(cuid())
+  title           String
+  releaseDate     DateTime @db.Date
+  catalogueNumber String?  @unique
+  releaseId       String?
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([releaseDate])
+}
+
 model ReleaseDownloadToken {
   id        String    @id @default(cuid())
   token     String    @unique

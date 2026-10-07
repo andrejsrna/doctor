@@ -63,6 +63,12 @@ export const navigationItems = [
     description: "Upload & Send Demos"
   },
   {
+    name: "Release Calendar",
+    href: "/admin/calendar",
+    icon: FaMusic,
+    description: "Tuesday & Friday Release Schedule"
+  },
+  {
     name: "Releases",
     href: "/admin/releases",
     icon: FaMusic,
