@@ -11,7 +11,10 @@ async function guard(request: NextRequest, write = false) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   if ((session.user as { role?: string }).role !== 'ADMIN') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const origin = request.headers.get('origin')
-  if (write && ((origin && origin !== request.nextUrl.origin) || request.headers.get('sec-fetch-site') === 'cross-site')) {
+  // TLS terminates at the reverse proxy: nextUrl may contain the internal HTTP
+  // address. Allow exact public origins, never arbitrary forwarded-host values.
+  const trustedOrigins = new Set([request.nextUrl.origin, 'https://dnbdoctor.com', 'https://www.dnbdoctor.com'])
+  if (write && ((origin && !trustedOrigins.has(origin)) || request.headers.get('sec-fetch-site') === 'cross-site')) {
     return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
   }
 }

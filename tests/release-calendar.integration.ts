@@ -18,6 +18,10 @@ async function main() {
     assert.equal((await POST(request('POST', '', { title: 'Test', releaseDate: '2026-10-09' }))).status, 403)
     role = 'ADMIN'
     assert.equal((await POST(request('POST', '', { title: 'Test', releaseDate: '2026-10-09' }, 'https://other.invalid'))).status, 403)
+    const proxied = new NextRequest('http://0.0.0.0:3000/api/admin/calendar', { method: 'POST', headers: { origin: 'https://dnbdoctor.com', host: 'dnbdoctor.com', 'x-forwarded-proto': 'https', 'sec-fetch-site': 'same-origin', 'content-type': 'application/json' }, body: JSON.stringify({ title: '', releaseDate: '2026-10-09' }) })
+    assert.equal((await POST(proxied)).status, 400, 'Public HTTPS origin behind the reverse proxy must reach validation')
+    const spoofed = new NextRequest('http://0.0.0.0:3000/api/admin/calendar', { method: 'POST', headers: { origin: 'https://other.invalid', 'x-forwarded-host': 'other.invalid', 'x-forwarded-proto': 'https', 'content-type': 'application/json' }, body: JSON.stringify({ title: 'Must not save', releaseDate: '2026-10-09' }) })
+    assert.equal((await POST(spoofed)).status, 403, 'Do not trust arbitrary forwarded hosts')
     assert.equal((await GET(request('GET', '?month=2026-99'))).status, 400)
     assert.equal((await POST(request('POST', '', { title: 'Test', releaseDate: '2026-02-31' }))).status, 400)
     assert.equal((await POST(request('POST', '', { title: 'Test', releaseDate: '2026-10-09', releaseId: 'non-existent-test-release' }))).status, 400)
