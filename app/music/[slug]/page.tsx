@@ -256,11 +256,11 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   return (
     <section className="relative">
-      {imageUrl && (
+      {(artworkUrl || imageUrl) && (
         <>
           <div
             className="fixed inset-0 z-0 bg-cover bg-center opacity-35 pointer-events-none"
-            style={{ backgroundImage: `url(${imageUrl})` }}
+            style={{ backgroundImage: `url(${artworkUrl || imageUrl})` }}
           />
           <div className="fixed inset-0 z-0 bg-black/35 pointer-events-none" />
           <div className="fixed inset-0 z-0 bg-gradient-to-b from-black/55 via-black/40 to-black/65 pointer-events-none" />
