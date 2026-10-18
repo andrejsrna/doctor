@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { searchCatalog, type CatalogSearchResult } from '../lib/catalog-search'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IoClose } from 'react-icons/io5'
 import Link from 'next/link'
@@ -11,110 +12,39 @@ interface SearchModalProps {
   onClose: () => void
 }
 
-interface SearchResult {
-  id: number
-  type: 'post' | 'news' | 'artist'
-  title: {
-    rendered: string
-  }
-  excerpt: {
-    rendered: string
-  }
-  slug: string
-  date: string
-}
-
-interface WPPost {
-  id: number
-  title: {
-    rendered: string
-  }
-  excerpt: {
-    rendered: string
-  }
-  slug: string
-  date: string
-}
-
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const [results, setResults] = useState<CatalogSearchResult[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  const requestId = useRef(0)
 
   const searchPosts = async (query: string) => {
+    const currentRequest = ++requestId.current
+    setSearchError('')
     if (!query.trim()) {
       setResults([])
+      setIsLoading(false)
       return
     }
-
     setIsLoading(true)
     try {
-      const types = ['posts', 'news', 'artists']
-      const searchPromises = types.map(type => 
-        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?search=${encodeURIComponent(query)}&per_page=10`)
-          .then(res => res.json())
-          .then(posts => {
-            if (!Array.isArray(posts)) {
-              console.warn(`Invalid response for type ${type}:`, posts)
-              return []
-            }
-            return posts.map((post: WPPost) => ({
-              ...post,
-              type: type.replace(/s$/, '') as 'post' | 'news' | 'artist'
-            }))
-          })
-          .catch(error => {
-            console.error(`Error fetching ${type}:`, error)
-            return []
-          })
-      )
-
-      const allResults = await Promise.all(searchPromises)
-      const flatResults = allResults.flat()
-
-      // Sort results by relevance
-      const sortedResults = flatResults.sort((a, b) => {
-        const aTitle = a.title.rendered.toLowerCase()
-        const bTitle = b.title.rendered.toLowerCase()
-        const searchQuery = query.toLowerCase()
-
-        // Exact matches first
-        const aExactMatch = aTitle === searchQuery
-        const bExactMatch = bTitle === searchQuery
-        if (aExactMatch && !bExactMatch) return -1
-        if (!aExactMatch && bExactMatch) return 1
-
-        // Starts with query second
-        const aStartsWith = aTitle.startsWith(searchQuery)
-        const bStartsWith = bTitle.startsWith(searchQuery)
-        if (aStartsWith && !bStartsWith) return -1
-        if (!aStartsWith && bStartsWith) return 1
-
-        // Contains query third
-        const aContains = aTitle.includes(searchQuery)
-        const bContains = bTitle.includes(searchQuery)
-        if (aContains && !bContains) return -1
-        if (!aContains && bContains) return 1
-
-        // Sort by date if relevance is equal
-        return new Date(b.date).getTime() - new Date(a.date).getTime()
-      })
-
-      setResults(sortedResults)
-    } catch (error) {
-      console.error('Search error:', error)
-      setResults([])
+      const matches = await searchCatalog(query, 10)
+      if (currentRequest === requestId.current) setResults(matches)
+    } catch {
+      if (currentRequest === requestId.current) {
+        setResults([])
+        setSearchError('Search is unavailable. Please try again.')
+      }
     } finally {
-      setIsLoading(false)
+      if (currentRequest === requestId.current) setIsLoading(false)
     }
   }
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      if (searchQuery) {
-        searchPosts(searchQuery)
-      }
+      searchPosts(searchQuery)
     }, 300)
 
     return () => clearTimeout(debounceTimer)
@@ -131,7 +61,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [onClose])
 
-  const getPostUrl = (result: SearchResult) => {
+  const getPostUrl = (result: CatalogSearchResult) => {
     switch (result.type) {
       case 'news':
         return `/news/${result.slug}`
@@ -154,12 +84,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search catalogue"
           className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-xl"
         >
           <div className="container mx-auto px-4 h-full overflow-y-auto">
             <div className="flex justify-end pt-6">
               <button
                 onClick={onClose}
+                aria-label="Close search"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <IoClose size={24} />
@@ -179,7 +113,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               />
               
               <div className="mt-8">
-                {isLoading ? (
+                {searchError ? (
+                  <p role="alert" className="text-center text-red-400">{searchError}</p>
+                ) : isLoading ? (
                   <div className="text-center text-gray-400">
                     Searching...
                   </div>
@@ -195,10 +131,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           <span className="text-sm text-purple-500 font-medium uppercase">
                             {result.type}
                           </span>
-                          <h3 
-                            className="text-lg font-semibold text-white mt-1"
-                            dangerouslySetInnerHTML={{ __html: result.title.rendered }}
-                          />
+                          <h3 className="text-lg font-semibold text-white mt-1">
+                            {result.title.rendered}
+                          </h3>
                         </div>
                       </Link>
                     ))}
@@ -209,7 +144,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         className="w-full text-center text-purple-500 hover:text-purple-400 
                           transition-colors py-2 mt-4"
                       >
-                        View all {results.length} results
+                        View search results
                       </button>
                     )}
                   </div>

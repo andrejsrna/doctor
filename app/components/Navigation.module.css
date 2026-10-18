@@ -1,0 +1,186 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #000;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  max-width: 1536px;
+  min-height: 128px;
+  margin: 0 auto;
+  padding: 12px 20px;
+}
+
+.logo {
+  display: block;
+  width: 112px;
+}
+
+.logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.desktopMenu,
+.desktopPlatforms {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.iconButton,
+.platformLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: #a3a3a3;
+  border-radius: 4px;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.iconButton:hover,
+.platformLink:hover {
+  color: var(--color-secondary);
+  background: rgb(255 255 255 / 5%);
+}
+
+.header a:focus-visible,
+.header button:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 4px;
+}
+
+.menuLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  color: #d4d4d4;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 150ms ease;
+}
+
+.menuLink:hover,
+.menuLink[aria-current='page'] {
+  color: var(--color-secondary);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 60;
+  width: 240px;
+  padding: 8px;
+  background: #0b0b0b;
+  border: 1px solid rgb(255 255 255 / 15%);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 50%);
+}
+
+.submenu a,
+.mobileLink {
+  display: block;
+  padding: 10px 12px;
+  color: #d4d4d4;
+  font-size: 15px;
+}
+
+.submenu a:hover,
+.mobileLink:hover {
+  color: var(--color-secondary);
+  background: rgb(255 255 255 / 5%);
+}
+
+.mobileMenu {
+  max-height: calc(100dvh - 128px);
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.mobileLabel {
+  margin: 0;
+  padding: 8px 12px;
+  color: #737373;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.mobileLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+}
+
+.mobileSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.platforms {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+@media (min-width: 1280px) {
+  .bar {
+    min-height: 192px;
+    gap: 28px;
+    padding: 12px 32px;
+  }
+
+  .logo {
+    width: 176px;
+  }
+
+  .desktopMenu {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 20px;
+  }
+
+  .desktopPlatforms {
+    display: block;
+  }
+
+  .mobileToggle,
+  .mobileMenu {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconButton,
+  .platformLink,
+  .menuLink {
+    transition: none;
+  }
+}

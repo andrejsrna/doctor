@@ -4,22 +4,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import { FaDiscord } from 'react-icons/fa'
-import ListenMenu from './ListenMenu'
+import { FaBandcamp, FaBars, FaChevronDown, FaDiscord, FaFacebookF, FaInstagram, FaSearch, FaSoundcloud, FaSpotify, FaTimes, FaYoutube } from 'react-icons/fa'
+import { SiBeatport } from 'react-icons/si'
 import SearchModal from './SearchModal'
+import styles from './Navigation.module.css'
 
-interface MenuItem {
-  title: string
-  href: string
-  external?: boolean
-}
-
-const menuItems: MenuItem[] = [
+const menuItems = [
   { title: 'Artists', href: '/artists' },
   { title: 'News', href: '/news' },
   { title: 'About', href: '/about' },
   { title: 'Newsletter', href: '/newsletter' },
-  { title: 'Merch', href: 'https://dnbdoctor.bandcamp.com/merch/dnb-doctor-rx-tee', external: true },
   { title: 'Submit demo', href: '/submit-demo' },
 ]
 
@@ -34,176 +28,134 @@ const musicSubmenuItems = [
   { title: 'Search for Music', href: '/music?focus=search' },
 ]
 
+const platformLinks = [
+  { title: 'Instagram', href: 'https://www.instagram.com/dnbdoctor/', icon: FaInstagram },
+  { title: 'Facebook', href: 'https://www.facebook.com/dnbdoctor', icon: FaFacebookF },
+  { title: 'Discord', href: 'https://discord.gg/GE2HWFdgXG', icon: FaDiscord },
+  { title: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1', icon: FaYoutube },
+  { title: 'Spotify', href: 'https://open.spotify.com/playlist/2GD72ly17HcWc9OAEtdUBP', icon: FaSpotify },
+  { title: 'SoundCloud', href: 'https://soundcloud.com/dnbdoctor', icon: FaSoundcloud },
+  { title: 'Bandcamp', href: 'https://dnbdoctor.bandcamp.com/', icon: FaBandcamp },
+  { title: 'Beatport', href: 'https://www.beatport.com/label/dnb-doctor/75618', icon: SiBeatport },
+]
+
+function PlatformLinks() {
+  return (
+    <div className={styles.platforms}>
+      {platformLinks.map(({ title, href, icon: Icon }) => (
+        <a key={title} href={href} target="_blank" rel="noopener noreferrer" aria-label={title} title={title} className={styles.platformLink}>
+          <Icon size={18} aria-hidden="true" />
+        </a>
+      ))}
+    </div>
+  )
+}
+
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMusicOpen, setIsMusicOpen] = useState(false)
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
   const pathname = usePathname()
   const navRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10)
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  const musicButtonRef = useRef<HTMLButtonElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     setIsOpen(false)
+    setIsMusicOpen(false)
   }, [pathname])
 
-  const visibleMenuItems = menuItems
+  useEffect(() => {
+    const handleOutsideClick = (event: PointerEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) {
+        setIsMusicOpen(false)
+        setIsOpen(false)
+      }
+    }
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (isMusicOpen) musicButtonRef.current?.focus()
+        if (isOpen) menuButtonRef.current?.focus()
+        setIsMusicOpen(false)
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isMusicOpen, isOpen])
+
+  const closeMenus = () => {
+    setIsOpen(false)
+    setIsMusicOpen(false)
+  }
 
   return (
     <>
-      <header ref={navRef}>
-        <nav
-          className={`sticky top-0 z-50 backdrop-blur-md transition-colors duration-300 ${
-            isScrolled
-              ? 'bg-black/95 border-b border-green-500/20 shadow-lg shadow-black/50'
-              : 'bg-[#050505]/90 border-b border-white/5'
-          }`}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-6 h-20">
-
-              {/* Logo */}
-              <Link href="/" className="block shrink-0">
-                <Image
-                  src="/logo-1.png"
-                  alt="DnB Doctor"
-                  width={720}
-                  height={192}
-                  sizes="(min-width: 768px) 200px, 140px"
-                  className="w-[140px] md:w-[200px] h-auto"
-                  priority
-                />
-              </Link>
-
-              {/* Desktop nav */}
-              <div className="hidden md:flex items-center gap-6 flex-1">
-                {/* Music dropdown */}
-                <div className="relative group">
-                  <button className="text-gray-300 hover:text-secondary transition-colors font-medium tracking-wide text-sm uppercase flex items-center gap-1">
-                    Music
-                    <svg className="w-3 h-3 transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 9l-7 7-7-7" />
-                    </svg>
+      <header ref={navRef} className={styles.header}>
+        <nav aria-label="Main navigation">
+          <div className={styles.bar}>
+            <div>
+              <button ref={menuButtonRef} type="button" onClick={() => setIsOpen((prev) => !prev)} className={`${styles.iconButton} ${styles.mobileToggle}`} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} aria-controls="mobile-navigation">
+                {isOpen ? <FaTimes size={20} aria-hidden="true" /> : <FaBars size={20} aria-hidden="true" />}
+              </button>
+              <div className={styles.desktopMenu}>
+                <div className={styles.dropdown}>
+                  <button ref={musicButtonRef} type="button" className={styles.menuLink} onClick={() => setIsMusicOpen((prev) => !prev)} aria-expanded={isMusicOpen} aria-controls="music-navigation">
+                    Music <FaChevronDown size={10} aria-hidden="true" />
                   </button>
-                  <div className="absolute top-full left-0 mt-2 w-52 bg-black/95 backdrop-blur-lg border border-green-500/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="py-2">
+                  {isMusicOpen && (
+                    <div id="music-navigation" className={styles.submenu}>
                       {musicSubmenuItems.map((item) => (
-                        <Link key={item.href} href={item.href} className="block px-4 py-2 text-gray-300 hover:text-secondary hover:bg-green-500/10 transition-colors text-sm">
-                          {item.title}
-                        </Link>
+                        <Link key={item.href} href={item.href} onClick={closeMenus}>{item.title}</Link>
                       ))}
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                {visibleMenuItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    target={item.external ? '_blank' : undefined}
-                    rel={item.external ? 'noopener noreferrer' : undefined}
-                    className="text-gray-300 hover:text-secondary transition-colors font-medium tracking-wide text-sm uppercase"
-                  >
-                    {item.title}
-                  </Link>
+                {menuItems.map((item) => (
+                  <Link key={item.href} href={item.href} className={styles.menuLink} aria-current={pathname === item.href ? 'page' : undefined}>{item.title}</Link>
                 ))}
               </div>
+            </div>
 
-              {/* Desktop right side */}
-              <div className="hidden md:flex items-center gap-4 ml-auto shrink-0">
-                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-secondary transition-colors" aria-label="Search">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </button>
-                <ListenMenu />
-              </div>
+            <Link href="/" className={styles.logo} aria-label="DnB Doctor home" onClick={closeMenus}>
+              <Image src="/brand/dnb-doctor-logo.webp" alt="DnB Doctor" width={640} height={605} sizes="(min-width: 1280px) 176px, 112px" priority />
+            </Link>
 
-              {/* Mobile right side */}
-              <div className="mobile-only flex items-center gap-2 ml-auto shrink-0">
-                <button onClick={() => setIsSearchModalOpen(true)} className="text-gray-300 hover:text-secondary p-2" aria-label="Search">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsOpen((prev) => !prev)}
-                  className="text-gray-300 hover:text-secondary p-2"
-                  aria-label="Toggle menu"
-                >
-                  {isOpen ? (
-                    <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-
+            <div className={styles.actions}>
+              <div className={styles.desktopPlatforms}><PlatformLinks /></div>
+              <button type="button" onClick={() => { closeMenus(); setIsSearchModalOpen(true) }} className={styles.iconButton} aria-label="Search">
+                <FaSearch size={18} aria-hidden="true" />
+              </button>
             </div>
           </div>
 
-          {/* Mobile menu – conditionally rendered */}
           {isOpen && (
-            <div className="mobile-only border-t border-green-500/10 bg-black/95">
-              <div className="px-4 pt-3 pb-5 space-y-1">
-                <p className="px-3 pb-1 text-gray-500 text-xs uppercase tracking-widest">Music</p>
+            <div id="mobile-navigation" className={styles.mobileMenu}>
+              <p className={styles.mobileLabel}>Music</p>
+              <div className={styles.mobileLinks}>
                 {musicSubmenuItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="block px-3 py-2 text-gray-300 hover:text-secondary text-sm font-medium transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.title}
-                  </Link>
+                  <Link key={item.href} href={item.href} className={styles.mobileLink} onClick={closeMenus}>{item.title}</Link>
                 ))}
-                <div className="border-t border-white/5 pt-2 mt-2">
-                  {visibleMenuItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      target={item.external ? '_blank' : undefined}
-                      rel={item.external ? 'noopener noreferrer' : undefined}
-                      className="block px-3 py-2 text-gray-300 hover:text-secondary text-sm font-medium uppercase tracking-wide transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                  <a
-                    href="https://discord.gg/GE2HWFdgXG"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-indigo-400 text-sm font-medium uppercase tracking-wide transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <FaDiscord className="w-4 h-4" />
-                    Discord
-                  </a>
-                </div>
-                <div className="border-t border-white/5 pt-3 px-3">
-                  <ListenMenu />
-                </div>
+              </div>
+              <div className={`${styles.mobileLinks} ${styles.mobileSection}`}>
+                {menuItems.map((item) => (
+                  <Link key={item.href} href={item.href} className={styles.mobileLink} onClick={closeMenus} aria-current={pathname === item.href ? 'page' : undefined}>{item.title}</Link>
+                ))}
+              </div>
+              <div className={styles.mobileSection}>
+                <p className={styles.mobileLabel}>Follow & stream</p>
+                <PlatformLinks />
               </div>
             </div>
           )}
         </nav>
       </header>
 
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-      />
+      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
     </>
   )
 }

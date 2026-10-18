@@ -1,108 +1,39 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { searchCatalog, type CatalogSearchResult } from '../lib/catalog-search'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
-
-interface SearchResult {
-  id: number
-  type: 'post' | 'news' | 'artists'
-  title: {
-    rendered: string
-  }
-  excerpt: {
-    rendered: string
-  }
-  slug: string
-  date: string
-}
-
-// Add interface for WordPress post response
-interface WPPost {
-  id: number
-  title: {
-    rendered: string
-  }
-  excerpt: {
-    rendered: string
-  }
-  slug: string
-  date: string
-}
 
 function SearchContent() {
   const searchParams = useSearchParams()
   const urlQuery = searchParams?.get('q') ?? ''
   const [query, setQuery] = useState(urlQuery)
-  const [results, setResults] = useState<SearchResult[]>([])
+  const [results, setResults] = useState<CatalogSearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  const requestId = useRef(0)
 
-  const searchPosts = async (searchQuery: string) => {
-    if (!searchQuery.trim()) {
+  const searchPosts = async (query: string) => {
+    const currentRequest = ++requestId.current
+    setSearchError('')
+    if (!query.trim()) {
       setResults([])
+      setIsLoading(false)
       return
     }
-
     setIsLoading(true)
     try {
-      const types = ['posts', 'news', 'artists']
-      const searchPromises = types.map(type => 
-        fetch(`https://admin.dnbdoctor.com/wp-json/wp/v2/${type}?search=${encodeURIComponent(searchQuery)}&per_page=100`)
-          .then(res => res.json())
-          .then(posts => {
-            if (!Array.isArray(posts)) {
-              console.warn(`Invalid response for type ${type}:`, posts)
-              return []
-            }
-            return posts.map((post: WPPost) => ({
-              ...post,
-              type: type.replace(/s$/, '') as 'post' | 'news' | 'artists'
-            }))
-          })
-          .catch(error => {
-            console.error(`Error fetching ${type}:`, error)
-            return []
-          })
-      )
-
-      const allResults = await Promise.all(searchPromises)
-      const flattenedResults = allResults.flat()
-
-      // Sort results by relevance
-      const sortedResults = flattenedResults.sort((a, b) => {
-        const aTitle = a.title.rendered.toLowerCase()
-        const bTitle = b.title.rendered.toLowerCase()
-        const query = searchQuery.toLowerCase()
-
-        // Exact matches first
-        const aExactMatch = aTitle === query
-        const bExactMatch = bTitle === query
-        if (aExactMatch && !bExactMatch) return -1
-        if (!aExactMatch && bExactMatch) return 1
-
-        // Starts with query second
-        const aStartsWith = aTitle.startsWith(query)
-        const bStartsWith = bTitle.startsWith(query)
-        if (aStartsWith && !bStartsWith) return -1
-        if (!aStartsWith && bStartsWith) return 1
-
-        // Contains query third
-        const aContains = aTitle.includes(query)
-        const bContains = bTitle.includes(query)
-        if (aContains && !bContains) return -1
-        if (!aContains && bContains) return 1
-
-        // Sort by date if relevance is equal
-        return new Date(b.date).getTime() - new Date(a.date).getTime()
-      })
-
-      setResults(sortedResults as SearchResult[])
-    } catch (error) {
-      console.error('Search error:', error)
-      setResults([])
+      const matches = await searchCatalog(query, 100)
+      if (currentRequest === requestId.current) setResults(matches)
+    } catch {
+      if (currentRequest === requestId.current) {
+        setResults([])
+        setSearchError('Search is unavailable. Please try again.')
+      }
     } finally {
-      setIsLoading(false)
+      if (currentRequest === requestId.current) setIsLoading(false)
     }
   }
 
@@ -126,11 +57,11 @@ function SearchContent() {
     })
   }
 
-  const getPostUrl = (result: SearchResult) => {
+  const getPostUrl = (result: CatalogSearchResult) => {
     switch (result.type) {
       case 'news':
         return `/news/${result.slug}`
-      case 'artists':
+      case 'artist':
         return `/artists/${result.slug}`
       default:
         return `/music/${result.slug}`
@@ -158,7 +89,9 @@ function SearchContent() {
           />
         </div>
 
-        {isLoading ? (
+        {searchError ? (
+          <p role="alert" className="text-center text-red-400">{searchError}</p>
+        ) : isLoading ? (
           <div className="text-center text-gray-400">
             Searching...
           </div>
@@ -180,10 +113,9 @@ function SearchContent() {
                     <span className="text-sm text-purple-500 font-medium uppercase">
                       {result.type}
                     </span>
-                    <h2 
-                      className="text-xl font-semibold text-white"
-                      dangerouslySetInnerHTML={{ __html: result.title.rendered }}
-                    />
+                    <h2 className="text-xl font-semibold text-white">
+                      {result.title.rendered}
+                    </h2>
                     {result.excerpt?.rendered && (
                       <div 
                         className="text-gray-400 text-sm"
@@ -193,7 +125,7 @@ function SearchContent() {
                       />
                     )}
                     <time className="text-sm text-gray-500">
-                      {formatDate(result.date)}
+                      {result.date ? formatDate(result.date) : ''}
                     </time>
                   </div>
                 </Link>
