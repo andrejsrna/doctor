@@ -32,7 +32,9 @@ export default function Home() {
       <Suspense fallback={<div style={{height: 500}} />}>
         <FeaturedArtists />
       </Suspense>
-      <ExperienceAndBooking />
+      <Suspense fallback={<div style={{height: 900}} />}>
+        <ExperienceAndBooking />
+      </Suspense>
     </main>
   )
 }
