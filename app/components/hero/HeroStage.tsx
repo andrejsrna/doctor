@@ -4,15 +4,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
-import { Big_Shoulders, JetBrains_Mono } from 'next/font/google'
+import { displayFont as display, monoFont as mono } from '../brandFonts'
 import { FaSpotify } from 'react-icons/fa'
 import PreviewPlayer from '../PreviewPlayer'
 import styles from './hero.module.css'
 
 const SignalField = dynamic(() => import('./SignalField'), { ssr: false })
 
-const display = Big_Shoulders({ subsets: ['latin'], weight: ['800', '900'], display: 'swap', variable: '--hero-display' })
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '700'], display: 'swap', variable: '--hero-mono' })
 
 export type HeroRelease = {
   slug: string
