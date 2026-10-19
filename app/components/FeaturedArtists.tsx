@@ -1,120 +1,37 @@
-// server component
-import Image from 'next/image'
-import Link from 'next/link'
-import { FaSoundcloud, FaUserMd } from 'react-icons/fa'
-import Button from './Button'
+// server component: pulls the newest signings + their release footprint
 import { prisma } from '@/lib/prisma'
+import FeaturedArtistsRoster, { type RosterArtist } from './FeaturedArtistsRoster'
 
+const COUNT = 8
 
 export default async function FeaturedArtists() {
-  const artists = await prisma.artist.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 3,
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      imageUrl: true,
-      soundcloud: true,
-    },
-  })
+  const [artists, total] = await Promise.all([
+    prisma.artist.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: COUNT,
+      select: { id: true, slug: true, name: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true },
+    }),
+    prisma.artist.count(),
+  ])
 
-  // Helper function to get the best available image URL
-  const getImageUrl = (artist: { imageUrl: string | null }) => artist.imageUrl || '/placeholder-artist.jpg'
+  if (!artists.length) return null
 
-  if (!artists?.length) return null
-
-  return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#6F3DFF]/8 rounded-full blur-[130px] translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--color-secondary)]/4 rounded-full blur-[110px] -translate-x-1/4 translate-y-1/4" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">Featured Artists</h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">Meet the talented producers and DJs behind our signature neurofunk sound</p>
-        </div>
-
-        {/* Artists Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {artists.map((artist) => (
-            <div key={artist.id} className="group relative">
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden 
-                border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-                <Link 
-                  href={`/artists/${artist.slug}`}
-                  className="block absolute inset-0 z-10"
-                >
-                  <span className="sr-only">View {artist.name}&apos;s profile</span>
-                </Link>
-                
-                <Image
-                  src={getImageUrl(artist)}
-                  alt={artist.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 
-                    group-hover:scale-110"
-                />
-                {/* Artist Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-2xl font-bold text-white mb-1">
-                    {artist.name}
-                  </h3>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Button
-                        href={artist.soundcloud || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        variant="toxic"
-                        size="sm"
-                        className="group w-full"
-                      >
-                        <FaSoundcloud className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
-                        <span>SoundCloud</span>
-                      </Button>
-                    </div>
-                    
-                    <div className="flex-1">
-                      <Link href={`/artists/${artist.slug}`}>
-                        <Button
-                          variant="infected"
-                          size="sm"
-                          className="group w-full"
-                        >
-                          <FaUserMd className="w-4 h-4 transform group-hover:scale-110 transition-transform duration-300" />
-                          <span>View More</span>
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <div className="inline-block">
-            <Button href="/artists" variant="infected" size="lg" className="group">
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M12 12c2.761 0 5-2.686 5-6s-2.239-6-5-6-5 2.686-5 6 2.239 6 5 6zm0 2c-3.33 0-10 1.667-10 5v3h20v-3c0-3.333-6.67-5-10-5z"/>
-              </svg>
-              <span>Meet All Artists</span>
-              <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M12 4l1.41 1.41L8.83 10H20v2H8.83l4.58 4.59L12 18l-8-8 8-8z" transform="scale(-1,1) translate(-24,0)"/>
-              </svg>
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
+  const roster: RosterArtist[] = await Promise.all(
+    artists.map(async (a) => {
+      // artistName is often empty on imported releases, so the title ("Artist - Track") counts too
+      const match = { contains: a.name, mode: 'insensitive' as const }
+      const where = { publishedAt: { not: null }, OR: [{ artistName: match }, { title: match }] }
+      const [releases, latest] = await Promise.all([
+        prisma.release.count({ where }),
+        prisma.release.findFirst({
+          where,
+          orderBy: { publishedAt: 'desc' },
+          select: { slug: true, title: true },
+        }),
+      ])
+      return { ...a, releases, latest }
+    }),
   )
-} 
+
+  return <FeaturedArtistsRoster artists={roster} total={total} />
+}
