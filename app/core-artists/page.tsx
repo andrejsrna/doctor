@@ -19,6 +19,8 @@ export default async function CoreArtistsPage() {
   if (process.env.DATABASE_URL) {
     try {
       artists = await prisma.artist.findMany({
+        // profiles without a photo (imported from release credits) stay off the roster
+        where: { imageUrl: { not: null } },
         orderBy: { createdAt: 'desc' },
         take: 60,
         select: {

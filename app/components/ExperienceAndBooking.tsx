@@ -5,7 +5,7 @@ import ExperienceAndBookingClient from './ExperienceAndBookingClient'
 export default async function ExperienceAndBooking() {
   const [releases, artists, mixes] = await Promise.all([
     prisma.release.count({ where: { publishedAt: { not: null } } }),
-    prisma.artist.count(),
+    prisma.artist.count({ where: { imageUrl: { not: null } } }),
     prisma.news.count({ where: { categories: { has: 'Mixes' }, publishedAt: { not: null } } }),
   ]).catch(() => [0, 0, 0])
 

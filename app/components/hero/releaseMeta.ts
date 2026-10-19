@@ -1,11 +1,15 @@
 /** Shared helpers for presenting a release (home hero + release detail). */
 
-/** "Artist - Title" → { artist, title } when the release has no explicit artist. */
+/** "Artist - Title" → { artist, title }; an explicit artistName wins for the credit. */
 export function splitTitle(raw: string, artistName: string | null) {
-  if (artistName) return { artist: artistName, title: raw }
   const m = raw.match(/^(.+?)\s+[-–—]\s+(.+)$/)
-  if (m) return { artist: m[1].trim(), title: m[2].trim() }
-  return { artist: null, title: raw }
+  if (m) return { artist: artistName || m[1].trim(), title: m[2].trim() }
+  return { artist: artistName || null, title: raw }
+}
+
+/** First credited act of "A & B", "A, B", "A ft. B" (for linking a profile). */
+export function primaryArtist(credit: string) {
+  return credit.split(/\s*(?:&|,|\s(?:feat\.|ft\.)\s)\s*/i)[0].replace(/\s*\([^)]*\)$/, '').trim()
 }
 
 export function typeLabel(title: string, categories: string[]) {

@@ -8,7 +8,7 @@ import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import { withBeatportAffiliate } from '@/lib/affiliates'
-import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
+import { plainTitle, primaryArtist, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 
 export const revalidate = 300
 
@@ -168,11 +168,18 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   }
 
   // Build the artist object
+  // link the real profile of the first credited act (slug guessing produced 404s for collabs)
+  const profile = release.artistName
+    ? await prisma.artist.findFirst({
+        where: { name: { equals: primaryArtist(release.artistName), mode: 'insensitive' } },
+        select: { slug: true },
+      })
+    : null
   const byArtist = {
     '@type': 'MusicGroup',
     name: artistName,
     genre: 'Neurofunk',
-    url: `https://dnbdoctor.com/artists/${artistName.toLowerCase().replace(/\s+/g, '-')}`,
+    ...(profile && { url: `https://dnbdoctor.com/artists/${profile.slug}` }),
   }
 
   const breadcrumbJsonLd = {

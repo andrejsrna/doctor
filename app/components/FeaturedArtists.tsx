@@ -7,11 +7,12 @@ const COUNT = 8
 export default async function FeaturedArtists() {
   const [artists, total] = await Promise.all([
     prisma.artist.findMany({
+      where: { imageUrl: { not: null } },
       orderBy: { createdAt: 'desc' },
       take: COUNT,
       select: { id: true, slug: true, name: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true },
     }),
-    prisma.artist.count(),
+    prisma.artist.count({ where: { imageUrl: { not: null } } }),
   ])
 
   if (!artists.length) return null
