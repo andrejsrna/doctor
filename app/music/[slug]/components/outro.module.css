@@ -458,135 +458,6 @@
   color: var(--c-crimson);
 }
 
-/* ---- 03 next drop: channel stack ---- */
-.channels {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid rgb(255 255 255 / 14%);
-}
-
-.channels li {
-  border-bottom: 1px solid rgb(255 255 255 / 14%);
-}
-
-.channel {
-  position: relative;
-  display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr) minmax(0, 18rem);
-  grid-template-areas:
-    'kick word cta'
-    'kick word note';
-  align-items: center;
-  gap: 0.35rem 2rem;
-  padding: clamp(1rem, 2.2vw, 1.6rem) 0.75rem;
-  color: #fff;
-  text-decoration: none;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.channel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--hue);
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 360ms cubic-bezier(0.7, 0, 0.2, 1);
-}
-
-.channel:hover::before,
-.channel:focus-visible::before {
-  clip-path: inset(0 0 0 0);
-}
-
-.chKick {
-  grid-area: kick;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgb(255 255 255 / 55%);
-}
-
-.chKick b {
-  align-self: flex-start;
-  padding: 0.15rem 0.45rem;
-  background: var(--c-green);
-  color: #050505;
-}
-
-.chWord {
-  grid-area: word;
-  position: relative;
-  font-family: var(--disp);
-  font-size: clamp(3rem, 8.5vw, 7.5rem);
-  font-weight: 900;
-  line-height: 0.85;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1), color 200ms;
-}
-
-.channel[data-priority] .chWord {
-  color: var(--c-green);
-}
-
-.chNote {
-  grid-area: note;
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: rgb(255 255 255 / 65%);
-  transition: color 200ms;
-}
-
-.chCta {
-  grid-area: cta;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.chIcon {
-  display: inline-flex;
-  font-size: 1.1rem;
-  color: var(--hue);
-  transition: color 200ms;
-}
-
-.channel:hover .chWord,
-.channel:focus-visible .chWord {
-  transform: translateX(1.25rem) skewX(-6deg);
-  color: #050505;
-}
-
-.channel:hover,
-.channel:focus-visible,
-.channel:hover .chKick,
-.channel:focus-visible .chKick,
-.channel:hover .chNote,
-.channel:focus-visible .chNote,
-.channel:hover .chIcon,
-.channel:focus-visible .chIcon {
-  color: #050505;
-}
-
-.channel:hover .chKick b {
-  background: #050505;
-  color: var(--hue);
-}
-
 /* ---- 04 spread the disease ---- */
 .spreadTitle {
   display: flex;
@@ -968,22 +839,6 @@
 
 /* ---- responsive ---- */
 @media (max-width: 1023px) {
-  .channel {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'kick' 'word' 'note' 'cta';
-    gap: 0.6rem;
-  }
-
-  .chKick {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .chWord {
-    font-size: clamp(2.8rem, 13vw, 6rem);
-  }
-
   .shareGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1074,8 +929,6 @@
     animation: none;
   }
 
-  .channel::before,
-  .chWord,
   .recCover,
   .recImg,
   .store,

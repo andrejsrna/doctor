@@ -11,6 +11,7 @@ import { djLinks } from '@/lib/affiliates'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
+import ChannelStack, { type Channel } from '@/app/components/ChannelStack'
 import styles from './outro.module.css'
 
 const OutroField = dynamic(() => import('@/app/components/hero/SignalBackdrop'), { ssr: false })
@@ -20,7 +21,7 @@ type News = { id: string; slug: string; title: string; publishedAt?: string | nu
 
 const PAGE = 8
 
-const CHANNELS: { id: string; icon: ComponentType; kicker: string; word: string; note: string; cta: string; href: string; hue: string; priority?: boolean }[] = [
+const CHANNELS: Channel[] = [
   { id: 'newsletter', icon: FaEnvelope, kicker: 'Direct line', word: 'Newsletter', note: 'No algorithm, no noise. Early access and exclusive updates straight to your inbox.', cta: 'Join the inner circle', href: '/newsletter', hue: '#39ff14', priority: true },
   { id: 'spotify', icon: FaSpotify, kicker: 'Playlist', word: 'Spotify', note: 'Curated selections of the sharpest neurofunk and drum & bass, updated continuously.', cta: 'Follow on Spotify', href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9', hue: '#1ed760' },
   { id: 'instagram', icon: FaInstagram, kicker: 'Social', word: 'Instagram', note: 'Behind-the-scenes, release previews and label life — follow along.', cta: 'Follow on Instagram', href: 'https://www.instagram.com/dnbdoctor', hue: '#ff3d9a' },
@@ -36,8 +37,6 @@ const SHARES: { name: string; icon: ComponentType; url: (u: string, t: string) =
 
 const fmtDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : ''
-
-const isExternal = (href: string) => href.startsWith('http')
 
 /** Mark [data-reveal] descendants as in-view once (CSS does the motion). */
 function useReveal(root: React.RefObject<HTMLElement | null>, deps: unknown[]) {
@@ -234,35 +233,7 @@ function NextDrop() {
   return (
     <section id="outro-drop" data-chapter="Next drop" className={styles.chapter} aria-labelledby="drop-title">
       <ChapterHead id="drop-title" kicker="Stay connected // 5 channels" outline="Don't miss the" title="Next drop" />
-      <ul className={styles.channels}>
-        {CHANNELS.map((c, i) => {
-          const Icon = c.icon
-          return (
-            <li key={c.id} data-reveal="" style={{ '--i': i, '--hue': c.hue } as React.CSSProperties}>
-              <a
-                href={c.href}
-                target={isExternal(c.href) ? '_blank' : undefined}
-                rel={isExternal(c.href) ? 'noopener noreferrer' : undefined}
-                className={styles.channel}
-                data-priority={c.priority ? '' : undefined}
-                onClick={() => trackEvent('engagement', { method: c.cta, content_type: 'cta', content_name: c.cta })}
-              >
-                <span className={styles.chKick}>
-                  <span>{String(i + 1).padStart(2, '0')}</span>
-                  <span>{c.kicker}</span>
-                  {c.priority && <b>Priority</b>}
-                </span>
-                <span className={styles.chWord} data-text={c.word}>{c.word}</span>
-                <span className={styles.chNote}>{c.note}</span>
-                <span className={styles.chCta}>
-                  <span className={styles.chIcon}><Icon /></span>
-                  {c.cta} <span aria-hidden="true">→</span>
-                </span>
-              </a>
-            </li>
-          )
-        })}
-      </ul>
+      <ChannelStack channels={CHANNELS} />
     </section>
   )
 }
