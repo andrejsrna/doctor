@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * One sticky full-viewport shader behind the whole release outro.
+ * One sticky full-viewport shader behind a long section (release outro, home latest releases).
  * Scroll progress (0..1 through the outro) drives the palette and field drift;
  * a 174 BPM two-step clock drives kick/snare envelopes, also exported as
  * CSS vars (--kick / --snare) on rootRef so DOM pulses share the clock.
@@ -14,7 +14,7 @@ const VERT = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'
 const FRAG = `
 precision mediump float;
 uniform vec2 R;
-uniform float T,S,K,N;
+uniform float T,S,K,N,W;
 uniform vec2 M;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float nz(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
@@ -44,9 +44,9 @@ void main(){
     g=smoothstep(.47,.5,max(gl.x,gl.y))*smoothstep(9.,1.2,z);
   }
   vec3 G=vec3(.224,1.,.078),P=vec3(.608,.369,1.),C=vec3(1.,0.,.302);
-  // palette walk: green -> purple -> crimson (bulk sale) -> green
+  // palette walk: green -> purple -> (crimson when W=1) -> green
   vec3 a=mix(G,P,smoothstep(.15,.4,S));
-  a=mix(a,C,smoothstep(.5,.62,S)*(1.-smoothstep(.72,.84,S)));
+  a=mix(a,C,W*smoothstep(.5,.62,S)*(1.-smoothstep(.72,.84,S)));
   a=mix(a,G,smoothstep(.84,1.,S));
   vec3 b=mix(P,G,smoothstep(.3,.9,S));
   vec3 col=vec3(.012,.012,.02);
@@ -74,7 +74,7 @@ function envelopes(t: number) {
   }
 }
 
-export default function OutroField({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
+export default function SignalBackdrop({ rootRef, crimson = true }: { rootRef: React.RefObject<HTMLElement | null>; crimson?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -108,6 +108,7 @@ export default function OutroField({ rootRef }: { rootRef: React.RefObject<HTMLE
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
     const u = (n: string) => gl.getUniformLocation(prog, n)
     const uR = u('R'), uT = u('T'), uS = u('S'), uK = u('K'), uN = u('N'), uM = u('M')
+    gl.uniform1f(u('W'), crimson ? 1 : 0)
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const mouse = { x: 9, y: 9, tx: 9, ty: 9 }
@@ -183,7 +184,7 @@ export default function OutroField({ rootRef }: { rootRef: React.RefObject<HTMLE
       gl.deleteBuffer(buf)
       gl.deleteProgram(prog)
     }
-  }, [rootRef])
+  }, [rootRef, crimson])
 
   return <canvas ref={canvasRef} />
 }

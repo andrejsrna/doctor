@@ -1,16 +1,22 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { FaPause, FaPlay } from 'react-icons/fa'
 import StreamingMenu from '@/app/components/StreamingMenu'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
+import styles from './LatestMusic.module.css'
+
+const SignalBackdrop = dynamic(() => import('@/app/components/hero/SignalBackdrop'), { ssr: false })
 
 interface Release {
   id: string
   title: string
   artistName: string | null
-  coverImageUrl: string | null
+  imageUrl: string | null
   previewUrl: string | null
   slug: string
   spotify: string | null
@@ -20,213 +26,229 @@ interface Release {
   soundcloud: string | null
   categories: string[]
   publishedAt: string | null
-  content: string | null
 }
+
+const COUNT = 6
+/** Auto-scan advances one release every 4 bars at 174 BPM. */
+const SCAN_MS = Math.round((16 * 60_000) / 174)
+
+const fmtDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : ''
+
+/** One same-origin optimised URL shared by the monitor cover and its CSS slice layers (single download). */
+const proxied = (src: string) => `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75`
 
 export default function LatestMusic() {
   const [releases, setReleases] = useState<Release[]>([])
+  const [total, setTotal] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const [active, setActive] = useState(0)
+  const [hold, setHold] = useState(false)
+  const [inView, setInView] = useState(false)
+  const [reduce, setReduce] = useState(false)
+  const [playing, setPlaying] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState(false)
+  const rootRef = useRef<HTMLElement>(null)
+  const audio = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
-    async function fetchReleases() {
-      try {
-        const response = await fetch('/api/releases?limit=6')
-        const data = await response.json()
-        setReleases(data.items || [])
-      } catch (error) {
-        console.error('Error fetching releases:', error)
-      } finally {
-        setLoading(false)
-      }
+    let alive = true
+    fetch(`/api/releases?limit=${COUNT}`)
+      .then((r) => r.json())
+      .then((d: { items?: Release[]; total?: number }) => {
+        if (!alive) return
+        setReleases(d.items || [])
+        setTotal(typeof d.total === 'number' ? d.total : null)
+      })
+      .catch((error) => console.error('Error fetching releases:', error))
+      .finally(() => alive && setLoading(false))
+    return () => {
+      alive = false
+      audio.current?.pause()
     }
-
-    fetchReleases()
   }, [])
 
-  const formatDate = (date: string | null) => {
-    if (!date) return ''
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  useEffect(() => {
+    setReduce(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    const el = rootRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      setInView(e.isIntersecting)
+      if (e.isIntersecting) el.setAttribute('data-in', '')
+    }, { threshold: 0.2 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
-  const getReleaseType = (categories: string[]) => {
-    // Simple logic to determine release type based on categories or title
-    const categoryStr = categories.join(' ').toLowerCase()
-    const titleStr = releases.find(r => r.categories === categories)?.title.toLowerCase() || ''
-    
-    if (categoryStr.includes('ep') || titleStr.includes('ep')) return 'EP'
-    if (categoryStr.includes('lp') || titleStr.includes('lp') || titleStr.includes('album')) return 'LP'
-    return 'Single'
-  }
+  const scanning = inView && !hold && !playing && !reduce && releases.length > 1
+  useEffect(() => {
+    if (!scanning) return
+    const t = window.setTimeout(() => setActive((i) => (i + 1) % releases.length), SCAN_MS)
+    return () => window.clearTimeout(t)
+  }, [scanning, releases.length, active])
 
-
-  const getExcerpt = (content: string | null, maxLength: number = 120) => {
-    if (!content) return ''
-    
-    // Remove HTML tags and get plain text
-    const plainText = content.replace(/<[^>]*>/g, '').trim()
-    
-    if (plainText.length <= maxLength) return plainText
-    
-    // Find the last complete word within the limit
-    const truncated = plainText.substring(0, maxLength)
-    const lastSpaceIndex = truncated.lastIndexOf(' ')
-    
-    if (lastSpaceIndex > maxLength * 0.8) {
-      return truncated.substring(0, lastSpaceIndex) + '...'
+  const toggle = useCallback(async (r: Release) => {
+    if (!r.previewUrl) return
+    setPreviewError(false)
+    if (playing === r.id) {
+      audio.current?.pause()
+      setPlaying(null)
+      return
     }
-    
-    return truncated + '...'
-  }
+    audio.current?.pause()
+    const a = new Audio(r.previewUrl)
+    a.onended = () => setPlaying((id) => (id === r.id ? null : id))
+    audio.current = a
+    try {
+      await a.play()
+      setPlaying(r.id)
+    } catch {
+      setPlaying(null)
+      setPreviewError(true)
+    }
+  }, [playing])
 
-  if (loading) {
-    return (
-      <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Latest Releases
-            </h2>
-            <p className="text-gray-400 text-lg">
-              Loading latest music...
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-800/50 rounded-lg p-6 animate-pulse">
-                <div className="w-full h-48 bg-gray-700 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-700 rounded mb-2"></div>
-                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
+  const current = releases[active]
+  const cur = current ? splitTitle(plainTitle(current.title), current.artistName) : null
+  const curOn = !!current && playing === current.id
 
   return (
-    <section className="py-20 px-4 relative">
-      {/* Section Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-      
-      <div className="max-w-7xl mx-auto relative z-10">
-        <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold mb-12 text-center"
-        >
-          Latest <span className="text-purple-500">Releases</span>
-        </motion.h2>
+    <section
+      ref={rootRef}
+      className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}
+      aria-labelledby="latest-releases-title"
+    >
+      <div className={styles.fieldWrap} aria-hidden="true">
+        <SignalBackdrop rootRef={rootRef} crimson={false} />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {releases.map((release, index) => (
-            <motion.article
-              key={release.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 hover:border-purple-500/30 transition-all duration-300"
-            >
-              {/* Cover Art */}
-              <div className="relative aspect-square">
-                {release.coverImageUrl ? (
-                  <Image
-                    src={release.coverImageUrl}
-                    alt={release.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                    No image available
-                  </div>
-                )}
-              </div>
+      <div className={styles.inner}>
+        <header className={styles.head}>
+          <p className={styles.kicker}>
+            <span className={styles.kickerHot}>Archive feed //</span> Latest transmissions
+            {total ? ` // ${total} in the catalogue` : ''}
+          </p>
+          <h2 id="latest-releases-title" className={styles.title}>
+            <span className={styles.outline}>Latest</span>
+            <span className={styles.solid}>Releases</span>
+          </h2>
+          <Link href="/music" className={styles.browse}>
+            Browse all{total ? ` ${total}` : ''} releases <span aria-hidden="true">→</span>
+          </Link>
+        </header>
 
-              {/* Content */}
-              <div className="p-6">
-                {/* Tags and Date */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full border border-purple-500/30">
-                      {getReleaseType(release.categories)}
-                    </span>
-                    <span className="text-gray-400 text-xs">
-                      {formatDate(release.publishedAt)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Title and Artist */}
-                <div className="mb-3">
-                  <h3 className="text-lg font-bold text-white mb-1 line-clamp-2">
-                    {release.title}
-                  </h3>
-                  {release.artistName && (
-                    <p className="text-purple-400 text-sm">
-                      {release.artistName}
-                    </p>
+        {loading ? (
+          <div className={styles.skeleton} role="status" aria-label="Loading latest releases">
+            {[...Array(COUNT)].map((_, i) => <span key={i} />)}
+          </div>
+        ) : releases.length === 0 ? (
+          <p className={styles.empty}>No signal. New releases will appear here.</p>
+        ) : (
+          <div className={styles.grid}>
+            {current && cur && (
+              <div className={styles.monitor}>
+                <div className={styles.screen}>
+                  {releases.map((r, i) => (
+                    <div key={r.id} className={styles.cover} data-active={i === active ? '' : undefined} aria-hidden={i !== active}>
+                      {r.imageUrl ? (
+                        <Image
+                          src={proxied(r.imageUrl)}
+                          alt={i === active ? `${cur.artist ? `${cur.artist} – ` : ''}${cur.title} cover art` : ''}
+                          fill
+                          unoptimized
+                          className={styles.coverImg}
+                        />
+                      ) : (
+                        <span className={styles.noCover}>No signal</span>
+                      )}
+                    </div>
+                  ))}
+                  {current.imageUrl && (
+                    <div key={`slices-${current.id}`} className={styles.slices} aria-hidden="true">
+                      {[0, 1, 2].map((n) => (
+                        <span key={n} className={styles.slice} style={{ backgroundImage: `url("${proxied(current.imageUrl!)}")` }} />
+                      ))}
+                    </div>
+                  )}
+                  <span className={styles.scan} aria-hidden="true" />
+                  <span className={styles.hudTl} aria-hidden="true">
+                    CH {String(active + 1).padStart(2, '0')}/{String(releases.length).padStart(2, '0')}
+                  </span>
+                  <span className={styles.hudTr} aria-hidden="true"><i className={styles.rec} />{curOn ? 'Playing' : 'Live'}</span>
+                  <span className={styles.hudBl} aria-hidden="true">174 BPM</span>
+                  {scanning && (
+                    <span key={`bar-${active}`} className={styles.scanBar} style={{ animationDuration: `${SCAN_MS}ms` }} aria-hidden="true" />
                   )}
                 </div>
 
-                {/* Description Excerpt */}
-                {release.content && (
-                  <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                    {getExcerpt(release.content, 100)}
+                <div className={styles.readout}>
+                  <p className={styles.meta}>
+                    <span className={styles.tag}>{typeLabel(current.title, current.categories)}</span>
+                    <time dateTime={current.publishedAt ?? undefined}>{fmtDate(current.publishedAt)}</time>
                   </p>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3">
-                  {/* Primary Listen Button */}
-                  <Link
-                    href={`/music/${release.slug}`}
-                    className="flex-1 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-colors text-center"
-                  >
-                    Listen
-                  </Link>
-                  
-                  {/* Streaming Menu */}
-                  <StreamingMenu
-                    spotify={release.spotify}
-                    appleMusic={release.appleMusic}
-                    beatport={release.beatport}
-                    bandcamp={release.bandcamp}
-                    soundcloud={release.soundcloud}
-                  />
+                  <p className={styles.mArtist}>{cur.artist ?? 'DnB Doctor'}</p>
+                  <p className={styles.mTitle} data-size={cur.title.length > 22 ? 'l' : undefined}>{cur.title}</p>
+                  <div className={styles.actions}>
+                    <Link href={`/music/${current.slug}`} className={styles.listen}>
+                      Listen <span aria-hidden="true">→</span>
+                    </Link>
+                    {current.previewUrl && (
+                      <button
+                        type="button"
+                        className={styles.preview}
+                        onClick={() => toggle(current)}
+                        aria-pressed={curOn}
+                        aria-label={`${curOn ? 'Pause' : 'Play'} preview of ${cur.title}`}
+                      >
+                        {curOn ? <FaPause aria-hidden="true" /> : <FaPlay aria-hidden="true" />}
+                        <span>{curOn ? 'Pause' : 'Preview'}</span>
+                      </button>
+                    )}
+                    <div className={styles.menu}>
+                      <StreamingMenu
+                        spotify={current.spotify}
+                        appleMusic={current.appleMusic}
+                        beatport={current.beatport}
+                        bandcamp={current.bandcamp}
+                        soundcloud={current.soundcloud}
+                      />
+                    </div>
+                  </div>
+                  {previewError && <p className={styles.err} role="status">Preview unavailable</p>}
                 </div>
               </div>
-            </motion.article>
-          ))}
-        </div>
+            )}
 
-        {/* Browse All Releases Link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-12"
-        >
-          <Link
-            href="/music"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-lg transition-colors border border-purple-500/30"
-          >
-            <span>Browse all releases</span>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </motion.div>
+            <ol className={styles.list} onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
+              {releases.map((r, i) => {
+                const { artist, title } = splitTitle(plainTitle(r.title), r.artistName)
+                return (
+                  <li key={r.id} style={{ '--i': i } as React.CSSProperties} data-active={i === active ? '' : undefined}>
+                    <Link
+                      href={`/music/${r.slug}`}
+                      className={styles.row}
+                      onMouseEnter={() => setActive(i)}
+                      onFocus={() => { setActive(i); setHold(true) }}
+                      onBlur={() => setHold(false)}
+                    >
+                      <span className={styles.idx} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                      <span className={styles.thumb} aria-hidden="true">
+                        {r.imageUrl && <Image src={r.imageUrl} alt="" fill sizes="96px" className={styles.thumbImg} />}
+                      </span>
+                      <span className={styles.body}>
+                        <span className={styles.rArtist}>{artist ?? 'DnB Doctor'}</span>
+                        <span className={styles.rTitle}>{title}</span>
+                        <span className={styles.rMeta}>{typeLabel(r.title, r.categories)} {'//'} {fmtDate(r.publishedAt)}</span>
+                      </span>
+                      <span className={styles.go} aria-hidden="true">→</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ol>
+          </div>
+        )}
       </div>
     </section>
   )
-} 
+}

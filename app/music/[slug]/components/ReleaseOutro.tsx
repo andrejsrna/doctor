@@ -13,7 +13,7 @@ import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import styles from './outro.module.css'
 
-const OutroField = dynamic(() => import('./OutroField'), { ssr: false })
+const OutroField = dynamic(() => import('@/app/components/hero/SignalBackdrop'), { ssr: false })
 
 type Rec = { id: string; slug: string; title: string; artistName: string | null; previewUrl?: string | null; imageUrl?: string | null }
 type News = { id: string; slug: string; title: string; publishedAt?: string | null }
