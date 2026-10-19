@@ -3,21 +3,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { withBeatportAffiliate } from '@/lib/affiliates'
 import HeroStage, { type HeroIncoming, type HeroRelease } from './hero/HeroStage'
-
-/** "Artist - Title" → { artist, title } when the release has no explicit artist. */
-function splitTitle(raw: string, artistName: string | null) {
-  if (artistName) return { artist: artistName, title: raw }
-  const idx = raw.indexOf(' - ')
-  if (idx > 0) return { artist: raw.slice(0, idx).trim(), title: raw.slice(idx + 3).trim() }
-  return { artist: null, title: raw }
-}
-
-function typeLabel(title: string, categories: string[]) {
-  const hay = `${title} ${categories.join(' ')}`
-  if (/\bEP\b/i.test(hay)) return 'EP'
-  if (/\b(LP|album)\b/i.test(hay)) return 'Album'
-  return 'Single'
-}
+import { splitTitle, typeLabel } from './hero/releaseMeta'
 
 export default async function Hero() {
   const release = await prisma.release.findFirst({

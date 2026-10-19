@@ -10,6 +10,7 @@ import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import AffiliateLinks from '@/app/components/AffiliateLinks'
 import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
+import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 
 export const revalidate = 300
 
@@ -18,20 +19,6 @@ const BulkSalePromo = dynamic(() => import('@/app/components/BulkSalePromo'))
 const MoreFromArtist = dynamic(() => import('@/app/components/MoreFromArtist'))
 const YouMayAlsoLike = dynamic(() => import('@/app/components/YouMayAlsoLike'))
 const RelatedNews = dynamic(() => import('@/app/components/RelatedNews'))
-
-function escapeHtml(text: string) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-}
-
-function getFirstSentences(text: string, count: number) {
-  const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean)
-  if (sentences.length === 0) return text
-  if (sentences.length <= count) return sentences.join(' ')
-  return sentences.slice(0, count).join(' ')
-}
 
 export async function generateStaticParams() {
   // Build-time safety: in some CI/Docker builds the DB is not reachable.
@@ -125,12 +112,27 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
   const safeTitle = sanitizeHtml(release.title)
   const safeContent = sanitizeHtml(release.content || '')
-  const plainDescription = safeContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-  const excerptPlain = getFirstSentences(plainDescription, 2)
-  const descriptionExcerptInlineHtml = escapeHtml(excerptPlain)
-  const hasMoreStory = plainDescription.length > excerptPlain.length + 5
   const cleanDescription = safeContent.replace(/<[^>]+>/g, '').slice(0, 200)
   const artistName = release.artistName || 'DnB Doctor'
+
+  const published = { publishedAt: { not: null } } as const
+  const [calendarMatch, prevRelease, nextRelease, olderCount, total] = await Promise.all([
+    prisma.releaseCalendarEntry.findFirst({
+      where: { OR: [{ releaseId: release.id }, { title: { equals: release.title, mode: 'insensitive' } }] },
+      select: { catalogueNumber: true },
+    }),
+    release.publishedAt
+      ? prisma.release.findFirst({ where: { publishedAt: { lt: release.publishedAt } }, orderBy: { publishedAt: 'desc' }, select: { slug: true, title: true, artistName: true } })
+      : null,
+    release.publishedAt
+      ? prisma.release.findFirst({ where: { publishedAt: { gt: release.publishedAt } }, orderBy: { publishedAt: 'asc' }, select: { slug: true, title: true, artistName: true } })
+      : null,
+    release.publishedAt ? prisma.release.count({ where: { publishedAt: { lt: release.publishedAt } } }) : null,
+    prisma.release.count({ where: published }),
+  ])
+  const adjacent = (r: { slug: string; title: string; artistName: string | null } | null) =>
+    r ? { slug: r.slug, ...splitTitle(plainTitle(r.title), r.artistName) } : null
+  const display = splitTitle(plainTitle(release.title), release.artistName)
 
   // Determine if it's an album/EP or single based on categories
   const isAlbum = release.categories.some(cat => 
@@ -274,21 +276,29 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
         <ReleaseHero
-          title={safeTitle}
+          slug={slug}
+          artist={display.artist}
+          title={display.title}
+          fullTitle={plainTitle(release.title)}
+          coverUrl={imageUrl || undefined}
+          artworkUrl={artworkUrl || undefined}
+          typeLabel={typeLabel(release.title, release.categories)}
+          catalogue={calendarMatch?.catalogueNumber ?? null}
+          publishedAt={release.publishedAt?.toISOString() ?? null}
+          index={olderCount === null ? null : olderCount + 1}
+          total={total}
           beatportUrl={withBeatportAffiliate(release.beatport ?? undefined) || undefined}
           youtubeUrl={release.youtubeMusic || undefined}
           soundcloudUrl={release.soundcloud || undefined}
-          artworkUrl={artworkUrl}
-          descriptionExcerptInlineHtml={descriptionExcerptInlineHtml}
-          showReadFullStory={hasMoreStory}
           gumroadUrl={release.gumroad || undefined}
-          slug={slug}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
-          storyProtocolHtml={safeContent || undefined}
+          storyHtml={safeContent || undefined}
+          prev={adjacent(prevRelease)}
+          next={adjacent(nextRelease)}
         />
 
-        <div className="relative -mt-24">
+        <div className="relative">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
             <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
