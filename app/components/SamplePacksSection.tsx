@@ -1,26 +1,34 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
-import { motion } from 'framer-motion'
-import { FaArrowRight, FaBoxOpen, FaMusic } from 'react-icons/fa'
+import { FaPause, FaPlay } from 'react-icons/fa'
 import { useCategories } from '@/app/hooks/useWordPress'
-import Button from '@/app/components/Button'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
+import styles from './SamplePacksSection.module.css'
 
 type ReleaseItem = {
   id: string | number
   title: string
   slug: string
+  artistName?: string | null
   imageUrl?: string | null
   coverImageUrl?: string | null
   previewUrl?: string | null
+  publishedAt?: string | null
+  content?: string | null
 }
 
 type ReleasesResponse = {
   items?: ReleaseItem[]
+  total?: number
 }
+
+type Row = { count: number; label: string }
+
+const STEPS = 16
 
 function getSamplePackHref(slug: string) {
   if (!slug) return '/sample-packs'
@@ -30,10 +38,65 @@ function getSamplePackHref(slug: string) {
   return `/music/${normalized}`
 }
 
+const fmtDate = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', month: 'short', year: 'numeric' }) : ''
+
+/** Block tags become line breaks, inline tags vanish, entities decode. */
+function toLines(html?: string | null) {
+  if (!html) return []
+  return plainTitle(
+    html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|h\d|li|ul|ol)>/gi, '\n')
+      .replace(/<[^>]+>/g, ''),
+  )
+    .split(/\n+/)
+    .map((l) => l.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+}
+
+/** "15x Bass Loop" / "11 Serum presets + 6 Bass Loops" -> manifest rows. */
+function manifest(lines: string[]): Row[] {
+  const rows: Row[] = []
+  for (const line of lines) {
+    for (const part of line.split('+')) {
+      const m = part.trim().match(/^(\d{1,3})\s*[x×]?\s+([A-Za-z][A-Za-z\- ]{2,28})$/i)
+      if (m) rows.push({ count: Number(m[1]), label: m[2].trim() })
+    }
+  }
+  return rows.slice(0, 6)
+}
+
+function blurb(lines: string[], max = 170) {
+  const text = lines
+    .filter((l) => !/^\d{1,3}\s*[x×]?\s+[A-Za-z]/.test(l) && !/contains:?$/i.test(l))
+    .join(' ')
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const space = cut.lastIndexOf(' ')
+  return `${space > max * 0.7 ? cut.slice(0, space) : cut}…`
+}
+
+/** Deterministic step pattern per row, so the grid looks programmed rather than random. */
+function pattern(label: string, row: number) {
+  let h = 2166136261
+  for (const c of `${label}${row}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619)
+  const kind = label.toLowerCase()
+  return Array.from({ length: STEPS }, (_, s) => {
+    if (/drum|kick|break/.test(kind)) return s % 8 === 0 || s % 8 === 4 || s === 10 || ((h >> s) & 7) === 0
+    if (/bass/.test(kind)) return s % 4 === 2 || ((h >> s) & 3) === 0
+    return ((h >> (s % 24)) & 3) === 0 || s === row * 2
+  })
+}
+
+const proxied = (src: string) => `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75`
+
 export default function SamplePacksSection() {
   const [category, setCategory] = useState('')
-  const [playingId, setPlayingId] = useState<string | number | null>(null)
-  const [audioErrors, setAudioErrors] = useState<Record<string | number, string>>({})
+  const [playing, setPlaying] = useState<string | number | null>(null)
+  const [previewError, setPreviewError] = useState<string | number | null>(null)
+  const audio = useRef<HTMLAudioElement | null>(null)
+  const rootRef = useRef<HTMLElement>(null)
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategories()
 
@@ -44,209 +107,178 @@ export default function SamplePacksSection() {
     if (found) setCategory(found)
   }, [categories])
 
-  const { data, isLoading } = useSWR(
-    category ? ['samplePacksSection', category] : null,
-    async () => {
-      const params = new URLSearchParams({ page: '1', limit: '6', category })
-      const response = await fetch(`/api/releases?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch sample packs')
-      return (await response.json()) as ReleasesResponse
-    }
+  const { data, isLoading } = useSWR(category ? ['samplePacksSection', category] : null, async () => {
+    const params = new URLSearchParams({ page: '1', limit: '6', category })
+    const response = await fetch(`/api/releases?${params}`)
+    if (!response.ok) throw new Error('Failed to fetch sample packs')
+    return (await response.json()) as ReleasesResponse
+  })
+
+  const kits = useMemo(
+    () =>
+      (data?.items || []).map((item) => {
+        const lines = toLines(item.content)
+        const rows = manifest(lines)
+        const { artist, title } = splitTitle(plainTitle(item.title), item.artistName ?? null)
+        return {
+          item,
+          artist,
+          title: title.replace(/\s*\bfree\b\s*/i, ' ').trim(),
+          free: /\bfree\b/i.test(item.title),
+          rows,
+          total: rows.reduce((n, r) => n + r.count, 0),
+          blurb: blurb(lines),
+          href: getSamplePackHref(item.slug),
+          img: item.imageUrl || item.coverImageUrl || null,
+        }
+      }),
+    [data],
   )
+  const totalSounds = kits.reduce((n, k) => n + k.total, 0)
 
-  const items = useMemo(() => data?.items || [], [data])
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el) return
+    // data-seen reveals once; data-in runs the sequencer only while on screen
+    const io = new IntersectionObserver(([e]) => {
+      el.toggleAttribute('data-in', e.isIntersecting)
+      if (e.isIntersecting) el.setAttribute('data-seen', '')
+    }, { rootMargin: '0px 0px -15% 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
-  const togglePlay = async (id: string | number) => {
-    const target = document.getElementById(`audio-${id}`) as HTMLAudioElement | null
-    if (!target) {
-      setAudioErrors((p) => ({ ...p, [id]: 'No preview available' }))
+  useEffect(() => () => audio.current?.pause(), [])
+
+  const toggle = async (item: ReleaseItem) => {
+    if (!item.previewUrl) return
+    setPreviewError(null)
+    if (playing === item.id) {
+      audio.current?.pause()
+      setPlaying(null)
       return
     }
-    if (playingId && playingId !== id) {
-      const prev = document.getElementById(`audio-${playingId}`) as HTMLAudioElement | null
-      prev?.pause()
-      if (prev) prev.currentTime = 0
-    }
-    if (playingId === id) {
-      target.pause()
-      setPlayingId(null)
-      return
-    }
+    audio.current?.pause()
+    const a = new Audio(item.previewUrl)
+    a.onended = () => setPlaying((id) => (id === item.id ? null : id))
+    audio.current = a
     try {
-      await target.play()
-      setPlayingId(id)
-      setAudioErrors((p) => {
-        const n = { ...p }
-        delete n[id]
-        return n
-      })
+      await a.play()
+      setPlaying(item.id)
     } catch {
-      setAudioErrors((p) => ({ ...p, [id]: 'Error playing audio' }))
+      setPlaying(null)
+      setPreviewError(item.id)
     }
   }
 
+  const loading = categoriesLoading || (!!category && isLoading)
+
   return (
-    <section className="py-20 px-4 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold mb-4"
-            >
-              Sample <span className="text-purple-500">Packs</span>
-            </motion.h2>
-            <p className="text-gray-400 text-lg max-w-2xl">
-              High-quality neurofunk samples — drums, bass, atmospheres, and one-shots ready for your next session.
-            </p>
+    <section
+      ref={rootRef}
+      className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}
+      aria-labelledby="sample-packs-title"
+    >
+      <div className={styles.inner}>
+        <header className={styles.head}>
+          <p className={styles.kicker}>
+            <span className={styles.hot}>Production ammo //</span> Loops, one-shots &amp; presets
+            {totalSounds ? ` // ${totalSounds} sounds loaded` : ''}
+          </p>
+          <h2 id="sample-packs-title" className={styles.title}>
+            <span className={styles.outline}>Sample</span>
+            <span className={styles.solid}>Packs</span>
+          </h2>
+          <Link href="/sample-packs" className={styles.explore}>
+            Explore sample packs <span aria-hidden="true">→</span>
+          </Link>
+        </header>
+
+        {loading ? (
+          <div className={styles.skeleton} role="status" aria-label="Loading sample packs">
+            <span />
+            <span />
           </div>
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Button href="/sample-packs" variant="infected" className="group">
-              <FaBoxOpen className="w-4 h-4 mr-2" />
-              <span>Explore sample packs</span>
-              <FaArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </motion.div>
-        </div>
-
-        {categoriesLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-square bg-black/40 rounded-xl border border-white/10 animate-pulse" />
-            ))}
+        ) : kits.length === 0 ? (
+          <div className={styles.empty}>
+            <p>Sample packs are coming soon.</p>
+            <Link href="/sample-packs" className={styles.explore}>Open sample packs <span aria-hidden="true">→</span></Link>
           </div>
-        )}
-
-        {!categoriesLoading && !category && (
-          <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="mt-1 text-purple-400">
-                <FaMusic className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold text-lg">Sample packs are coming soon</h3>
-                <p className="text-gray-400">No matching “Sample pack” category found in releases yet.</p>
-              </div>
-            </div>
-            <Link
-              href="/sample-packs"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-lg transition-colors border border-purple-500/30"
-            >
-              <span>Open Sample Packs</span>
-              <FaArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        )}
-
-        {!categoriesLoading && category && isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-square bg-black/40 rounded-xl border border-white/10 animate-pulse" />
-            ))}
-          </div>
-        )}
-
-        {!categoriesLoading && category && !isLoading && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {items.map((item, index) => {
-                const href = getSamplePackHref(item.slug)
-                const imageUrl = item.imageUrl || item.coverImageUrl || null
-                const audioId = `audio-${item.id}`
-
-                return (
-                  <motion.article
-                    key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.06 }}
-                    className="group relative aspect-square bg-black/50 backdrop-blur-lg rounded-lg overflow-hidden border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
-                  >
-                    {item.previewUrl && (
-                      <audio id={audioId} preload="none">
-                        <source src={item.previewUrl} type="audio/mpeg" />
-                      </audio>
-                    )}
-
-                    {imageUrl ? (
-                      <div className="relative aspect-square">
-                        <Image
-                          src={imageUrl}
-                          alt={item.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
+        ) : (
+          <div className={styles.rack}>
+            {kits.map((k, i) => {
+              const external = k.href.startsWith('http')
+              const isPlaying = playing === k.item.id
+              const cta = (
+                <>
+                  {k.free ? 'Download free' : 'Get pack'} <span aria-hidden="true">→</span>
+                </>
+              )
+              return (
+                <article key={k.item.id} className={styles.kit} style={{ '--i': i } as React.CSSProperties}>
+                  <div className={styles.cover}>
+                    {k.img ? (
+                      <span className={styles.coverArt} style={{ backgroundImage: `url("${proxied(k.img)}")` }} role="img" aria-label={`${k.title} cover art`} />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-500">No image</div>
+                      <span className={styles.noCover}>No signal</span>
+                    )}
+                    <span className={styles.scan} aria-hidden="true" />
+                    <span className={styles.slot} aria-hidden="true">Kit {String(i + 1).padStart(2, '0')}</span>
+                    {k.free && <span className={styles.free}>Free</span>}
+                  </div>
+
+                  <div className={styles.panel}>
+                    <p className={styles.meta}>
+                      {k.artist && <span className={styles.artist}>{k.artist}</span>}
+                      <span>{fmtDate(k.item.publishedAt)}</span>
+                      {k.total > 0 && <span>{k.total} files</span>}
+                    </p>
+                    <h3 className={styles.kTitle}>{k.title}</h3>
+                    {k.blurb && <p className={styles.blurb}>{k.blurb}</p>}
+
+                    {k.rows.length > 0 && (
+                      <div className={styles.seq} role="table" aria-label={`${k.title} contents`}>
+                        {k.rows.map((r, ri) => (
+                          <div key={r.label} className={styles.track} role="row">
+                            <span className={styles.count} role="cell">{r.count}<small>×</small></span>
+                            <span className={styles.label} role="cell">{r.label}</span>
+                            <span className={styles.steps} aria-hidden="true">
+                              {pattern(r.label, ri).map((on, s) => (
+                                <i key={s} data-on={on ? '' : undefined} style={{ '--s': s } as React.CSSProperties} />
+                              ))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                      <h3 className="text-xl font-bold text-white mb-4 line-clamp-2">{item.title}</h3>
-
-                      <div className="flex gap-3">
-                        {item.previewUrl && (
-                          <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
-                            <Button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                togglePlay(item.id)
-                              }}
-                              variant="toxic"
-                              className="w-full group"
-                            >
-                              <span>{playingId === item.id ? 'Pause' : audioErrors[item.id] ? 'Error' : 'Preview'}</span>
-                            </Button>
-                          </motion.div>
-                        )}
-
-                        <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
-                          {href.startsWith('http') ? (
-                            <a
-                              href={href}
-                              className="inline-flex items-center justify-center w-full px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-medium transition-colors"
-                              rel="noopener noreferrer"
-                              target="_blank"
-                            >
-                              Get pack
-                            </a>
-                          ) : (
-                            <Button href={href} variant="infected" className="w-full group">
-                              <span>Get pack</span>
-                            </Button>
-                          )}
-                        </motion.div>
-                      </div>
-
-                      {audioErrors[item.id] && (
-                        <div className="absolute bottom-20 left-0 right-0 text-center text-red-500 text-sm bg-red-500/10 border border-red-500/30 py-2">
-                          {audioErrors[item.id]}
-                        </div>
+                    <div className={styles.actions}>
+                      {external ? (
+                        <a href={k.href} className={styles.get} target="_blank" rel="noopener noreferrer">{cta}</a>
+                      ) : (
+                        <Link href={k.href} className={styles.get}>{cta}</Link>
+                      )}
+                      {k.item.previewUrl && (
+                        <button
+                          type="button"
+                          className={styles.preview}
+                          onClick={() => toggle(k.item)}
+                          aria-pressed={isPlaying}
+                          aria-label={`${isPlaying ? 'Pause' : 'Play'} preview of ${k.title}`}
+                        >
+                          {isPlaying ? <FaPause aria-hidden="true" /> : <FaPlay aria-hidden="true" />}
+                          <span>{isPlaying ? 'Pause' : 'Preview'}</span>
+                        </button>
                       )}
                     </div>
-                  </motion.article>
-                )
-              })}
-            </div>
-
-            <div className="text-center mt-12">
-              <Link
-                href="/sample-packs"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-lg transition-colors border border-purple-500/30"
-              >
-                <span>Browse all sample packs</span>
-                <FaArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </>
+                    {previewError === k.item.id && <p className={styles.err} role="status">Preview unavailable</p>}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
         )}
       </div>
     </section>
   )
 }
-
