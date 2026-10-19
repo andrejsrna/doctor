@@ -4,21 +4,15 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { StreamingLink } from '@/app/types/release'
 import ReleaseHero from './components/ReleaseHero'
-import EngagementCTA from '@/app/components/EngagementCTA'
 import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
-import AffiliateLinks from '@/app/components/AffiliateLinks'
-import { djLinks, withBeatportAffiliate } from '@/lib/affiliates'
+import { withBeatportAffiliate } from '@/lib/affiliates'
 import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 
 export const revalidate = 300
 
-const SocialShare = dynamic(() => import('@/app/components/SocialShare'))
-const BulkSalePromo = dynamic(() => import('@/app/components/BulkSalePromo'))
-const MoreFromArtist = dynamic(() => import('@/app/components/MoreFromArtist'))
-const YouMayAlsoLike = dynamic(() => import('@/app/components/YouMayAlsoLike'))
-const RelatedNews = dynamic(() => import('@/app/components/RelatedNews'))
+const ReleaseOutro = dynamic(() => import('./components/ReleaseOutro'))
 
 export async function generateStaticParams() {
   // Build-time safety: in some CI/Docker builds the DB is not reachable.
@@ -300,35 +294,14 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           next={adjacent(nextRelease)}
         />
 
-        <div className="relative">
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
-          {moreArtist && (
-            <div className="relative max-w-[1360px] mx-auto px-[clamp(1rem,4vw,3rem)] pt-16">
-              <MoreFromArtist artistName={moreArtist} currentPostId={release.id} />
-            </div>
-          )}
-          <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-
-            <YouMayAlsoLike currentSlug={slug} />
-
-            <EngagementCTA />
-
-            <SocialShare url={`https://dnbdoctor.com/music/${slug}`} title={safeTitle} />
-
-            <BulkSalePromo />
-
-            <RelatedNews currentPostId={0} relatedBy={release.title} />
-
-            {/* Buy on Beatport / DJCity */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-green-200">Buy DnB Tracks Online</h3>
-              <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
-              <p className="text-xs text-gray-600">
-                Some links are affiliate links. We may earn a commission at no extra cost to you.
-              </p>
-            </div>
-          </div>
-        </div>
+        <ReleaseOutro
+          slug={slug}
+          releaseId={release.id}
+          moreArtist={moreArtist}
+          shareUrl={`https://dnbdoctor.com/music/${slug}`}
+          shareTitle={safeTitle}
+          relatedBy={release.title}
+        />
       </div>
     </section>
   )
