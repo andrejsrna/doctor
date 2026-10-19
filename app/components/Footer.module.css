@@ -1,0 +1,527 @@
+.root {
+  --c-purple: #9b5eff;
+  --c-green: #39ff14;
+  --c-crimson: #ff004d;
+  --mono: var(--hero-mono), ui-monospace, monospace;
+  --disp: var(--hero-display), sans-serif;
+  --pad: clamp(1rem, 4vw, 3rem);
+  --line: rgb(255 255 255 / 12%);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 50% 60% at 0% 0%, rgb(57 255 20 / 7%), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 100% 100%, rgb(155 94 255 / 12%), transparent 70%),
+    #030305;
+}
+
+.root::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--c-green), var(--c-purple), transparent);
+}
+
+.root a,
+.root button {
+  color: inherit;
+}
+
+.root a:focus-visible,
+.root button:focus-visible,
+.root input:focus-visible {
+  outline: 2px solid var(--c-green);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- 01 newsletter ---- */
+.signal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 6vw, 6rem);
+  align-items: end;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 7vw, 6rem) var(--pad) clamp(2.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 55%);
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--c-green);
+  box-shadow: 0 0 10px var(--c-green);
+  animation: blink 0.3448s steps(1, end) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+.signalTitle {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: clamp(3.2rem, 9vw, 8rem);
+  font-weight: 900;
+  line-height: 0.84;
+  text-transform: uppercase;
+}
+
+.outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 80%);
+}
+
+.signalText {
+  margin: 1rem 0 0;
+  max-width: 34rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgb(255 255 255 / 62%);
+}
+
+.form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: rgb(0 0 0 / 45%);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.field:focus-within {
+  border-color: var(--c-green);
+  box-shadow: 6px 6px 0 rgb(57 255 20 / 25%);
+}
+
+.prompt {
+  display: grid;
+  place-items: center;
+  padding: 0 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--c-green);
+}
+
+.field input {
+  min-width: 0;
+  padding: 1.1rem 0.4rem;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.field input::placeholder {
+  color: rgb(255 255 255 / 35%);
+}
+
+.field button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 1.4rem;
+  border: 0;
+  background: var(--c-green);
+  color: #050505;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms, color 150ms, opacity 150ms;
+}
+
+.field button:hover:not(:disabled) {
+  background: var(--c-purple);
+  color: #fff;
+}
+
+.field button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.consent {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: fit-content;
+  font-size: 0.8rem;
+  color: rgb(255 255 255 / 62%);
+  cursor: pointer;
+}
+
+.consent input {
+  position: absolute;
+  opacity: 0;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid rgb(255 255 255 / 40%);
+}
+
+.consent input:checked + .box {
+  border-color: var(--c-green);
+  background: var(--c-green);
+}
+
+.consent input:checked + .box::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  background: #050505;
+}
+
+.consent input:focus-visible + .box {
+  outline: 2px solid var(--c-green);
+  outline-offset: 2px;
+}
+
+.consent a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.consent a:hover {
+  color: var(--c-green);
+}
+
+.status {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--c-green);
+  background: rgb(57 255 20 / 8%);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.status[data-state='error'] {
+  border-left-color: var(--c-crimson);
+  background: rgb(255 0 77 / 10%);
+}
+
+/* ---- 02 directory ---- */
+.directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
+  gap: 2.5rem clamp(1.5rem, 3vw, 3rem);
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) var(--pad);
+}
+
+.brand {
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+}
+
+.logo {
+  display: block;
+  width: 88px;
+}
+
+.logo img {
+  width: 100%;
+  height: auto;
+}
+
+.tagline {
+  margin: 0;
+  max-width: 18rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgb(255 255 255 / 60%);
+}
+
+.tagline b {
+  color: var(--c-green);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.platforms {
+  display: grid;
+  grid-template-columns: repeat(4, 2.4rem);
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.platforms a {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgb(255 255 255 / 20%);
+  color: rgb(255 255 255 / 75%);
+  font-size: 0.95rem;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+
+.platforms a:hover {
+  border-color: var(--c-green);
+  background: var(--c-green);
+  color: #050505;
+}
+
+.colTitle {
+  margin: 0 0 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-purple);
+}
+
+.col ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.col a {
+  position: relative;
+  display: inline-block;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: rgb(255 255 255 / 72%);
+  text-decoration: none;
+  transition: color 150ms, transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.col a::before {
+  content: '';
+  position: absolute;
+  left: -0.9rem;
+  top: 0.55em;
+  width: 0.45rem;
+  height: 2px;
+  background: var(--c-green);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms;
+}
+
+.col a:hover {
+  color: #fff;
+  transform: translateX(0.9rem);
+}
+
+.col a:hover::before {
+  transform: scaleX(1);
+}
+
+.col a span {
+  font-size: 0.75em;
+  color: rgb(255 255 255 / 35%);
+}
+
+.col .more {
+  margin-top: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-green);
+}
+
+/* ---- 03 wordmark ---- */
+.wordmark {
+  display: flex;
+  justify-content: space-between;
+  gap: 2vw;
+  padding: 0 var(--pad);
+  font-family: var(--disp);
+  font-size: clamp(4.5rem, 19vw, 21rem);
+  font-weight: 900;
+  line-height: 0.78;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  user-select: none;
+  margin-bottom: -0.06em;
+}
+
+.wordmark span {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 16%);
+  background: linear-gradient(0deg, rgb(155 94 255 / 30%), transparent 60%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.wordmark span:last-child {
+  -webkit-text-stroke-color: rgb(57 255 20 / 22%);
+  background-image: linear-gradient(0deg, rgb(57 255 20 / 22%), transparent 60%);
+}
+
+/* ---- 04 legal ---- */
+.legal {
+  position: relative;
+  z-index: 1;
+  /* opaque floor: the wordmark's feet sink behind it */
+  box-shadow: 0 0 0 100vmax #030305;
+  clip-path: inset(0 -100vmax -100vmax);
+  background: #030305;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem 2rem;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 1.2rem var(--pad) 1.5rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 50%);
+}
+
+.legal p {
+  margin: 0;
+}
+
+.legal p a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legal ul a,
+.legal ul button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+  color: rgb(255 255 255 / 70%);
+  cursor: pointer;
+  transition: color 150ms;
+}
+
+.legal ul a:hover,
+.legal ul button:hover,
+.legal p a:hover {
+  color: var(--c-green);
+}
+
+/* ---- responsive ---- */
+@media (max-width: 1023px) {
+  .directory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .brand {
+    grid-column: 1 / -1;
+  }
+
+  .platforms {
+    grid-template-columns: repeat(8, 2.4rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .signal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .platforms {
+    grid-template-columns: repeat(4, 2.4rem);
+  }
+
+  .field {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .field button {
+    grid-column: 1 / -1;
+    justify-content: center;
+    padding: 0.95rem;
+  }
+
+  .legal {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+
+  .col a,
+  .col a::before {
+    transition: none;
+  }
+}
