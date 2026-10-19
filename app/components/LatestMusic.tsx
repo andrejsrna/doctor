@@ -149,18 +149,17 @@ export default function LatestMusic() {
               <div className={styles.monitor}>
                 <div className={styles.screen}>
                   {releases.map((r, i) => (
-                    <div key={r.id} className={styles.cover} data-active={i === active ? '' : undefined} aria-hidden={i !== active}>
-                      {r.imageUrl ? (
-                        <Image
-                          src={proxied(r.imageUrl)}
-                          alt={i === active ? `${cur.artist ? `${cur.artist} – ` : ''}${cur.title} cover art` : ''}
-                          fill
-                          unoptimized
-                          className={styles.coverImg}
-                        />
-                      ) : (
-                        <span className={styles.noCover}>No signal</span>
-                      )}
+                    <div
+                      key={r.id}
+                      className={styles.cover}
+                      data-active={i === active ? '' : undefined}
+                      aria-hidden={i !== active}
+                      role={r.imageUrl && i === active ? 'img' : undefined}
+                      aria-label={r.imageUrl && i === active ? `${cur.artist ? `${cur.artist} – ` : ''}${cur.title} cover art` : undefined}
+                      // CSS backgrounds: preloaded while visibility-hidden on desktop, never fetched under display:none on mobile
+                      style={r.imageUrl ? { backgroundImage: `url("${proxied(r.imageUrl)}")` } : undefined}
+                    >
+                      {!r.imageUrl && <span className={styles.noCover}>No signal</span>}
                     </div>
                   ))}
                   {current.imageUrl && (

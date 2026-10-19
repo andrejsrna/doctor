@@ -149,6 +149,9 @@
   position: absolute;
   inset: 0;
   visibility: hidden;
+  background-size: cover;
+  background-position: center;
+  transform: scale(calc(1.02 + var(--kick) * 0.012));
 }
 
 /* all covers are mounted, so a swap never waits on the network */
@@ -167,11 +170,6 @@
   0% { clip-path: inset(49.5% 0 49.5% 0); filter: brightness(3) saturate(0); }
   45% { clip-path: inset(0 0 0 0); filter: brightness(1.6) saturate(1.6) hue-rotate(60deg); }
   100% { clip-path: inset(0 0 0 0); filter: none; }
-}
-
-.coverImg {
-  object-fit: cover;
-  transform: scale(calc(1.02 + var(--kick) * 0.012));
 }
 
 .slice {
