@@ -1,25 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { FaPlay, FaPause, FaSkull, FaSyringe, FaBiohazard } from 'react-icons/fa'
-import Button from './Button'
+import Link from 'next/link'
+import { FaPlay } from 'react-icons/fa'
+import { displayFont, monoFont } from './brandFonts'
+import { plainTitle, splitTitle } from './hero/releaseMeta'
+import styles from './MoreFromArtist.module.css'
 
-interface Post {
+interface Item {
   id: string
-  title: {
-    rendered: string
-  }
   slug: string
-  _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url?: string
-    }>
-  }
-  acf?: {
-    preview?: string
-  }
+  title: string
+  coverImageUrl: string | null
+  previewUrl: string | null
+  publishedAt: string | null
 }
 
 interface MoreFromArtistProps {
@@ -27,213 +22,162 @@ interface MoreFromArtistProps {
   currentPostId: string
 }
 
+const PAGE = 4
+
+const fmtDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : 'TBA'
+
+const pad = (n: number) => String(n).padStart(2, '0')
+
 export default function MoreFromArtist({ artistName, currentPostId }: MoreFromArtistProps) {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [items, setItems] = useState<Item[]>([])
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [visible, setVisible] = useState(PAGE)
   const [playingId, setPlayingId] = useState<string | null>(null)
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
-  const [visiblePosts, setVisiblePosts] = useState(4)
-  const [audioErrors, setAudioErrors] = useState<Record<string, string>>({})
+  const [audioError, setAudioError] = useState<string | null>(null)
+  const [inView, setInView] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const rootRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const fetchArtistPosts = async () => {
-      try {
-        const response = await fetch(`/api/posts/by-artist?artist=${encodeURIComponent(artistName)}`)
-        if (!response.ok) throw new Error('Failed to fetch posts')
-        const data = await response.json()
-        const filtered = (data.items || []).filter((post: { id: string }) => post.id !== currentPostId)
-        const normalized: Post[] = filtered.map((p: { id: string; slug: string; title: string; coverImageUrl?: string | null; previewUrl?: string | null }) => ({
-          id: p.id,
-          slug: p.slug,
-          title: { rendered: p.title },
-          _embedded: { 'wp:featuredmedia': [{ source_url: p.coverImageUrl }] },
-          acf: p.previewUrl ? { preview: p.previewUrl } : undefined,
-        }))
-        setPosts(normalized)
-      } catch (error) {
-        console.error('Error:', error)
-        setError('Failed to load more posts from this artist')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (artistName) fetchArtistPosts()
+    if (!artistName) return
+    let cancelled = false
+    fetch(`/api/posts/by-artist?artist=${encodeURIComponent(artistName)}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to fetch posts')
+        return r.json()
+      })
+      .then((data: { items?: Item[] }) => {
+        if (cancelled) return
+        setItems((data.items || []).filter((p) => p.id !== currentPostId))
+        setStatus('ready')
+      })
+      .catch((err) => {
+        console.error('Error:', err)
+        if (!cancelled) setStatus('error')
+      })
+    return () => { cancelled = true }
   }, [artistName, currentPostId])
 
-  const handlePlay = async (postId: string) => {
-    const post = posts.find(p => p.id === postId)
-    if (!post?.acf?.preview) return
+  useEffect(() => () => audioRef.current?.pause(), [])
 
-    try {
-      if (playingId === postId) {
-        audio?.pause()
-        setPlayingId(null)
-      } else {
-        if (audio) {
-          audio.pause()
-        }
-        const newAudio = new Audio(post.acf.preview)
-        await newAudio.play()
-        setAudio(newAudio)
-        setPlayingId(postId)
-        // Clear any previous error for this post
-        setAudioErrors(prev => ({...prev, [postId]: ''}))
-      }
-    } catch (error) {
-      console.error('Audio playback error:', error)
-      setAudioErrors(prev => ({
-        ...prev, 
-        [postId]: 'Failed to play preview'
-      }))
-    }
-  }
-
-  const handleLoadMore = () => {
-    setVisiblePosts(prev => prev + 4)
-  }
-
+  // Staggered entry once the section scrolls into view.
   useEffect(() => {
-    return () => {
-      if (audio) {
-        audio.pause()
-      }
-    }
-  }, [audio])
+    const el = rootRef.current
+    if (!el || inView || status !== 'ready') return
+    if (!('IntersectionObserver' in window)) { setInView(true); return }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); io.disconnect() }
+    }, { rootMargin: '0px 0px -10% 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [status, inView])
 
-  if (isLoading) {
+  const togglePreview = async (item: Item) => {
+    if (!item.previewUrl) return
+    setAudioError(null)
+    if (playingId === item.id) {
+      audioRef.current?.pause()
+      setPlayingId(null)
+      return
+    }
+    audioRef.current?.pause()
+    const audio = new Audio(item.previewUrl)
+    audio.onended = () => setPlayingId((id) => (id === item.id ? null : id))
+    audioRef.current = audio
+    try {
+      await audio.play()
+      setPlayingId(item.id)
+    } catch (err) {
+      console.error('Audio playback error:', err)
+      setPlayingId(null)
+      setAudioError(item.id)
+    }
+  }
+
+  const fonts = `${displayFont.variable} ${monoFont.variable}`
+
+  if (status === 'loading') {
     return (
-      <div className="animate-pulse">
-        <div className="h-8 w-64 bg-purple-500/20 rounded mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-black/30 rounded-xl p-4">
-              <div className="aspect-video bg-purple-500/20 rounded-lg mb-4" />
-              <div className="h-6 w-3/4 bg-purple-500/20 rounded" />
-            </div>
-          ))}
+      <section className={`${styles.root} ${fonts}`} aria-busy="true" aria-label={`More from ${artistName}`}>
+        <div className={styles.head}>
+          <p className={styles.kicker}><span>Discography</span><span aria-hidden="true">{'//'}</span><span>scanning…</span></p>
+          <div className={styles.skelTitle} />
         </div>
-      </div>
+        <div className={styles.grid}>
+          {Array.from({ length: PAGE }).map((_, i) => <div key={i} className={styles.skel} />)}
+        </div>
+      </section>
     )
   }
 
-  if (error || posts.length === 0) {
-    return null
-  }
+  if (status === 'error' || items.length === 0) return null
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mt-16 pt-16 border-t border-purple-500/20"
-    >
-      <div className="flex items-center justify-center mb-8">
-        <motion.div
-          animate={{ 
-            rotate: 360,
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ 
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-          }}
-          className="mr-3"
-        >
-          <FaBiohazard className="w-6 h-6 text-purple-500" />
-        </motion.div>
-        <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent 
-          bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500">
-          More from {artistName}
+    <section ref={rootRef} className={`${styles.root} ${fonts}`} data-in={inView ? '' : undefined} aria-labelledby="more-from-title">
+      <div className={styles.head}>
+        <p className={styles.kicker}>
+          <span>Discography</span>
+          <span aria-hidden="true">{'//'}</span>
+          <span>{pad(items.length)} {items.length === 1 ? 'transmission' : 'transmissions'}</span>
+        </p>
+        <h2 id="more-from-title" className={styles.title}>
+          <span className={styles.more}>More from</span>
+          <span className={styles.name} data-size={artistName.length > 14 ? 'l' : undefined}>{artistName}</span>
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {posts.slice(0, visiblePosts).map((post) => (
-          <div key={post.id} className="group relative">
-            <div className="relative aspect-square rounded-xl overflow-hidden">
-              <Image
-                src={post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/placeholder.jpg'}
-                alt={post.title.rendered}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                quality={85}
-              />
-              {/* Overlay with title and buttons */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
-                opacity-0 group-hover:opacity-100 transition-opacity duration-300 
-                flex flex-col justify-end p-6"
-              >
-                <h3 
-                  className="text-xl font-bold text-white mb-4 line-clamp-2"
-                  dangerouslySetInnerHTML={{ __html: post.title.rendered }}
-                />
-                <div className="flex gap-3">
-                  {post.acf?.preview && (
-                    <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault()
-                          handlePlay(post.id)
-                        }}
-                        variant="toxic"
-                        className="w-full group"
-                      >
-                        {playingId === post.id ? (
-                          <>
-                            <FaPause className="w-4 h-4 mr-2" />
-                            <span>Pause</span>
-                          </>
-                        ) : (
-                          <>
-                            <FaPlay className="w-4 h-4 mr-2" />
-                            <span>{audioErrors[post.id] ? 'Error' : 'Preview'}</span>
-                          </>
-                        )}
-                      </Button>
-                    </motion.div>
+      <ol className={styles.grid}>
+        {items.slice(0, visible).map((item, i) => {
+          const { artist, title } = splitTitle(plainTitle(item.title), null)
+          const playing = playingId === item.id
+          const proxied = item.coverImageUrl ? `/_next/image?url=${encodeURIComponent(item.coverImageUrl)}&w=640&q=75` : null
+          return (
+            <li key={item.id} className={styles.card} style={{ '--i': i % PAGE } as React.CSSProperties} data-playing={playing ? '' : undefined}>
+              <Link href={`/music/${item.slug}`} className={styles.link}>
+                <span className={styles.cover}>
+                  {item.coverImageUrl ? (
+                    <Image src={item.coverImageUrl} alt="" fill sizes="(max-width: 640px) 50vw, (max-width: 1280px) 25vw, 320px" className={styles.img} />
+                  ) : (
+                    <span className={styles.noCover} aria-hidden="true">No signal</span>
                   )}
-                  {audioErrors[post.id] && (
-                    <div className="absolute bottom-20 left-0 right-0 text-center text-red-500 
-                      text-sm bg-black/80 py-2">
-                      {audioErrors[post.id]}
-                    </div>
+                  {proxied && (
+                    <>
+                      <span className={`${styles.split} ${styles.splitR}`} aria-hidden="true" style={{ backgroundImage: `url(${proxied})` }} />
+                      <span className={`${styles.split} ${styles.splitG}`} aria-hidden="true" style={{ backgroundImage: `url(${proxied})` }} />
+                    </>
                   )}
-                  <motion.div whileHover={{ scale: 1.02 }} className="flex-1">
-                    <Button
-                      href={`/music/${post.slug}`}
-                      variant="infected"
-                      className="w-full group"
-                    >
-                      <FaSyringe className="w-4 h-4 mr-2 transform group-hover:rotate-45 transition-transform duration-300" />
-                      <span>Show More</span>
-                    </Button>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+                  <span className={styles.scan} aria-hidden="true" />
+                  <span className={styles.idx} aria-hidden="true">{pad(i + 1)}</span>
+                  <span className={styles.open} aria-hidden="true">Open <b>→</b></span>
+                </span>
+                <time className={styles.date} dateTime={item.publishedAt ?? undefined}>{fmtDate(item.publishedAt)}</time>
+                <span className={styles.cardTitle}>{title}</span>
+                {artist && artist.toLowerCase() !== artistName.toLowerCase() && <span className={styles.cardArtist}>{artist}</span>}
+              </Link>
+              {item.previewUrl && (
+                <button
+                  type="button"
+                  className={styles.play}
+                  onClick={() => togglePreview(item)}
+                  aria-pressed={playing}
+                  aria-label={`${playing ? 'Pause' : 'Play'} preview of ${title}`}
+                >
+                  {playing ? <span className={styles.eq} aria-hidden="true"><i /><i /><i /><i /></span> : <FaPlay aria-hidden="true" />}
+                </button>
+              )}
+              {audioError === item.id && <p className={styles.err} role="status">Preview unavailable</p>}
+            </li>
+          )
+        })}
+      </ol>
 
-      {posts.length > visiblePosts && (
-        <div className="text-center mt-8">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="inline-block"
-          >
-            <Button
-              onClick={handleLoadMore}
-              variant="decayed"
-              className="group"
-            >
-              <FaSkull className="w-4 h-4 mr-2 animate-pulse" />
-              <span>Load More</span>
-            </Button>
-          </motion.div>
-        </div>
+      {items.length > visible && (
+        <button type="button" className={styles.loadMore} onClick={() => setVisible((v) => v + PAGE)}>
+          <span>Load more</span>
+          <span className={styles.loadCount}>+{Math.min(PAGE, items.length - visible)}</span>
+        </button>
       )}
-    </motion.div>
+    </section>
   )
-} 
+}

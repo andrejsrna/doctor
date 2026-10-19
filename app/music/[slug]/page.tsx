@@ -133,6 +133,8 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   const adjacent = (r: { slug: string; title: string; artistName: string | null } | null) =>
     r ? { slug: r.slug, ...splitTitle(plainTitle(r.title), r.artistName) } : null
   const display = splitTitle(plainTitle(release.title), release.artistName)
+  // Primary artist only ("A x B" / "A & B" → A) so the by-artist lookup finds their catalogue.
+  const moreArtist = (display.artist ?? '').split(/\s+(?:x|&|feat\.?|ft\.?|vs\.?)\s+|,\s*/i)[0].trim()
 
   // Determine if it's an album/EP or single based on categories
   const isAlbum = release.categories.some(cat => 
@@ -300,8 +302,12 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
 
         <div className="relative">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/35 to-black/45 backdrop-blur-[1px]" />
+          {moreArtist && (
+            <div className="relative max-w-[1360px] mx-auto px-[clamp(1rem,4vw,3rem)] pt-16">
+              <MoreFromArtist artistName={moreArtist} currentPostId={release.id} />
+            </div>
+          )}
           <div className="max-w-4xl mx-auto px-4 py-16 space-y-16">
-            <MoreFromArtist artistName={release.title.split(' ')[0]} currentPostId={release.id} />
 
             <YouMayAlsoLike currentSlug={slug} />
 
