@@ -8,17 +8,8 @@ import { displayFont, monoFont } from './brandFonts'
 import { plainTitle, splitTitle } from './hero/releaseMeta'
 import styles from './FeaturedArtistsRoster.module.css'
 
-export type RosterArtist = {
-  id: string
-  slug: string
-  name: string
-  imageUrl: string | null
-  soundcloud: string | null
-  spotify: string | null
-  instagram: string | null
-  releases: number
-  latest: { slug: string; title: string } | null
-}
+export type { RosterArtist } from '@/lib/artistRoster'
+import type { RosterArtist } from '@/lib/artistRoster'
 
 /** 4 bars at 174 BPM */
 const SCAN_MS = 5517
