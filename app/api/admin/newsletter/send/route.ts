@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/app/lib/roles";
 
 interface EmailData {
   subject: string;
@@ -22,9 +23,19 @@ interface Subscriber {
 
 export async function POST(request: NextRequest) {
   try {
-    const { subscribers, emailData }: { subscribers: Subscriber[], emailData: EmailData } = await request.json();
+    const guard = await requireRole(request, ["ADMIN"]);
+    if (guard.response) return guard.response;
 
-    if (!subscribers || subscribers.length === 0) {
+    const body: { subscribers: Subscriber[], emailData: EmailData } = await request.json();
+    const emailData = body.emailData || ({} as EmailData);
+
+    // Recipients come from the DB, never from the request body: only ACTIVE subscribers are mailed.
+    const ids = Array.isArray(body.subscribers) ? body.subscribers.map((s) => s?.id).filter((id): id is string => typeof id === "string") : [];
+    const subscribers = ids.length
+      ? await prisma.subscriber.findMany({ where: { id: { in: ids }, status: "ACTIVE" }, select: { id: true, email: true, name: true } })
+      : [];
+
+    if (subscribers.length === 0) {
       return NextResponse.json(
         { error: "No subscribers provided" },
         { status: 400 }
