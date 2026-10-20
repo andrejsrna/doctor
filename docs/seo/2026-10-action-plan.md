@@ -54,7 +54,7 @@ Edukačné „guide“ stránky = **väčšina zobrazení**, a všetky sú ešte
 ## Priority
 
 ### P1 – Redizajn top guide stránok (nový dizajn + obsah na zámer)
-- [ ] **/what-is-drum-and-bass** – 63 k zobrazení, 15 klikov. Hore krátka odpoveď (definícia + **BPM tabuľka podľa subžánru**: DnB 170–176, Neurofunk 172–175, Liquid 170–174, Jungle 160–170, Halftime 87/174…), kotvy `#bpm`, `#meaning`, FAQ schema ponechať. Title/description prepísať na „DnB BPM & meaning“ zámer (napr. *„What Is DnB? Meaning, BPM (174) & Subgenres Explained“*).
+- [x] **/what-is-drum-and-bass** (nasadené 2026-10-20, viď changelog) – 63 k zobrazení, 15 klikov. Hore krátka odpoveď (definícia + **BPM tabuľka podľa subžánru**: DnB 170–176, Neurofunk 172–175, Liquid 170–174, Jungle 160–170, Halftime 87/174…), kotvy `#bpm`, `#meaning`, FAQ schema ponechať. Title/description prepísať na „DnB BPM & meaning“ zámer (napr. *„What Is DnB? Meaning, BPM (174) & Subgenres Explained“*).
 - [ ] **/types-of-dnb** – najviac klikov na webe. Nový dizajn, porovnávacia tabuľka (BPM, nálada, artisti, príklad tracku), embed/preview z vlastného katalógu.
 - [ ] **/how-to-produce-neurofunk** – 1,79 % CTR, producentské publikum → prepojiť na /sample-packs a /submit-demo (najlepšie konverzie webu).
 - [ ] **/neurofunk-dnb** – title stále hovorí „2025 Guide“ → aktualizovať na 2026, nový dizajn.

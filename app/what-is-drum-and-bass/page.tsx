@@ -1,749 +1,574 @@
-'use client'
-
-import { motion } from 'framer-motion'
+import type { Metadata } from 'next'
+import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import Button from '@/app/components/Button'
-import LatestMusic from '@/app/components/LatestMusic'
-import SubscribeCTA from '@/app/components/SubscribeCTA'
+import { prisma } from '@/lib/prisma'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
+import styles from '@/app/components/guide/guide.module.css'
 
-export default function WhatIsDrumAndBassPage() {
-  const pageUrl = 'https://dnbdoctor.com/what-is-drum-and-bass'
-  const pageTitle = 'What Is Drum and Bass (DnB)? Definition, 174 BPM & Subgenres'
-  const pageDescription =
-    'Learn what Drum and Bass (DnB) is: a quick definition, typical 174 BPM tempo, origins from jungle, and key subgenres like liquid and neurofunk.'
-  const pageImage = 'https://dnbdoctor.com/music-bg.jpeg'
+export const revalidate = 3600
 
-  const faqData = [
+const URL = 'https://dnbdoctor.com/what-is-drum-and-bass'
+const TITLE = 'What Is DnB? Meaning, BPM & Subgenres of Drum and Bass'
+const DESCRIPTION =
+  'What is DnB? Drum and Bass is fast breakbeat electronic music at 160–180 BPM (usually 174). Meaning, BPM by subgenre, origins, liquid vs neurofunk and a beginner FAQ.'
+
+export const metadata: Metadata = {
+  title: { absolute: `${TITLE} | DnB Doctor` },
+  description: DESCRIPTION,
+  alternates: { canonical: URL },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: 'article',
+    url: URL,
+    images: [{ url: 'https://dnbdoctor.com/og-image.jpg', width: 1200, height: 630, alt: 'What is Drum and Bass — meaning, BPM and subgenres' }],
+  },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: ['https://dnbdoctor.com/og-image.jpg'] },
+}
+
+const TOC = [
+  ['#bpm', 'BPM'],
+  ['#meaning', 'Meaning & DNA'],
+  ['#origins', 'Origins'],
+  ['#modern-sound', 'Modern sound'],
+  ['#subgenres', 'Subgenres'],
+  ['#listening', 'Where to start'],
+  ['#glossary', 'Glossary'],
+  ['#faq', 'FAQ'],
+] as const
+
+const BPM = [
+  { name: 'Drum & Bass', bpm: '170–176', note: 'Most modern tracks sit at 174' },
+  { name: 'Liquid', bpm: '170–176', note: 'Same tempo, smoother and melodic' },
+  { name: 'Neurofunk', bpm: '172–176', note: 'Dark, technical, usually 174' },
+  { name: 'Jump-Up', bpm: '172–176', note: 'Bouncy, rave-focused' },
+  { name: 'Techstep', bpm: '170–175', note: 'Minimal, industrial' },
+  { name: 'Halftime', bpm: '170–175', note: 'Drums feel like ~85–87 BPM' },
+  { name: 'Jungle', bpm: '160–170', note: 'Older, breakbeat-heavy roots' },
+]
+
+const SUBGENRES = [
+  { name: 'Liquid DnB', description: 'Smooth, melodic, emotional', artists: 'Netsky, LSB' },
+  { name: 'Neurofunk', description: 'Dark, futuristic, mechanical', artists: 'Noisia, Mefjus, DnB Doctor' },
+  { name: 'Jump-Up', description: 'Playful, heavy, rave-ready', artists: 'DJ Hazard, Macky Gee' },
+  { name: 'Techstep', description: 'Minimal, robotic', artists: 'Ed Rush & Optical' },
+  { name: 'Jungle', description: 'Organic, breakbeat-driven', artists: 'Shy FX, Congo Natty' },
+]
+
+const ERA = [
+  ['Liquid DnB', 'smooth, melodic, emotional'],
+  ['Neurofunk', 'dark, technical, cinematic'],
+  ['Jump-Up', 'aggressive, playful, built for clubs'],
+  ['Techstep', 'industrial, robotic, minimal'],
+] as const
+
+const SCENES = [
+  ['United Kingdom', 'the birthplace, home of Hospital, RAM, Metalheadz'],
+  ['Czech Republic', 'Let It Roll & DnB Doctor generation'],
+  ['New Zealand', 'vibrant live scene, artists like The Upbeats'],
+  ['North America', 'neurofunk and liquid resurgence'],
+] as const
+
+const GLOSSARY = [
+  ['Amen break', 'A legendary sampled drum break used across jungle and DnB — often chopped into new patterns.'],
+  ['Reese bass', 'A gritty, detuned bass tone (often with movement) that became a core DnB sound.'],
+  ['Double drop', 'DJ technique: two tracks drop at the same time for extra impact.'],
+  ['Reload', 'The DJ “pulls up” the track and restarts it — usually because the crowd reaction is huge.'],
+  ['Halftime', 'A slower-feeling drum groove inside DnB tempo — common in heavier, darker styles.'],
+  ['Roller', 'A driving, continuous groove that “rolls” forward — often minimal but very danceable.'],
+] as const
+
+const FAQ = [
+  { question: 'What does DnB stand for?', answer: 'DnB means "Drum and Bass" — a fast, bass-driven electronic music genre.' },
+  {
+    question: "What's the difference between Jungle and DnB?",
+    answer: 'Jungle uses more reggae-inspired basslines and samples, while DnB tends to sound more polished and modern.',
+  },
+  { question: 'What BPM is Drum and Bass?', answer: 'Usually between 160–180 BPM, most tracks sit around 174 BPM.' },
+  {
+    question: 'What is halftime in DnB?',
+    answer:
+      'Halftime is a DnB groove where the drums feel slower (around half-time) while the track still runs at DnB tempo — often darker and heavier.',
+  },
+  {
+    question: 'Is Drum and Bass hard to produce?',
+    answer:
+      'It can be technical (drum programming, bass design, and mix clarity), but many producers start with simple breakbeats and a clean sub-bass, then build complexity over time.',
+  },
+  {
+    question: 'How do I get into Drum and Bass as a beginner?',
+    answer:
+      'Start with one subgenre you enjoy (liquid = melodic, neurofunk = dark/technical, jump-up = ravey), then explore DJs, playlists, and labels in that lane.',
+  },
+]
+
+/** classic two-step: kick on 1 and the "and" of 3, snare on 2 and 4 (16 steps = 1 bar) */
+const KICK = new Set([0, 10])
+const SNARE = new Set([4, 12])
+
+type Recent = { slug: string; artist: string | null; title: string; cover: string | null }
+
+async function recentReleases(): Promise<Recent[]> {
+  if (!process.env.DATABASE_URL) return []
+  try {
+    const rows = await prisma.release.findMany({
+      where: { publishedAt: { not: null } },
+      orderBy: { publishedAt: 'desc' },
+      take: 4,
+      select: { slug: true, title: true, artistName: true, coverImageUrl: true },
+    })
+    return rows.map((r) => {
+      const { artist, title } = splitTitle(plainTitle(r.title), r.artistName)
+      return { slug: r.slug, artist, title, cover: r.coverImageUrl }
+    })
+  } catch {
+    return []
+  }
+}
+
+function Steps({ label, hits, kind }: { label: string; hits: Set<number>; kind: 'kick' | 'snare' }) {
+  return (
+    <div className={styles.row}>
+      <span>{label}</span>
+      {Array.from({ length: 16 }, (_, i) => (
+        <span
+          key={i}
+          className={styles.step}
+          data-hit={hits.has(i) ? kind : undefined}
+          style={hits.has(i) ? ({ '--at': `calc(var(--bar) * ${i / 16})` } as CSSProperties) : undefined}
+        />
+      ))}
+    </div>
+  )
+}
+
+function Section({ id, n, label, children }: { id?: string; n: string; label: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className={`${styles.wrap} ${styles.section}`}>
+      <p className={styles.sideLabel} aria-hidden="true">
+        <b>{n}</b>
+        {label}
+      </p>
+      <div className={styles.body}>{children}</div>
+    </section>
+  )
+}
+
+export default async function WhatIsDrumAndBassPage() {
+  const recent = await recentReleases()
+
+  const jsonLd = [
     {
-      question: 'What does DnB stand for?',
-      answer: 'DnB means "Drum and Bass" — a fast, bass-driven electronic music genre.',
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: TITLE,
+      description: DESCRIPTION,
+      image: ['https://dnbdoctor.com/og-image.jpg'],
+      mainEntityOfPage: URL,
+      dateModified: '2026-10-20',
+      author: { '@type': 'Organization', name: 'DnB Doctor', url: 'https://dnbdoctor.com' },
+      publisher: {
+        '@type': 'Organization',
+        name: 'DnB Doctor',
+        url: 'https://dnbdoctor.com',
+        logo: { '@type': 'ImageObject', url: 'https://dnbdoctor.com/brand/dnb-doctor-logo.webp' },
+      },
     },
     {
-      question: "What's the difference between Jungle and DnB?",
-      answer: 'Jungle uses more reggae-inspired basslines and samples, while DnB tends to sound more polished and modern.',
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQ.map(({ question, answer }) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: { '@type': 'Answer', text: answer },
+      })),
     },
     {
-      question: 'What BPM is Drum and Bass?',
-      answer: 'Usually between 160–180 BPM, most tracks sit around 174 BPM.',
-    },
-    {
-      question: 'What is halftime in DnB?',
-      answer:
-        'Halftime is a DnB groove where the drums feel slower (around half-time) while the track still runs at DnB tempo — often darker and heavier.',
-    },
-    {
-      question: 'Is Drum and Bass hard to produce?',
-      answer:
-        'It can be technical (drum programming, bass design, and mix clarity), but many producers start with simple breakbeats and a clean sub-bass, then build complexity over time.',
-    },
-    {
-      question: 'How do I get into Drum and Bass as a beginner?',
-      answer:
-        'Start with one subgenre you enjoy (liquid = melodic, neurofunk = dark/technical, jump-up = ravey), then explore DJs, playlists, and labels in that lane.',
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dnbdoctor.com' },
+        { '@type': 'ListItem', position: 2, name: 'What Is Drum and Bass', item: URL },
+      ],
     },
   ]
-
-  const subgenres = [
-    {
-      name: 'Liquid DnB',
-      description: 'Smooth, melodic, emotional',
-      artists: 'Netsky, LSB',
-    },
-    {
-      name: 'Neurofunk',
-      description: 'Dark, futuristic, mechanical',
-      artists: 'Noisia, Mefjus, DnB Doctor',
-    },
-    {
-      name: 'Jump-Up',
-      description: 'Playful, heavy, rave-ready',
-      artists: 'DJ Hazard, Macky Gee',
-    },
-    {
-      name: 'Techstep',
-      description: 'Minimal, robotic',
-      artists: 'Ed Rush & Optical',
-    },
-    {
-      name: 'Jungle',
-      description: 'Organic, breakbeat-driven',
-      artists: 'Shy FX, Congo Natty',
-    },
-  ]
-
-  const jsonLdArticle = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: pageTitle,
-    description: pageDescription,
-    image: [pageImage],
-    mainEntityOfPage: pageUrl,
-    author: { '@type': 'Organization', name: 'DnB Doctor', url: 'https://dnbdoctor.com' },
-    publisher: {
-      '@type': 'Organization',
-      name: 'DnB Doctor',
-      url: 'https://dnbdoctor.com',
-      logo: { '@type': 'ImageObject', url: 'https://dnbdoctor.com/logo-1.png' },
-    },
-  }
-
-  const jsonLdFaq = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqData.map(({ question, answer }) => ({
-      '@type': 'Question',
-      name: question,
-      acceptedAnswer: { '@type': 'Answer', text: answer },
-    })),
-  }
-
-  const jsonLdBreadcrumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dnbdoctor.com' },
-      { '@type': 'ListItem', position: 2, name: 'What Is Drum and Bass', item: pageUrl },
-    ],
-  }
 
   return (
-    <div className="min-h-screen bg-black">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbs) }}
-      />
+    <article className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/music-bg.jpeg"
-            alt="Drum and Bass Background"
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-green-900/40 via-black/80 to-black" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,0,0.05)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-60" />
-        </div>
+      <div className={styles.backdrop} aria-hidden="true">
+        <Image src="/music-bg.jpeg" alt="" fill sizes="100vw" priority />
+      </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <motion.h2 
-              className="text-secondary font-mono text-xl mb-6 inline-block"
-              animate={{ textShadow: ['0 0 8px rgb(0,255,0)', '0 0 12px rgb(0,255,0)', '0 0 8px rgb(0,255,0)'] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              The Complete Guide
-            </motion.h2>
-            
-            <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-500 via-purple-500 to-pink-500">
-                What Is Drum and Bass?
-              </span>
-              <span className="block text-2xl md:text-4xl mt-3 text-gray-400 font-normal tracking-normal">
-                The Only Guide You Need
-              </span>
-            </h1>
+      <header className={`${styles.wrap} ${styles.hero}`}>
+        <nav className={styles.crumbs} aria-label="Breadcrumb">
+          <Link href="/">DnB Doctor</Link> <span aria-hidden="true">/</span> <span>Guides</span>{' '}
+          <span aria-hidden="true">/</span> <span aria-current="page">What is DnB</span>
+        </nav>
 
-            <motion.p 
-              className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto mb-12 leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              Drum and Bass — often shortened to <strong>DnB</strong> — is a <strong>high-energy electronic music genre</strong> defined by <strong>fast breakbeats (160–180 BPM, often ~174)</strong>, deep basslines, and complex rhythmic structures.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="max-w-3xl mx-auto mb-10 text-left bg-white/5 border border-white/10 rounded-xl p-5"
-            >
-              <p className="text-gray-300 text-sm mb-3">
-                In this guide: definition, BPM, origins, modern sound, subgenres, and a quick FAQ.
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                <Link href="#meaning" className="text-green-400 hover:text-green-300 transition-colors">
-                  Meaning & DNA
-                </Link>
-                <Link href="#origins" className="text-green-400 hover:text-green-300 transition-colors">
-                  Origins
-                </Link>
-                <Link href="#modern-sound" className="text-green-400 hover:text-green-300 transition-colors">
-                  Modern sound
-                </Link>
-                <Link href="#subgenres" className="text-green-400 hover:text-green-300 transition-colors">
-                  Subgenres
-                </Link>
-                <Link href="#listening" className="text-green-400 hover:text-green-300 transition-colors">
-                  Where to start
-                </Link>
-                <Link href="#glossary" className="text-green-400 hover:text-green-300 transition-colors">
-                  Glossary
-                </Link>
-                <Link href="#faq" className="text-green-400 hover:text-green-300 transition-colors">
-                  FAQ
-                </Link>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row justify-center items-center gap-6"
-            >
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button 
-                  href="/music"
-                  variant="toxic"
-                  size="lg"
-                  className="group"
-                >
-                  Explore Releases
-                  <motion.span
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="ml-2"
-                  >
-                    →
-                  </motion.span>
-                </Button>
-              </motion.div>
-
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  href="/submit-demo"
-                  variant="infected"
-                  size="lg"
-                >
-                  Submit Your Track
-                </Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* The Meaning of DnB Section */}
-      <section id="meaning" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            🧠 The Meaning of <span className="text-secondary">DnB</span>
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              At its core, Drum and Bass is about <strong className="text-green-400">rhythmic precision</strong> and <strong className="text-green-400">bass energy</strong>.
-              <br />
-              While techno and house focus on steady four-on-the-floor beats, DnB uses <strong className="text-green-400">syncopated breakbeats</strong> — chopped, swung drum patterns that create tension and movement.
-            </p>
-
-            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-green-400 text-xl font-semibold mb-4">Typical features:</h3>
-              <ul className="space-y-2 text-gray-300">
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Tempo between <strong className="text-green-400">160–180 BPM</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Heavy use of <strong className="text-green-400">Amen break</strong>, <strong className="text-green-400">Reese bass</strong>, and <strong className="text-green-400">sub-bass layers</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Emphasis on <strong className="text-green-400">sound design</strong> and <strong className="text-green-400">mix clarity</strong></span>
-                </li>
-              </ul>
-            </div>
-
-            <p className="text-gray-300 text-lg leading-relaxed italic border-l-4 border-green-500 pl-4">
-              The name itself says it all: <strong>Drums and Bass</strong> are the foundation — everything else (melodies, atmospheres, vocals) serves the rhythm.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Origins Section */}
-      <section id="origins" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            🧬 Origins: From Jungle to <span className="text-purple-500">DnB</span>
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Drum and Bass was born in early &apos;90s London, growing out of <strong className="text-purple-400">jungle</strong>, <strong className="text-purple-400">hardcore</strong>, and <strong className="text-purple-400">breakbeat rave</strong>.
-              <br />
-              Pioneers like <strong className="text-purple-400">Goldie</strong>, <strong className="text-purple-400">LTJ Bukem</strong>, and <strong className="text-purple-400">Roni Size</strong> shaped the first wave — merging <strong>breakbeats</strong>, <strong>dub basslines</strong>, and <strong>soulful samples</strong>.
-            </p>
-
-            <p className="text-gray-300 text-lg leading-relaxed">
-              By the 2000s, the genre diversified:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2">Liquid DnB</h3>
-                <p className="text-gray-400 text-sm">smooth, melodic, emotional</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2">Neurofunk</h3>
-                <p className="text-gray-400 text-sm">dark, technical, cinematic</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2">Jump-Up</h3>
-                <p className="text-gray-400 text-sm">aggressive, playful, built for clubs</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2">Techstep</h3>
-                <p className="text-gray-400 text-sm">industrial, robotic, minimal</p>
-              </div>
-            </div>
-
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Each subgenre kept the DnB DNA but evolved its own identity and energy.
-            </p>
-
-            <p className="text-gray-400 text-sm italic">
-              Deep dive: <Link href="/drum-and-bass-history" className="text-purple-400 hover:text-purple-300 transition-colors">the history of Drum and Bass</Link>.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Modern Sound Section */}
-      <section id="modern-sound" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            ⚙️ The Modern <span className="text-secondary">Drum and Bass</span> Sound
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Modern DnB is produced with <strong className="text-green-400">high-precision digital tools</strong> — DAWs like <strong>Ableton Live, FL Studio, or Cubase</strong>, and plugins such as <strong>Serum, Phase Plant, or FabFilter</strong>.
-            </p>
-
-            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-green-400 text-xl font-semibold mb-4">Key production traits:</h3>
-              <ul className="space-y-3 text-gray-300">
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span><strong className="text-green-400">Layered drum design</strong> (snare + ghost hits + transient shaping)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span><strong className="text-green-400">Clean sub separation</strong> — bass never collides with the kick</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span><strong className="text-green-400">Atmospheric pads</strong> or <strong>cinematic ambiences</strong></span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <span><strong className="text-green-400">Automation-driven movement</strong> — filters, LFOs, distortion shaping</span>
-                </li>
-              </ul>
-            </div>
-
-            <blockquote className="text-gray-300 text-lg leading-relaxed italic border-l-4 border-green-500 pl-4">
-              🎧 The genre has always balanced <strong>engineering and emotion</strong> — high-tech sound with human groove.
-            </blockquote>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Global Scene Section */}
-      <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            🌍 Global Scene & <span className="text-purple-500">Subculture</span>
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              From underground raves in Bristol to main stages at Let It Roll, Drum and Bass has become a <strong className="text-purple-400">worldwide subculture</strong>.
-            </p>
-
-            <div className="space-y-4">
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2 flex items-center gap-2">
-                  <span>🇬🇧</span> United Kingdom
-                </h3>
-                <p className="text-gray-400">the birthplace, home of Hospital, RAM, Metalheadz</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2 flex items-center gap-2">
-                  <span>🇨🇿</span> Czech Republic
-                </h3>
-                <p className="text-gray-400">Let It Roll & DnB Doctor generation</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2 flex items-center gap-2">
-                  <span>🇳🇿</span> New Zealand
-                </h3>
-                <p className="text-gray-400">vibrant live scene, artists like The Upbeats</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                <h3 className="text-purple-400 font-semibold mb-2 flex items-center gap-2">
-                  <span>🇺🇸</span> North America
-                </h3>
-                <p className="text-gray-400">neurofunk and liquid resurgence</p>
-              </div>
-            </div>
-
-            <p className="text-gray-300 text-lg leading-relaxed">
-              The community thrives on <strong className="text-purple-400">respect, collaboration, and sonic experimentation</strong> — it&apos;s more than a genre; it&apos;s a global network of producers, DJs, and fans.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Subgenres Table Section */}
-      <section id="subgenres" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-5xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            🧩 DnB <span className="text-secondary">Subgenres</span>
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="overflow-x-auto"
-          >
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-green-500/30">
-                  <th className="text-left py-4 px-4 text-green-400 font-semibold">Subgenre</th>
-                  <th className="text-left py-4 px-4 text-green-400 font-semibold">Description</th>
-                  <th className="text-left py-4 px-4 text-green-400 font-semibold">Example Artists</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subgenres.map((subgenre, index) => (
-                  <tr key={index} className="border-b border-green-500/10 hover:bg-green-500/5 transition-colors">
-                    <td className="py-4 px-4 text-gray-200 font-medium">{subgenre.name}</td>
-                    <td className="py-4 px-4 text-gray-400">{subgenre.description}</td>
-                    <td className="py-4 px-4 text-gray-400">{subgenre.artists}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-
-          <p className="text-gray-400 text-sm mt-6 text-center italic">
-            (See also: <Link href="/drum-and-bass-subgenres" className="text-green-400 hover:text-green-300 transition-colors">/drum-and-bass-subgenres</Link>)
+        <div>
+          <p className={styles.kicker}>
+            <span className={styles.dot} aria-hidden="true" /> The complete guide {'//'} 174 BPM
           </p>
-        </div>
-      </section>
-
-      {/* Why It Matters Section */}
-      <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            🔊 Why It <span className="text-purple-500">Matters</span>
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Drum and Bass has shaped not just club music but also <strong className="text-purple-400">film scores, video games, and advertising</strong>.
-              <br />
-              Its mix of <strong className="text-purple-400">intensity and precision</strong> influenced genres like dubstep, trap, and techno.
-            </p>
-
-            <p className="text-gray-300 text-lg leading-relaxed">
-              The best way to understand it?
-              <br />
-              ➡️ <strong>Listen.</strong> Explore our latest releases below.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Where to Start Listening Section */}
-      <section id="listening" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            Where to <span className="text-secondary">Start</span> Listening
-          </motion.h2>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-8"
-          >
-            <p className="text-gray-300 text-lg leading-relaxed">
-              Drum and Bass is a big umbrella. The fastest way to “get it” is to pick a lane, then branch out.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-                <h3 className="text-green-400 font-semibold mb-2">If you like melodies</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Start with <strong>Liquid DnB</strong> — smoother chords, vocals, emotional energy.
-                </p>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-                <h3 className="text-green-400 font-semibold mb-2">If you like heavy sound design</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Try <strong>Neurofunk</strong> — darker, technical, futuristic bass movement.
-                </p>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-                <h3 className="text-green-400 font-semibold mb-2">If you want club energy</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Go <strong>Jump-Up</strong> — bouncy drops, big hooks, rave-ready.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
-              <h3 className="text-green-400 text-xl font-semibold mb-4">Quick beginner roadmap</h3>
-              <ol className="space-y-3 text-gray-300 list-decimal list-inside">
-                <li>
-                  Pick one subgenre and listen for 30 minutes (don’t shuffle across styles yet).
-                </li>
-                <li>
-                  Pay attention to the <strong className="text-green-400">drum pattern</strong> (breakbeats) and the{' '}
-                  <strong className="text-green-400">bassline</strong> (sub + mid movement).
-                </li>
-                <li>
-                  Follow a label or artist you like and explore their catalog.
-                </li>
-              </ol>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button href="/music" variant="toxic" size="lg">
-                Browse DnB Doctor releases
-              </Button>
-              <Button href="/drum-and-bass-subgenres" variant="infected" size="lg">
-                Explore subgenres
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Glossary Section */}
-      <section id="glossary" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            Quick <span className="text-purple-500">DnB</span> Glossary
-          </motion.h2>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-4"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Amen break</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  A legendary sampled drum break used across jungle and DnB — often chopped into new patterns.
-                </p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Reese bass</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  A gritty, detuned bass tone (often with movement) that became a core DnB sound.
-                </p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Double drop</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  DJ technique: two tracks drop at the same time for extra impact.
-                </p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Reload</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  The DJ “pulls up” the track and restarts it — usually because the crowd reaction is huge.
-                </p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Halftime</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  A slower-feeling drum groove inside DnB tempo — common in heavier, darker styles.
-                </p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-5">
-                <h3 className="text-purple-300 font-semibold mb-2">Roller</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  A driving, continuous groove that “rolls” forward — often minimal but very danceable.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Latest Releases Section */}
-      <LatestMusic />
-
-      {/* Subscribe CTA Section */}
-      <SubscribeCTA />
-
-      {/* FAQ Section */}
-      <section id="faq" className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-green-900/5 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold mb-12 text-center"
-          >
-            FAQ
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-6"
-          >
-            {faqData.map((faq, index) => (
-              <div key={index} className="bg-green-500/10 border border-green-500/30 rounded-lg p-6">
-                <h3 className="text-green-400 text-xl font-semibold mb-3">{faq.question}</h3>
-                <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
-              </div>
+          <h1 className={styles.title}>
+            <span className={styles.outline}>What is</span>
+            <span className={styles.solid}>Drum &amp; Bass?</span>
+          </h1>
+          <p className={styles.lede}>
+            Drum and Bass — often shortened to <strong>DnB</strong> — is a <strong>high-energy electronic music genre</strong>{' '}
+            defined by <strong>fast breakbeats (160–180 BPM, often ~174)</strong>, deep basslines, and complex rhythmic
+            structures.
+          </p>
+          <ul className={styles.toc} aria-label="In this guide">
+            {TOC.map(([href, label]) => (
+              <li key={href}>
+                <a href={href}>{label}</a>
+              </li>
             ))}
-          </motion.div>
+          </ul>
+          <div className={styles.ctas}>
+            <Link href="/music" className={styles.btn}>
+              Explore releases <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/submit-demo" className={styles.btnGhost}>
+              Submit your track
+            </Link>
+          </div>
         </div>
-      </section>
 
-      {/* Closing Quote Section */}
-      <section className="py-20 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <motion.blockquote 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-2xl md:text-3xl font-medium text-gray-200 italic mb-6"
-          >
-            &quot;Drum and Bass isn&apos;t just music — it&apos;s a frequency culture.&quot;
-          </motion.blockquote>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-green-400 text-xl font-semibold"
-          >
-            — DnB Doctor
-          </motion.p>
+        <aside className={styles.answer} aria-label="Quick answer">
+          <p className={styles.answerHead}>
+            <span>Quick answer</span>
+            <span>DnB in 4 facts</span>
+          </p>
+          <dl className={styles.facts}>
+            <div>
+              <dt>Stands for</dt>
+              <dd>Drum and Bass</dd>
+            </div>
+            <div>
+              <dt>Tempo</dt>
+              <dd>
+                174 BPM<small>range 160–180</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Born</dt>
+              <dd>
+                London<small>early &apos;90s, out of jungle</small>
+              </dd>
+            </div>
+            <div>
+              <dt>Core</dt>
+              <dd>
+                Breaks + bass<small>syncopated drums, heavy sub</small>
+              </dd>
+            </div>
+          </dl>
+          <div className={styles.grid} aria-hidden="true">
+            <p className={styles.gridHead}>
+              <span>Two-step groove</span>
+              <span>1 bar = 1.38 s</span>
+            </p>
+            <Steps label="Kick" hits={KICK} kind="kick" />
+            <Steps label="Snare" hits={SNARE} kind="snare" />
+          </div>
+        </aside>
+      </header>
+
+      <Section id="bpm" n="01" label="Tempo">
+        <h2 className={styles.h2}>
+          What BPM is <em>DnB?</em>
+        </h2>
+        <p>
+          Usually between <strong>160–180 BPM</strong>, most tracks sit around <strong>174 BPM</strong>. That is about 40%
+          faster than a typical house track (~124 BPM), which is why DnB drums feel so urgent.
+        </p>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <caption className="sr-only">Typical BPM by Drum and Bass subgenre</caption>
+            <thead>
+              <tr>
+                <th scope="col">Style</th>
+                <th scope="col">Typical BPM</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BPM.map((r) => (
+                <tr key={r.name}>
+                  <th scope="row">{r.name}</th>
+                  <td className={styles.bpm}>{r.bpm}</td>
+                  <td>{r.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </Section>
+
+      <Section id="meaning" n="02" label="Meaning & DNA">
+        <h2 className={styles.h2}>
+          The meaning of <em>DnB</em>
+        </h2>
+        <p>
+          At its core, Drum and Bass is about <strong>rhythmic precision</strong> and <strong>bass energy</strong>. While
+          techno and house focus on steady four-on-the-floor beats, DnB uses <strong>syncopated breakbeats</strong> —
+          chopped, swung drum patterns that create tension and movement.
+        </p>
+        <div className={styles.box}>
+          <h3 className={styles.boxTitle}>Typical features</h3>
+          <ul className={styles.list}>
+            <li>
+              Tempo between <strong>160–180 BPM</strong>
+            </li>
+            <li>
+              Heavy use of <strong>Amen break</strong>, <strong>Reese bass</strong>, and <strong>sub-bass layers</strong>
+            </li>
+            <li>
+              Emphasis on <strong>sound design</strong> and <strong>mix clarity</strong>
+            </li>
+          </ul>
+        </div>
+        <blockquote className={styles.quote}>
+          The name itself says it all: <strong>Drums and Bass</strong> are the foundation — everything else (melodies,
+          atmospheres, vocals) serves the rhythm.
+        </blockquote>
+      </Section>
+
+      <Section id="origins" n="03" label="Origins">
+        <h2 className={styles.h2}>
+          From jungle to <em data-tone="purple">DnB</em>
+        </h2>
+        <p>
+          Drum and Bass was born in early &apos;90s London, growing out of <strong>jungle</strong>,{' '}
+          <strong>hardcore</strong>, and <strong>breakbeat rave</strong>. Pioneers like <strong>Goldie</strong>,{' '}
+          <strong>LTJ Bukem</strong>, and <strong>Roni Size</strong> shaped the first wave — merging{' '}
+          <strong>breakbeats</strong>, <strong>dub basslines</strong>, and <strong>soulful samples</strong>.
+        </p>
+        <p>By the 2000s, the genre diversified:</p>
+        <ul className={styles.tiles}>
+          {ERA.map(([name, text]) => (
+            <li key={name}>
+              <h3>{name}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ul>
+        <p>Each subgenre kept the DnB DNA but evolved its own identity and energy.</p>
+        <p className={styles.note}>
+          Deep dive: <Link href="/drum-and-bass-history">the history of Drum and Bass</Link>.
+        </p>
+      </Section>
+
+      <Section id="modern-sound" n="04" label="Modern sound">
+        <h2 className={styles.h2}>
+          The modern <em>DnB</em> sound
+        </h2>
+        <p>
+          Modern DnB is produced with <strong>high-precision digital tools</strong> — DAWs like{' '}
+          <strong>Ableton Live, FL Studio, or Cubase</strong>, and plugins such as{' '}
+          <strong>Serum, Phase Plant, or FabFilter</strong>.
+        </p>
+        <div className={styles.box}>
+          <h3 className={styles.boxTitle}>Key production traits</h3>
+          <ul className={styles.list}>
+            <li>
+              <strong>Layered drum design</strong> (snare + ghost hits + transient shaping)
+            </li>
+            <li>
+              <strong>Clean sub separation</strong> — bass never collides with the kick
+            </li>
+            <li>
+              <strong>Atmospheric pads</strong> or <strong>cinematic ambiences</strong>
+            </li>
+            <li>
+              <strong>Automation-driven movement</strong> — filters, LFOs, distortion shaping
+            </li>
+          </ul>
+        </div>
+        <blockquote className={styles.quote}>
+          The genre has always balanced <strong>engineering and emotion</strong> — high-tech sound with human groove.
+        </blockquote>
+        <p className={styles.note}>
+          Making it yourself? Read <Link href="/how-to-produce-neurofunk">how to produce neurofunk</Link> and grab our{' '}
+          <Link href="/sample-packs">sample packs</Link>.
+        </p>
+      </Section>
+
+      <Section n="05" label="Global scene">
+        <h2 className={styles.h2}>
+          Global scene &amp; <em data-tone="purple">subculture</em>
+        </h2>
+        <p>
+          From underground raves in Bristol to main stages at Let It Roll, Drum and Bass has become a{' '}
+          <strong>worldwide subculture</strong>.
+        </p>
+        <ul className={styles.tiles}>
+          {SCENES.map(([name, text]) => (
+            <li key={name}>
+              <h3>{name}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ul>
+        <p>
+          The community thrives on <strong>respect, collaboration, and sonic experimentation</strong> — it&apos;s more
+          than a genre; it&apos;s a global network of producers, DJs, and fans.
+        </p>
+      </Section>
+
+      <Section id="subgenres" n="06" label="Subgenres">
+        <h2 className={styles.h2}>
+          DnB <em>subgenres</em>
+        </h2>
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th scope="col">Subgenre</th>
+                <th scope="col">Description</th>
+                <th scope="col">Example artists</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SUBGENRES.map((s) => (
+                <tr key={s.name}>
+                  <th scope="row">{s.name}</th>
+                  <td>{s.description}</td>
+                  <td>{s.artists}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className={styles.note}>
+          See also: <Link href="/types-of-dnb">types of DnB</Link> ·{' '}
+          <Link href="/drum-and-bass-subgenres">all Drum and Bass subgenres</Link> ·{' '}
+          <Link href="/neurofunk-dnb">neurofunk explained</Link>
+        </p>
+      </Section>
+
+      <Section n="07" label="Why it matters">
+        <h2 className={styles.h2}>
+          Why it <em data-tone="purple">matters</em>
+        </h2>
+        <p>
+          Drum and Bass has shaped not just club music but also <strong>film scores, video games, and advertising</strong>.
+          Its mix of <strong>intensity and precision</strong> influenced genres like dubstep, trap, and techno.
+        </p>
+        <p>
+          The best way to understand it? <strong>Listen.</strong> Explore our latest releases below.
+        </p>
+      </Section>
+
+      {recent.length > 0 && (
+        <section className={`${styles.wrap} ${styles.recent}`} aria-labelledby="recent-title">
+          <div className={styles.recentHead}>
+            <div>
+              <h2 id="recent-title" className={styles.h2} style={{ marginBottom: 0 }}>
+                Hear it <em>now</em>
+              </h2>
+              <p>Fresh neurofunk from the DnB Doctor lab.</p>
+            </div>
+            <Link href="/music" className={styles.all}>
+              All releases →
+            </Link>
+          </div>
+          <ul className={styles.recentList}>
+            {recent.map((r) => (
+              <li key={r.slug}>
+                <Link href={`/music/${r.slug}`} className={styles.release}>
+                  <span className={styles.cover}>
+                    {r.cover && <Image src={r.cover} alt="" fill sizes="(max-width: 960px) 45vw, 22vw" />}
+                  </span>
+                  {r.artist && <span className={styles.rArtist}>{r.artist}</span>}
+                  <span className={styles.rTitle}>{r.title}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <Section id="listening" n="08" label="Where to start">
+        <h2 className={styles.h2}>
+          Where to <em>start</em> listening
+        </h2>
+        <p>Drum and Bass is a big umbrella. The fastest way to “get it” is to pick a lane, then branch out.</p>
+        <ul className={styles.tiles}>
+          <li>
+            <span className={styles.tileTag}>If you like melodies</span>
+            <h3>Liquid DnB</h3>
+            <p>Start with Liquid DnB — smoother chords, vocals, emotional energy.</p>
+          </li>
+          <li>
+            <span className={styles.tileTag}>If you like heavy sound design</span>
+            <h3>Neurofunk</h3>
+            <p>Try Neurofunk — darker, technical, futuristic bass movement.</p>
+          </li>
+          <li>
+            <span className={styles.tileTag}>If you want club energy</span>
+            <h3>Jump-Up</h3>
+            <p>Go Jump-Up — bouncy drops, big hooks, rave-ready.</p>
+          </li>
+        </ul>
+        <div className={styles.box}>
+          <h3 className={styles.boxTitle}>Quick beginner roadmap</h3>
+          <ol className={styles.list}>
+            <li>Pick one subgenre and listen for 30 minutes (don’t shuffle across styles yet).</li>
+            <li>
+              Pay attention to the <strong>drum pattern</strong> (breakbeats) and the <strong>bassline</strong> (sub + mid
+              movement).
+            </li>
+            <li>Follow a label or artist you like and explore their catalog.</li>
+          </ol>
+        </div>
+        <div className={styles.ctas}>
+          <Link href="/music" className={styles.btn}>
+            Browse DnB Doctor releases <span aria-hidden="true">→</span>
+          </Link>
+          <Link href="/drum-and-bass-subgenres" className={styles.btnGhost}>
+            Explore subgenres
+          </Link>
+        </div>
+      </Section>
+
+      <Section id="glossary" n="09" label="Glossary">
+        <h2 className={styles.h2}>
+          Quick DnB <em data-tone="purple">glossary</em>
+        </h2>
+        <dl className={styles.tiles}>
+          {GLOSSARY.map(([term, def]) => (
+            <div key={term}>
+              <dt>{term}</dt>
+              <dd>{def}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
+      <Section id="faq" n="10" label="FAQ">
+        <h2 className={styles.h2}>FAQ</h2>
+        <div className={styles.faq}>
+          {FAQ.map((f, i) => (
+            <details key={f.question} open={i === 0}>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </Section>
+
+      <section className={`${styles.wrap} ${styles.closing}`}>
+        <blockquote>
+          “Drum and Bass isn&apos;t just music — it&apos;s a <span>frequency culture.</span>”
+        </blockquote>
+        <cite>— DnB Doctor</cite>
       </section>
-    </div>
+    </article>
   )
 }
