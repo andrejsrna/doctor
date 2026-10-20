@@ -120,7 +120,7 @@ export default function TypesOfDnbPage() {
       name: 'DNB Doctor',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://dnbdoctor.com/logo.png',
+        url: 'https://dnbdoctor.com/logo-1.png',
       },
     },
     datePublished: '2024-01-01',

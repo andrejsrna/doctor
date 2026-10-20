@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'DnB Doctor',
     images: [
       {
-        url: 'https://dnbdoctor.com/privacy-banner.jpg',
+        url: 'https://dnbdoctor.com/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'DnB Doctor Privacy Policy',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Privacy Policy | DnB Doctor',
     description: 'Learn about our privacy practices and data protection measures.',
-    images: ['https://dnbdoctor.com/privacy-banner.jpg'],
+    images: ['https://dnbdoctor.com/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
           url: 'https://dnbdoctor.com',
           logo: {
             '@type': 'ImageObject',
-            url: 'https://dnbdoctor.com/logo.png'
+            url: 'https://dnbdoctor.com/logo-1.png'
           }
         },
         mainEntity: {

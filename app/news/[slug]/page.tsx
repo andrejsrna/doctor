@@ -494,7 +494,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = plainTitle(post.title)
   const description = excerpt(post.content) || `${title} — news from DnB Doctor, the neurofunk drum & bass label.`
   const url = `${SITE}/news/${slug}`
-  const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: title }] : [{ url: `${SITE}/news-banner.jpg`, alt: 'DnB Doctor News' }]
+  const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: title }] : [{ url: `${SITE}/og-image.jpg`, alt: 'DnB Doctor News' }]
   return {
     title: `${title} | DnB Doctor`,
     description,

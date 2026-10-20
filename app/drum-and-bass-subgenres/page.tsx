@@ -93,7 +93,7 @@ export default function DrumAndBassSubgenresPage() {
       '@type': 'Organization',
       name: 'DnB Doctor',
       url: 'https://dnbdoctor.com',
-      logo: { '@type': 'ImageObject', url: 'https://dnbdoctor.com/logo.png' },
+      logo: { '@type': 'ImageObject', url: 'https://dnbdoctor.com/logo-1.png' },
     },
   }
 

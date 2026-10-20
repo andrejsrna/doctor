@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'DnB Doctor',
     images: [
       {
-        url: 'https://dnbdoctor.com/terms-banner.jpg',
+        url: 'https://dnbdoctor.com/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'DnB Doctor Terms & Conditions',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Terms & Conditions | DnB Doctor',
     description: 'Read our terms of service and legal information.',
-    images: ['https://dnbdoctor.com/terms-banner.jpg'],
+    images: ['https://dnbdoctor.com/og-image.jpg'],
   },
   robots: {
     index: true,

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'DnB Doctor',
     images: [
       {
-        url: 'https://dnbdoctor.com/contact-banner.jpg',
+        url: 'https://dnbdoctor.com/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Contact DnB Doctor',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Contact DnB Doctor | Neurofunk Label',
     description: 'Get in touch with us for any inquiries or collaborations.',
-    images: ['https://dnbdoctor.com/contact-banner.jpg'],
+    images: ['https://dnbdoctor.com/og-image.jpg'],
   },
   robots: {
     index: true,

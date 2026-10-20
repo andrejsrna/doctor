@@ -210,7 +210,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
       '@type': 'Organization',
       name: 'DnB Doctor',
       url: 'https://dnbdoctor.com',
-      logo: 'https://dnbdoctor.com/logo.png',
+      logo: 'https://dnbdoctor.com/logo-1.png',
     },
     ...(release.beatport && { 
       offers: {
@@ -246,7 +246,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
       '@type': 'Organization',
       name: 'DnB Doctor',
       url: 'https://dnbdoctor.com',
-      logo: 'https://dnbdoctor.com/logo.png',
+      logo: 'https://dnbdoctor.com/logo-1.png',
     },
     ...(release.beatport && { 
       offers: {
