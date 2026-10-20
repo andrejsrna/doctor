@@ -1,120 +1,148 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import Button from './Button'
-import { FaYoutube, FaSpotify, FaEnvelope, FaArrowRight } from 'react-icons/fa'
+import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { FaArrowRight, FaEnvelope, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { IoClose } from 'react-icons/io5'
+import { displayFont, monoFont } from './brandFonts'
+import styles from './outbound.module.css'
 
 interface OutboundInterstitialProps {
   isOpen: boolean
   onClose: () => void
   onContinue: () => void
+  /** Platform the visitor is heading to, e.g. "Spotify" — shown in the CTA. */
+  destination?: string
 }
 
 const DISMISS_KEY = 'outbound_interstitial_dismissed_until'
+const DAY = 24 * 60 * 60 * 1000
 
 export const getOutboundDismissed = () => {
   if (typeof window === 'undefined') return false
-  const v = localStorage.getItem(DISMISS_KEY)
-  if (!v) return false
-  const ts = Number(v)
-  return Number.isFinite(ts) && Date.now() < ts
+  try {
+    const ts = Number(localStorage.getItem(DISMISS_KEY))
+    return Number.isFinite(ts) && Date.now() < ts
+  } catch {
+    return false
+  }
 }
 
 export const setOutboundDismissed = (days = 30) => {
   if (typeof window === 'undefined') return
-  const until = Date.now() + days * 24 * 60 * 60 * 1000
-  localStorage.setItem(DISMISS_KEY, String(until))
+  try {
+    localStorage.setItem(DISMISS_KEY, String(Date.now() + days * DAY))
+  } catch {
+    /* private mode — just show it again next time */
+  }
 }
 
-export default function OutboundInterstitial({ isOpen, onClose, onContinue }: OutboundInterstitialProps) {
-  const [checked, setChecked] = useState(true)
-  const lastFocus = useRef<HTMLElement | null>(null)
+const SUPPORT = [
+  { href: 'https://www.youtube.com/@dnbdoctor1?sub_confirmation=1', label: 'Subscribe on YouTube', note: 'New releases & mixes', icon: FaYoutube, tone: 'crimson' },
+  { href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9', label: 'Follow our Spotify playlist', note: 'Curated neurofunk selection', icon: FaSpotify, tone: 'green' },
+  { href: '/newsletter', label: 'Join the newsletter', note: 'One email a month', icon: FaEnvelope, tone: 'purple' },
+] as const
+
+export default function OutboundInterstitial({ isOpen, onClose, onContinue, destination }: OutboundInterstitialProps) {
   const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  if (!mounted || !isOpen) return null
+  return createPortal(<Dialog onClose={onClose} onContinue={onContinue} destination={destination} />, document.body)
+}
+
+/** Mounted only while open → fresh state, focus and scroll lock on every open. */
+function Dialog({ onClose, onContinue, destination }: Omit<OutboundInterstitialProps, 'isOpen'>) {
+  const [mute, setMute] = useState(false)
+  const cta = useRef<HTMLButtonElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  const titleId = useId()
+  const textId = useId()
 
   useEffect(() => {
-    setMounted(true)
-    if (isOpen) {
-      lastFocus.current = (document.activeElement as HTMLElement) || null
-    } else if (lastFocus.current) {
-      lastFocus.current.focus()
-    }
-  }, [isOpen])
-
-  useEffect(() => {
-    if (!mounted) return
+    const lastFocus = document.activeElement as HTMLElement | null
     const prevOverflow = document.body.style.overflow
-    if (isOpen) document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prevOverflow
+    document.body.style.overflow = 'hidden'
+    cta.current?.focus()
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return onClose()
+      if (e.key !== 'Tab' || !panel.current) return
+      // keep focus inside the dialog
+      const items = panel.current.querySelectorAll<HTMLElement>('a[href], button, input')
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
-  }, [isOpen, mounted])
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+      lastFocus?.focus?.()
+    }
+  }, [onClose])
 
   const handleContinue = () => {
-    if (checked) setOutboundDismissed(1)
+    // Continuing always snoozes for a day; the checkbox extends it to 30 days.
+    setOutboundDismissed(mute ? 30 : 1)
     onContinue()
   }
 
-  const content = (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-[1000]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div className="absolute inset-0 bg-black/80" onClick={onClose} />
-          <div className="absolute inset-0 grid place-items-center p-4">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              className="w-full max-w-md rounded-xl border border-purple-500/30 bg-black/90 p-6"
-              role="dialog"
-              aria-modal="true"
-            >
-            <div className="flex items-center gap-3 mb-3">
-              <FaYoutube className="w-6 h-6 text-red-500" />
-              <h3 className="text-lg font-semibold">Before you go</h3>
-            </div>
-            <p className="text-sm text-gray-300 mb-4">
-              Support the project by subscribing to our YouTube or following our Spotify playlist.
-            </p>
-            <div className="grid grid-cols-1 gap-3 mb-3">
-              <a href="https://www.youtube.com/@dnbdoctor1?sub_confirmation=1" target="_blank" rel="noopener noreferrer">
-                <Button variant="decayed" className="w-full whitespace-nowrap">
-                  <FaYoutube className="w-4 h-4" />
-                  Subscribe YouTube
-                </Button>
-              </a>
-              <a href="https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9" target="_blank" rel="noopener noreferrer">
-                <Button variant="infected" className="w-full whitespace-nowrap">
-                  <FaSpotify className="w-4 h-4" />
-                  Follow Spotify
-                </Button>
-              </a>
-              <a href="/newsletter">
-                <Button variant="toxic" className="w-full whitespace-nowrap">
-                  <FaEnvelope className="w-4 h-4" />
-                  Join Newsletter
-                </Button>
-              </a>
-            </div>
-            <Button variant="toxic" className="w-full mb-3" onClick={handleContinue}>Continue <FaArrowRight className="w-4 h-4" /></Button>
-            <label className="flex items-center gap-2 text-xs text-gray-400">
-              <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} />
-              Don&apos;t show this again for a month
-            </label>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+  return (
+    <div className={`${styles.overlay} ${displayFont.variable} ${monoFont.variable}`} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div ref={panel} className={styles.panel} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={textId}>
+        <div className={styles.head}>
+          <span className={styles.kicker}>
+            <span className={styles.dot} aria-hidden="true" />
+            {destination ? `Opening ${destination}` : 'Leaving DnB Doctor'}
+          </span>
+          <button type="button" className={styles.close} onClick={onClose} aria-label="Close">
+            <IoClose aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className={styles.body}>
+          <h2 id={titleId} className={styles.title}>
+            Before you <span>go.</span>
+          </h2>
+          <p id={textId} className={styles.text}>
+            We&apos;re an independent label. A follow costs you nothing and keeps the neurofunk coming.
+          </p>
+
+          <ul className={styles.support}>
+            {SUPPORT.map((s) => {
+              const external = s.href.startsWith('http')
+              return (
+                <li key={s.href}>
+                  <a href={s.href} data-tone={s.tone} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                    <s.icon aria-hidden="true" />
+                    <span className={styles.sLabel}>{s.label}</span>
+                    <span className={styles.sNote}>{s.note}</span>
+                    <span className={styles.sArrow} aria-hidden="true">
+                      {external ? '↗' : '→'}
+                    </span>
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+
+          <button ref={cta} type="button" className={styles.cta} onClick={handleContinue}>
+            <span>{destination ? `Continue to ${destination}` : 'Continue'}</span>
+            <FaArrowRight aria-hidden="true" />
+          </button>
+
+          <label className={styles.mute}>
+            <input type="checkbox" checked={mute} onChange={(e) => setMute(e.target.checked)} />
+            <span>Don&apos;t show this again for 30 days</span>
+          </label>
+        </div>
+      </div>
+    </div>
   )
-  if (!mounted) return null
-  return createPortal(content, document.body)
 }
-
-

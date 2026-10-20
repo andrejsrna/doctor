@@ -329,6 +329,7 @@ const StreamingLinks = ({ links, gumroadUrl, slug }: StreamingLinksProps) => {
       )}
       <OutboundInterstitial
         isOpen={interstitialOpen}
+        destination={pending?.platform}
         onClose={() => setInterstitialOpen(false)}
         onContinue={() => {
           const next = pending

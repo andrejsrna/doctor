@@ -458,6 +458,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
 
       <OutboundInterstitial
         isOpen={interstitialOpen}
+        destination={pending?.platform}
         onClose={() => setInterstitialOpen(false)}
         onContinue={() => {
           const target = pending
