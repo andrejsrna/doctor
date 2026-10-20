@@ -496,7 +496,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const url = `${SITE}/news/${slug}`
   const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: title }] : [{ url: `${SITE}/og-image.jpg`, alt: 'DnB Doctor News' }]
   return {
-    title,
+    title: { absolute: `${title} | DnB Doctor` },
     description,
     alternates: { canonical: url },
     openGraph: {
