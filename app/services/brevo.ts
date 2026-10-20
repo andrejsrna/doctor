@@ -19,7 +19,7 @@ export async function sendFreeTrackEmail(params: {
           <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="max-width:640px;background:linear-gradient(180deg,#0b0b0f 0%,#14121a 100%);border:1px solid rgba(124,58,237,0.25);border-radius:16px;overflow:hidden">
             <tr>
               <td style="padding:28px 28px 0 28px;text-align:center">
-                <img src="https://dnbdoctor.com/logo-1.png" alt="DNB Doctor" width="64" height="64" style="display:block;margin:0 auto 8px" />
+                <img src="https://dnbdoctor.com/email/dnb-doctor-logo.png" alt="DNB Doctor" width="72" height="68" style="display:block;margin:0 auto 8px" />
                 <h1 style="margin:0;color:#fff;font-family:Inter,Arial,sans-serif;font-size:24px;letter-spacing:.5px">Your Free Track</h1>
                 <p style="margin:8px 0 0;color:#c4b5fd;font-family:Inter,Arial,sans-serif;font-size:14px">Welcome to the infection.</p>
               </td>

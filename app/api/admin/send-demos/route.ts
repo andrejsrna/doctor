@@ -32,7 +32,7 @@ interface EmailData {
     fileLinks = [] as Array<{ name: string; url: string; fileCategory?: 'audio' | 'image' }>,
     releaseLink,
   }: { subject: string; body: string; feedbackLink: string; baseUrl: string; fileLinks?: Array<{ name: string; url: string; fileCategory?: 'audio' | 'image' }>; releaseLink?: { title: string; url: string } | null; }) => {
-    const logo = `${baseUrl.replace(/\/$/, '')}/logo.png`;
+    const logo = `${baseUrl.replace(/\/$/, '')}/email/dnb-doctor-logo.png`;
     const safeBody = (body || '').split('\n').map(p => `<p style="margin:0 0 16px;">${p.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`).join('');
     // Separate audio files and images
     const audioFiles = fileLinks.filter(f => f.fileCategory !== 'image');
