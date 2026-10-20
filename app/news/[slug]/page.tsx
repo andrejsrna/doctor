@@ -180,6 +180,8 @@ export default async function NewsPostPage({ params }: PageProps) {
   const date = post.publishedAt ?? post.createdAt
   const words = toText(post.content || '').split(' ').filter(Boolean).length
   const readMin = Math.max(1, Math.round(words / 220))
+  // only surface real revisions, not same-week edits or imports
+  const updated = post.updatedAt.getTime() - date.getTime() > 7 * 24 * 3600 * 1000
 
   const yt = youtubeId(post.youtubeUrl)
   const sc = soundcloudSrc(post.soundcloudUrl, post.scsc)
@@ -240,6 +242,11 @@ export default async function NewsPostPage({ params }: PageProps) {
             <p className={styles.meta}>
               <span className={styles.tag}>{category}</span>
               <time dateTime={date.toISOString()}>{fmtDate(date)}</time>
+              {updated && (
+                <span>
+                  Updated <time dateTime={post.updatedAt.toISOString()}>{fmtDate(post.updatedAt)}</time>
+                </span>
+              )}
               {isMix && tracks.length > 0 ? <span>{tracks.length} tracks</span> : words > 120 ? <span>{readMin} min read</span> : null}
             </p>
             <h1 className={styles.title}>
