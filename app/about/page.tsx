@@ -328,7 +328,7 @@ const DESCRIPTION =
   'DnB Doctor is an independent neurofunk & drum and bass label since 2015 — releases, mixes and a crew connecting artists with fans.'
 
 export const metadata: Metadata = {
-  title: 'About DnB Doctor | Neurofunk Label',
+  title: { absolute: 'About DnB Doctor | Neurofunk Label' },
   description: DESCRIPTION,
   keywords: 'dnb doctor, drum and bass, neurofunk, electronic music, music label',
   alternates: { canonical: 'https://dnbdoctor.com/about' },

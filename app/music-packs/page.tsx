@@ -9,7 +9,7 @@ const DESCRIPTION =
   'DnB Doctor music packs: neurofunk and drum & bass compilations and label showcases collecting multiple tracks in one release. Preview and buy on Beatport.'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk Music Packs & DnB Compilations | DnB Doctor',
+  title: { absolute: 'Neurofunk Music Packs & DnB Compilations | DnB Doctor' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {

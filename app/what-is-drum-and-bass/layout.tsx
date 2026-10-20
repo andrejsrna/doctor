@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://dnbdoctor.com'),
-  title: 'What Is Drum and Bass? (The Only Guide You Need) — DnB Doctor',
+  title: { absolute: 'What Is Drum and Bass? (The Only Guide You Need) — DnB Doctor' },
   description: 'Drum and Bass explained in 2 minutes: 174 BPM, heavy bass, 7 subgenres — from liquid to neurofunk. Hear the difference with audio examples.',
   keywords: 'what is drum and bass, dnb meaning, drum and bass genre, history of drum and bass, jungle music, neurofunk, liquid dnb, dnb subgenres',
   openGraph: {

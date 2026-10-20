@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'Unsubscribe | DnB Doctor Newsletter',
+  title: { absolute: 'Unsubscribe | DnB Doctor Newsletter' },
   description: 'Unsubscribe from DnB Doctor newsletter. Manage your email preferences and subscription settings.',
   keywords: 'unsubscribe, email preferences, newsletter settings, dnb doctor newsletter, email management',
   openGraph: {

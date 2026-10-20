@@ -20,7 +20,7 @@ const siteUrl = 'https://dnbdoctor.com'
 const heroImage = '/music-bg.jpeg'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk DnB Mixes | Dark Drum & Bass Sets by DnB Doctor',
+  title: { absolute: 'Neurofunk DnB Mixes | Dark Drum & Bass Sets by DnB Doctor' },
   description: 'Listen to curated neurofunk DnB mixes packed with rolling basslines and cinematic energy. Fresh “Mixes” drops, artist features, and heavy drum & bass sets.',
   openGraph: {
     title: 'Neurofunk DnB Mixes | Dark Drum & Bass Sets',

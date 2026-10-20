@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Core Artists | DnB Doctor',
+  title: { absolute: 'Core Artists | DnB Doctor' },
   description:
     'CORE ARTISTS are the foundation collaborators of DnB Doctor — long-term, committed, and aligned with the dark & technical Drum & Bass vision.',
   keywords:

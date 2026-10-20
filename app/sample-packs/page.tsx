@@ -9,7 +9,7 @@ const DESCRIPTION =
   'Download professional neurofunk sample packs, drum loops, bass samples, and sound design tools. High-quality DnB samples for producers, featuring rolling basslines, complex drums, and dark atmospheres.'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk Samples & Sample Packs | DnB Doctor - Professional Drum & Bass Sounds',
+  title: { absolute: 'Neurofunk Samples & Sample Packs | DnB Doctor - Professional Drum & Bass Sounds' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {

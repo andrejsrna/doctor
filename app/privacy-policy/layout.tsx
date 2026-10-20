@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | DnB Doctor',
+  title: { absolute: 'Privacy Policy | DnB Doctor' },
   description: 'Learn how DnB Doctor collects, uses, and protects your personal information. Our privacy policy explains your rights and our data protection practices.',
   keywords: 'privacy policy, data protection, personal information, dnb doctor privacy, gdpr compliance, cookie policy',
   openGraph: {

@@ -86,7 +86,7 @@ export default async function NewsPage() {
 }
 
 export const metadata: Metadata = {
-  title: 'Latest Drum & Bass News | DNB Doctor',
+  title: { absolute: 'Latest Drum & Bass News | DNB Doctor' },
   description: 'Fresh drum & bass and neurofunk news, releases, and features curated by DNB Doctor.',
   openGraph: {
     title: 'Latest Drum & Bass News | DNB Doctor',

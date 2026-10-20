@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk Artists & Producers | DnB Doctor - Top Neurofunk Artists 2025',
+  title: { absolute: 'Neurofunk Artists & Producers | DnB Doctor - Top Neurofunk Artists 2025' },
   description: 'Discover the best neurofunk artists and producers in the drum and bass scene. Meet top neurofunk producers, explore their music, and find the latest neurofunk artists pushing the boundaries of the genre.',
   keywords: 'neurofunk artist, neurofunk producers, top neurofunk artists, best neurofunk producers, neurofunk dnb artists, neurofunk music producers, neurofunk scene artists, dnb doctor artists',
   openGraph: {

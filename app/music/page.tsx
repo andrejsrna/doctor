@@ -64,7 +64,7 @@ async function load() {
 }
 
 export const metadata: Metadata = {
-  title: 'Drum and Bass New Releases | Latest DnB & Neurofunk Tracks | DnB Doctor',
+  title: { absolute: 'Drum and Bass New Releases | Latest DnB & Neurofunk Tracks | DnB Doctor' },
   description:
     'Drum and bass new releases from DnB Doctor: browse the full catalogue of neurofunk singles, EPs and albums, play previews and buy on Beatport. Updated with every drop.',
   alternates: { canonical: `${SITE}/music` },

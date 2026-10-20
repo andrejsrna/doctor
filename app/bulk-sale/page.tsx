@@ -73,7 +73,7 @@ const money = (n: number, currency: string) =>
   new Intl.NumberFormat('en-IE', { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 
 export const metadata: Metadata = {
-  title: 'Bulk Sale — Entire Discography 35% Off | DnB Doctor',
+  title: { absolute: 'Bulk Sale — Entire Discography 35% Off | DnB Doctor' },
   description:
     'Buy the entire DnB Doctor back-catalogue on Bandcamp with a permanent 35% discount: every neurofunk and drum & bass release in one purchase, re-downloadable anytime.',
   alternates: { canonical: `${SITE}/bulk-sale` },

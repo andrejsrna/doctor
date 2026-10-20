@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'News | DnB Doctor - Latest Updates & Announcements',
+  title: { absolute: 'News | DnB Doctor - Latest Updates & Announcements' },
   description: 'Stay up to date with the latest news, releases, and announcements from DnB Doctor. Get insights into neurofunk and drum & bass music scene.',
   keywords: 'dnb news, neurofunk updates, drum and bass announcements, electronic music news, dnb doctor blog, music label news',
   openGraph: {

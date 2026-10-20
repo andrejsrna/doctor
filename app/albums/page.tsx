@@ -9,7 +9,7 @@ const DESCRIPTION =
   'Discover the latest drum and bass albums and LP releases. New DnB albums updated daily with fresh neurofunk, liquid, and dark DnB album collections.'
 
 export const metadata: Metadata = {
-  title: 'New Drum and Bass Albums | DnB Doctor - Latest DnB Album Releases',
+  title: { absolute: 'New Drum and Bass Albums | DnB Doctor - Latest DnB Album Releases' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {

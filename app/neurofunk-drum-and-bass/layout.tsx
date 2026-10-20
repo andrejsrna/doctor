@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk Drum & Bass | DnB Doctor - The Future of Electronic Music',
+  title: { absolute: 'Neurofunk Drum & Bass | DnB Doctor - The Future of Electronic Music' },
   description: 'Experience the cutting-edge sound of neurofunk drum and bass. Discover innovative beats, dark atmospheres, and technical precision in the electronic music scene.',
   keywords: 'neurofunk, drum and bass, dnb, electronic music, dark atmospheres, technical precision, innovative beats, dnb doctor',
   openGraph: {

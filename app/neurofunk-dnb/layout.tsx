@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Neurofunk DnB 2025 Guide – Releases, Playlists & Sound Design | DnB Doctor',
+  title: { absolute: 'Neurofunk DnB 2025 Guide – Releases, Playlists & Sound Design | DnB Doctor' },
   description:
     'Explore the 2025 Neurofunk DnB guide: free playlists, Prague-born releases, and sound-design tips from DnB Doctor. Stream the latest drops and learn how modern neuro evolves.',
   keywords:

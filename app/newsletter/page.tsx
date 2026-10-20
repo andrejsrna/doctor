@@ -146,7 +146,7 @@ export default async function NewsletterPage() {
 }
 
 export const metadata: Metadata = {
-  title: 'Newsletter | DnB Doctor - Stay Updated',
+  title: { absolute: 'Newsletter | DnB Doctor - Stay Updated' },
   description:
     'Subscribe to DnB Doctor newsletter and stay up to date with our latest releases, exclusive content, and special announcements in the world of neurofunk and drum & bass.',
   keywords: 'dnb newsletter, neurofunk updates, drum and bass news, electronic music newsletter, dnb doctor subscription',

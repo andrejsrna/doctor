@@ -219,7 +219,7 @@ export default async function SubmitDemoPage() {
 }
 
 export const metadata: Metadata = {
-  title: 'Submit Demo | DnB Doctor - Neurofunk Label',
+  title: { absolute: 'Submit Demo | DnB Doctor - Neurofunk Label' },
   description:
     "Submit your drum and bass demo to DnB Doctor. We're always looking for fresh neurofunk talent — read the guidelines, fees and mastering FAQ, then send a private SoundCloud link.",
   keywords: 'submit demo, demo submission, drum and bass demos, neurofunk producer, dnb label submission, electronic music demo',

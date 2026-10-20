@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Best Neurofunk DnB Playlists on Spotify | DNB Doctor',
+  title: { absolute: 'Best Neurofunk DnB Playlists on Spotify | DNB Doctor' },
   description: 'Discover the best Neurofunk DnB playlists on Spotify — from dark rollers to tech-driven anthems. Curated by DNB Doctor and top underground artists.',
   keywords: 'neurofunk spotify, neurofunk playlists, dnb spotify playlists, drum and bass spotify, neurofunk music, dark dnb playlists, neurofunk artists, DNB Doctor spotify',
   openGraph: {

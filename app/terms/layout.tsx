@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions | DnB Doctor',
+  title: { absolute: 'Terms & Conditions | DnB Doctor' },
   description: 'Read our terms and conditions. Learn about our policies regarding demo submissions, intellectual property, content usage, and user responsibilities at DnB Doctor.',
   keywords: 'terms and conditions, legal terms, dnb doctor terms, music label terms, demo submission terms, copyright policy',
   openGraph: {

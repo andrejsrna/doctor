@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata: Metadata = {
-  title: 'Contact Us | DnB Doctor - Neurofunk Label',
+  title: { absolute: 'Contact Us | DnB Doctor - Neurofunk Label' },
   description: 'Get in touch with DnB Doctor. Contact us for collaborations, demo submissions, or any questions about our neurofunk releases and services.',
   keywords: 'contact dnb doctor, music label contact, neurofunk collaboration, demo submission contact, electronic music inquiries',
   openGraph: {
