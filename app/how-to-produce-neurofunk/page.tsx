@@ -11,7 +11,7 @@ export const revalidate = 3600
 const URL = 'https://dnbdoctor.com/how-to-produce-neurofunk'
 const TITLE = 'How to Make Neurofunk: Drums, Bass Design & Mixdown in 7 Steps'
 const DESCRIPTION =
-  'How to produce neurofunk step by step: 172–175 BPM drum groove, layered FM bass in Serum or Vital, atmosphere, arrangement, mixing and mastering to –7 LUFS. Free sample packs included.'
+  'How to produce neurofunk step by step: 172–175 BPM drum groove, layered FM bass in Serum or Vital, atmosphere, arrangement, mixing and mastering to –7 LUFS. Free neurofunk sample pack included.'
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | DnB Doctor` },
@@ -126,7 +126,7 @@ export default function HowToProduceNeurofunkPage() {
           </p>
           <div className={styles.ctas}>
             <Link href="/sample-packs" className={styles.btn}>
-              Free sample packs <span aria-hidden="true">→</span>
+              Free sample pack <span aria-hidden="true">→</span>
             </Link>
             <Link href="/submit-demo" className={styles.btnGhost}>
               Submit your track
@@ -249,9 +249,9 @@ export default function HowToProduceNeurofunkPage() {
         </p>
         <div className={styles.box}>
           <h3 className={styles.boxTitle}>Build your drum library</h3>
-          <p>Download free neurofunk sample packs to kickstart your productions.</p>
+          <p>Grab the free DnB Doctor neurofunk sample pack — drums, bass and FX to kickstart your productions.</p>
           <Link href="/sample-packs" className={styles.btn}>
-            Get the free sample packs <span aria-hidden="true">→</span>
+            Get the sample packs <span aria-hidden="true">→</span>
           </Link>
         </div>
       </Section>

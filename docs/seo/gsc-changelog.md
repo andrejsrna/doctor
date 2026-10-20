@@ -1,5 +1,13 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – titulky a popisy: homepage, /sample-packs, Tidal vs Amazon, Juno
+- Baseline (GSC 19. 7.–18. 10. 2026): / 94 kl / 2 166 zobr / 4,34 % / poz. 6,9; /sample-packs 102 / 1 796 / 5,68 % / 8,6; /news/tidal-vs-amazon-music 56 / 5 359 / 1,04 % / 5,9; /news/junodownload-is-shutting-down 74 / 2 787 / 2,66 % / 9,9.
+- Homepage: title „DnB Doctor – Neurofunk Drum & Bass Record Label“, konkrétny popis (140+ releasov, 70+ artistov, free sample pack, mixy, demo), canonical, JSON-LD Organization (sameAs sociálne siete) + WebSite so SearchAction (/search?q=).
+- /sample-packs: title „Free Neurofunk Sample Pack & DnB Samples“ (dopyty `neurofunk sample pack free`, `free neurofunk sample pack`). V kolekcii je 1 free (Yehor X-Mass) + 1 platený (Yehor, Gumroad) → v texte jednotné číslo „free sample pack“, opravené aj CTA na /how-to-produce-neurofunk a /neurofunk-dnb.
+- Tidal vs Amazon (DB, záloha backups/news-seo-2026-10-21.json): title „Tidal vs Amazon Music (2026): Price, Sound Quality & Which Is Better“; úvod „Short answer“ (= meta description), porovnávacia tabuľka, ceny US október 2026 (Tidal 11,99/19,99/6,99, DJ 19,99 – tidal.com/pricing; Amazon Unlimited 12,99, s Prime 11,99, Family 21,99 – MBW 5. 2. 2026), opravený rozpor so Sony 360 RA, nová sekcia „Which is better for drum & bass?“ s odkazmi na /what-is-drum-and-bass, /music, /neurofunk-spotify. Štýl tabuliek v článkoch (post.module.css).
+- Juno (DB): title „JunoDownload Has Shut Down: What Happened & Where to Buy DnB Now“; fakty (1. 6. 2026, bez ohlásenia – Digital DJ Tips), re-download starých nákupov, sekcia alternatív (Beatport, Bandcamp, Traxsource, Mixupload, Volumo) s odkazmi na DnB Doctor Beatport/Bandcamp, /music, /sample-packs.
+- Review: ~1. 12. 2026.
+
 ## 2026-10-20 – /neurofunk-dnb redizajn + zlúčenie duplicít
 - Baseline (GSC 19. 7.–18. 10. 2026): /neurofunk-dnb 23 kl / 4 563 zobr / CTR 0,50 % / poz. 6,8; /neurofunk-drum-and-bass 2 / 443 / 0,45 % / 10,9; /drum-and-bass-subgenres 1 / 428 / 0,23 % / 8,7.
 - Dopyty: `neurofunk` 1 877 zobr (poz. 8,2), `what is neurofunk?` 1 234 zobr (poz. 1,7, 0 kl), `neurofunk dnb` 664, `dnb subgenres` 603, `neurofunk artists` 295, `neurofunk bpm` 99.

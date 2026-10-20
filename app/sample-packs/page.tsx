@@ -5,20 +5,21 @@ import { countMixes, loadCollections } from '@/app/components/collections/collec
 export const revalidate = 300
 
 const URL = 'https://dnbdoctor.com/sample-packs'
+const TITLE = 'Free Neurofunk Sample Pack & DnB Samples'
 const DESCRIPTION =
-  'Download professional neurofunk sample packs, drum loops, bass samples, and sound design tools. High-quality DnB samples for producers, featuring rolling basslines, complex drums, and dark atmospheres.'
+  'Download a free neurofunk sample pack from DnB Doctor, plus artist packs: bass loops, drum loops, one-shots and Serum presets for drum & bass producers.'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Neurofunk Samples & Sample Packs | DnB Doctor - Professional Drum & Bass Sounds' },
+  title: { absolute: `${TITLE} | DnB Doctor` },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Neurofunk Samples & Sample Packs | DnB Doctor',
+    title: TITLE,
     description: DESCRIPTION,
     url: URL,
     siteName: 'DnB Doctor',
     type: 'website',
-    images: [{ url: 'https://dnbdoctor.com/og-image.jpg', width: 1200, height: 630, alt: 'Neurofunk Samples & Sample Packs | DnB Doctor' }],
+    images: [{ url: 'https://dnbdoctor.com/og-image.jpg', width: 1200, height: 630, alt: TITLE }],
   },
   twitter: { card: 'summary_large_image', images: ['https://dnbdoctor.com/og-image.jpg'] },
 }

@@ -67,10 +67,10 @@ Spoločný „guide“ layout (hero s outline nadpisom, TOC, sekcie, FAQ, CTA na
 - [ ] /albums (poz. 13,4) a /music-packs (poz. 35,8) sú samostatné kolekcie (nie duplicity) – slabé pozície riešiť unikátnym úvodným textom a meta, nie zlúčením.
 
 ### P3 – CTR úpravy existujúcich stránok
-- [ ] **Homepage** – description je generická („Your premier destination…“) → konkrétna (neurofunk label, počet releasov, demo submission).
-- [ ] **/sample-packs** – zámer `neurofunk sample pack free` (CTR 10 %) → v title/description zdôrazniť „free“ packy.
-- [ ] **/news/tidal-vs-amazon-music** – 5,4 k zobr, poz. 5,9; aktualizovať na 2026 (ceny, Hi-Res), title s rokom.
-- [ ] **/news/junodownload-is-shutting-down** – doplniť „Juno Download alternatives“ sekciu (Beatport, Bandcamp, Traxsource) + odkazy na naše releasy.
+- [x] (2026-10-21) **Homepage** – description je generická („Your premier destination…“) → konkrétna (neurofunk label, počet releasov, demo submission).
+- [x] (2026-10-21) **/sample-packs** – zámer `neurofunk sample pack free` (CTR 10 %) → v title/description zdôrazniť „free“ packy.
+- [x] (2026-10-21) **/news/tidal-vs-amazon-music** – 5,4 k zobr, poz. 5,9; aktualizovať na 2026 (ceny, Hi-Res), title s rokom.
+- [x] (2026-10-21) **/news/junodownload-is-shutting-down** – doplniť „Juno Download alternatives“ sekciu (Beatport, Bandcamp, Traxsource) + odkazy na naše releasy.
 
 ### P4 – Interné prelinkovanie
 - [ ] Guide stránky → konkrétne releasy/artisti (neurofunk → katalóg), sample packs, newsletter.

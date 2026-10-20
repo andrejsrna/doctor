@@ -384,9 +384,9 @@ export default function NeurofunkDnbPage() {
           </li>
           <li>
             <Link href="/sample-packs">
-              <span className={styles.tileTag}>Free download</span>
+              <span className={styles.tileTag}>Free + pro packs</span>
               <h3>Neurofunk sample packs</h3>
-              <p>Free DnB Doctor sample packs to kickstart your productions.</p>
+              <p>A free neurofunk sample pack plus pro packs from DnB Doctor artists.</p>
             </Link>
           </li>
           <li>
