@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle } from '@/app/components/hero/releaseMeta'
 import styles from './NeurofunkDnBMixesSection.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 type NewsItem = {
   id: string
@@ -26,7 +27,7 @@ const BARS = 48
 
 function formatDate(date?: string | null) {
   if (!date) return ''
-  return new Date(date).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' })
+  return shortDate(date)
 }
 
 /** "NEUROBANGERZ, Vol. 11 - DVS | Neurofunk Drum & Bass Mix" -> series / vol / dj. */

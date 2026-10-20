@@ -7,6 +7,7 @@ import { FaArrowRight, FaPlay, FaSoundcloud } from 'react-icons/fa'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle } from '@/app/components/hero/releaseMeta'
 import styles from './news.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 export type FeedPost = {
   id: string
@@ -24,11 +25,7 @@ const ALL = 'All'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-// UTC so server and client render the same string
-const fmtDate = (iso?: string | null) =>
-  iso
-    ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
-    : ''
+const fmtDate = (iso?: string | null) => shortDate(iso)
 
 const catsOf = (p: FeedPost) => (p.categories?.length ? p.categories : ['News'])
 

@@ -8,6 +8,7 @@ import { displayFont as display, monoFont as mono } from '../brandFonts'
 import { FaSpotify } from 'react-icons/fa'
 import PreviewPlayer from '../PreviewPlayer'
 import styles from './hero.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 const SignalField = dynamic(() => import('./SignalField'), { ssr: false })
 
@@ -37,8 +38,7 @@ export type HeroIncoming = {
 
 const proxied = (url: string) => `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`
 
-const fmtDate = (iso: string | null, opts: Intl.DateTimeFormatOptions) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', ...opts }) : ''
+const fmtDate = (iso: string | null, opts: { year?: boolean }) => shortDate(iso, opts)
 
 function Countdown({ target }: { target: string }) {
   const [now, setNow] = useState<number | null>(null)
@@ -96,7 +96,7 @@ export default function HeroStage({ release, incoming }: { release: HeroRelease;
             <p className={styles.tag}>
               {release.catalogue && <span>{release.catalogue}</span>}
               <span>{release.typeLabel}</span>
-              {release.publishedAt && <span>{fmtDate(release.publishedAt, { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
+              {release.publishedAt && <span>{fmtDate(release.publishedAt, {})}</span>}
             </p>
 
             {release.artist && <p className={styles.artist}>{release.artist}</p>}
@@ -160,7 +160,7 @@ export default function HeroStage({ release, incoming }: { release: HeroRelease;
                     {item.artist && <b>{item.artist}</b>}
                     {item.title}
                   </span>
-                  <time dateTime={item.releaseDate}>{fmtDate(item.releaseDate, { day: '2-digit', month: 'short' })}</time>
+                  <time dateTime={item.releaseDate}>{fmtDate(item.releaseDate, { year: false })}</time>
                 </li>
               ))}
             </ol>

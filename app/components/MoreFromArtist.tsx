@@ -7,6 +7,7 @@ import { FaPlay } from 'react-icons/fa'
 import { displayFont, monoFont } from './brandFonts'
 import { plainTitle, splitTitle } from './hero/releaseMeta'
 import styles from './MoreFromArtist.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 export interface Item {
   id: string
@@ -28,8 +29,7 @@ interface MoreFromArtistProps {
 
 const PAGE = 4
 
-const fmtDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : 'TBA'
+const fmtDate = (iso: string | null) => (iso ? shortDate(iso) : 'TBA')
 
 const pad = (n: number) => String(n).padStart(2, '0')
 

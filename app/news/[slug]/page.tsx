@@ -10,6 +10,7 @@ import { displayFont, monoFont } from '@/app/components/brandFonts'
 import NewsMedia from './NewsMedia'
 import ShareBar from './ShareBar'
 import styles from './post.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -74,7 +75,7 @@ function excerpt(html: string | null, max = 160) {
   return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:—–-]$/, '') + '…'
 }
 
-const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+const fmtDate = (d: Date) => shortDate(d)
 
 /** "NEUROBANGERZ, Vol, 11 - DVS | Neurofunk Drum & Bass Mix" → main line + kicker after the pipe. */
 function splitHeadline(title: string) {

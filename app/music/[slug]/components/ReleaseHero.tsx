@@ -11,6 +11,7 @@ import { ENABLE_OUTBOUND_INTERSTITIAL } from '@/app/utils/flags'
 import type { StreamingLink } from '@/app/types/release'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import styles from './release.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 const SignalField = dynamic(() => import('@/app/components/hero/SignalField'), { ssr: false })
 
@@ -42,7 +43,7 @@ interface ReleaseHeroProps {
 const proxied = (url: string) => `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`
 
 const fmtDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : 'TBA'
+  iso ? shortDate(iso) : 'TBA'
 
 function getYoutubeEmbed(url?: string): string | null {
   if (!url) return null

@@ -8,6 +8,7 @@ import { useCategories } from '@/app/hooks/useWordPress'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import styles from './SamplePacksSection.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 type ReleaseItem = {
   id: string | number
@@ -39,7 +40,7 @@ function getSamplePackHref(slug: string) {
 }
 
 const fmtDate = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', month: 'short', year: 'numeric' }) : ''
+  shortDate(iso, { day: false })
 
 /** Block tags become line breaks, inline tags vanish, entities decode. */
 function toLines(html?: string | null) {

@@ -9,6 +9,7 @@ import StreamingMenu from '@/app/components/StreamingMenu'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 import styles from './MusicPacksSection.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 type Pack = {
   id: string
@@ -33,7 +34,7 @@ type ReleasesResponse = { items?: Pack[]; total?: number }
 const COUNT = 6
 
 const fmtDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : ''
+  shortDate(iso)
 
 /** Same-origin optimised URL used as the panel background. */
 const proxied = (src: string) => `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75`

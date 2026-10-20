@@ -9,6 +9,7 @@ import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import MoreFromArtist, { type Item } from '@/app/components/MoreFromArtist'
 import styles from './artist.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -30,7 +31,7 @@ function excerpt(html: string | null, max = 160) {
   return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:—–-]$/, '') + '…'
 }
 
-const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+const fmtDate = (d: Date) => shortDate(d)
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 

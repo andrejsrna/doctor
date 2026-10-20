@@ -13,6 +13,7 @@ import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import MoreFromArtist from '@/app/components/MoreFromArtist'
 import ChannelStack, { type Channel } from '@/app/components/ChannelStack'
 import styles from './outro.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 const OutroField = dynamic(() => import('@/app/components/hero/SignalBackdrop'), { ssr: false })
 
@@ -36,7 +37,7 @@ const SHARES: { name: string; icon: ComponentType; url: (u: string, t: string) =
 ]
 
 const fmtDate = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : ''
+  shortDate(iso)
 
 /** Mark [data-reveal] descendants as in-view once (CSS does the motion). */
 function useReveal(root: React.RefObject<HTMLElement | null>, deps: unknown[]) {

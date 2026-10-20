@@ -9,6 +9,7 @@ import StreamingMenu from '@/app/components/StreamingMenu'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 import styles from './LatestMusic.module.css'
+import { shortDate } from '@/app/utils/shortDate'
 
 const SignalBackdrop = dynamic(() => import('@/app/components/hero/SignalBackdrop'), { ssr: false })
 
@@ -33,7 +34,7 @@ const COUNT = 6
 const SCAN_MS = Math.round((16 * 60_000) / 174)
 
 const fmtDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' }) : ''
+  shortDate(iso)
 
 /** One same-origin optimised URL shared by the monitor cover and its CSS slice layers (single download). */
 const proxied = (src: string) => `/_next/image?url=${encodeURIComponent(src)}&w=1080&q=75`
