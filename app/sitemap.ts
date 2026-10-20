@@ -81,6 +81,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    // release collections and landing pages linked from the nav / footer
+    ...(
+      [
+        ['/albums', 'weekly', 0.8],
+        ['/music-packs', 'weekly', 0.7],
+        ['/sample-packs', 'weekly', 0.7],
+        ['/neurofunk-dnb-mixes', 'weekly', 0.8],
+        ['/bulk-sale', 'monthly', 0.6],
+        ['/core-artists', 'monthly', 0.6],
+        ['/neurofunk-dnb', 'monthly', 0.6],
+        ['/neurofunk-drum-and-bass', 'monthly', 0.6],
+        ['/neurofunk-spotify', 'monthly', 0.6],
+        ['/drum-and-bass-history', 'monthly', 0.6],
+        ['/recommended-tools', 'monthly', 0.5],
+      ] as const
+    ).map(([path, changeFrequency, priority]) => ({ url: `${baseUrl}${path}`, lastModified: new Date(), changeFrequency, priority })),
   ]
 
   try {

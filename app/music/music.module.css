@@ -1054,6 +1054,94 @@
   color: rgb(255 255 255 / 40%);
 }
 
+/* ---------- collections ---------- */
+.pageLink {
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid var(--c-green);
+  color: var(--c-green);
+  text-decoration: none;
+}
+
+.pageLink:hover {
+  color: #fff;
+}
+
+.collections {
+  display: grid;
+  gap: 1rem;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 5vw, 4rem) var(--pad) 0;
+  border-top: 1px solid var(--line);
+}
+
+.collections ul {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collections a {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 1.1rem 2.6rem 1.1rem 1.1rem;
+  border: 1px solid var(--line);
+  color: #fff;
+  text-decoration: none;
+  transition: border-color 150ms, background 150ms, transform 200ms;
+}
+
+.collections a:hover {
+  border-color: var(--c-green);
+  background: rgb(57 255 20 / 6%);
+  transform: translate(-2px, -2px);
+}
+
+.collections strong {
+  font-family: var(--disp);
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.collections span {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 55%);
+}
+
+.collections b {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  font-family: var(--mono);
+  color: var(--c-green);
+  transform: translateY(-50%);
+  transition: transform 200ms;
+}
+
+.collections a:hover b {
+  transform: translate(4px, -50%);
+}
+
+.outro {
+  border-top: 0;
+}
+
+@media (max-width: 960px) {
+  .collections ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ---------- responsive ---------- */
 /* matches the collapsed site header height */
 @media (min-width: 1280px) {

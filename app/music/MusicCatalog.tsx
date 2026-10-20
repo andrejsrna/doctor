@@ -37,6 +37,20 @@ const SORTS: { value: Sort; label: string }[] = [
   { value: 'az', label: 'A–Z' },
 ]
 
+/** chips that also have a dedicated landing page */
+const PAGES: Record<string, { href: string; label: string }> = {
+  albums: { href: '/albums', label: 'Albums & LPs page' },
+  'music-packs': { href: '/music-packs', label: 'Music packs page' },
+  'sample-packs': { href: '/sample-packs', label: 'Sample packs page' },
+}
+
+const COLLECTIONS = [
+  { href: '/albums', label: 'Albums & LPs', note: 'Full-length releases' },
+  { href: '/music-packs', label: 'Music packs', note: 'Compilations & showcases' },
+  { href: '/sample-packs', label: 'Sample packs', note: 'Sounds for producers' },
+  { href: '/neurofunk-dnb-mixes', label: 'Neurofunk mixes', note: 'DJ mixes & podcasts' },
+]
+
 const fold = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
 function typeOf(r: CatalogRelease) {
@@ -331,6 +345,11 @@ export default function MusicCatalog({
           </h2>
           <p className={styles.count} aria-live="polite">
             {filtered.length} {filtered.length === 1 ? 'release' : 'releases'}
+            {PAGES[cat] && (
+              <Link href={PAGES[cat].href} className={styles.pageLink}>
+                {PAGES[cat].label} →
+              </Link>
+            )}
             {(cat || query) && (
               <button type="button" onClick={reset}>
                 Reset
@@ -462,6 +481,24 @@ export default function MusicCatalog({
           filtered.length > 0 && <p className={styles.end}>End of transmission · {filtered.length} of {releases.length}</p>
         )}
       </section>
+
+      {/* ---------- collections ---------- */}
+      <nav className={styles.collections} aria-labelledby="collections-title">
+        <h2 id="collections-title" className={styles.label}>
+          Browse collections
+        </h2>
+        <ul>
+          {COLLECTIONS.map((c) => (
+            <li key={c.href}>
+              <Link href={c.href}>
+                <strong>{c.label}</strong>
+                <span>{c.note}</span>
+                <b aria-hidden="true">→</b>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {/* ---------- outro ---------- */}
       <section className={styles.outro} aria-labelledby="outro-title">
