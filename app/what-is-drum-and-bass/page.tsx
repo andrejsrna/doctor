@@ -2,9 +2,8 @@ import type { Metadata } from 'next'
 import type { CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
-import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
+import { GuideFaq, GuideReleases, GuideSection as Section, PUBLISHER, faqJsonLd } from '@/app/components/guide/Guide'
 import styles from '@/app/components/guide/guide.module.css'
 
 export const revalidate = 3600
@@ -44,9 +43,9 @@ const BPM = [
   { name: 'Liquid', bpm: '170–176', note: 'Same tempo, smoother and melodic' },
   { name: 'Neurofunk', bpm: '172–176', note: 'Dark, technical, usually 174' },
   { name: 'Jump-Up', bpm: '172–176', note: 'Bouncy, rave-focused' },
-  { name: 'Techstep', bpm: '170–175', note: 'Minimal, industrial' },
+  { name: 'Techstep', bpm: '170–180', note: 'Minimal, industrial' },
   { name: 'Halftime', bpm: '170–175', note: 'Drums feel like ~85–87 BPM' },
-  { name: 'Jungle', bpm: '160–170', note: 'Older, breakbeat-heavy roots' },
+  { name: 'Jungle', bpm: '160–175', note: 'Older, breakbeat-heavy roots' },
 ]
 
 const SUBGENRES = [
@@ -108,26 +107,6 @@ const FAQ = [
 const KICK = new Set([0, 10])
 const SNARE = new Set([4, 12])
 
-type Recent = { slug: string; artist: string | null; title: string; cover: string | null }
-
-async function recentReleases(): Promise<Recent[]> {
-  if (!process.env.DATABASE_URL) return []
-  try {
-    const rows = await prisma.release.findMany({
-      where: { publishedAt: { not: null } },
-      orderBy: { publishedAt: 'desc' },
-      take: 4,
-      select: { slug: true, title: true, artistName: true, coverImageUrl: true },
-    })
-    return rows.map((r) => {
-      const { artist, title } = splitTitle(plainTitle(r.title), r.artistName)
-      return { slug: r.slug, artist, title, cover: r.coverImageUrl }
-    })
-  } catch {
-    return []
-  }
-}
-
 function Steps({ label, hits, kind }: { label: string; hits: Set<number>; kind: 'kick' | 'snare' }) {
   return (
     <div className={styles.row}>
@@ -144,21 +123,7 @@ function Steps({ label, hits, kind }: { label: string; hits: Set<number>; kind: 
   )
 }
 
-function Section({ id, n, label, children }: { id?: string; n: string; label: string; children: React.ReactNode }) {
-  return (
-    <section id={id} className={`${styles.wrap} ${styles.section}`}>
-      <p className={styles.sideLabel} aria-hidden="true">
-        <b>{n}</b>
-        {label}
-      </p>
-      <div className={styles.body}>{children}</div>
-    </section>
-  )
-}
-
-export default async function WhatIsDrumAndBassPage() {
-  const recent = await recentReleases()
-
+export default function WhatIsDrumAndBassPage() {
   const jsonLd = [
     {
       '@context': 'https://schema.org',
@@ -169,22 +134,9 @@ export default async function WhatIsDrumAndBassPage() {
       mainEntityOfPage: URL,
       dateModified: '2026-10-20',
       author: { '@type': 'Organization', name: 'DnB Doctor', url: 'https://dnbdoctor.com' },
-      publisher: {
-        '@type': 'Organization',
-        name: 'DnB Doctor',
-        url: 'https://dnbdoctor.com',
-        logo: { '@type': 'ImageObject', url: 'https://dnbdoctor.com/brand/dnb-doctor-logo.webp' },
-      },
+      publisher: PUBLISHER,
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: FAQ.map(({ question, answer }) => ({
-        '@type': 'Question',
-        name: question,
-        acceptedAnswer: { '@type': 'Answer', text: answer },
-      })),
-    },
+    faqJsonLd(FAQ),
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
@@ -465,34 +417,7 @@ export default async function WhatIsDrumAndBassPage() {
         </p>
       </Section>
 
-      {recent.length > 0 && (
-        <section className={`${styles.wrap} ${styles.recent}`} aria-labelledby="recent-title">
-          <div className={styles.recentHead}>
-            <div>
-              <h2 id="recent-title" className={styles.h2} style={{ marginBottom: 0 }}>
-                Hear it <em>now</em>
-              </h2>
-              <p>Fresh neurofunk from the DnB Doctor lab.</p>
-            </div>
-            <Link href="/music" className={styles.all}>
-              All releases →
-            </Link>
-          </div>
-          <ul className={styles.recentList}>
-            {recent.map((r) => (
-              <li key={r.slug}>
-                <Link href={`/music/${r.slug}`} className={styles.release}>
-                  <span className={styles.cover}>
-                    {r.cover && <Image src={r.cover} alt="" fill sizes="(max-width: 960px) 45vw, 22vw" />}
-                  </span>
-                  {r.artist && <span className={styles.rArtist}>{r.artist}</span>}
-                  <span className={styles.rTitle}>{r.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <GuideReleases text="Fresh neurofunk from the DnB Doctor lab." />
 
       <Section id="listening" n="08" label="Where to start">
         <h2 className={styles.h2}>
@@ -553,14 +478,7 @@ export default async function WhatIsDrumAndBassPage() {
 
       <Section id="faq" n="10" label="FAQ">
         <h2 className={styles.h2}>FAQ</h2>
-        <div className={styles.faq}>
-          {FAQ.map((f, i) => (
-            <details key={f.question} open={i === 0}>
-              <summary>{f.question}</summary>
-              <p>{f.answer}</p>
-            </details>
-          ))}
-        </div>
+        <GuideFaq items={FAQ} />
       </Section>
 
       <section className={`${styles.wrap} ${styles.closing}`}>

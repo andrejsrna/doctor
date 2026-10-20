@@ -312,6 +312,113 @@
   color: var(--muted);
 }
 
+/* numbered jump list inside the quick-answer card */
+.index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.index a {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.62rem 0.2rem;
+  border-bottom: 1px solid var(--line);
+  color: #fff;
+  text-decoration: none;
+  transition: background 150ms, padding 200ms;
+}
+
+.index a:hover {
+  padding-left: 0.6rem;
+  background: rgb(255 255 255 / 4%);
+}
+
+.index b {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--c-green);
+}
+
+.index strong {
+  font-family: var(--disp);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.index span {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 50%);
+}
+
+.answerText {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* meta chips under a type heading */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: -0.4rem 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 75%);
+}
+
+.chips li:first-child {
+  border-color: rgb(57 255 20 / 45%);
+  color: var(--c-green);
+}
+
+.fit {
+  margin: 1.4rem 0;
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--c-purple);
+}
+
+.fit b {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-purple);
+}
+
+/* linked tiles (related guides) */
+.body .tiles a {
+  display: block;
+  height: 100%;
+  color: #fff;
+  text-decoration: none;
+}
+
+.body .tiles a:hover h3 {
+  color: var(--c-green);
+}
+
 /* 16-step two-step pattern lit at 174 BPM */
 .grid {
   margin-top: 1.1rem;
@@ -449,6 +556,24 @@
 }
 
 .body a:hover {
+  color: var(--c-purple);
+}
+
+.body .btn {
+  color: #050505;
+  text-decoration: none;
+}
+
+.body .btnGhost {
+  color: #fff;
+  text-decoration: none;
+}
+
+.body .btn:hover {
+  color: #fff;
+}
+
+.body .btnGhost:hover {
   color: var(--c-purple);
 }
 
