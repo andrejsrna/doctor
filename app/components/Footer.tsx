@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { FaArrowRight, FaArrowUp, FaBandcamp, FaDiscord, FaFacebookF, FaInstagram, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { SiBeatport } from 'react-icons/si'
@@ -64,6 +65,7 @@ const PARTNERS = [
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
 export default function Footer() {
+  const onNewsletterPage = usePathname() === '/newsletter'
   const [email, setEmail] = useState('')
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
@@ -103,6 +105,8 @@ export default function Footer() {
   return (
     <footer className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}>
       {/* 01 newsletter transmission */}
+      {/* /newsletter has its own form — skip the duplicate */}
+      {!onNewsletterPage && (
       <section className={styles.signal} aria-labelledby="footer-newsletter">
         <div className={styles.signalHead}>
           <p className={styles.kicker}>
@@ -159,6 +163,7 @@ export default function Footer() {
           )}
         </form>
       </section>
+      )}
 
       {/* 02 directory */}
       <div className={styles.directory}>

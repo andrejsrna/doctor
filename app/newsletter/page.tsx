@@ -1,201 +1,170 @@
-'use client'
-
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { FaEnvelope, FaCheck, FaSpinner, FaSkull, FaLock, FaTimesCircle } from 'react-icons/fa'
-import { subscriberApi } from '../services/subscriberApi'
-import toast from 'react-hot-toast'
+import type { Metadata } from 'next'
 import Image from 'next/image'
-import Button from '../components/Button'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
+import NewsletterForm from './NewsletterForm'
+import styles from './newsletter.module.css'
 
-export default function NewsletterPage() {
-  const [email, setEmail] = useState('')
-  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [message, setMessage] = useState('')
+export const revalidate = 600
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!acceptedPrivacy) {
-      setStatus('error')
-      setMessage('Please accept the privacy policy')
-      return
-    }
+const PERKS = [
+  { title: 'Free track on sign-up', text: 'New subscribers get a free WAV download straight to their inbox.' },
+  { title: 'Releases first', text: 'Hear about new DnB Doctor releases before the algorithm does.' },
+  { title: 'Exclusive content', text: 'Mixes, NEUROBANGERZ sessions, sample packs and label drops.' },
+  { title: 'Label announcements', text: 'Demo calls, events and news from the lab — no noise, no spam.' },
+]
 
-    setStatus('loading')
+type Recent = { slug: string; artist: string | null; title: string; cover: string | null; date: string | null }
 
-    try {
-      await subscriberApi.subscribe({
-        email,
-        group: 'Newsletter',
-        source: 'newsletter_page'
-      })
-      setStatus('success')
-      setMessage('Successfully infected! Welcome to the horde!')
-      toast.success('Subscribed to Newsletter')
-      setEmail('')
-      setAcceptedPrivacy(false)
-    } catch (error) {
-      setStatus('error')
-      setMessage(error instanceof Error ? error.message : 'Infection failed. Please try again.')
-      toast.error(error instanceof Error ? error.message : 'Subscription failed')
-    }
+async function recentReleases(): Promise<Recent[]> {
+  if (!process.env.DATABASE_URL) return []
+  try {
+    const rows = await prisma.release.findMany({
+      where: { publishedAt: { not: null } },
+      orderBy: { publishedAt: 'desc' },
+      take: 4,
+      select: { slug: true, title: true, artistName: true, coverImageUrl: true, publishedAt: true },
+    })
+    return rows.map((r) => {
+      const { artist, title } = splitTitle(plainTitle(r.title), r.artistName)
+      return { slug: r.slug, artist, title, cover: r.coverImageUrl, date: r.publishedAt?.toISOString() ?? null }
+    })
+  } catch {
+    return []
+  }
+}
+
+const fmt = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : ''
+
+export default async function NewsletterPage() {
+  const recent = await recentReleases()
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'DnB Doctor Newsletter',
+    url: 'https://dnbdoctor.com/newsletter',
+    description: 'Subscribe to the DnB Doctor newsletter for new neurofunk releases, exclusive content and label announcements.',
+    publisher: { '@type': 'Organization', name: 'DnB Doctor', url: 'https://dnbdoctor.com', logo: 'https://dnbdoctor.com/logo-1.png' },
+    potentialAction: {
+      '@type': 'SubscribeAction',
+      target: { '@type': 'EntryPoint', urlTemplate: 'https://dnbdoctor.com/newsletter' },
+    },
   }
 
   return (
-    <section className="py-24 px-4 relative min-h-screen overflow-hidden">
-      {/* Background with animated overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/newsletter1.jpeg"
-          alt="Newsletter Background"
-          fill
-          sizes="100vw"
-          className="object-cover opacity-20"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent animate-pulse" />
+    <div className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <div className={styles.backdrop} aria-hidden="true">
+        <Image src="/newsletter1.jpeg" alt="" fill sizes="100vw" priority />
       </div>
-      
-      <div className="max-w-3xl mx-auto relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 text-center px-4"
-        >
-          <h1 className={`text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent 
-            bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500}`}>
-            Spread the Infection
+
+      <section className={styles.hero}>
+        <nav className={styles.crumbs} aria-label="Breadcrumb">
+          <Link href="/">DnB Doctor</Link> <span aria-hidden="true">/</span> <span aria-current="page">Newsletter</span>
+          <span className={styles.crumbMeta}>
+            <span className={styles.dot} aria-hidden="true" /> Direct line {'//'} 174 BPM
+          </span>
+        </nav>
+
+        <div className={styles.intro}>
+          <h1 className={styles.title}>
+            <span className={styles.outline}>Spread the</span>
+            <span className={styles.solid}>Infection</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto">
-            Join our growing horde of bass cultists. Get infected with exclusive releases, mutated content, 
-            and viral announcements from the DnB Doctor&apos;s laboratory.
+          <p className={styles.lede}>
+            Join our growing horde of bass cultists. Get infected with exclusive releases, mutated content, and viral
+            announcements from the DnB Doctor&apos;s laboratory.
           </p>
-        </motion.div>
+          <p className={styles.gift}>
+            <span className={styles.giftTag}>Free</span>
+            <span>
+              Sign up and get <strong>YEHOR — Hold Me (Original Mix)</strong> as a WAV download.
+            </span>
+          </p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-black/30 border border-purple-500/30 hover:border-purple-500/40 
-            rounded-2xl p-8 md:p-12 backdrop-blur-sm transition-all duration-300
-            hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-        >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                <FaEnvelope className="w-4 h-4 text-purple-500" />
-                Infection Vector (Email)
-              </label>
-              <div className="relative">
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your transmission frequency"
-                  disabled={status === 'loading'}
-                  required
-                  className="w-full px-6 py-3 rounded-full bg-black/50 border border-purple-500/30 
-                    text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                    transition-all duration-300 disabled:opacity-50 hover:border-purple-500/50"
-                />
-                {status === 'success' && (
-                  <FaCheck className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary" />
-                )}
-                {status === 'error' && (
-                  <FaTimesCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-red-500" />
-                )}
-              </div>
-            </div>
+        <div className={styles.panel}>
+          <p className={styles.panelHead}>
+            <span>Infection protocol</span>
+            <span>01 field · 01 consent</span>
+          </p>
+          <NewsletterForm />
+          <p className={styles.unsub}>
+            Had enough? <Link href="/unsub">Unsubscribe</Link> anytime.
+          </p>
+        </div>
+      </section>
 
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="privacy"
-                  type="checkbox"
-                  checked={acceptedPrivacy}
-                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-                  disabled={status === 'loading'}
-                  className="w-4 h-4 rounded border-purple-500/30 bg-black/50 
-                    text-purple-500 focus:ring-purple-500 focus:ring-offset-0
-                    hover:border-purple-500/50 transition-all duration-300"
-                  required
-                />
-              </div>
-              <label htmlFor="privacy" className="ml-3 text-sm text-gray-300 flex items-center gap-2">
-                <FaLock className="w-4 h-4 text-purple-500" />
-                <span className="mr-1">I accept the terms of infection and the</span>
-                <Link 
-                  href="/privacy-policy" 
-                  className="text-purple-500 hover:text-purple-400 underline"
-                  target="_blank"
-                >
-                  privacy policy
-                </Link>
-              </label>
-            </div>
+      <section className={styles.perks} aria-labelledby="perks-title">
+        <h2 id="perks-title" className={styles.label}>
+          What you receive
+        </h2>
+        <ol className={styles.perkList}>
+          {PERKS.map((p) => (
+            <li key={p.title}>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-            <motion.div whileHover={{ scale: 1.02 }}>
-              <Button
-                onClick={(e) => handleSubmit(e)}
-                disabled={status === 'loading' || !acceptedPrivacy}
-                variant="infected"
-                className="w-full group"
-              >
-                {status === 'loading' ? (
-                  <>
-                    <FaSpinner className="w-5 h-5 animate-spin" />
-                    <span>Spreading Infection...</span>
-                  </>
-                ) : (
-                  <>
-                    <FaSkull className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" />
-                    <span>Join the Horde</span>
-                  </>
-                )}
-              </Button>
-            </motion.div>
-          </form>
-
-          {message && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`mt-4 p-4 rounded-lg border ${
-                status === 'error' 
-                  ? 'border-red-500/30 bg-red-500/10 text-red-500' 
-                  : 'border-green-500/30 bg-green-500/10 text-secondary'
-              }`}
-            >
-              <p className="flex items-center justify-center gap-2">
-                {status === 'error' ? (
-                  <FaTimesCircle className="w-4 h-4" />
-                ) : (
-                  <FaCheck className="w-4 h-4" />
-                )}
-                {message}
-              </p>
-            </motion.div>
-          )}
-
-          <div className="mt-8 text-center">
-            <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
-              <Button
-                href="/unsub"
-                variant="decayed"
-                className="group text-sm"
-              >
-                <FaTimesCircle className="w-4 h-4 transform group-hover:rotate-90 transition-transform duration-300" />
-                <span>Unsubscribe</span>
-              </Button>
-            </motion.div>
+      {recent.length > 0 && (
+        <section className={styles.recent} aria-labelledby="recent-title">
+          <div className={styles.recentHead}>
+            <h2 id="recent-title" className={styles.label}>
+              Last transmissions
+            </h2>
+            <p>Subscribers heard about these first.</p>
+            <Link href="/music" className={styles.all}>
+              All releases →
+            </Link>
           </div>
-        </motion.div>
-      </div>
-    </section>
+          <ul className={styles.recentList}>
+            {recent.map((r) => (
+              <li key={r.slug}>
+                <Link href={`/music/${r.slug}`} className={styles.release}>
+                  <span className={styles.cover}>
+                    {r.cover && <Image src={r.cover} alt="" fill sizes="(max-width: 700px) 45vw, 22vw" />}
+                  </span>
+                  <span className={styles.meta}>{fmt(r.date)}</span>
+                  {r.artist && <span className={styles.artist}>{r.artist}</span>}
+                  <span className={styles.track}>{r.title}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
   )
-} 
+}
+
+export const metadata: Metadata = {
+  title: 'Newsletter | DnB Doctor - Stay Updated',
+  description:
+    'Subscribe to DnB Doctor newsletter and stay up to date with our latest releases, exclusive content, and special announcements in the world of neurofunk and drum & bass.',
+  keywords: 'dnb newsletter, neurofunk updates, drum and bass news, electronic music newsletter, dnb doctor subscription',
+  alternates: { canonical: 'https://dnbdoctor.com/newsletter' },
+  openGraph: {
+    title: 'Subscribe to DnB Doctor Newsletter',
+    description:
+      'Get the latest neurofunk and drum & bass updates directly to your inbox. Exclusive content and special announcements from DnB Doctor.',
+    url: 'https://dnbdoctor.com/newsletter',
+    siteName: 'DnB Doctor',
+    images: [{ url: 'https://dnbdoctor.com/newsletter.jpeg', width: 1200, height: 630, alt: 'DnB Doctor Newsletter Subscription' }],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Join DnB Doctor Newsletter',
+    description: 'Subscribe for exclusive updates and content from DnB Doctor.',
+    images: ['https://dnbdoctor.com/newsletter.jpeg'],
+  },
+}

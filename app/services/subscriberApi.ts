@@ -1,5 +1,5 @@
 export const subscriberApi = {
-  async subscribe(data: { email: string; name?: string; group?: string; source?: string }) {
+  async subscribe(data: { email: string; name?: string; group?: string; source?: string; website?: string }) {
     const email = (data.email || '').toLowerCase().trim();
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!isValidEmail.test(email)) {
