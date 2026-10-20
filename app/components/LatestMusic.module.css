@@ -11,7 +11,9 @@
   isolation: isolate;
   background: #030305;
   color: #fff;
-  overflow-x: clip;
+  /* clip both axes: the sticky backdrop (margin-bottom: -100vh) would otherwise
+     hang ~1 viewport below the section and paint over what follows (footer) */
+  overflow: clip;
 }
 
 .root a:focus-visible,
