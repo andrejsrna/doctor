@@ -400,7 +400,7 @@ export default async function ArtistPage({ params }: PageProps) {
         </div>
         <div className={styles.bookActions}>
           <a href={`mailto:booking@dnbdoctor.com?subject=${encodeURIComponent(`Inquiry about ${artist.name}`)}`} className={styles.primary}>
-            <FaEnvelope aria-hidden="true" /> booking@dnbdoctor.com
+            <FaEnvelope aria-hidden="true" /> Email booking
           </a>
           <Link href="/contact" className={styles.secondary}>
             Contact form <span aria-hidden="true">→</span>
