@@ -2,6 +2,24 @@ import { NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { prisma } from '@/lib/prisma'
 
+const GENRES = ['Neurofunk', 'Techstep', 'Dark DnB', 'Crossbreed', 'Other']
+
+const esc = (v: string) =>
+  v.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string)
+
+/** Trimmed, length-capped fields, or an error message. */
+function validate(b: Partial<RequestBody>) {
+  const artistName = String(b.artistName ?? '').trim().slice(0, 120)
+  const email = String(b.email ?? '').trim().toLowerCase().slice(0, 200)
+  const genre = String(b.genre ?? '').trim()
+  const subject = String(b.subject ?? '').trim().slice(0, 500)
+  if (!artistName) return { error: 'Please enter your name' }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Please enter a valid email address' }
+  if (!GENRES.includes(genre)) return { error: 'Please select a genre' }
+  if (!/^https?:\/\/\S+$/i.test(subject)) return { error: 'Please enter a valid track link (https://…)' }
+  return { data: { artistName, email, genre, subject } }
+}
+
 interface RequestBody {
   email: string
   subject: string
@@ -13,7 +31,12 @@ interface RequestBody {
 export async function POST(request: Request) {
   try {
     const body: RequestBody = await request.json()
-    const { token, ...formData } = body
+    const { token } = body
+    const checked = validate(body)
+    if (!checked.data) {
+      return NextResponse.json({ message: checked.error }, { status: 400 })
+    }
+    const formData = checked.data
 
     // Verify Turnstile token
     const verificationResponse = await fetch(
@@ -66,7 +89,7 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: `"DnB Doctor Demo Submission" <${process.env.SMTP_FROM}>`,
       to: adminEmails.join(', '),
-      replyTo: `"${formData.artistName}" <${formData.email}>`,
+      replyTo: { name: formData.artistName, address: formData.email },
       subject: 'New Demo Submission',
       text: `
 New demo submission received:
@@ -80,10 +103,10 @@ Please review at your earliest convenience.
       `,
       html: `
         <h2>New Demo Submission</h2>
-        <p><strong>Artist Name:</strong> ${formData.artistName}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Genre:</strong> ${formData.genre}</p>
-        <p><strong>Track Link:</strong> <a href="${formData.subject}">${formData.subject}</a></p>
+        <p><strong>Artist Name:</strong> ${esc(formData.artistName)}</p>
+        <p><strong>Email:</strong> ${esc(formData.email)}</p>
+        <p><strong>Genre:</strong> ${esc(formData.genre)}</p>
+        <p><strong>Track Link:</strong> <a href="${esc(formData.subject)}">${esc(formData.subject)}</a></p>
         <p>Please review at your earliest convenience.</p>
       `
     })

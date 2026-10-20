@@ -1,481 +1,242 @@
-'use client'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import DemoForm from './DemoForm'
+import styles from './submit-demo.module.css'
 
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  FaCheck, FaSpinner,
-  FaSkull, FaLock, FaUser, FaEnvelope, FaMusic, FaLink, FaTimesCircle,
-  FaHandshake, FaVolumeUp, FaChartLine, FaCoins, FaShieldAlt, FaBullhorn
-} from 'react-icons/fa'
-import { Turnstile } from '@marsidev/react-turnstile'
-import Button from '../components/Button'
+export const revalidate = 3600
 
-interface FormData {
-  email: string
-  subject: string
-  artistName: string
-  genre: string
-  acceptGuidelines: boolean
-  acceptPrivacy: boolean
-}
+const FOUNDED = 2015
 
-const collaborationFaq = [
+const GUIDELINES = [
   {
-    question: 'How does a release with DnB Doctor usually work?',
-    answer:
-      'If we feel the track fits the label, we talk through the release plan, assets, loudness target, promotion and timeline with you directly. We try to keep the process clear and practical: good audio, proper presentation, and steady communication before the release goes live.',
-    icon: FaHandshake
+    title: 'Exclusive content',
+    text: "Please make sure the track hasn't been made public anywhere yet. We're looking for fresh, unreleased material.",
   },
   {
-    question: 'Do you pay artists?',
-    answer:
-      'Yes. We usually offer a fixed fee per accepted track. The fee is set individually for each release based on the artist, current statistics, audience size, track potential and the scope of the campaign. If a track performs exceptionally well, we are open to paying an extra bonus.',
-    icon: FaCoins
+    title: 'Download access',
+    text: 'Check if the download option is enabled on your track. This helps us review and process your submission efficiently.',
   },
   {
-    question: 'Why fixed fees instead of normal royalties?',
-    answer:
-      'Streaming income in underground drum and bass is honestly very small. In reality, we still lose money on most releases because promotion, distribution, design and time cost more than the track earns back. The fixed fee is our way to give artists at least some motivating cash upfront, while many labels pay no royalties at all.',
-    icon: FaShieldAlt
+    title: 'Valid contact',
+    text: "Make sure you supply us with a valid e-mail address. We'll use this to contact you about your submission.",
   },
-  {
-    question: 'How loud should the final master be?',
-    answer:
-      'We care a lot about volume and punch. For our sound, releases usually need to feel club-ready and aggressive, often around -4 to -3 LUFS when the mix can handle it without falling apart. Loudness is not the only thing that matters, but the track has to hit hard.',
-    icon: FaVolumeUp
-  },
-  {
-    question: 'Why is DnB Doctor added as a collaborating artist?',
-    answer:
-      'On selected releases we add the DnB Doctor artist profile as a collaborator to help boost algorithmic reach and connect the track with the label audience. It can help with discovery, playlist signals, release radar behaviour and overall visibility around the campaign.',
-    icon: FaChartLine
-  },
-  {
-    question: 'Can artists trust the label?',
-    answer:
-      'We work with artists who keep coming back for more releases, and we care about long-term relationships more than one-off uploads. We are direct about the numbers, what we can realistically do, and where the release stands. If something needs more work, we say it clearly.',
-    icon: FaBullhorn
-  }
 ]
 
-export default function SubmitDemoPage() {
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    subject: '',
-    artistName: '',
-    genre: '',
-    acceptGuidelines: false,
-    acceptPrivacy: false
-  })
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [message, setMessage] = useState('')
-  const [token, setToken] = useState<string | null>(null)
-  const turnstileRef = useRef(null)
+const FAQ = [
+  {
+    q: 'How does a release with DnB Doctor usually work?',
+    a: 'If we feel the track fits the label, we talk through the release plan, assets, loudness target, promotion and timeline with you directly. We try to keep the process clear and practical: good audio, proper presentation, and steady communication before the release goes live.',
+  },
+  {
+    q: 'Do you pay artists?',
+    a: 'Yes. We usually offer a fixed fee per accepted track. The fee is set individually for each release based on the artist, current statistics, audience size, track potential and the scope of the campaign. If a track performs exceptionally well, we are open to paying an extra bonus.',
+  },
+  {
+    q: 'Why fixed fees instead of normal royalties?',
+    a: 'Streaming income in underground drum and bass is honestly very small. In reality, we still lose money on most releases because promotion, distribution, design and time cost more than the track earns back. The fixed fee is our way to give artists at least some motivating cash upfront, while many labels pay no royalties at all.',
+  },
+  {
+    q: 'How loud should the final master be?',
+    a: 'We care a lot about volume and punch. For our sound, releases usually need to feel club-ready and aggressive, often around -4 to -3 LUFS when the mix can handle it without falling apart. Loudness is not the only thing that matters, but the track has to hit hard.',
+  },
+  {
+    q: 'Why is DnB Doctor added as a collaborating artist?',
+    a: 'On selected releases we add the DnB Doctor artist profile as a collaborator to help boost algorithmic reach and connect the track with the label audience. It can help with discovery, playlist signals, release radar behaviour and overall visibility around the campaign.',
+  },
+  {
+    q: 'Can artists trust the label?',
+    a: 'We work with artists who keep coming back for more releases, and we care about long-term relationships more than one-off uploads. We are direct about the numbers, what we can realistically do, and where the release stands. If something needs more work, we say it clearly.',
+  },
+]
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!token) {
-      setStatus('error')
-      setMessage('Please complete the security check')
-      return
-    }
-
-    setStatus('loading')
-
-    try {
-      const response = await fetch('/api/submit-demo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          token
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit demo')
-      }
-
-      setStatus('success')
-      setMessage("Thanks for your submission! We'll review your demo and get back to you soon.")
-      setFormData({
-        email: '',
-        subject: '',
-        artistName: '',
-        genre: '',
-        acceptGuidelines: false,
-        acceptPrivacy: false
-      })
-      setToken(null)
-      // @ts-expect-error: Turnstile types are not perfect
-      turnstileRef.current?.reset()
-    } catch (error) {
-      setStatus('error')
-      setMessage(error instanceof Error ? error.message : 'Failed to submit demo')
-    }
+async function labelStats() {
+  if (!process.env.DATABASE_URL) return null
+  try {
+    const [releases, artists] = await Promise.all([prisma.release.count(), prisma.artist.count()])
+    return { releases, artists }
+  } catch {
+    return null
   }
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: value
-    }))
-  }
+/** 143 → "140+": a floor that stays true until the next ten. */
+const floor10 = (n: number) => `${Math.floor(n / 10) * 10}+`
+
+export default async function SubmitDemoPage() {
+  const stats = await labelStats()
+  const years = new Date().getUTCFullYear() - FOUNDED
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Submit your demo to DnB Doctor',
+      url: 'https://dnbdoctor.com/submit-demo',
+      publisher: {
+        '@type': 'Organization',
+        name: 'DnB Doctor',
+        url: 'https://dnbdoctor.com',
+        logo: 'https://dnbdoctor.com/logo-1.png',
+        contactPoint: { '@type': 'ContactPoint', contactType: 'demo submission', url: 'https://dnbdoctor.com/submit-demo' },
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQ.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+    },
+  ]
 
   return (
-    <section className="py-16 relative overflow-hidden">
-      {/* Form Section */}
-      <div className="bg-black py-16">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="max-w-6xl mx-auto px-4"
-        >
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Guidelines */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="space-y-8"
-            >
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent 
-                  bg-gradient-to-r from-purple-500 to-pink-500 mb-6">
-                  Submission Guidelines
-                </h2>
-                <div className="space-y-6">
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-                  >
-                    <h3 className="text-lg font-semibold text-purple-500 mb-2">
-                      Exclusive Content
-                    </h3>
-                    <p className="text-gray-300">
-                      Please make sure the track hasn&apos;t been made public anywhere yet.
-                      We&apos;re looking for fresh, unreleased material.
-                    </p>
-                  </motion.div>
+    <div className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-                  >
-                    <h3 className="text-lg font-semibold text-purple-500 mb-2">
-                      Download Access
-                    </h3>
-                    <p className="text-gray-300">
-                      Check if the download option is enabled on your track.
-                      This helps us review and process your submission efficiently.
-                    </p>
-                  </motion.div>
+      {/* ---------- hero ---------- */}
+      <header className={styles.hero}>
+        <nav className={styles.crumbs} aria-label="Breadcrumb">
+          <Link href="/">DnB Doctor</Link> <span aria-hidden="true">/</span> <span aria-current="page">Submit demo</span>
+          <span className={styles.crumbMeta}>
+            <span className={styles.dot} aria-hidden="true" /> A&amp;R inbox {'//'} open
+          </span>
+        </nav>
 
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                    className="bg-black/30 border border-purple-500/10 rounded-xl p-6 backdrop-blur-sm"
-                  >
-                    <h3 className="text-lg font-semibold text-purple-500 mb-2">
-                      Valid Contact
-                    </h3>
-                    <p className="text-gray-300">
-                      Make sure you supply us with a valid e-mail address.
-                      We&apos;ll use this to contact you about your submission.
-                    </p>
-                  </motion.div>
+        <h1 className={styles.title}>
+          <span className={styles.outline}>Submit</span>
+          <span className={styles.solid}>your demo.</span>
+        </h1>
+
+        <div className={styles.heroSide}>
+          <p className={styles.lede}>
+            Unreleased neurofunk, techstep, dark DnB or crossbreed that hits hard? Send us a private SoundCloud link —
+            we listen to every submission.
+          </p>
+          <dl className={styles.facts}>
+            {stats && (
+              <>
+                <div>
+                  <dt>Releases</dt>
+                  <dd>{floor10(stats.releases)}</dd>
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Form */}
-            <div className="bg-black/30 border border-purple-500/20 rounded-2xl p-8 md:p-12 backdrop-blur-sm
-              hover:border-purple-500/40 transition-all duration-300
-              hover:shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid gap-6">
-                  <div>
-                    <label htmlFor="artistName" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                      <FaUser className="w-4 h-4 text-purple-500" />
-                      Your Real Name *
-                    </label>
-                    <input
-                      id="artistName"
-                      name="artistName"
-                      type="text"
-                      value={formData.artistName}
-                      onChange={handleChange}
-                      required
-                      placeholder="Your artist/producer name"
-                      className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
-                        text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-all duration-300 hover:border-purple-500/50"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                      <FaEnvelope className="w-4 h-4 text-purple-500" />
-                      Email *
-                    </label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      placeholder="your@email.com"
-                      className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
-                        text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-all duration-300 hover:border-purple-500/50"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="genre" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                      <FaMusic className="w-4 h-4 text-purple-500" />
-                      Genre *
-                    </label>
-                    <select
-                      id="genre"
-                      name="genre"
-                      value={formData.genre}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
-                        text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-all duration-300 hover:border-purple-500/50 appearance-none cursor-pointer"
-                    >
-                      <option value="">Select genre</option>
-                      <option value="Neurofunk">Neurofunk</option>
-                      <option value="Techstep">Techstep</option>
-                      <option value="Dark DnB">Dark DnB</option>
-                      <option value="Crossbreed">Crossbreed</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="subject" className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                      <FaLink className="w-4 h-4 text-purple-500" />
-                      SoundCloud Link Secret or Private Link *
-                    </label>
-                    <input
-                      id="subject"
-                      name="subject"
-                      type="url"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                      placeholder="https://soundcloud.com/your-track"
-                      className="w-full px-6 py-4 rounded-xl bg-black/50 border border-purple-500/30 
-                        text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-                        transition-all duration-300 hover:border-purple-500/50"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-start gap-2 mb-6">
-                      <input
-                        type="checkbox"
-                        id="acceptGuidelines"
-                        name="acceptGuidelines"
-                        checked={formData.acceptGuidelines}
-                        onChange={handleChange}
-                        required
-                        className="mt-1.5 rounded border-purple-500/30 bg-black/50 
-                          text-purple-500 focus:ring-purple-500 focus:ring-offset-0
-                          hover:border-purple-500/50 transition-all duration-300"
-                      />
-                      <label htmlFor="acceptGuidelines" className="text-sm text-gray-300 flex items-center gap-2">
-                        <FaCheck className="w-4 h-4 text-purple-500" />
-                        I have read and followed the{' '}
-                        <a 
-                          href="/guidelines" 
-                          target="_blank"
-                          rel="noopener noreferrer" 
-                          className="text-purple-500 hover:text-purple-400 underline"
-                        >
-                          submission guidelines
-                        </a>
-                        . My demo meets all the requirements. *
-                      </label>
-                    </div>
-
-                    <div className="flex items-start gap-2 mb-6">
-                      <input
-                        type="checkbox"
-                        id="acceptPrivacy"
-                        name="acceptPrivacy"
-                        checked={formData.acceptPrivacy}
-                        onChange={handleChange}
-                        required
-                        className="mt-1.5 rounded border-purple-500/30 bg-black/50 
-                          text-purple-500 focus:ring-purple-500 focus:ring-offset-0
-                          hover:border-purple-500/50 transition-all duration-300"
-                      />
-                      <label htmlFor="acceptPrivacy" className="text-sm text-gray-300 flex items-center gap-2">
-                        <FaLock className="w-4 h-4 text-purple-500" />
-                        I agree to the{' '}
-                        <a 
-                          href="/privacy-policy" 
-                          target="_blank"
-                          rel="noopener noreferrer" 
-                          className="text-purple-500 hover:text-purple-400 underline"
-                        >
-                          privacy policy
-                        </a>
-                        . *
-                      </label>
-                    </div>
-                  </div>
+                <div>
+                  <dt>Artists</dt>
+                  <dd>{floor10(stats.artists)}</dd>
                 </div>
-
-                <div className="flex justify-center">
-                  <Turnstile
-                    ref={turnstileRef}
-                    siteKey={process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY!}
-                    onSuccess={setToken}
-                    onError={() => {
-                      setToken(null)
-                      setStatus('error')
-                      setMessage('Security check failed. Please try again.')
-                    }}
-                    options={{
-                      theme: 'dark',
-                      size: 'normal'
-                    }}
-                  />
-                </div>
-
-                <motion.div whileHover={{ scale: 1.02 }}>
-                  <Button
-                    onClick={(e) => handleSubmit(e)}
-                  disabled={status === 'loading'}
-                    variant="infected"
-                    className="w-full group"
-                >
-                  {status === 'loading' ? (
-                      <>
-                        <FaSpinner className="w-5 h-5 animate-spin" />
-                        <span>Infecting...</span>
-                      </>
-                  ) : (
-                    <>
-                        <FaSkull className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" />
-                        <span>Submit Demo</span>
-                    </>
-                  )}
-                  </Button>
-                </motion.div>
-              </form>
-
-              <AnimatePresence>
-                {message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className={`mt-6 p-4 rounded-xl flex items-center gap-2 justify-center ${
-                      status === 'error' 
-                        ? 'bg-red-500/10 border border-red-500/30 text-red-500' 
-                        : 'bg-green-500/10 border border-green-500/30 text-secondary'
-                    }`}
-                  >
-                    {status === 'error' ? (
-                      <FaTimesCircle className="w-4 h-4" />
-                    ) : (
-                      <FaCheck className="w-4 h-4" />
-                    )}
-                    {message}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {status === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 text-center text-sm text-gray-400"
-                >
-                  Want feedback or just to talk shop while you wait?{' '}
-                  <a
-                    href="https://discord.gg/GE2HWFdgXG"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-400 hover:text-indigo-300 underline"
-                  >
-                    Join our Discord
-                  </a>
-                  .
-                </motion.div>
-              )}
+              </>
+            )}
+            <div>
+              <dt>Years</dt>
+              <dd>{years}</dd>
             </div>
-          </div>
-        </motion.div>
-      </div>
+          </dl>
+          <a href="#demo-form" className={styles.jump}>
+            Go to the form <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </header>
 
-      <div className="bg-black py-16 border-t border-purple-500/10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-6xl mx-auto px-4"
-        >
-          <div className="max-w-3xl mb-10">
-            <p className="text-purple-400 text-sm font-semibold uppercase tracking-[0.2em] mb-3">
-              Artist collaboration FAQ
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              What happens after we like your demo?
-            </h2>
-            <p className="text-gray-300 leading-relaxed">
-              We want artists to know the deal before sending music. Here is how we think about
-              fees, mastering loudness, algorithm support and long-term label cooperation.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            {collaborationFaq.map((item, index) => (
-              <motion.div
-                key={item.question}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.06 }}
-                className="bg-black/40 border border-purple-500/15 rounded-xl p-6 backdrop-blur-sm hover:border-purple-500/40 transition-all duration-300"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="shrink-0 w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">
-                      {item.question}
-                    </h3>
-                    <p className="text-gray-300 leading-relaxed">
-                      {item.answer}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+      {/* ---------- guidelines + form ---------- */}
+      <section className={styles.protocol} aria-labelledby="guidelines-title">
+        <div className={styles.guide}>
+          <h2 id="guidelines-title" className={styles.label}>
+            01 / Submission guidelines
+          </h2>
+          <ol className={styles.checks}>
+            {GUIDELINES.map((g) => (
+              <li key={g.title}>
+                <h3>{g.title}</h3>
+                <p>{g.text}</p>
+              </li>
             ))}
-          </div>
-        </motion.div>
-      </div>
-    </section>
+          </ol>
+          <p className={styles.guideMore}>
+            Full checklist: <Link href="/guidelines">submission guidelines</Link>
+          </p>
+        </div>
+
+        <div className={styles.panel} id="demo-form">
+          <p className={styles.panelHead}>
+            <span>Demo transmission</span>
+            <span>4 fields · 2 checks</span>
+          </p>
+          <DemoForm siteKey={process.env.NEXT_PUBLIC_CF_TURNSTILE_SITE_KEY ?? ''} />
+        </div>
+      </section>
+
+      {/* ---------- faq ---------- */}
+      <section className={styles.faq} aria-labelledby="faq-title">
+        <div className={styles.faqHead}>
+          <p className={styles.label}>02 / Artist collaboration FAQ</p>
+          <h2 id="faq-title" className={styles.h2}>
+            What happens after we <span className={styles.accent}>like your demo?</span>
+          </h2>
+          <p className={styles.faqLede}>
+            We want artists to know the deal before sending music. Here is how we think about fees, mastering loudness,
+            algorithm support and long-term label cooperation.
+          </p>
+        </div>
+        <div className={styles.faqList}>
+          {FAQ.map((f, i) => (
+            <details key={f.q} className={styles.qa} open={i === 0}>
+              <summary>
+                <span className={styles.qn}>{String(i + 1).padStart(2, '0')}</span>
+                <h3>{f.q}</h3>
+                <span className={styles.toggle} aria-hidden="true" />
+              </summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- outro ---------- */}
+      <section className={styles.outro} aria-labelledby="outro-title">
+        <p className={styles.label}>03 / Not ready yet?</p>
+        <h2 id="outro-title" className={styles.h2}>
+          Sharpen the <span className={styles.accent}>weapon.</span>
+        </h2>
+        <ul className={styles.next}>
+          <li>
+            <Link href="/how-to-produce-neurofunk">
+              <span>Guide</span> How to make neurofunk <span aria-hidden="true">→</span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/sample-packs">
+              <span>Sounds</span> Sample packs <span aria-hidden="true">→</span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/music">
+              <span>Reference</span> Hear the label sound <span aria-hidden="true">→</span>
+            </Link>
+          </li>
+        </ul>
+      </section>
+    </div>
   )
-} 
+}
+
+export const metadata: Metadata = {
+  title: 'Submit Demo | DnB Doctor - Neurofunk Label',
+  description:
+    "Submit your drum and bass demo to DnB Doctor. We're always looking for fresh neurofunk talent — read the guidelines, fees and mastering FAQ, then send a private SoundCloud link.",
+  keywords: 'submit demo, demo submission, drum and bass demos, neurofunk producer, dnb label submission, electronic music demo',
+  alternates: { canonical: 'https://dnbdoctor.com/submit-demo' },
+  openGraph: {
+    title: 'Submit Your Demo | DnB Doctor',
+    description: 'Share your unreleased neurofunk with us. We listen to every submission.',
+    url: 'https://dnbdoctor.com/submit-demo',
+    siteName: 'DnB Doctor',
+    images: [{ url: 'https://dnbdoctor.com/submitdemo.jpeg', width: 1200, height: 630, alt: 'Submit Demo to DnB Doctor' }],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Submit Your Demo | DnB Doctor',
+    description: 'Looking for a home for your neurofunk tracks? Submit your demo to DnB Doctor today.',
+    images: ['https://dnbdoctor.com/submitdemo.jpeg'],
+  },
+}
