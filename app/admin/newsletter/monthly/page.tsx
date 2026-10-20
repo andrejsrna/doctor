@@ -35,7 +35,6 @@ export default function MonthlyNewsletterPage() {
   const [subject, setSubject] = useState("");
   const [preheader, setPreheader] = useState("");
   const [intro, setIntro] = useState("");
-  const [featured, setFeatured] = useState("");
   const [testEmails, setTestEmails] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState<"test" | "all" | null>(null);
@@ -50,7 +49,6 @@ export default function MonthlyNewsletterPage() {
     setSubject(json.defaults.subject);
     setPreheader(json.defaults.preheader);
     setIntro(json.defaults.intro);
-    setFeatured(json.releases[0]?.slug || "");
     setConfirm("");
   }, []);
 
@@ -59,11 +57,11 @@ export default function MonthlyNewsletterPage() {
   }, [month, load]);
 
   const previewSrc = useMemo(() => {
-    const q = new URLSearchParams({ month, format: "html", intro, preheader, featured });
+    const q = new URLSearchParams({ month, format: "html", intro, preheader });
     return `/api/admin/newsletter/monthly?${q.toString()}`;
     // frameKey re-renders the preview on demand instead of on every keystroke
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [month, frameKey, featured]);
+  }, [month, frameKey]);
 
   const send = async (mode: "test" | "all") => {
     if (mode === "all" && !window.confirm(`Send "${subject}" to ${data?.audience} active subscribers?`)) return;
@@ -73,7 +71,7 @@ export default function MonthlyNewsletterPage() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          month, subject, intro, preheader, featuredSlug: featured, mode, confirm,
+          month, subject, intro, preheader, mode, confirm,
           testEmails: testEmails.split(/[\s,;]+/).filter(Boolean),
         }),
       });
@@ -128,13 +126,7 @@ export default function MonthlyNewsletterPage() {
                 <input className={input} value={preheader} onChange={(e) => setPreheader(e.target.value)} />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs uppercase tracking-wider text-gray-400">Featured release</span>
-                <select className={input} value={featured} onChange={(e) => setFeatured(e.target.value)}>
-                  {data.releases.map((r) => <option key={r.slug} value={r.slug}>{r.artist ? `${r.artist} – ` : ""}{r.title} ({r.type})</option>)}
-                </select>
-              </label>
-              <label className="block space-y-1">
-                <span className="text-xs uppercase tracking-wider text-gray-400">Intro — {"{name}"} becomes the subscriber&apos;s name, blank line = new paragraph</span>
+                <span className="text-xs uppercase tracking-wider text-gray-400">Intro (same every month) — {"{name}"} becomes the subscriber&apos;s name</span>
                 <textarea className={`${input} min-h-[140px]`} value={intro} onChange={(e) => setIntro(e.target.value)} />
               </label>
               <button onClick={() => setFrameKey((k) => k + 1)} className="text-sm text-purple-300 hover:text-white">↻ Refresh preview</button>

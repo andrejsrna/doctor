@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const sp = request.nextUrl.searchParams
   const data = await loadMonthly(sp.get('month') || undefined)
-  const opts = { intro: sp.get('intro') || undefined, featuredSlug: sp.get('featured') || undefined, preheader: sp.get('preheader') || undefined }
+  const opts = { intro: sp.get('intro') || undefined, preheader: sp.get('preheader') || undefined }
   const html = renderMonthly(data, opts)
 
   if (sp.get('format') === 'html') {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     label: data.label,
     releases: data.releases.map((r) => ({ slug: r.slug, artist: r.artist, title: r.title, type: r.type, date: r.date })),
     mixes: data.mixes.map((m) => ({ slug: m.slug, title: m.title, date: m.date })),
-    defaults: { subject: defaultSubject(data), intro: defaultIntro(data), preheader: defaultPreheader(data) },
+    defaults: { subject: defaultSubject(data), intro: defaultIntro(), preheader: defaultPreheader(data) },
     audience,
     alreadySent: previous,
   })
@@ -46,7 +46,6 @@ type SendBody = {
   subject?: string
   intro?: string
   preheader?: string
-  featuredSlug?: string
   mode: 'test' | 'all'
   testEmails?: string[]
   confirm?: string
@@ -62,7 +61,7 @@ export async function POST(request: NextRequest) {
   const data = await loadMonthly(body.month)
   if (!data.releases.length) return NextResponse.json({ error: `No releases published in ${data.label}` }, { status: 400 })
 
-  const html = renderMonthly(data, { intro: body.intro, featuredSlug: body.featuredSlug, preheader: body.preheader })
+  const html = renderMonthly(data, { intro: body.intro, preheader: body.preheader })
   const subject = body.subject?.trim() || defaultSubject(data)
 
   if (body.mode === 'test') {

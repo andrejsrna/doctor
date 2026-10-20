@@ -14,7 +14,7 @@ const MONO = "'SFMono-Regular',Menlo,Consolas,'Courier New',monospace"
 export type MonthlyRelease = { slug: string; artist: string | null; title: string; type: string; cover: string | null; date: Date; spotify: string | null; beatport: string | null }
 export type MonthlyMix = { slug: string; title: string; cover: string | null; date: Date }
 export type MonthlyData = { month: string; label: string; releases: MonthlyRelease[]; mixes: MonthlyMix[] }
-export type MonthlyOptions = { intro?: string; featuredSlug?: string; preheader?: string }
+export type MonthlyOptions = { intro?: string; preheader?: string }
 
 /** "2026-10" → [start, end) in UTC. Defaults to the previous calendar month (send on the 1st). */
 export function monthRange(month?: string) {
@@ -113,8 +113,9 @@ export const defaultSubject = (d: MonthlyData) => {
     : `${d.label}: ${plural(d.releases.length, 'new release')}${lead.artist ? ` — ${lead.artist} & more` : ''}`
 }
 
-export const defaultIntro = (d: MonthlyData) =>
-  `Hey {name} — here's everything that left the lab in ${d.label.split(' ')[0]}: ${plural(d.releases.length, 'new release')}${d.mixes.length ? ` and ${plural(d.mixes.length, 'fresh mix', 'fresh mixes')}` : ''}. Turn it up.`
+/** Static hero copy — the same every month; the release list below carries the specifics. */
+export const defaultIntro = () =>
+  `Hey {name} — here's what's new from the DnB Doctor lab: the latest releases from our roster, fresh DJ mixes and everything worth turning up. Hit play below.`
 
 export const defaultPreheader = (d: MonthlyData) =>
   d.releases.slice(0, 3).map((r) => (r.artist ? `${r.artist} – ${r.title}` : r.title)).join(' · ') || `News from DnB Doctor`
@@ -122,30 +123,13 @@ export const defaultPreheader = (d: MonthlyData) =>
 /** Full email HTML. Intro text is plain text; blank lines become paragraphs. */
 export function renderMonthly(d: MonthlyData, opts: MonthlyOptions = {}) {
   const campaign = `monthly-${d.month}`
-  const featured = d.releases.find((r) => r.slug === opts.featuredSlug) ?? d.releases[0]
-  const rest = d.releases.filter((r) => r !== featured)
-  const intro = (opts.intro?.trim() || defaultIntro(d))
+  const intro = (opts.intro?.trim() || defaultIntro())
     .split(/\n\s*\n/)
     .map((p) => `<p style="margin:0 0 12px;font-family:${FONT};font-size:15px;line-height:1.7;color:${C.muted};">${esc(p.trim()).replace(/\n/g, '<br />')}</p>`)
     .join('')
 
-  const featuredHref = featured ? track(`${SITE}/music/${featured.slug}`, campaign, 'featured') : ''
-  const featuredBlock = featured
-    ? `<tr><td style="padding:0 0 22px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:${C.card};border:1px solid ${C.line};border-radius:16px;overflow:hidden;">
-  ${featured.cover ? `<tr><td><a href="${esc(featuredHref)}"><img src="${esc(featured.cover)}" alt="${esc(featured.title)}" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;" /></a></td></tr>` : ''}
-  <tr><td style="padding:20px 22px 22px;">
-    ${kicker(`Featured ${esc(featured.type)} · ${day(featured.date)}`)}
-    ${featured.artist ? `<p style="margin:0 0 2px;font-family:${FONT};font-size:14px;color:${C.purple};font-weight:700;text-transform:uppercase;letter-spacing:1px;">${esc(featured.artist)}</p>` : ''}
-    <h2 style="margin:0 0 16px;font-family:${FONT};font-size:26px;line-height:1.15;color:#ffffff;font-weight:800;">${esc(featured.title)}</h2>
-    <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-      <td style="padding:0 8px 8px 0;">${button(featuredHref, 'Listen now', C.green)}</td>
-      ${featured.beatport ? `<td style="padding:0 0 8px;">${button(featured.beatport, 'Buy on Beatport', C.purple, '#ffffff')}</td>` : ''}
-    </tr></table>
-  </td></tr></table></td></tr>`
-    : ''
-
-  const releasesBlock = rest.length
-    ? `<tr><td style="padding:0 2px 12px;">${kicker('Also out this month', C.purple)}<h2 style="margin:0;font-family:${FONT};font-size:20px;color:#ffffff;font-weight:800;">Fresh from the lab</h2></td></tr>${rest.map((r) => releaseRow(r, campaign)).join('')}`
+  const releasesBlock = d.releases.length
+    ? `<tr><td style="padding:0 2px 12px;">${kicker('New releases', C.purple)}<h2 style="margin:0;font-family:${FONT};font-size:20px;color:#ffffff;font-weight:800;">Fresh from the lab</h2></td></tr>${d.releases.map((r) => releaseRow(r, campaign)).join('')}`
     : ''
   const mixesBlock = d.mixes.length
     ? `<tr><td style="padding:16px 2px 12px;">${kicker('On rotation', C.crimson)}<h2 style="margin:0;font-family:${FONT};font-size:20px;color:#ffffff;font-weight:800;">New DJ mixes</h2></td></tr>${d.mixes.map((m) => mixRow(m, campaign)).join('')}`
@@ -171,11 +155,10 @@ export function renderMonthly(d: MonthlyData, opts: MonthlyOptions = {}) {
 
 <tr><td style="padding:0 0 22px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0f;border:1px solid ${C.line};border-top:3px solid ${C.green};border-radius:16px;"><tr><td style="padding:26px 24px 16px;">
   ${kicker(`Monthly dispatch · ${esc(d.label)}`)}
-  <h1 style="margin:0 0 14px;font-family:${FONT};font-size:34px;line-height:1.05;color:#ffffff;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;">${d.releases.length ? `${plural(d.releases.length, 'new release')}` : 'Fresh signals'}<br /><span style="color:${C.purple};">from the lab.</span></h1>
+  <h1 style="margin:0 0 14px;font-family:${FONT};font-size:34px;line-height:1.05;color:#ffffff;font-weight:900;text-transform:uppercase;letter-spacing:-0.5px;">Fresh signals<br /><span style="color:${C.purple};">from the lab.</span></h1>
   ${intro}
 </td></tr></table></td></tr>
 
-${featuredBlock}
 ${releasesBlock}
 ${mixesBlock}
 
