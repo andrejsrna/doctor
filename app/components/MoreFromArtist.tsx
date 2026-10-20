@@ -8,7 +8,7 @@ import { displayFont, monoFont } from './brandFonts'
 import { plainTitle, splitTitle } from './hero/releaseMeta'
 import styles from './MoreFromArtist.module.css'
 
-interface Item {
+export interface Item {
   id: string
   slug: string
   title: string
@@ -20,6 +20,10 @@ interface Item {
 interface MoreFromArtistProps {
   artistName: string
   currentPostId: string
+  /** Server-loaded releases: rendered straight into the HTML, no client fetch. */
+  initialItems?: Item[]
+  /** Small line above the name, e.g. "Releases by" on the artist page. */
+  lead?: string
 }
 
 const PAGE = 4
@@ -29,9 +33,9 @@ const fmtDate = (iso: string | null) =>
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-export default function MoreFromArtist({ artistName, currentPostId }: MoreFromArtistProps) {
-  const [items, setItems] = useState<Item[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+export default function MoreFromArtist({ artistName, currentPostId, initialItems, lead = 'More from' }: MoreFromArtistProps) {
+  const [items, setItems] = useState<Item[]>(initialItems ?? [])
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(initialItems ? 'ready' : 'loading')
   const [visible, setVisible] = useState(PAGE)
   const [playingId, setPlayingId] = useState<string | null>(null)
   const [audioError, setAudioError] = useState<string | null>(null)
@@ -40,7 +44,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
   const rootRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    if (!artistName) return
+    if (!artistName || initialItems) return
     let cancelled = false
     fetch(`/api/posts/by-artist?artist=${encodeURIComponent(artistName)}`)
       .then((r) => {
@@ -57,7 +61,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
         if (!cancelled) setStatus('error')
       })
     return () => { cancelled = true }
-  }, [artistName, currentPostId])
+  }, [artistName, currentPostId, initialItems])
 
   useEffect(() => () => audioRef.current?.pause(), [])
 
@@ -122,7 +126,7 @@ export default function MoreFromArtist({ artistName, currentPostId }: MoreFromAr
           <span>{pad(items.length)} {items.length === 1 ? 'transmission' : 'transmissions'}</span>
         </p>
         <h2 id="more-from-title" className={styles.title}>
-          <span className={styles.more}>More from</span>
+          <span className={styles.more}>{lead}</span>
           <span className={styles.name} data-size={artistName.length > 14 ? 'l' : undefined}>{artistName}</span>
         </h2>
       </div>
