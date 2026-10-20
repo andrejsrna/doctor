@@ -57,13 +57,13 @@ Edukačné „guide“ stránky = **väčšina zobrazení**, a všetky sú ešte
 - [x] **/what-is-drum-and-bass** (nasadené 2026-10-20, viď changelog) – 63 k zobrazení, 15 klikov. Hore krátka odpoveď (definícia + **BPM tabuľka podľa subžánru**: DnB 170–176, Neurofunk 172–175, Liquid 170–174, Jungle 160–170, Halftime 87/174…), kotvy `#bpm`, `#meaning`, FAQ schema ponechať. Title/description prepísať na „DnB BPM & meaning“ zámer (napr. *„What Is DnB? Meaning, BPM (174) & Subgenres Explained“*).
 - [x] **/types-of-dnb** (nasadené 2026-10-20, viď changelog) – najviac klikov na webe. Nový dizajn, porovnávacia tabuľka (BPM, nálada, artisti, príklad tracku), embed/preview z vlastného katalógu.
 - [x] **/how-to-produce-neurofunk** (nasadené 2026-10-20, viď changelog) – 1,79 % CTR, producentské publikum → prepojiť na /sample-packs a /submit-demo (najlepšie konverzie webu).
-- [ ] **/neurofunk-dnb** – title stále hovorí „2025 Guide“ → aktualizovať na 2026, nový dizajn.
+- [x] **/neurofunk-dnb** (nasadené 2026-10-20, viď changelog) – title stále hovorí „2025 Guide“ → aktualizovať na 2026, nový dizajn.
 
 Spoločný „guide“ layout (hero s outline nadpisom, TOC, sekcie, FAQ, CTA na releasy/sample packs) → jedna šablóna pre všetky edukačné stránky.
 
 ### P2 – Kanibalizácia
-- [ ] /types-of-dnb vs /drum-and-bass-subgenres (428 zobr, 1 kl) – zlúčiť subgenres do types-of-dnb (301) alebo jasne rozdeliť zámer.
-- [ ] /neurofunk-dnb vs /neurofunk-drum-and-bass (443 zobr, 2 kl) – zlúčiť (301 na silnejšiu).
+- [x] (2026-10-20, 308 → /types-of-dnb) /types-of-dnb vs /drum-and-bass-subgenres (428 zobr, 1 kl) – zlúčiť subgenres do types-of-dnb (301) alebo jasne rozdeliť zámer.
+- [x] (2026-10-20, 308 → /neurofunk-dnb) /neurofunk-dnb vs /neurofunk-drum-and-bass (443 zobr, 2 kl) – zlúčiť (301 na silnejšiu).
 - [ ] /albums (poz. 13,4) a /music-packs (poz. 35,8) sú samostatné kolekcie (nie duplicity) – slabé pozície riešiť unikátnym úvodným textom a meta, nie zlúčením.
 
 ### P3 – CTR úpravy existujúcich stránok

@@ -47,8 +47,8 @@ const COLUMNS = [
   {
     title: 'Listen',
     links: [
-      { href: '/neurofunk-drum-and-bass', text: 'Neurofunk drum & bass' },
-      { href: '/neurofunk-dnb', text: 'Neurofunk DnB' },
+      { href: '/neurofunk-dnb', text: 'What is neurofunk?' },
+      { href: '/neurofunk-dnb-mixes', text: 'Neurofunk DnB mixes' },
       { href: '/neurofunk-spotify', text: 'Neurofunk Spotify playlists' },
     ],
   },

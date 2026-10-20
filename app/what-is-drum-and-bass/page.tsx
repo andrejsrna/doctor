@@ -399,7 +399,7 @@ export default function WhatIsDrumAndBassPage() {
         </div>
         <p className={styles.note}>
           See also: <Link href="/types-of-dnb">types of DnB</Link> ·{' '}
-          <Link href="/drum-and-bass-subgenres">all Drum and Bass subgenres</Link> ·{' '}
+          <Link href="/types-of-dnb#compare">all Drum and Bass subgenres compared</Link> ·{' '}
           <Link href="/neurofunk-dnb">neurofunk explained</Link>
         </p>
       </Section>
@@ -456,7 +456,7 @@ export default function WhatIsDrumAndBassPage() {
           <Link href="/music" className={styles.btn}>
             Browse DnB Doctor releases <span aria-hidden="true">→</span>
           </Link>
-          <Link href="/drum-and-bass-subgenres" className={styles.btnGhost}>
+          <Link href="/types-of-dnb" className={styles.btnGhost}>
             Explore subgenres
           </Link>
         </div>

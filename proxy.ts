@@ -100,6 +100,10 @@ const redirects = [
     },
     { from: "/asana-neurofunk-code", to: "/music/asana-neurofunk-code" },
     { from: "/podcasts", to: "/music" },
+    // merged duplicate guides (2026-10)
+    { from: "/neurofunk-drum-and-bass", to: "/neurofunk-dnb" },
+    { from: "/drum-and-bass-subgenres", to: "/types-of-dnb" },
+    { from: "/drum-and-bass-sungenres", to: "/types-of-dnb" },
   ];
   
   const PUBLIC_PATHS = [
@@ -116,7 +120,6 @@ const redirects = [
     "/guidelines",
     "/sample-packs",
     "/music-packs",
-    "/neurofunk-drum-and-bass",
     "/neurofunk-dnb-mixes",
     "/bulk-sale",
     "/search",
@@ -169,7 +172,8 @@ const redirects = [
       const redirect = redirects.find((r) => normalizePath(r.from) === path);
 
       if (redirect) {
-        const response = NextResponse.redirect(new URL(redirect.to, request.url));
+        // legacy/merged URLs moved for good: permanent redirect so search engines transfer signals
+        const response = NextResponse.redirect(new URL(redirect.to, request.url), 308);
         if (process.env.DEBUG_MIDDLEWARE_REDIRECTS === "1") {
           console.info("Middleware redirect:", originalPath, "->", redirect.to);
         }

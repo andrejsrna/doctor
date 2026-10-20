@@ -24,7 +24,7 @@ export default function LearnMoreNeurofunk() {
         </motion.h2>
         <p className="mt-4 text-gray-300 max-w-2xl mx-auto">Deep dive into the culture, sound design, and history behind the most surgical branch of DnB.</p>
         <div className="mt-8 flex justify-center">
-          <Button href="/neurofunk-drum-and-bass" variant="toxic" size="lg" className="group">
+          <Button href="/neurofunk-dnb" variant="toxic" size="lg" className="group">
             Explore The Guide
             <motion.span animate={{ x: [0,6,0] }} transition={{ duration: 1.6, repeat: Infinity }} className="ml-2">→</motion.span>
           </Button>

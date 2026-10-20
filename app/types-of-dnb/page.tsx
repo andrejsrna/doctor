@@ -7,9 +7,9 @@ import styles from '@/app/components/guide/guide.module.css'
 export const revalidate = 3600
 
 const URL = 'https://dnbdoctor.com/types-of-dnb'
-const TITLE = 'Types of DnB: 6 Drum and Bass Styles Compared'
+const TITLE = 'Types of DnB: 6 Drum and Bass Subgenres Compared'
 const DESCRIPTION =
-  'Liquid vs Neurofunk vs Jump-Up vs Jungle vs Techstep vs Halftime — what each type of DnB sounds like, with BPM, mood, example artists and where to start.'
+  'All DnB subgenres explained: Liquid vs Neurofunk vs Jump-Up vs Jungle vs Techstep vs Halftime — what each type sounds like, with BPM, mood, artists and where to start.'
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | DnB Doctor` },
@@ -143,9 +143,9 @@ const FAQ = [
 ]
 
 const RELATED = [
-  { href: '/drum-and-bass-subgenres', title: 'DnB Subgenres Explained', text: 'Deep dive into all subgenres with examples' },
+  { href: '/how-to-produce-neurofunk', title: 'How to Make Neurofunk', text: 'Production guide in 7 steps' },
   { href: '/what-is-drum-and-bass', title: 'What is DnB?', text: 'Learn the basics of Drum and Bass' },
-  { href: '/neurofunk-dnb', title: 'Neurofunk Guide', text: 'The darkest type of DnB' },
+  { href: '/neurofunk-dnb', title: 'What is Neurofunk?', text: 'The darkest type of DnB' },
 ]
 
 export default function TypesOfDnbPage() {
@@ -217,9 +217,9 @@ export default function TypesOfDnbPage() {
             <a href="#types" className={styles.btn}>
               Explore DnB types <span aria-hidden="true">↓</span>
             </a>
-            <Link href="/drum-and-bass-subgenres" className={styles.btnGhost}>
+            <a href="#compare" className={styles.btnGhost}>
               Compare subgenres
-            </Link>
+            </a>
           </div>
         </div>
 

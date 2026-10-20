@@ -1,5 +1,14 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-20 – /neurofunk-dnb redizajn + zlúčenie duplicít
+- Baseline (GSC 19. 7.–18. 10. 2026): /neurofunk-dnb 23 kl / 4 563 zobr / CTR 0,50 % / poz. 6,8; /neurofunk-drum-and-bass 2 / 443 / 0,45 % / 10,9; /drum-and-bass-subgenres 1 / 428 / 0,23 % / 8,7.
+- Dopyty: `neurofunk` 1 877 zobr (poz. 8,2), `what is neurofunk?` 1 234 zobr (poz. 1,7, 0 kl), `neurofunk dnb` 664, `dnb subgenres` 603, `neurofunk artists` 295, `neurofunk bpm` 99.
+- /neurofunk-dnb: title „What Is Neurofunk? Neurofunk DnB: BPM, Artists & Labels“ (bez „2025“); Quick answer (4 fakty), definícia, porovnanie s liquid/jump-up/techstep, sekcia artisti + labely (odkazy /neurofunk-labels, /core-artists), DnB Doctor releasy s reálnymi odkazmi (/music/yehor-where-do-we-go, /music/razerbeam-oblivion), playlisty ako odkazy namiesto iframe embedov, producentské dlaždice (how-to, sample packs, demo), FAQ 6 otázok. Odstránený mŕtvy odkaz `open.spotify.com/playlist/your-playlist`.
+- 308: /neurofunk-drum-and-bass → /neurofunk-dnb; /drum-and-bass-subgenres a /drum-and-bass-sungenres → /types-of-dnb (proxy.ts). Všetky proxy redirecty zmenené z 307 na 308 (staré WP URL sú trvalé presuny).
+- /types-of-dnb title → „Types of DnB: 6 Drum and Bass Subgenres Compared“ + description „All DnB subgenres explained…“ (preberá dopyty `dnb subgenres`).
+- Interné odkazy, footer, sitemap aktualizované; nepoužívané FAQ.tsx a SpotifyPlaylistsSection.tsx zmazané.
+- Review: ~1. 12. 2026 (cieľ /neurofunk-dnb CTR > 1,5 %).
+
 ## 2026-10-20 – /how-to-produce-neurofunk redizajn
 - Baseline (GSC 19. 7.–18. 10. 2026): 103 kl / 5 761 zobr / CTR 1,79 % / poz. 7,1. Dopyt `how to make neurofunk` poz. 2,9 (4 kl / 39 zobr); `neurofunk bass` 23 zobr.
 - Title „How to Make Neurofunk: Drums, Bass Design & Mixdown in 7 Steps“; description s konkrétnymi číslami (172–175 BPM, –7 LUFS, Serum/Vital) + „free sample packs“.
