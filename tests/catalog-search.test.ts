@@ -1,38 +1,40 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { searchCatalog } from '../app/lib/catalog-search'
+import { flatHits, searchSite } from '../app/lib/catalog-search'
 
-test('catalogue search uses native APIs and ranks exact matches first', async (t) => {
+const payload = {
+  q: 'Damo',
+  artists: [{ slug: 'damo', name: 'Damo', image: null }],
+  releases: [{ slug: 'damo-cobra-clutch', artist: 'Damo', title: 'Cobra Clutch', cover: 'c.jpg', type: 'Single', date: '2026-10-16' }],
+  news: [{ slug: 'introducing-damo', title: 'Introducing Damo', cover: null, kind: 'News', date: '2026-01-01' }],
+}
+
+test('site search hits one endpoint and maps groups in artist → release → news order', async (t) => {
   const urls: string[] = []
   t.mock.method(globalThis, 'fetch', async (url: string) => {
     urls.push(url)
-    const items = url.startsWith('/api/artists')
-      ? [{ id: 'artist', name: 'Damo', slug: 'damo' }]
-      : url.startsWith('/api/news')
-        ? [{ id: 'news', title: 'Introducing Damo', slug: 'introducing-damo', publishedAt: '2026-01-01' }]
-        : [{ id: 'release', title: 'Damo - Cobra Clutch', slug: 'damo-cobra-clutch', publishedAt: '2026-10-16' }]
-    return new Response(JSON.stringify({ items }), { status: 200 })
+    return new Response(JSON.stringify(payload), { status: 200 })
   })
-  const results = await searchCatalog(' Damo ', 10)
-  assert.deepEqual(urls, [
-    '/api/releases?search=Damo&limit=10',
-    '/api/news?search=Damo&limit=10',
-    '/api/artists?search=Damo&limit=10',
-  ])
-  assert.deepEqual(results.map(result => result.type), ['artist', 'post', 'news'])
-  assert.equal(results[0].title.rendered, 'Damo')
-  assert.equal(results[0].date, '')
+  const groups = await searchSite(' Damo ', 10)
+  assert.deepEqual(urls, ['/api/search?q=Damo&limit=10'])
+  const hits = flatHits(groups)
+  assert.deepEqual(hits.map((h) => h.kind), ['artist', 'release', 'news'])
+  assert.deepEqual(hits.map((h) => h.href), ['/artists/damo', '/music/damo-cobra-clutch', '/news/introducing-damo'])
+  assert.equal(hits[1].sub, 'Damo')
+  assert.equal(hits[1].tag, 'Single')
 })
 
-test('catalogue search reports API failures rather than an empty success', async (t) => {
+test('site search reports API failures rather than an empty success', async (t) => {
   t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 503 }))
-  await assert.rejects(searchCatalog('Damo'), /Search is unavailable/)
+  await assert.rejects(searchSite('Damo'), /Search is unavailable/)
 })
 
-test('catalogue search encodes query text and supports empty results', async (t) => {
-  t.mock.method(globalThis, 'fetch', async (url: string) => {
-    assert.match(url, /search=A%26B/)
-    return new Response(JSON.stringify({ items: [] }), { status: 200 })
+test('site search encodes query text and skips queries under 2 characters', async (t) => {
+  const fetchMock = t.mock.method(globalThis, 'fetch', async (url: string) => {
+    assert.match(url, /q=A%26B/)
+    return new Response(JSON.stringify({ q: 'A&B', artists: [], releases: [], news: [] }), { status: 200 })
   })
-  assert.deepEqual(await searchCatalog('A&B'), [])
+  assert.deepEqual(flatHits(await searchSite('A&B')), [])
+  assert.deepEqual(flatHits(await searchSite('a')), [])
+  assert.equal(fetchMock.mock.callCount(), 1)
 })

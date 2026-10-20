@@ -1,40 +1,37 @@
-export interface CatalogSearchResult {
-  id: string
-  type: 'post' | 'news' | 'artist'
-  title: { rendered: string }
-  excerpt: { rendered: string }
-  slug: string
-  date: string
+/** Client helper for /api/search — shared by the header search overlay and /search. */
+
+export type SearchHit = {
+  kind: 'artist' | 'release' | 'news'
+  href: string
+  title: string
+  /** Artist credit (releases) or label (Mix / News) */
+  sub: string | null
+  image: string | null
+  tag: string
+  date: string | null
 }
 
-interface CatalogItem {
-  id: string
-  slug: string
-  title?: string
-  name?: string
-  publishedAt?: string | null
+export type SearchGroups = { artists: SearchHit[]; releases: SearchHit[]; news: SearchHit[] }
+
+type Api = {
+  artists: { slug: string; name: string; image: string | null }[]
+  releases: { slug: string; artist: string | null; title: string; cover: string | null; type: string; date: string | null }[]
+  news: { slug: string; title: string; cover: string | null; kind: string; date: string | null }[]
 }
 
-export async function searchCatalog(query: string, limit = 10, signal?: AbortSignal): Promise<CatalogSearchResult[]> {
-  const sources = [
-    { endpoint: 'releases', type: 'post' as const },
-    { endpoint: 'news', type: 'news' as const },
-    { endpoint: 'artists', type: 'artist' as const },
-  ]
-  const groups = await Promise.all(sources.map(async ({ endpoint, type }) => {
-    const response = await fetch(`/api/${endpoint}?search=${encodeURIComponent(query.trim())}&limit=${limit}`, { signal })
-    if (!response.ok) throw new Error('Search is unavailable. Please try again.')
-    const data: { items: CatalogItem[] } = await response.json()
-    return data.items.map((item) => ({
-      id: item.id,
-      type,
-      title: { rendered: item.title || item.name || '' },
-      excerpt: { rendered: '' },
-      slug: item.slug,
-      date: item.publishedAt || '',
-    }))
-  }))
-  const normalized = query.trim().toLowerCase()
-  const score = (title: string) => title === normalized ? 0 : title.startsWith(normalized) ? 1 : title.includes(normalized) ? 2 : 3
-  return groups.flat().sort((a, b) => score(a.title.rendered.toLowerCase()) - score(b.title.rendered.toLowerCase()) || a.title.rendered.localeCompare(b.title.rendered))
+export const EMPTY_GROUPS: SearchGroups = { artists: [], releases: [], news: [] }
+
+export async function searchSite(query: string, limit = 6, signal?: AbortSignal): Promise<SearchGroups> {
+  const q = query.trim()
+  if (q.length < 2) return EMPTY_GROUPS
+  const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=${limit}`, { signal })
+  if (!res.ok) throw new Error('Search is unavailable. Please try again.')
+  const d: Api = await res.json()
+  return {
+    artists: d.artists.map((a) => ({ kind: 'artist', href: `/artists/${a.slug}`, title: a.name, sub: null, image: a.image, tag: 'Artist', date: null })),
+    releases: d.releases.map((r) => ({ kind: 'release', href: `/music/${r.slug}`, title: r.title, sub: r.artist, image: r.cover, tag: r.type, date: r.date })),
+    news: d.news.map((n) => ({ kind: 'news', href: `/news/${n.slug}`, title: n.title, sub: null, image: n.cover, tag: n.kind, date: n.date })),
+  }
 }
+
+export const flatHits = (g: SearchGroups) => [...g.artists, ...g.releases, ...g.news]
