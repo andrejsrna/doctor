@@ -64,7 +64,7 @@ Spoločný „guide“ layout (hero s outline nadpisom, TOC, sekcie, FAQ, CTA na
 ### P2 – Kanibalizácia
 - [ ] /types-of-dnb vs /drum-and-bass-subgenres (428 zobr, 1 kl) – zlúčiť subgenres do types-of-dnb (301) alebo jasne rozdeliť zámer.
 - [ ] /neurofunk-dnb vs /neurofunk-drum-and-bass (443 zobr, 2 kl) – zlúčiť (301 na silnejšiu).
-- [ ] /albums (poz. 13,4) a /music-packs (poz. 35,8) – overiť, či nie sú duplicitné k /music a /sample-packs.
+- [ ] /albums (poz. 13,4) a /music-packs (poz. 35,8) sú samostatné kolekcie (nie duplicity) – slabé pozície riešiť unikátnym úvodným textom a meta, nie zlúčením.
 
 ### P3 – CTR úpravy existujúcich stránok
 - [ ] **Homepage** – description je generická („Your premier destination…“) → konkrétna (neurofunk label, počet releasov, demo submission).
