@@ -91,6 +91,13 @@ const SimpleControls = memo(function SimpleControls({
           <FaRegFileAlt className="h-4 w-4" />
           Newsletter Templates
         </button>
+        <a
+          href="/admin/newsletter/monthly"
+          className="flex items-center gap-2 px-4 py-2 bg-fuchsia-900/40 text-fuchsia-200 rounded-lg hover:bg-fuchsia-900/60"
+        >
+          <FaEnvelope className="h-4 w-4" />
+          Monthly releases newsletter
+        </a>
         <button
           onClick={onSendCustomNewsletter}
           className="flex items-center gap-2 px-4 py-2 bg-green-900/50 text-green-300 rounded-lg hover:bg-green-900/70"

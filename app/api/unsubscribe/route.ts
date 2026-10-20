@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyUnsubscribeToken } from "@/lib/newsletter/unsubscribe";
 
 interface UnsubscribeData {
   email: string;
@@ -13,7 +14,18 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
+/** RFC 8058 one-click unsubscribe (List-Unsubscribe-Post from mail clients): signed ?e=&t= in the URL. */
+async function oneClick(request: NextRequest) {
+  const email = (request.nextUrl.searchParams.get("e") || "").trim().toLowerCase();
+  if (!email || !verifyUnsubscribeToken(email, request.nextUrl.searchParams.get("t"))) {
+    return addNoCacheHeaders(NextResponse.json({ success: false, error: "Invalid unsubscribe link" }, { status: 400 }));
+  }
+  await prisma.subscriber.updateMany({ where: { email, status: { not: "UNSUBSCRIBED" } }, data: { status: "UNSUBSCRIBED" } });
+  return addNoCacheHeaders(NextResponse.json({ success: true, unsubscribed: true }));
+}
+
 export async function POST(request: NextRequest) {
+  if (request.nextUrl.searchParams.has("t")) return oneClick(request);
   try {
     const { email }: UnsubscribeData = await request.json();
 

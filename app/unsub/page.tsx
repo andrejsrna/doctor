@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { FaTimes } from 'react-icons/fa'
 import { subscriberApi } from '../services/subscriberApi'
@@ -10,6 +10,12 @@ export default function UnsubscribePage() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+
+  // Newsletter footer links carry ?e=<address>; prefill it so unsubscribing is one click.
+  useEffect(() => {
+    const e = new URLSearchParams(window.location.search).get('e')
+    if (e) setEmail(e)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
