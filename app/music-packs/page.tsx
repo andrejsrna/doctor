@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import CollectionView from '@/app/components/collections/CollectionView'
-import { loadCollections } from '@/app/components/collections/collections'
+import { countMixes, loadCollections } from '@/app/components/collections/collections'
 
 export const revalidate = 300
 
@@ -24,5 +24,5 @@ export const metadata: Metadata = {
 }
 
 export default async function MusicPacksPage() {
-  return <CollectionView kind="music-packs" all={await loadCollections()} />
+  return <CollectionView kind="music-packs" all={await loadCollections()} mixes={await countMixes()} />
 }

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { shortDate } from '@/app/utils/shortDate'
 import { producerLinks } from '@/lib/affiliates'
-import { COLLECTIONS, KINDS, type CollectionItem, type CollectionKind } from './collections'
+import { COLLECTIONS, KINDS, MIXES_PATH, type CollectionItem, type CollectionKind } from './collections'
 import { PreviewButton, StoreLink } from './CollectionClient'
 import styles from './collections.module.css'
 
@@ -75,7 +75,27 @@ function Extra({ kind }: { kind: CollectionKind }) {
   return null
 }
 
-export default function CollectionView({ kind, all }: { kind: CollectionKind; all: Record<CollectionKind, CollectionItem[]> }) {
+const counts = (all: Record<CollectionKind, CollectionItem[]>) =>
+  Object.fromEntries(KINDS.map((k) => [k, all[k].length])) as Record<CollectionKind, number>
+
+/** Albums, music packs, sample packs and mixes are separate URLs that read as tabs of one page. */
+export function CollectionTabs({ current, counts }: { current: CollectionKind | 'mixes'; counts: Record<CollectionKind | 'mixes', number> }) {
+  return (
+    <nav className={styles.tabs} aria-label="Collections">
+      <span className={styles.tabsLabel}>Collections</span>
+      {KINDS.map((k) => (
+        <Link key={k} href={COLLECTIONS[k].path} aria-current={k === current ? 'page' : undefined} scroll={false}>
+          {COLLECTIONS[k].tab} <span>{counts[k]}</span>
+        </Link>
+      ))}
+      <Link href={MIXES_PATH} aria-current={current === 'mixes' ? 'page' : undefined} scroll={false}>
+        DJ mixes <span>{counts.mixes}</span>
+      </Link>
+    </nav>
+  )
+}
+
+export default function CollectionView({ kind, all, mixes }: { kind: CollectionKind; all: Record<CollectionKind, CollectionItem[]>; mixes: number }) {
   const c = COLLECTIONS[kind]
   const items = all[kind]
   const stack = items.filter((i) => i.cover).slice(0, 4)
@@ -130,14 +150,7 @@ export default function CollectionView({ kind, all }: { kind: CollectionKind; al
           </div>
         )}
         <div className={styles.heroInner}>
-          <nav className={styles.tabs} aria-label="Collections">
-            <span className={styles.tabsLabel}>Collections</span>
-            {KINDS.map((k) => (
-              <Link key={k} href={COLLECTIONS[k].path} aria-current={k === kind ? 'page' : undefined} scroll={false}>
-                {COLLECTIONS[k].tab} <span>{all[k].length}</span>
-              </Link>
-            ))}
-          </nav>
+          <CollectionTabs current={kind} counts={{ ...counts(all), mixes }} />
 
           <div className={styles.heroGrid}>
             <div className={styles.heroCopy}>

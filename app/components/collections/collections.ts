@@ -87,7 +87,7 @@ const STORES = [
 ] as const
 
 /** First ~240 chars of readable prose from the release description. */
-function excerpt(html: string | null) {
+export function excerpt(html: string | null) {
   if (!html) return null
   const text = plainTitle(html.replace(/<\/(p|h\d|li|div)>|<br\s*\/?>/gi, ' \n'))
     .replace(/https?:\/\/\S+/g, '')
@@ -151,5 +151,17 @@ export async function loadCollections(): Promise<Record<CollectionKind, Collecti
     return empty
   } catch {
     return empty
+  }
+}
+
+export const MIXES_PATH = '/neurofunk-dnb-mixes'
+
+/** Number of published mixes, for the "DJ mixes" tab next to the collections. */
+export async function countMixes() {
+  if (!process.env.DATABASE_URL) return 0
+  try {
+    return await prisma.news.count({ where: { categories: { has: 'Mixes' } } })
+  } catch {
+    return 0
   }
 }

@@ -1,222 +1,362 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
-import { sanitizeHtml } from '@/lib/sanitize'
 import type { Metadata } from 'next'
-import AffiliateLinks from '@/app/components/AffiliateLinks'
+import { prisma } from '@/lib/prisma'
 import { djLinks } from '@/lib/affiliates'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import { plainTitle } from '@/app/components/hero/releaseMeta'
+import { shortDate } from '@/app/utils/shortDate'
+import { soundcloudSrc, youtubeId } from '@/app/news/media'
+import { CollectionTabs } from '@/app/components/collections/CollectionView'
+import { COLLECTIONS, KINDS, countMixes, excerpt, loadCollections, type CollectionKind } from '@/app/components/collections/collections'
+import base from '@/app/components/collections/collections.module.css'
+import MixPlayer from './MixPlayer'
+import styles from './mixes.module.css'
 
 export const revalidate = 600
 
-type MixItem = {
-  id: string
-  slug: string
-  title: string
-  coverImageUrl?: string | null
-  publishedAt?: string | null
-}
-
-const siteUrl = 'https://dnbdoctor.com'
-const heroImage = '/music-bg.jpeg'
+const SITE = 'https://dnbdoctor.com'
+const URL = `${SITE}/neurofunk-dnb-mixes`
+const DESCRIPTION =
+  'Listen to curated neurofunk DnB mixes packed with rolling basslines and cinematic energy. Fresh “Mixes” drops, artist features, and heavy drum & bass sets.'
 
 export const metadata: Metadata = {
   title: { absolute: 'Neurofunk DnB Mixes | Dark Drum & Bass Sets by DnB Doctor' },
-  description: 'Listen to curated neurofunk DnB mixes packed with rolling basslines and cinematic energy. Fresh “Mixes” drops, artist features, and heavy drum & bass sets.',
+  description: DESCRIPTION,
+  alternates: { canonical: URL },
   openGraph: {
     title: 'Neurofunk DnB Mixes | Dark Drum & Bass Sets',
     description: 'Curated drum & bass mixes from the DnB Doctor roster with relentless bass pressure.',
-    url: `${siteUrl}/neurofunk-dnb-mixes`,
+    url: URL,
+    siteName: 'DnB Doctor',
     type: 'website',
-    images: [{ url: heroImage, width: 1200, height: 630, alt: 'Neurofunk DnB Mixes' }],
+    images: [{ url: `${SITE}/og-image.jpg`, width: 1200, height: 630, alt: 'Neurofunk DnB Mixes' }],
   },
-  alternates: { canonical: `${siteUrl}/neurofunk-dnb-mixes` },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
-  },
+  twitter: { card: 'summary_large_image', images: [`${SITE}/og-image.jpg`] },
 }
 
-function formatDate(date?: string | null) {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+type Mix = {
+  id: string
+  slug: string
+  /** headline without the "| Neurofunk Drum & Bass Mix" kicker */
+  title: string
+  vol: number | null
+  dj: { name: string; slug: string | null } | null
+  cover: string | null
+  date: string | null
+  excerpt: string | null
+  player: string | null
+  tracks: number
+  download: boolean
+  video: boolean
 }
 
-async function fetchMixes(): Promise<MixItem[]> {
+const SERIES = /^NEUROBANGERZ,?\s*Vol[.,]?\s*(\d+)\s*[-–]\s*(.+)$/i
+
+async function loadMixes(): Promise<Mix[]> {
+  if (!process.env.DATABASE_URL) return []
   try {
-    const posts = await prisma.news.findMany({
-      where: { categories: { has: 'Mixes' } },
-      orderBy: { publishedAt: 'desc' },
-      take: 6,
-      select: { id: true, slug: true, title: true, coverImageUrl: true, publishedAt: true },
+    const [posts, roster] = await Promise.all([
+      prisma.news.findMany({
+        where: { categories: { has: 'Mixes' } },
+        orderBy: { publishedAt: 'desc' },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          coverImageUrl: true,
+          publishedAt: true,
+          soundcloudUrl: true,
+          scsc: true,
+          youtubeUrl: true,
+          tracklist: true,
+          mixDownloadUrl: true,
+          relatedArtistName: true,
+          mixArtist: { select: { name: true, slug: true } },
+        },
+      }),
+      prisma.artist.findMany({ select: { name: true, slug: true } }),
+    ])
+    const bySlug = new Map(roster.map((a) => [a.name.trim().toLowerCase(), a.slug]))
+    return posts.map((p) => {
+      const title = plainTitle(p.title).split(/\s+\|\s+/)[0].trim()
+      const m = title.match(SERIES)
+      const name = p.mixArtist?.name ?? p.relatedArtistName ?? m?.[2]?.trim() ?? null
+      return {
+        id: p.id,
+        slug: p.slug,
+        title,
+        vol: m ? Number(m[1]) : null,
+        dj: name ? { name, slug: p.mixArtist?.slug ?? bySlug.get(name.toLowerCase()) ?? null } : null,
+        cover: p.coverImageUrl,
+        date: p.publishedAt ? p.publishedAt.toISOString() : null,
+        excerpt: excerpt(p.content),
+        player: soundcloudSrc(p.soundcloudUrl, p.scsc),
+        tracks: (p.tracklist || '').split('\n').filter((l) => l.trim()).length,
+        download: !!p.mixDownloadUrl,
+        video: !!youtubeId(p.youtubeUrl),
+      }
     })
-    return posts.map((p) => ({
-      ...p,
-      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
-    }))
   } catch (error) {
     console.error('Failed to load mixes', error)
     return []
   }
 }
 
+function MixRow({ mix, index }: { mix: Mix; index: number }) {
+  const href = `/news/${mix.slug}`
+  return (
+    <li className={styles.row} style={{ '--i': index } as React.CSSProperties}>
+      <span className={styles.vol} aria-hidden="true">
+        {mix.vol != null ? String(mix.vol).padStart(2, '0') : 'SP'}
+      </span>
+      <Link href={href} className={styles.cover} tabIndex={-1} aria-hidden="true">
+        {mix.cover ? <Image src={mix.cover} alt="" fill sizes="(max-width: 700px) 92vw, 300px" /> : <span>No signal</span>}
+      </Link>
+      <div className={styles.body}>
+        <p className={styles.meta}>
+          {mix.date && <time dateTime={mix.date}>{shortDate(mix.date)}</time>}
+          {mix.tracks > 0 && <span>{mix.tracks} tracks</span>}
+          {mix.download && <span className={styles.tagGreen}>WAV download</span>}
+          {mix.video && <span className={styles.tagPurple}>Video</span>}
+        </p>
+        <h3 className={styles.rowTitle}>
+          <Link href={href}>{mix.vol != null && mix.dj ? mix.dj.name : mix.title}</Link>
+        </h3>
+        <p className={styles.by}>
+          {mix.vol != null ? `NEUROBANGERZ · Vol. ${mix.vol}` : mix.dj ? `Mixed by ${mix.dj.name}` : 'DnB Doctor special'}
+          {mix.dj?.slug && (
+            <>
+              {' · '}
+              <Link href={`/artists/${mix.dj.slug}`}>Artist profile →</Link>
+            </>
+          )}
+        </p>
+        {mix.excerpt && <p className={styles.excerpt}>{mix.excerpt}</p>}
+        <div className={styles.actions}>
+          {mix.player && <MixPlayer src={mix.player} slug={mix.slug} title={mix.title} className={base.primary} playerClass={styles.player} />}
+          <Link href={href} className={base.secondary}>
+            {mix.tracks > 0 ? 'Tracklist & story' : 'Open mix'} →
+          </Link>
+        </div>
+      </div>
+    </li>
+  )
+}
+
 export default async function NeurofunkDnBMixesPage() {
-  const mixes = await fetchMixes()
+  const [mixes, all, mixCount] = await Promise.all([loadMixes(), loadCollections(), countMixes()])
+  const latest = mixes[0]
+  const series = mixes.filter((m) => m.vol != null)
+  const specials = mixes.filter((m) => m.vol == null)
+  const tracks = mixes.reduce((n, m) => n + m.tracks, 0)
+  const counts = { ...(Object.fromEntries(KINDS.map((k) => [k, all[k].length])) as Record<CollectionKind, number>), mixes: mixCount }
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Neurofunk DnB Mixes',
+      url: URL,
+      description: DESCRIPTION,
+      isPartOf: { '@type': 'WebSite', name: 'DnB Doctor', url: SITE },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: mixes.length,
+        itemListElement: mixes.map((m, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'MusicPlaylist',
+            name: m.title,
+            url: `${SITE}/news/${m.slug}`,
+            genre: 'Neurofunk Drum and Bass',
+            ...(m.tracks > 0 && { numTracks: m.tracks }),
+            ...(m.dj && { creator: { '@type': 'Person', name: m.dj.name, ...(m.dj.slug && { url: `${SITE}/artists/${m.dj.slug}` }) } }),
+            ...(m.cover && { image: m.cover }),
+            ...(m.date && { datePublished: m.date.slice(0, 10) }),
+          },
+        })),
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'DnB Doctor', item: SITE },
+        { '@type': 'ListItem', position: 2, name: 'Music', item: `${SITE}/music` },
+        { '@type': 'ListItem', position: 3, name: 'Neurofunk DnB Mixes', item: URL },
+      ],
+    },
+  ]
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <section className="relative overflow-hidden py-24">
-        <div className="absolute inset-0">
-          <Image
-            src={heroImage}
-            alt="Neurofunk drum and bass visuals"
-            fill
-            priority
-            className="object-cover opacity-60"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-black/70 to-purple-900/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(168,85,247,0.2),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(34,197,94,0.2),transparent_35%)]" />
-        </div>
+    <div className={`${base.root} ${displayFont.variable} ${monoFont.variable}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-        <div className="relative max-w-6xl mx-auto px-4 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
-          <div className="space-y-6">
-            <p className="text-sm uppercase tracking-[0.2em] text-purple-300">Neurofunk DnB Mixes</p>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-              Dark, Rolling Drum &amp; Bass Mixes with Cinematic Pressure
-            </h1>
-            <p className="text-lg text-gray-200">
-              Curated sets from the DnB Doctor roster and allies. Expect relentless basslines, halftime detours, and
-              warehouse-ready energy. Every mix is tagged under “Mixes” so you can binge the newest drops without digging.
-            </p>
-            <div className="grid gap-4 md:grid-cols-2 text-sm text-gray-200">
-              <div className="bg-white/5 border border-purple-500/30 rounded-xl p-4">
-                <p className="text-purple-300 font-semibold mb-1">What you get</p>
-                <p>High-impact neurofunk selections, double drops, cinematic intros, and techy rollers for late-night systems.</p>
-              </div>
-              <div className="bg-white/5 border border-green-500/30 rounded-xl p-4">
-                <p className="text-green-300 font-semibold mb-1">Updated often</p>
-                <p>Fresh “Mixes” news posts as they land — no stale listings, just the latest sets.</p>
-              </div>
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <Link
-                className="px-5 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors text-white font-semibold shadow-[0_10px_40px_rgba(168,85,247,0.35)]"
-                href="#mixes"
-              >
-                Explore Mixes
-              </Link>
-              <Link
-                className="px-5 py-3 rounded-lg border border-purple-400/50 hover:border-purple-300 text-purple-100"
-                href="/news"
-              >
-                All News
-              </Link>
-            </div>
+      {/* ---------- hero ---------- */}
+      <header className={base.hero}>
+        {latest?.cover && (
+          <div className={base.heroBg} aria-hidden="true">
+            <Image src={latest.cover} alt="" fill priority sizes="100vw" />
           </div>
+        )}
+        <div className={base.heroInner}>
+          <CollectionTabs current="mixes" counts={counts} />
 
-          <div className="relative w-full h-[380px] md:h-[460px]">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-black/60 to-green-500/10 rounded-3xl blur-3xl" />
-            <div className="relative w-full h-full border border-purple-500/20 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-              <Image
-                src="/dnb-mixes.jpeg"
-                alt="DnB Doctor mixes visual"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
-              <div className="absolute bottom-6 left-6 right-6 space-y-2">
-                <p className="text-sm uppercase tracking-wide text-purple-200">Now Featuring</p>
-                <p className="text-xl font-semibold">Neurofunk DnB Doctor Showcase</p>
-                <p className="text-gray-300 text-sm">Live-blended by the roster. 60 minutes of grit.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="mixes" className="relative py-20 px-4">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-purple-300">Latest Drops</p>
-              <h2 className="text-3xl md:text-4xl font-bold">Fresh Neurofunk Mixes</h2>
-            </div>
-            <Link
-              href="/news"
-              className="text-purple-200 hover:text-white text-sm underline underline-offset-4"
-            >
-              View all news
-            </Link>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {mixes.length > 0 ? (
-              mixes.map((mix) => (
-                <Link
-                  key={mix.id}
-                  href={`/news/${mix.slug}`}
-                  className="group relative bg-white/5 border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-400/60 transition-all"
-                >
-                  <div className="grid grid-cols-[1.4fr_1fr] min-h-[180px]">
-                    <div className="p-5 flex flex-col justify-between">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-purple-300">Mixes</p>
-                        <h3
-                          className="text-xl font-semibold mt-2 mb-2 group-hover:text-purple-100 transition-colors"
-                          dangerouslySetInnerHTML={{ __html: sanitizeHtml(mix.title) }}
-                        />
-                        <p className="text-sm text-gray-400">{formatDate(mix.publishedAt)}</p>
-                      </div>
-                      <span className="text-sm text-purple-200 flex items-center gap-2 group-hover:text-white font-semibold">
-                        Listen now
-                        <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
-                      </span>
-                    </div>
-                    <div className="relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black/40 to-green-500/10" />
-                      {mix.coverImageUrl ? (
-                        <Image
-                          src={mix.coverImageUrl}
-                          alt={sanitizeHtml(mix.title)}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 768px) 40vw, 30vw"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm">
-                          No image
-                        </div>
-                      )}
-                    </div>
+          <div className={base.heroGrid}>
+            <div className={base.heroCopy}>
+              <p className={base.kicker}>
+                <span className={base.dot} aria-hidden="true" /> Neurofunk DnB Mixes
+              </p>
+              <h1 className={`${base.title} ${styles.title}`}>
+                <span>Dark, Rolling</span>
+                <span className={base.outline}>Drum &amp; Bass Mixes</span>
+                <small>with Cinematic Pressure</small>
+              </h1>
+              <p className={base.lede}>
+                Curated sets from the DnB Doctor roster and allies. Expect relentless basslines, halftime detours, and warehouse-ready energy. Every
+                mix is tagged under “Mixes” so you can binge the newest drops without digging.
+              </p>
+              <dl className={styles.stats}>
+                <div>
+                  <dt>Mixes</dt>
+                  <dd>{String(mixes.length).padStart(2, '0')}</dd>
+                </div>
+                <div>
+                  <dt>NEUROBANGERZ vols</dt>
+                  <dd>{String(series.length).padStart(2, '0')}</dd>
+                </div>
+                {tracks > 0 && (
+                  <div>
+                    <dt>Tracks listed</dt>
+                    <dd>{tracks}</dd>
                   </div>
+                )}
+              </dl>
+              <div className={base.ctas}>
+                <a href="#mixes" className={base.secondary}>
+                  Explore Mixes ↓
+                </a>
+                <Link href="/news" className={base.ghost}>
+                  All News
                 </Link>
-              ))
-            ) : (
-              <div className="text-center py-12 px-6 rounded-xl border border-purple-500/30 bg-purple-500/5 text-gray-300">
-                No mixes published yet. Check back soon for fresh neurofunk sets.
               </div>
+            </div>
+
+            {latest && (
+              <aside className={styles.latest} aria-labelledby="latest-title">
+                <Link href={`/news/${latest.slug}`} className={styles.latestCover} tabIndex={-1} aria-hidden="true">
+                  {latest.cover && <Image src={latest.cover} alt="" fill priority sizes="(max-width: 960px) 80vw, 420px" />}
+                  <span className={styles.eq}>
+                    {Array.from({ length: 16 }, (_, i) => (
+                      <i key={i} style={{ '--b': i, '--h': `${20 + ((i * 37) % 11) * 7}%` } as React.CSSProperties} />
+                    ))}
+                  </span>
+                </Link>
+                <div className={styles.latestBody}>
+                  <p className={base.label}>Latest mix{latest.date && ` · ${shortDate(latest.date)}`}</p>
+                  <h2 id="latest-title" className={styles.latestTitle}>
+                    <Link href={`/news/${latest.slug}`}>{latest.title}</Link>
+                  </h2>
+                  {latest.player && (
+                    <MixPlayer src={latest.player} slug={`hero-${latest.slug}`} title={latest.title} className={base.primary} playerClass={styles.player} />
+                  )}
+                </div>
+              </aside>
             )}
           </div>
         </div>
+      </header>
+
+      {/* ---------- mixes ---------- */}
+      <section className={styles.list} id="mixes" aria-labelledby="mixes-title">
+        <div className={styles.listHead}>
+          <h2 id="mixes-title" className={base.h2}>
+            Fresh <span className={base.outline}>Neurofunk Mixes</span>
+          </h2>
+          <ul className={styles.notes}>
+            <li>
+              <b>What you get</b> High-impact neurofunk selections, double drops, cinematic intros, and techy rollers for late-night systems.
+            </li>
+            <li>
+              <b>Updated often</b> Fresh “Mixes” news posts as they land — no stale listings, just the latest sets.
+            </li>
+          </ul>
+        </div>
+
+        {mixes.length === 0 ? (
+          <p className={styles.empty}>No mixes published yet. Check back soon for fresh neurofunk sets.</p>
+        ) : (
+          <>
+            {series.length > 0 && (
+              <div className={styles.group}>
+                <h3 className={base.label}>The NEUROBANGERZ series · a guest DJ every volume</h3>
+                <ol className={styles.rows}>
+                  {series.map((m, i) => (
+                    <MixRow key={m.id} mix={m} index={i} />
+                  ))}
+                </ol>
+              </div>
+            )}
+            {specials.length > 0 && (
+              <div className={styles.group}>
+                <h3 className={base.label}>Specials &amp; showcases</h3>
+                <ol className={styles.rows}>
+                  {specials.map((m, i) => (
+                    <MixRow key={m.id} mix={m} index={i} />
+                  ))}
+                </ol>
+              </div>
+            )}
+          </>
+        )}
       </section>
-      {/* Need Tracks for Your Sets? */}
-      <section className="py-16 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="bg-gradient-to-r from-purple-500/10 via-black/50 to-green-500/10 border border-purple-500/20 rounded-2xl p-8">
-            <h2 className="text-2xl font-bold mb-2">Need tracks for your sets?</h2>
-            <p className="text-gray-400 mb-6">Get the latest DnB on Beatport and DJCity — the go-to sources for working DJs.</p>
-            <AffiliateLinks links={djLinks} title={undefined} layout="compact" />
-            <p className="text-xs text-gray-600 mt-4">
-              Some links are affiliate links. We may earn a commission at no extra cost to you.
-            </p>
+
+      {/* ---------- tracks for DJs ---------- */}
+      <section className={base.extra} aria-labelledby="dj-title">
+        <h2 id="dj-title" className={base.h2}>
+          Need tracks <span className={base.outline}>for your sets?</span>
+        </h2>
+        <div className={base.tools}>
+          <p className={base.label}>Get the latest DnB on Beatport and DJCity — the go-to sources for working DJs.</p>
+          <div className={base.toolLinks}>
+            {djLinks.map((l) => (
+              <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer sponsored">
+                <strong>{l.name}</strong>
+                <span>{l.tagline ?? l.description}</span>
+              </a>
+            ))}
           </div>
+          <p className={base.disclose}>Some links are affiliate links. We may earn a commission at no extra cost to you.</p>
         </div>
       </section>
+
+      {/* ---------- keep digging ---------- */}
+      <nav className={base.more} aria-labelledby="more-title">
+        <h2 id="more-title" className={base.label}>
+          Keep digging
+        </h2>
+        <ul>
+          {KINDS.map((k) => (
+            <li key={k}>
+              <Link href={COLLECTIONS[k].path}>
+                <strong>{COLLECTIONS[k].tab}</strong>
+                <span>
+                  {counts[k]} {counts[k] === 1 ? COLLECTIONS[k].noun[0] : COLLECTIONS[k].noun[1]}
+                </span>
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/music">
+              <strong>All releases</strong>
+              <span>The full catalogue</span>
+            </Link>
+          </li>
+        </ul>
+      </nav>
     </div>
   )
 }
