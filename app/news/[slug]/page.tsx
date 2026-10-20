@@ -1,394 +1,515 @@
-
-import { prisma } from '@/lib/prisma'
-import { notFound } from 'next/navigation'
-import MoreFromArtist from '@/app/components/MoreFromArtist'
-import parse, { DOMNode, domToReact, Element } from 'html-react-parser'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import RelatedNews from '../../components/RelatedNews'
-import SocialShare from '../../components/SocialShare'
-import EngagementCTA from '../../components/EngagementCTA'
+import { notFound } from 'next/navigation'
+import parse, { type DOMNode, domToReact, Element } from 'html-react-parser'
+import { prisma } from '@/lib/prisma'
 import { sanitizeHtml } from '@/lib/sanitize'
-import type { Metadata } from 'next'
+import { plainTitle } from '@/app/components/hero/releaseMeta'
+import { displayFont, monoFont } from '@/app/components/brandFonts'
+import NewsMedia from './NewsMedia'
+import ShareBar from './ShareBar'
+import styles from './post.module.css'
 
-interface PageProps { params: Promise<{ slug: string }> }
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
 
 export const revalidate = 300
 
-function getYouTubeEmbedUrl(url?: string | null): string | null {
+const SITE = 'https://dnbdoctor.com'
+
+const CHANNELS = [
+  { name: 'Spotify playlist', href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9' },
+  { name: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1' },
+  { name: 'Discord', href: 'https://discord.gg/GE2HWFdgXG' },
+  { name: 'Instagram', href: 'https://www.instagram.com/dnbdoctor' },
+]
+
+/* ---------------- helpers ---------------- */
+
+function youtubeId(url?: string | null) {
   if (!url) return null
   try {
-    const parsed = new URL(url.trim())
-    let id = ''
-    if (parsed.hostname.includes('youtu.be')) id = parsed.pathname.replace('/', '')
-    else if (parsed.pathname.startsWith('/shorts/')) id = parsed.pathname.split('/')[2] || ''
-    else if (parsed.pathname.startsWith('/embed/')) id = parsed.pathname.split('/')[2] || ''
-    else id = parsed.searchParams.get('v') || ''
-    return id ? `https://www.youtube.com/embed/${id}` : null
+    const u = new URL(url.trim())
+    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1) || null
+    const parts = u.pathname.split('/')
+    if (parts[1] === 'shorts' || parts[1] === 'embed') return parts[2] || null
+    return u.searchParams.get('v')
   } catch {
     return null
   }
 }
 
-function getSoundCloudEmbedUrl(url?: string | null): string | null {
-  if (!url) return null
+const SC_PARAMS = 'color=%2339ff14&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false'
+
+/** Player URL from the `soundcloudUrl` field, else the src of the legacy WordPress `scsc` embed. */
+function soundcloudSrc(url?: string | null, legacyEmbed?: string | null) {
   try {
-    const parsed = new URL(url.trim())
-    if (!parsed.hostname.includes('soundcloud.com')) return null
-    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(parsed.toString())}&color=%23a855f7&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true`
+    if (url) {
+      const u = new URL(url.trim())
+      if (u.hostname.endsWith('soundcloud.com')) return `https://w.soundcloud.com/player/?url=${encodeURIComponent(u.toString())}&${SC_PARAMS}`
+    }
+    const src = legacyEmbed?.match(/src="([^"]+)"/)?.[1]?.replace(/&amp;/g, '&')
+    if (src && new URL(src).hostname === 'w.soundcloud.com') {
+      const track = new URL(src).searchParams.get('url')
+      if (track) return `https://w.soundcloud.com/player/?url=${encodeURIComponent(track)}&${SC_PARAMS}`
+    }
   } catch {
-    return null
+    /* malformed URL — no player */
+  }
+  return null
+}
+
+const toText = (html: string) =>
+  plainTitle(html.replace(/<\/(p|h\d|li|div|figcaption)>|<br\s*\/?>/gi, ' '))
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+function excerpt(html: string | null, max = 160) {
+  const text = toText(html || '')
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:—–-]$/, '') + '…'
+}
+
+const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })
+
+/** "NEUROBANGERZ, Vol, 11 - DVS | Neurofunk Drum & Bass Mix" → main line + kicker after the pipe. */
+function splitHeadline(title: string) {
+  const [main, ...rest] = title.split(/\s+\|\s+/)
+  return { main: main.trim(), sub: rest.join(' | ').trim() || null }
+}
+
+type Roster = Map<string, { name: string; slug: string }>
+
+const SEP = /(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+vs\.?\s+)/i
+
+/** Split a credit into names and separators, marking names that are on the DnB Doctor roster. */
+function credit(text: string, roster: Roster) {
+  return text.split(SEP).map((part) => ({ part, artist: SEP.test(part) ? undefined : roster.get(part.trim().toLowerCase()) }))
+}
+
+/** One tracklist line → timestamp + two halves; roster names linked on the side that is clearly the artist credit. */
+function parseTrack(raw: string, roster: Roster) {
+  let line = raw.trim().replace(/^\d{1,3}\s*[.)]\s*/, '')
+  const time = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+/)?.[1] ?? null
+  if (time) line = line.slice(time.length).trim()
+  const cut = line.search(/\s+[-–—]\s+|\s+-(?=\S)|(?<=\S)-\s+/)
+  if (cut < 0) return { time, a: credit(line, new Map()), b: null }
+  const left = line.slice(0, cut).trim()
+  const right = line.slice(cut).replace(/^\s*[-–—]\s*/, '').trim()
+  const l = credit(left, roster)
+  const r = credit(right, roster)
+  const hits = (c: ReturnType<typeof credit>) => c.filter((x) => x.artist).length
+  const lh = hits(l)
+  const rh = hits(r)
+  const plain = (c: ReturnType<typeof credit>) => c.map((x) => ({ part: x.part, artist: undefined }))
+  // normalise to title first, artist credit second (lists mix "Title - Artist" and "Artist - Title")
+  if (lh > rh) return { time, a: plain(r), b: l }
+  return { time, a: plain(l), b: rh > lh ? r : plain(r) }
+}
+
+function Credit({ parts }: { parts: { part: string; artist?: { name: string; slug: string } }[] }) {
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.artist ? (
+          <Link key={i} href={`/artists/${p.artist.slug}`}>
+            {p.part}
+          </Link>
+        ) : (
+          <span key={i}>{p.part}</span>
+        ),
+      )}
+    </>
+  )
+}
+
+/** WordPress HTML → React: real headings (h1 demoted), optimised images, no inline styles. */
+function Body({ html }: { html: string }) {
+  return (
+    <>
+      {parse(sanitizeHtml(html), {
+        replace: (node) => {
+          if (!(node instanceof Element)) return undefined
+          const kids = () => domToReact(node.children as DOMNode[])
+          if (node.name === 'img') {
+            const { src, alt, width, height } = node.attribs
+            const w = parseInt(width, 10)
+            const h = parseInt(height, 10)
+            if (!src || !w || !h) return <></>
+            return <Image src={src} alt={alt || ''} width={w} height={h} sizes="(max-width: 900px) 100vw, 760px" />
+          }
+          if (node.name === 'figure') return <figure>{kids()}</figure>
+          if (node.name === 'h1') return <h2>{kids()}</h2>
+          if (node.name === 'a') {
+            const href = node.attribs.href || ''
+            const external = /^https?:\/\//.test(href) && !href.startsWith(SITE)
+            return (
+              <a href={href.startsWith(SITE) ? href.slice(SITE.length) || '/' : href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                {kids()}
+              </a>
+            )
+          }
+          if (node.attribs?.style) delete node.attribs.style
+          return undefined
+        },
+      })}
+    </>
+  )
+}
+
+/* ---------------- data ---------------- */
+
+async function load(slug: string) {
+  const post = await prisma.news.findUnique({
+    where: { slug },
+    include: { mixArtist: { select: { slug: true, name: true, bio: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true } } },
+  })
+  if (!post) return null
+
+  const card = { slug: true, title: true, coverImageUrl: true, publishedAt: true, categories: true } as const
+  const at = post.publishedAt ?? post.createdAt
+  const [newer, older, related, roster] = await Promise.all([
+    prisma.news.findFirst({ where: { publishedAt: { gt: at } }, orderBy: { publishedAt: 'asc' }, select: card }),
+    prisma.news.findFirst({ where: { publishedAt: { lt: at } }, orderBy: { publishedAt: 'desc' }, select: card }),
+    prisma.news.findMany({
+      where: { id: { not: post.id }, ...(post.categories.length ? { categories: { hasSome: post.categories } } : {}) },
+      orderBy: { publishedAt: 'desc' },
+      take: 3,
+      select: card,
+    }),
+    post.tracklist ? prisma.artist.findMany({ select: { name: true, slug: true } }) : Promise.resolve([]),
+  ])
+  return { post, newer, older, related, roster: new Map(roster.map((a) => [a.name.toLowerCase(), a])) as Roster }
+}
+
+export async function generateStaticParams() {
+  if (!process.env.DATABASE_URL) return []
+  try {
+    return (await prisma.news.findMany({ select: { slug: true } })).map(({ slug }) => ({ slug }))
+  } catch {
+    return []
   }
 }
+
+/* ---------------- page ---------------- */
 
 export default async function NewsPostPage({ params }: PageProps) {
   const { slug } = await params
-  const post = await prisma.news.findUnique({
-    where: { slug },
-    include: {
-      mixArtist: {
-        select: { id: true, slug: true, name: true, bio: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true },
-      },
-    },
-  })
-  if (!post) return notFound()
-  const artistName = post.mixArtist?.name || post.relatedArtistName || ''
-  const tracklistItems = (post.tracklist || '')
+  const data = await load(slug)
+  if (!data) notFound()
+  const { post, newer, older, related, roster } = data
+
+  const url = `${SITE}/news/${slug}`
+  const title = plainTitle(post.title)
+  const { main, sub } = splitHeadline(title)
+  const isMix = post.categories.includes('Mixes')
+  const category = post.categories[0] ?? 'News'
+  const date = post.publishedAt ?? post.createdAt
+  const words = toText(post.content || '').split(' ').filter(Boolean).length
+  const readMin = Math.max(1, Math.round(words / 220))
+
+  const yt = youtubeId(post.youtubeUrl)
+  const sc = soundcloudSrc(post.soundcloudUrl, post.scsc)
+  const tracks = (post.tracklist || '')
     .split(/\r?\n/)
-    .map((line) => line.trim())
+    .map((l) => l.trim())
     .filter(Boolean)
-  const showTracklist = post.categories?.includes('Mixes') && tracklistItems.length > 0
-  const showMixDownload = post.categories?.includes('Mixes') && Boolean(post.mixDownloadUrl)
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(post.youtubeUrl)
-  const soundcloudEmbedUrl = getSoundCloudEmbedUrl(post.soundcloudUrl)
+    .map((l) => parseTrack(l, roster))
+  const rosterInMix = new Map<string, { name: string; slug: string }>()
+  for (const t of tracks) for (const p of [...t.a, ...(t.b ?? [])]) if (p.artist) rosterInMix.set(p.artist.slug, p.artist)
 
-  const formatDate = (date: string | Date) => {
-    const d = typeof date === 'string' ? new Date(date) : date
-    return d.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  const download = isMix && post.mixDownloadUrl ? post.mixDownloadUrl : null
+  const dlExt = download?.split('?')[0].split('.').pop()?.toUpperCase()
+  const mixer = post.mixArtist?.name || post.relatedArtistName || null
 
-  const getImageUrl = () => post?.coverImageUrl || undefined
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: title.slice(0, 110),
+      description: excerpt(post.content, 200),
+      datePublished: date.toISOString(),
+      dateModified: post.updatedAt.toISOString(),
+      ...(post.coverImageUrl && { image: [post.coverImageUrl] }),
+      author: post.mixArtist
+        ? { '@type': 'Person', name: post.mixArtist.name, url: `${SITE}/artists/${post.mixArtist.slug}` }
+        : { '@type': 'Organization', name: 'DnB Doctor', url: SITE },
+      publisher: { '@type': 'Organization', name: 'DnB Doctor', url: SITE, logo: { '@type': 'ImageObject', url: `${SITE}/logo-1.png` } },
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      articleSection: category,
+      keywords: ['Drum and Bass', 'Neurofunk', ...post.categories, mixer].filter(Boolean).join(', '),
+      ...(words > 0 && { wordCount: words }),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'DnB Doctor', item: SITE },
+        { '@type': 'ListItem', position: 2, name: 'News', item: `${SITE}/news` },
+        { '@type': 'ListItem', position: 3, name: main, item: url },
+      ],
+    },
+  ]
 
   return (
-    <section className="py-32 px-4 relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+    <article className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`} data-kind={isMix ? 'mix' : 'article'}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {getImageUrl() && (
-        <div className="relative w-full max-w-4xl mx-auto mb-12 aspect-[16/9] rounded-2xl overflow-hidden">
-          <Image
-            src={getImageUrl()!}
-            alt={post?.title || ''}
-            fill
-            sizes="(max-width: 768px) 100vw, 800px"
-            className="object-cover"
-            priority
-            fetchPriority="high"
-            placeholder="blur"
-            blurDataURL="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+      {/* ---------- hero ---------- */}
+      <header className={styles.hero}>
+        <nav className={styles.crumbs} aria-label="Breadcrumb">
+          <Link href="/">DnB Doctor</Link> <span aria-hidden="true">/</span> <Link href="/news">News</Link>{' '}
+          <span aria-hidden="true">/</span> <span aria-current="page">{category}</span>
+        </nav>
+
+        <div className={styles.heroGrid}>
+          <div className={styles.heroText}>
+            <p className={styles.meta}>
+              <span className={styles.tag}>{category}</span>
+              <time dateTime={date.toISOString()}>{fmtDate(date)}</time>
+              {isMix && tracks.length > 0 ? <span>{tracks.length} tracks</span> : words > 120 ? <span>{readMin} min read</span> : null}
+            </p>
+            <h1 className={styles.title}>
+              {main}
+              {sub && <span className={styles.sub}>{sub}</span>}
+            </h1>
+            {mixer && (
+              <p className={styles.byline}>
+                {isMix ? 'Mixed by' : 'By'}{' '}
+                {post.mixArtist ? <Link href={`/artists/${post.mixArtist.slug}`}>{mixer}</Link> : <strong>{mixer}</strong>}
+              </p>
+            )}
+          </div>
+
+          {yt ? (
+            <NewsMedia title={title} youtubeId={yt} soundcloudSrc={sc} />
+          ) : post.coverImageUrl && (
+            <figure className={styles.cover}>
+              <Image src={post.coverImageUrl} alt={title} fill priority sizes="(max-width: 960px) 100vw, 46vw" />
+            </figure>
+          )}
         </div>
-      )}
+      </header>
 
-      <article className="max-w-4xl mx-auto relative z-10">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'NewsArticle',
-          headline: sanitizeHtml(post.title).replace(/<[^>]*>/g, ''),
-          description: sanitizeHtml((post.content || '').replace(/<[^>]*>/g, '')).slice(0, 200),
-          datePublished: post.publishedAt ? post.publishedAt.toISOString() : undefined,
-          dateModified: post.updatedAt ? post.updatedAt.toISOString() : undefined,
-          image: post.coverImageUrl ? [{
-            '@type': 'ImageObject',
-            url: post.coverImageUrl,
-            width: 1200,
-            height: 630,
-          }] : undefined,
-          author: {
-            '@type': post.mixArtist || post.relatedArtistName ? 'Person' : 'Organization',
-            name: post.mixArtist?.name || post.relatedArtistName || 'DnB Doctor',
-            ...(post.mixArtist && { url: `https://dnbdoctor.com/artists/${post.mixArtist.slug}` }),
-            ...(!post.mixArtist && post.relatedArtistName && { url: `https://dnbdoctor.com/artists/${post.relatedArtistName.toLowerCase().replace(/\s+/g, '-')}` }),
-          },
-          publisher: {
-            '@type': 'Organization',
-            name: 'DnB Doctor',
-            url: 'https://dnbdoctor.com',
-            logo: {
-              '@type': 'ImageObject',
-              url: 'https://dnbdoctor.com/logo.png',
-              width: 600,
-              height: 60,
-            },
-          },
-          mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': `https://dnbdoctor.com/news/${slug}`,
-          },
-          articleSection: 'Music News',
-          keywords: ['Drum and Bass', 'Neurofunk', 'DnB', 'Electronic Music', post.relatedArtistName].filter(Boolean).join(', '),
-        }) }} />
-        {/* Header */}
-        <header className="text-center mb-12">
-          <time className="text-purple-500 font-medium">
-            {formatDate(post.publishedAt || '')}
-          </time>
-          {post.categories?.includes('Mixes') && (
-            <div className="mt-3 flex justify-center">
-              <Link
-                href="/neurofunk-dnb-mixes"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-purple-500/40 bg-purple-600/20 text-purple-100 text-xs uppercase tracking-wide hover:border-purple-300 hover:text-white transition-colors"
-              >
-                Mixes
-                <span aria-hidden className="text-purple-200">→</span>
-              </Link>
+      {/* ---------- body ---------- */}
+      <div className={styles.layout}>
+        <div className={styles.main}>
+          {!yt && sc && <NewsMedia title={title} youtubeId={null} soundcloudSrc={sc} />}
+
+          {post.content && (
+            <div className={styles.prose} data-story={isMix || undefined}>
+              <Body html={post.content} />
             </div>
           )}
-          <h1
-            className="text-4xl md:text-6xl font-bold mt-4 bg-clip-text text-transparent
-              bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
-             dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.title) }}
-          />
-        </header>
 
-        {/* SoundCloud Player */}
-        {post.scsc && (
-          <div className="mb-12 rounded-xl overflow-hidden bg-black/30 border border-white/5 p-6">
-            <div
-              className="w-full h-[166px]"
-              dangerouslySetInnerHTML={{ __html: post.scsc }}
-            />
-          </div>
-        )}
-
-        {(youtubeEmbedUrl || soundcloudEmbedUrl) && (
-          <section className="mb-12 space-y-6">
-            {youtubeEmbedUrl && (
-              <div className="overflow-hidden rounded-2xl border border-red-500/25 bg-black/50 shadow-[0_0_32px_rgba(239,68,68,0.12)]">
-                <div className="border-b border-white/10 px-5 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-red-300">YouTube</p>
-                </div>
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={youtubeEmbedUrl}
-                    title={`${post.title} YouTube embed`}
-                    className="h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                </div>
+          {download && (
+            <section className={styles.download} aria-labelledby="dl-title">
+              <div>
+                <p className={styles.label}>Download mix</p>
+                <h2 id="dl-title" className={styles.h3}>
+                  Take the full mix offline.
+                </h2>
+                <p className={styles.muted}>Keep it ready for the road, the studio or late-night listening.</p>
               </div>
-            )}
-
-            {soundcloudEmbedUrl && (
-              <div className="overflow-hidden rounded-2xl border border-orange-500/25 bg-black/50 shadow-[0_0_32px_rgba(249,115,22,0.12)]">
-                <div className="border-b border-white/10 px-5 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-orange-300">SoundCloud</p>
-                </div>
-                <iframe
-                  src={soundcloudEmbedUrl}
-                  title={`${post.title} SoundCloud embed`}
-                  className="h-[320px] w-full"
-                  allow="autoplay"
-                />
-              </div>
-            )}
-          </section>
-        )}
-
-        {post.mixArtist && (
-          <section className="mb-12 overflow-hidden rounded-2xl border border-pink-500/25 bg-gradient-to-br from-pink-950/25 via-purple-950/20 to-black p-5 md:p-6 shadow-[0_0_32px_rgba(236,72,153,0.12)]">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <Link href={`/artists/${post.mixArtist.slug}`} className="group relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-purple-950/40">
-                {post.mixArtist.imageUrl ? (
-                  <Image src={post.mixArtist.imageUrl} alt={post.mixArtist.name} fill sizes="96px" className="object-cover transition-transform group-hover:scale-105" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl font-black text-purple-200">{post.mixArtist.name.slice(0, 1)}</div>
-                )}
-              </Link>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-pink-300">Featured Mix Artist</p>
-                <Link href={`/artists/${post.mixArtist.slug}`} className="mt-1 inline-block text-2xl md:text-3xl font-black text-white hover:text-pink-200 transition-colors">
-                  {post.mixArtist.name}
-                </Link>
-                {post.mixArtist.bio && (
-                  <p className="mt-2 line-clamp-2 text-sm text-gray-300">{post.mixArtist.bio.replace(/<[^>]*>/g, '')}</p>
-                )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link href={`/artists/${post.mixArtist.slug}`} className="rounded-full border border-pink-400/30 bg-pink-500/10 px-3 py-1 text-xs font-semibold text-pink-100 hover:border-pink-300/60">Artist profile</Link>
-                  {post.mixArtist.soundcloud && <a href={post.mixArtist.soundcloud} target="_blank" rel="noopener noreferrer" className="rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-100 hover:border-orange-300/60">SoundCloud</a>}
-                  {post.mixArtist.spotify && <a href={post.mixArtist.spotify} target="_blank" rel="noopener noreferrer" className="rounded-full border border-green-400/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-100 hover:border-green-300/60">Spotify</a>}
-                  {post.mixArtist.instagram && <a href={post.mixArtist.instagram} target="_blank" rel="noopener noreferrer" className="rounded-full border border-purple-400/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-100 hover:border-purple-300/60">Instagram</a>}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Content using html-react-parser */}
-        <div className="prose prose-invert prose-purple max-w-none prose-headings:font-bold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-p:text-gray-300 prose-a:font-semibold prose-a:text-purple-300 prose-a:underline prose-a:decoration-purple-400 prose-a:decoration-2 prose-a:underline-offset-4 hover:prose-a:text-pink-300 hover:prose-a:decoration-pink-400">
-          {parse(post.content || '', {
-            replace: (domNode) => {
-              if (domNode instanceof Element && domNode.name === 'img' && domNode.attribs) {
-                const { src, alt, width, height } = domNode.attribs;
-
-                // Basic validation
-                if (!src || !width || !height) {
-                  // Optionally return null or a placeholder if essential attributes are missing
-                  return <></>;
-                }
-
-                // Convert width/height to numbers
-                const imgWidth = parseInt(String(width || '0'), 10);
-                const imgHeight = parseInt(String(height || '0'), 10);
-
-                if (isNaN(imgWidth) || isNaN(imgHeight)) {
-                   return <></>; // Skip if width/height are not valid numbers
-                }
-
-                 return (
-                  <div className="my-6">
-                    <Image
-                      src={src}
-                      alt={alt || 'Post image'}
-                      width={imgWidth}
-                      height={imgHeight}
-                      className="rounded-lg shadow-md w-full h-auto"
-                      sizes="(max-width: 1024px) 100vw, 800px"
-                    />
-                  </div>
-                );
-              } else if (domNode instanceof Element && domNode.name === 'figure') {
-                // Handle figure elements: render its children using domToReact
-                // Cast children to DOMNode[] to satisfy parser types
-                // No need for nested replace here as the main replace handles the img inside
-                return <>{domToReact(domNode.children as DOMNode[])}</>;
-              } else if (domNode instanceof Element && ['h1','h2','h3'].includes(domNode.name)) {
-                const level = domNode.name
-                const cls = level === 'h1' ? 'text-4xl font-bold mt-6 mb-3'
-                  : level === 'h2' ? 'text-3xl font-bold mt-5 mb-3'
-                  : 'text-2xl font-bold mt-4 mb-2'
-                return (
-                  <div className={cls}>
-                    {domToReact(domNode.children as DOMNode[])}
-                  </div>
-                )
-              }
-              // Keep default rendering for other elements (return undefined or null)
-              // Return undefined to let the parser handle the node default way
-              return undefined;
-            }
-          })}
-        </div>
-
-        {showMixDownload && (
-          <section className="mt-12 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-br from-cyan-950/30 via-purple-950/20 to-black p-6 md:p-8 shadow-[0_0_40px_rgba(34,211,238,0.12)]">
-            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-cyan-300">Download Mix</p>
-                <h2 className="text-2xl md:text-3xl font-black text-white">Take the full mix offline</h2>
-                <p className="max-w-2xl text-sm md:text-base text-gray-300">
-                  Download the mix file directly and keep it ready for the road, studio, or late-night listening.
-                </p>
-              </div>
-              <a
-                href={post.mixDownloadUrl!}
-                download
-                className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-xl border border-cyan-300/40 bg-cyan-400/15 px-6 py-4 font-bold text-cyan-100 transition-all hover:border-cyan-200 hover:bg-cyan-300/25 hover:text-white hover:shadow-[0_0_24px_rgba(34,211,238,0.25)]"
-              >
-                <span className="text-xl" aria-hidden>↓</span>
-                <span>Download Mix</span>
-                <span className="text-cyan-200 transition-transform group-hover:translate-x-1" aria-hidden>→</span>
+              <a href={download} download className={styles.dlBtn}>
+                <span aria-hidden="true">↓</span> Download {dlExt && dlExt.length <= 4 ? dlExt : 'mix'}
               </a>
-            </div>
-          </section>
-        )}
+            </section>
+          )}
 
-        {showTracklist && (
-          <details className="group mt-12 rounded-2xl border border-purple-500/25 bg-gradient-to-br from-purple-950/40 via-black/70 to-black/90 p-0 shadow-[0_0_35px_rgba(109,40,217,0.16)]">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 md:p-8">
-              <div className="flex items-center gap-3">
-                <span className="h-px w-10 bg-purple-400" />
-                <p className="!mb-0 text-xs font-semibold uppercase tracking-[0.35em] text-purple-300" style={{ marginBottom: 0 }}>Mix Tracklist</p>
+          {tracks.length > 0 && (
+            <section className={styles.tracklist} aria-labelledby="tl-title">
+              <div className={styles.tlHead}>
+                <h2 id="tl-title" className={styles.label}>
+                  Tracklist
+                </h2>
+                <span className={styles.muted}>
+                  {tracks.length} tracks
+                  {rosterInMix.size > 0 && ` · ${rosterInMix.size} DnB Doctor artists`}
+                </span>
               </div>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-purple-400/30 bg-purple-500/10 text-purple-100 transition-transform group-open:rotate-180" aria-hidden>
-                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </summary>
-            <div className="px-6 pb-6 md:px-8 md:pb-8">
-              <ol className="space-y-3">
-                {tracklistItems.map((track, index) => (
-                  <li
-                    key={`${track}-${index}`}
-                    className="group/item flex gap-4 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 transition-colors hover:border-purple-400/35 hover:bg-purple-500/10"
-                  >
-                    <span className="w-9 shrink-0 font-mono text-sm text-purple-300/80">
-                      {String(index + 1).padStart(2, '0')}
+              <ol className={styles.tracks}>
+                {tracks.map((t, i) => (
+                  <li key={i}>
+                    <span className={styles.tn}>{t.time ?? String(i + 1).padStart(2, '0')}</span>
+                    <span className={styles.tt}>
+                      <span className={styles.ta}>
+                        <Credit parts={t.a} />
+                      </span>
+                      {t.b && (
+                        <span className={styles.tb}>
+                          <Credit parts={t.b} />
+                        </span>
+                      )}
                     </span>
-                    <span className="text-gray-200 group-hover/item:text-white">{track.replace(/^\d+[.)\-\s]+/, '')}</span>
                   </li>
                 ))}
               </ol>
+            </section>
+          )}
+        </div>
+
+        {/* ---------- aside ---------- */}
+        <aside className={styles.aside}>
+          {post.mixArtist && (
+            <div className={styles.card}>
+              <p className={styles.label}>{isMix ? 'Behind the decks' : 'Artist'}</p>
+              <Link href={`/artists/${post.mixArtist.slug}`} className={styles.artist}>
+                {post.mixArtist.imageUrl && (
+                  <span className={styles.artistImg}>
+                    <Image src={post.mixArtist.imageUrl} alt="" fill sizes="96px" />
+                  </span>
+                )}
+                <span className={styles.artistName}>{post.mixArtist.name}</span>
+              </Link>
+              {post.mixArtist.bio && <p className={styles.muted}>{excerpt(post.mixArtist.bio, 140)}</p>}
+              <p className={styles.links}>
+                <Link href={`/artists/${post.mixArtist.slug}`}>Profile</Link>
+                {post.mixArtist.soundcloud && (
+                  <a href={post.mixArtist.soundcloud} target="_blank" rel="noopener noreferrer">
+                    SoundCloud
+                  </a>
+                )}
+                {post.mixArtist.spotify && (
+                  <a href={post.mixArtist.spotify} target="_blank" rel="noopener noreferrer">
+                    Spotify
+                  </a>
+                )}
+                {post.mixArtist.instagram && (
+                  <a href={post.mixArtist.instagram} target="_blank" rel="noopener noreferrer">
+                    Instagram
+                  </a>
+                )}
+              </p>
             </div>
-          </details>
-        )}
+          )}
 
-        <div className="h-12" />
+          {rosterInMix.size > 0 && (
+            <div className={styles.card}>
+              <p className={styles.label}>Label artists in this mix</p>
+              <p className={styles.chips}>
+                {[...rosterInMix.values()].map((a) => (
+                  <Link key={a.slug} href={`/artists/${a.slug}`}>
+                    {a.name}
+                  </Link>
+                ))}
+              </p>
+            </div>
+          )}
 
-          <SocialShare
-            url={`https://dnbdoctor.com/news/${slug}`}
-            title={post.title}
-          />
+          <div className={styles.card}>
+            <p className={styles.label}>Spread the disease</p>
+            <ShareBar url={url} title={title} />
+          </div>
 
-        {artistName && artistName !== '' && (
-          <MoreFromArtist
-            artistName={artistName}
-            currentPostId={post.id}
-          />
-        )}
+          <div className={styles.card}>
+            <p className={styles.label}>Follow the signal</p>
+            <ul className={styles.channels}>
+              {CHANNELS.map((c) => (
+                <li key={c.name}>
+                  <a href={c.href} target="_blank" rel="noopener noreferrer">
+                    {c.name} <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="h-12" />
+          {isMix && (
+            <Link href="/neurofunk-dnb-mixes" className={styles.allMixes}>
+              All Neurobangerz mixes <span aria-hidden="true">→</span>
+            </Link>
+          )}
+        </aside>
+      </div>
 
-        {/* Add EngagementCTA */}
-        <EngagementCTA />
+      {/* ---------- prev / next ---------- */}
+      {(older || newer) && (
+        <nav className={styles.pager} aria-label="More posts">
+          {older ? (
+            <Link href={`/news/${older.slug}`} className={styles.pageLink}>
+              <span className={styles.label}>← Previous</span>
+              <span className={styles.pageTitle}>{plainTitle(older.title)}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {newer && (
+            <Link href={`/news/${newer.slug}`} className={`${styles.pageLink} ${styles.pageNext}`}>
+              <span className={styles.label}>Next →</span>
+              <span className={styles.pageTitle}>{plainTitle(newer.title)}</span>
+            </Link>
+          )}
+        </nav>
+      )}
 
-        {post && (
-          <RelatedNews currentPostId={post.wpId || 0} relatedBy={artistName || post.title} />
-        )}
-      </article>
-    </section>
+      {/* ---------- related ---------- */}
+      {related.length > 0 && (
+        <section className={styles.related} aria-labelledby="rel-title">
+          <div className={styles.relHead}>
+            <h2 id="rel-title" className={styles.h2}>
+              Keep <span className={styles.outline}>reading</span>
+            </h2>
+            <Link href="/news" className={styles.allNews}>
+              All news <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <ul className={styles.relGrid}>
+            {related.map((r) => (
+              <li key={r.slug}>
+                <Link href={`/news/${r.slug}`} className={styles.relCard}>
+                  <span className={styles.relImg}>
+                    {r.coverImageUrl ? (
+                      <Image src={r.coverImageUrl} alt="" fill sizes="(max-width: 700px) 100vw, 33vw" />
+                    ) : (
+                      <span className={styles.relFallback} aria-hidden="true">
+                        DnB
+                      </span>
+                    )}
+                  </span>
+                  <span className={styles.relMeta}>
+                    {(r.categories[0] ?? 'News') + ' · '}
+                    {r.publishedAt && fmtDate(r.publishedAt)}
+                  </span>
+                  <span className={styles.relTitle}>{plainTitle(r.title)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </article>
   )
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const post = await prisma.news.findUnique({ where: { slug } })
+  const post = await prisma.news.findUnique({ where: { slug }, select: { title: true, content: true, coverImageUrl: true, publishedAt: true, updatedAt: true, categories: true } })
   if (!post) return {}
-  const plainTitle = sanitizeHtml(post.title).replace(/<[^>]*>/g, '')
-  const description = sanitizeHtml((post.content || '').replace(/<[^>]*>/g, '')).slice(0, 160)
-  const url = `https://dnbdoctor.com/news/${slug}`
+  const title = plainTitle(post.title)
+  const description = excerpt(post.content) || `${title} — news from DnB Doctor, the neurofunk drum & bass label.`
+  const url = `${SITE}/news/${slug}`
+  const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: title }] : [{ url: `${SITE}/news-banner.jpg`, alt: 'DnB Doctor News' }]
   return {
-    title: `${plainTitle} | DNB Doctor`,
+    title: `${title} | DnB Doctor`,
     description,
+    alternates: { canonical: url },
     openGraph: {
-      title: plainTitle,
+      title,
       description,
       url,
+      siteName: 'DnB Doctor',
       type: 'article',
-      images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
+      locale: 'en_US',
+      publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+      section: post.categories[0],
+      images,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: plainTitle,
-      description,
-      images: post.coverImageUrl ? [post.coverImageUrl] : undefined,
-    },
-    alternates: { canonical: url },
+    twitter: { card: 'summary_large_image', title, description, images: images.map((i) => i.url) },
   }
 }
