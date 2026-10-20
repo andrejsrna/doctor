@@ -1,5 +1,15 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-20 – /how-to-produce-neurofunk redizajn
+- Baseline (GSC 19. 7.–18. 10. 2026): 103 kl / 5 761 zobr / CTR 1,79 % / poz. 7,1. Dopyt `how to make neurofunk` poz. 2,9 (4 kl / 39 zobr); `neurofunk bass` 23 zobr.
+- Title „How to Make Neurofunk: Drums, Bass Design & Mixdown in 7 Steps“; description s konkrétnymi číslami (172–175 BPM, –7 LUFS, Serum/Vital) + „free sample packs“.
+- Server komponent na zdieľanej guide šablóne (bez framer-motion, layout.tsx zmazaný). Hero: index 7 krokov s kotvami + súhrn procesu.
+- Celý pôvodný text zachovaný; drums a arrangement ako tabuľky, Key traits ako fakty, nástroje ako chipy.
+- Konverzie: sample-packs CTA v hero + box v kroku 1; submit-demo CTA v hero + box v kroku 7 (+ článok Why nobody listens). Affiliate tiles (rel=sponsored) zachované.
+- Nové FAQ (5 otázok z obsahu stránky) + FAQPage/Article/Breadcrumb JSON-LD; pás 4 najnovších releasov („Reference tracks“).
+- Odstránené: 2 nepreklikávacie dlaždice „Best Plugins…“ / „Production Tips“ (stránky neexistujú), EngagementCTA (sociálne siete sú v pätičke).
+- Review: ~1. 12. 2026 (cieľ CTR > 2,5 %, kliky na /sample-packs a /submit-demo z tejto stránky).
+
 ## 2026-10-20 – /types-of-dnb redizajn
 - Baseline (GSC 19. 7.–18. 10. 2026): 132 kl / 26 135 zobr / CTR 0,51 % / poz. 7,3 (najviac klikov na webe). Dopyty: `types of drum and bass`, `dnb subgenres`, `dnb genres`, `liquid dnb vs dnb` (~200 zobr spolu, 0 kl).
 - Title „Types of DnB: 6 Drum and Bass Styles Compared“; description bez nepravdivého „with sound examples“.

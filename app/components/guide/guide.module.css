@@ -279,6 +279,10 @@
   border: 1px solid var(--line);
 }
 
+.body .facts {
+  margin: 1.6rem 0;
+}
+
 .facts > div {
   padding: 0.9rem 1rem;
   background: #0b0b0f;
@@ -747,6 +751,10 @@ ol.list li::before {
   font-weight: 800;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.table[data-compact] {
+  min-width: 0;
 }
 
 .table td {
