@@ -2,13 +2,13 @@ import { after, NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireRole } from '@/app/lib/roles'
 import { defaultIntro, defaultPreheader, defaultSubject, loadMonthly, renderMonthly } from '@/lib/newsletter/monthly'
-import { deliverCampaign, personalize, sendNewsletterEmail } from '@/lib/newsletter/mailer'
+import { personalize, sendNewsletterEmail } from '@/lib/newsletter/mailer'
+import { monthlyCampaignName as campaignName, queueMonthlyNewsletter } from '@/lib/newsletter/sendMonthly'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const campaignName = (month: string) => `Monthly releases – ${month}`
 
 /** Preview: JSON with defaults + rendered HTML, or the raw HTML (?format=html) for an iframe. */
 export async function GET(request: NextRequest) {
@@ -75,15 +75,10 @@ export async function POST(request: NextRequest) {
   if (body.mode !== 'all') return NextResponse.json({ error: 'Unknown mode' }, { status: 400 })
   if (body.confirm !== data.month) return NextResponse.json({ error: `Type ${data.month} to confirm the send` }, { status: 400 })
 
-  const previous = await prisma.emailCampaign.findFirst({ where: { name: campaignName(data.month), sentAt: { not: null } } })
-  if (previous && !body.force) return NextResponse.json({ error: `${data.label} was already sent on ${previous.sentAt!.toISOString().slice(0, 10)}` }, { status: 409 })
-
-  const recipients = await prisma.subscriber.findMany({ where: { status: 'ACTIVE' }, select: { id: true, email: true, name: true } })
-  if (!recipients.length) return NextResponse.json({ error: 'No active subscribers' }, { status: 400 })
-
-  const campaign = await prisma.emailCampaign.create({ data: { name: campaignName(data.month), subject, body: html, sentAt: new Date() } })
+  const result = await queueMonthlyNewsletter(data.month, { subject, intro: body.intro, preheader: body.preheader, force: body.force })
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
   // Respond right away; delivery continues after the response (progress is in EmailLog / campaign.sentCount).
-  after(() => deliverCampaign(campaign.id, recipients, subject, html).catch((e) => console.error('monthly newsletter delivery failed', e)))
+  after(() => result.deliver().catch((e) => console.error('monthly newsletter delivery failed', e)))
 
-  return NextResponse.json({ success: true, campaignId: campaign.id, queued: recipients.length })
+  return NextResponse.json({ success: true, campaignId: result.campaignId, queued: result.queued })
 }
