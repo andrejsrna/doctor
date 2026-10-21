@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Neurofunk Artists & Producers | DnB Doctor - Top Neurofunk Artists 2025' },
-  description: 'Discover the best neurofunk artists and producers in the drum and bass scene. Meet top neurofunk producers, explore their music, and find the latest neurofunk artists pushing the boundaries of the genre.',
+  title: { absolute: 'Neurofunk Artists & DnB Producers | DnB Doctor Roster' },
+  description: 'Meet the neurofunk and drum & bass producers on the DnB Doctor roster: bios, latest releases, DJ mixes and links to their Spotify and SoundCloud.',
   keywords: 'neurofunk artist, neurofunk producers, top neurofunk artists, best neurofunk producers, neurofunk dnb artists, neurofunk music producers, neurofunk scene artists, dnb doctor artists',
   openGraph: {
-    title: 'Neurofunk Artists & Producers | DnB Doctor',
+    title: 'Neurofunk Artists & DnB Producers | DnB Doctor Roster',
     description: 'Discover the best neurofunk artists and producers in the drum and bass scene. Top neurofunk producers and latest neurofunk artists.',
     type: 'website',
     url: 'https://dnbdoctor.com/artists',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Neurofunk Artists & Producers | DnB Doctor',
+    title: 'Neurofunk Artists & DnB Producers | DnB Doctor Roster',
     description: 'Discover the best neurofunk artists and producers in the drum and bass scene.',
     images: ['/music-bg.jpeg'],
   },

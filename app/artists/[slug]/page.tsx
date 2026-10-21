@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import { FaEnvelope, FaFacebookF, FaInstagram, FaSoundcloud, FaSpotify } from 'react-icons/fa'
 import { prisma } from '@/lib/prisma'
 import { sanitizeHtml } from '@/lib/sanitize'
@@ -61,7 +62,8 @@ function socials(a: { soundcloud: string | null; spotify: string | null; faceboo
 
 /* ---------------- data ---------------- */
 
-async function load(slug: string) {
+/** Shared by the page and generateMetadata — one DB round-trip per request. */
+const load = cache(async function load(slug: string) {
   const artist = await prisma.artist.findUnique({ where: { slug } })
   if (!artist) return null
 
@@ -124,7 +126,7 @@ async function load(slug: string) {
   }
 
   return { artist, releases: credited, featured, collaborators: [...collab.values()].sort((a, b) => b.count - a.count) }
-}
+})
 
 export async function generateStaticParams() {
   if (!process.env.DATABASE_URL) return []
@@ -416,15 +418,26 @@ export default async function ArtistPage({ params }: PageProps) {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const artist = await prisma.artist.findUnique({ where: { slug }, select: { name: true, bio: true, imageUrl: true } })
-  if (!artist) return { title: 'Artist not found | DnB Doctor', robots: { index: false } }
-  const title = `${artist.name} — Neurofunk Artist | DnB Doctor`
+  const data = await load(slug)
+  if (!data) return { title: { absolute: 'Artist not found | DnB Doctor' }, robots: { index: false } }
+  const { artist, releases } = data
+  const latest = releases.find((r) => r.publishedAt) ?? releases[0]
+  const title = `${artist.name} – Neurofunk DnB Artist: Releases & Bio`
+  // facts first (what searchers want: who, how many releases, the newest one), then the bio fills the rest
+  const lead = releases.length
+    ? `${artist.name}: neurofunk drum & bass artist with ${releases.length} ${releases.length === 1 ? 'release' : 'releases'} on DnB Doctor${
+        latest ? `, latest “${titleOf(latest.title)}”` : ''
+      }.`
+    : `${artist.name}: neurofunk drum & bass artist on DnB Doctor.`
+  const bioText = toText(artist.bio || '')
   const description =
-    excerpt(artist.bio) || `${artist.name} on DnB Doctor: neurofunk and drum & bass releases, mixes and news from the label roster.`
+    bioText.length > 20
+      ? excerpt(`${lead} ${bioText}`)
+      : `${lead} ${releases.length ? 'Listen to the releases, DJ mixes and news' : 'DJ mixes, news and links'} from the label roster.`
   const url = `${SITE}/artists/${slug}`
   const image = artist.imageUrl || `${SITE}/og-image.jpg`
   return {
-    title,
+    title: { absolute: `${title} | DnB Doctor` },
     description,
     alternates: { canonical: url },
     openGraph: { type: 'profile', title, description, url, siteName: 'DnB Doctor', locale: 'en_US', images: [{ url: image, alt: artist.name }] },

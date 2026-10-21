@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – artist stránky + /artists
+- Baseline (GSC 19. 7.–18. 10. 2026): /artists 6 kl / 1 048 zobr / 0,57 % / poz. 8,7; /artists/emzee 10 / 1 017 / 0,98 % / 6,3; /artists/dylemma 3 / 267 / 1,12 % / 5,9; /artists/yehor 1 / 85; /artists/south-of-control 6 / 66 / 9,1 %.
+- Dopyty: `emzee` 484 zobr (poz. 5,8), `dylemma` 164 (poz. 3,9, 0 kl), `dylemma shadow's raised me` 59 + 36, `neurofunk artists` 295 (poz. 9,6), `best neurofunk artists` 61.
+- Detail artistu (šablóna pre všetkých 72): title „{Meno} – Neurofunk DnB Artist: Releases & Bio“; description začína faktami („{Meno}: neurofunk drum & bass artist with N releases on DnB Doctor, latest „{release}“.“) a zvyšok dopĺňa bio. Predtým len prvá veta bio (napr. EmZee „In the mist-laden outskirts of Prague…“). Metadata a stránka zdieľajú jeden DB dotaz (React cache). MusicGroup JSON-LD a odkaz na posledný release už existovali.
+- /artists: title „Neurofunk Artists & DnB Producers | DnB Doctor Roster“ (bez „2025“), vecný popis.
+- Review: ~1. 12. 2026.
+
 ## 2026-10-21 – titulky a popisy: homepage, /sample-packs, Tidal vs Amazon, Juno
 - Baseline (GSC 19. 7.–18. 10. 2026): / 94 kl / 2 166 zobr / 4,34 % / poz. 6,9; /sample-packs 102 / 1 796 / 5,68 % / 8,6; /news/tidal-vs-amazon-music 56 / 5 359 / 1,04 % / 5,9; /news/junodownload-is-shutting-down 74 / 2 787 / 2,66 % / 9,9.
 - Homepage: title „DnB Doctor – Neurofunk Drum & Bass Record Label“, konkrétny popis (140+ releasov, 70+ artistov, free sample pack, mixy, demo), canonical, JSON-LD Organization (sameAs sociálne siete) + WebSite so SearchAction (/search?q=).

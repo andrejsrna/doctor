@@ -74,7 +74,7 @@ Spoločný „guide“ layout (hero s outline nadpisom, TOC, sekcie, FAQ, CTA na
 
 ### P4 – Interné prelinkovanie
 - [ ] Guide stránky → konkrétne releasy/artisti (neurofunk → katalóg), sample packs, newsletter.
-- [ ] Artist stránky (emzee 1 017 zobr, dylemma) – meta description z bio, odkaz na najnovší release.
+- [x] (2026-10-21) Artist stránky (emzee 1 017 zobr, dylemma) – meta description z bio, odkaz na najnovší release.
 
 ## Merateľné ciele (review 4–6 týždňov po nasadení)
 - /what-is-drum-and-bass CTR z 0,02 % → >0,3 %
