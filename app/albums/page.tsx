@@ -6,14 +6,14 @@ export const revalidate = 300
 
 const URL = 'https://dnbdoctor.com/albums'
 const DESCRIPTION =
-  'Discover the latest drum and bass albums and LP releases. New DnB albums updated daily with fresh neurofunk, liquid, and dark DnB album collections.'
+  'Neurofunk drum and bass albums from DnB Doctor: artist LPs like Asana – Raketa, yearly compilations and continuous label mixes. Preview, stream or buy.'
 
 export const metadata: Metadata = {
-  title: { absolute: 'New Drum and Bass Albums | DnB Doctor - Latest DnB Album Releases' },
+  title: { absolute: 'Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'New Drum and Bass Albums | DnB Doctor',
+    title: 'Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor',
     description: DESCRIPTION,
     url: URL,
     siteName: 'DnB Doctor',

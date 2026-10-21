@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – /albums a /music-packs
+- Baseline (GSC 19. 7.–18. 10. 2026): /albums 13 kl / 773 zobr / 1,68 % / poz. 13,4; /music-packs 1 / 114 / 0,88 % / 35,8.
+- Dopyty: `new drum and bass albums` 54 (poz. 8,4), `album drum and bass` 43 (18,9), `dnb album` 20 (9,2), `drum and bass album` 17, `dnb albums` 16; `neurofunk sound packs` 58 (18,5 – zámer = samply).
+- /albums: title „Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor“, popis s Asana – Raketa LP; lede bez nepravdivého „updated daily… liquid“; generický blok „Why Choose DnB Albums“ nahradený sekciou „About these DnB albums“ (definícia, BPM, dynamický zoznam albumov s odkazmi, /neurofunk-dnb, /types-of-dnb, /artists, /music, /neurofunk-dnb-mixes, /submit-demo).
+- /music-packs: title „Neurofunk Music Packs: DnB Compilations & Label Mixes | DnB Doctor“, popis s REVENANT a VORTEX; nová sekcia „What is a music pack?“ (najnovší pack + ostatné dynamicky, odkaz na /albums; pre zámer „sound packs“ odkaz na /sample-packs a /how-to-produce-neurofunk).
+- Review: ~1. 12. 2026.
+
 ## 2026-10-21 – artist stránky + /artists
 - Baseline (GSC 19. 7.–18. 10. 2026): /artists 6 kl / 1 048 zobr / 0,57 % / poz. 8,7; /artists/emzee 10 / 1 017 / 0,98 % / 6,3; /artists/dylemma 3 / 267 / 1,12 % / 5,9; /artists/yehor 1 / 85; /artists/south-of-control 6 / 66 / 9,1 %.
 - Dopyty: `emzee` 484 zobr (poz. 5,8), `dylemma` 164 (poz. 3,9, 0 kl), `dylemma shadow's raised me` 59 + 36, `neurofunk artists` 295 (poz. 9,6), `best neurofunk artists` 61.

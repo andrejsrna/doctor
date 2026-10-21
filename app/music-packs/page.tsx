@@ -6,14 +6,14 @@ export const revalidate = 300
 
 const URL = 'https://dnbdoctor.com/music-packs'
 const DESCRIPTION =
-  'DnB Doctor music packs: neurofunk and drum & bass compilations and label showcases collecting multiple tracks in one release. Preview and buy on Beatport.'
+  'Neurofunk music packs from DnB Doctor: compilations and continuous label mixes like REVENANT and VORTEX from across the roster. Preview, stream or buy.'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Neurofunk Music Packs & DnB Compilations | DnB Doctor' },
+  title: { absolute: 'Neurofunk Music Packs: DnB Compilations & Label Mixes | DnB Doctor' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Neurofunk Music Packs & DnB Compilations | DnB Doctor',
+    title: 'Neurofunk Music Packs: DnB Compilations & Label Mixes | DnB Doctor',
     description: DESCRIPTION,
     url: URL,
     siteName: 'DnB Doctor',

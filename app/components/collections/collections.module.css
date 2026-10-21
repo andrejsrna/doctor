@@ -586,6 +586,16 @@
   column-gap: 3rem;
 }
 
+.prose a {
+  color: var(--c-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  color: #fff;
+}
+
 .prose p {
   margin: 0 0 1.2rem;
   break-inside: avoid;

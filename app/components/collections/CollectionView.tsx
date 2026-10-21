@@ -11,27 +11,70 @@ const SITE = 'https://dnbdoctor.com'
 /** buy/download stores get a full button, the rest are small streaming chips */
 const PRIMARY = new Set(['Beatport', 'Bandcamp', 'Gumroad'])
 
-function Extra({ kind }: { kind: CollectionKind }) {
-  if (kind === 'albums') {
-    return (
+function Extra({ kind, items }: { kind: CollectionKind; items: CollectionItem[] }) {
+  if (kind === 'albums' || kind === 'music-packs') {
+    const newest = items[0]
+    const list = (from: number) => (
+      <>
+        {items.slice(from, from + 4).map((r, i, arr) => (
+          <span key={r.id}>
+            {i > 0 && (i === arr.length - 1 ? ' and ' : ', ')}
+            <Link href={`/music/${r.slug}`}>{r.title}</Link>
+            {r.artist && ` by ${r.artist}`}
+          </span>
+        ))}
+      </>
+    )
+    return kind === 'albums' ? (
       <section className={styles.extra} aria-labelledby="extra-title">
         <h2 id="extra-title" className={styles.h2}>
-          Why Choose <span className={styles.outline}>DnB Albums</span>?
+          About these <span className={styles.outline}>DnB albums</span>
         </h2>
         <div className={styles.prose}>
           <p>
-            Drum and bass albums offer a complete musical journey, showcasing an artist&apos;s full creative vision across multiple tracks. Unlike
-            single releases, albums provide the space for complex storytelling, thematic development, and diverse sonic exploration within the DnB
-            genre.
+            A drum and bass album is a full-length release — an artist LP or a label compilation — built to be heard front to back rather than as a
+            single track. On DnB Doctor that means neurofunk: rolling, heavily modulated basslines and tight 172–175 BPM drums. If you are new to the
+            sound, start with <Link href="/neurofunk-dnb">what neurofunk is</Link> or the wider guide to{' '}
+            <Link href="/types-of-dnb">drum and bass subgenres</Link>.
           </p>
+          {items.length > 0 && (
+            <p>
+              The collection currently holds {items.length} {items.length === 1 ? 'album' : 'albums'}: {list(0)}. Every release page links to the stores and
+              streaming services that carry it, and the artists behind the tracks are on the <Link href="/artists">DnB Doctor roster</Link>.
+            </p>
+          )}
           <p>
-            From neurofunk albums that push the boundaries of sound design to liquid DnB collections that explore emotional depth, each album
-            represents a carefully crafted artistic statement. These full-length releases often feature collaborations, remixes, and experimental
-            tracks that wouldn&apos;t fit in a single release.
+            Want more? New singles and EPs land in the <Link href="/music">full catalogue</Link>, continuous sets live in{' '}
+            <Link href="/neurofunk-dnb-mixes">neurofunk mixes</Link>, and producers working on a full-length project can{' '}
+            <Link href="/submit-demo">submit an album demo</Link>.
           </p>
+        </div>
+      </section>
+    ) : (
+      <section className={styles.extra} aria-labelledby="extra-title">
+        <h2 id="extra-title" className={styles.h2}>
+          What is a <span className={styles.outline}>music pack</span>?
+        </h2>
+        <div className={styles.prose}>
           <p>
-            Whether you&apos;re a DJ looking for cohesive sets, a producer seeking inspiration, or a fan wanting to dive deep into an artist&apos;s
-            world, DnB albums provide the complete listening experience that single tracks simply cannot match.
+            A DnB Doctor music pack is a compilation or a continuous label mix that collects tracks from several artists on the roster into one
+            release — a snapshot of a quarter or a whole year of neurofunk.
+            {newest && (
+              <>
+                {' '}
+                The newest is <Link href={`/music/${newest.slug}`}>{newest.title}</Link>.
+              </>
+            )}
+          </p>
+          {items.length > 1 && (
+            <p>
+              Earlier packs: {list(1)}. Open a release to preview it and find every store and streaming service that carries it; the full-length ones are also listed under <Link href="/albums">albums</Link>.
+            </p>
+          )}
+          <p>
+            Looking for neurofunk <em>sound</em> packs to produce with? Those are samples, not finished music — grab the{' '}
+            <Link href="/sample-packs">free neurofunk sample pack</Link> and follow the{' '}
+            <Link href="/how-to-produce-neurofunk">neurofunk production guide</Link>.
           </p>
         </div>
       </section>
@@ -270,7 +313,7 @@ export default function CollectionView({ kind, all, mixes }: { kind: CollectionK
         )}
       </section>
 
-      <Extra kind={kind} />
+      <Extra kind={kind} items={items} />
 
       {/* ---------- other collections ---------- */}
       <nav className={styles.more} aria-labelledby="more-title">
