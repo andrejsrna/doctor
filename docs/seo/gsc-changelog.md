@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – redizajn /recommended-tools
+- Baseline GSC (19. 7.–18. 10.): 0 klikov, 26 impr, pos 10.7.
+- Pred: client-rendered (framer-motion), tenký obsah, len 5 dlaždíc.
+- Po: server-rendered guide šablóna, title "Recommended Tools for DnB DJs & Producers", quick picks box, model platby pri každej službe, odkaz na DnB Doctor label na Beatporte (affiliate), sekcia free zdrojov (interné odkazy), 4 FAQ + FAQPage/WebPage/Breadcrumb JSON-LD.
+- Affiliate odkazy zachované (rel sponsored); disclosure presunutý do FAQ. Odstránené nepoužívané AffiliateLinks.tsx + RecommendedToolsClient.tsx.
+- Review ~1. 12. 2026.
+
 ## 2026-10-21 – redizajn /guidelines
 - Baseline GSC (19. 7.–18. 10.): 1 klik, 78 impr, pos 15.2.
 - Pred: placeholder title "Guidelines | Label Name", žiadny canonical (dedil home), chýbal v sitemape, 9 YouTube iframe naraz.
