@@ -58,6 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/guidelines`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/what-is-drum-and-bass`,
       lastModified: new Date(),
       changeFrequency: 'monthly',

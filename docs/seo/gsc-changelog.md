@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – redizajn /guidelines
+- Baseline GSC (19. 7.–18. 10.): 1 klik, 78 impr, pos 15.2.
+- Pred: placeholder title "Guidelines | Label Name", žiadny canonical (dedil home), chýbal v sitemape, 9 YouTube iframe naraz.
+- Po: title "Demo Submission Guidelines for Neurofunk Producers", vlastný canonical, sitemap 0.5, WebPage + BreadcrumbList JSON-LD, videá poster-first (iframe až po kliknutí), pôvodný text pravidiel zachovaný.
+- Opravy odkazov: Serum → /products/serum-2 (stará URL 404), Output bez shop. presmerovania.
+- Review ~1. 12. 2026.
+
 ## 2026-10-21 – redizajn /neurofunk-spotify
 - Guide šablóna (rovnaká ako /neurofunk-dnb): server-rendered, quick answer, 6 sekcií, FAQ.
 - Title: "Neurofunk Playlists on Spotify: 6 Best Neurofunk DnB Playlists"; description bez neplatného tvrdenia "updated weekly".
