@@ -395,6 +395,19 @@
   color: var(--c-green);
 }
 
+.body .chips a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.body .chips a:hover {
+  color: var(--c-green);
+}
+
+.chips li:has(a):hover {
+  border-color: var(--c-green);
+}
+
 .fit {
   margin: 1.4rem 0;
   padding-left: 1.2rem;
@@ -919,6 +932,46 @@ ol.list li::before {
 .cover img {
   object-fit: cover;
   transition: transform 400ms;
+}
+
+.release a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rArtist a:hover,
+.rTitle:hover {
+  color: var(--c-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rArtist a:hover {
+  color: #fff;
+}
+
+.allLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.newsletter {
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  color: rgb(255 255 255 / 70%);
+}
+
+.newsletter span {
+  color: #fff;
+  font-weight: 700;
+}
+
+.newsletter a {
+  color: var(--c-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .release:hover .cover img {

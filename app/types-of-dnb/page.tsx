@@ -47,7 +47,8 @@ const TYPES = [
       "Dark, futuristic, and technical — Neurofunk is defined by intricate sound design, precision basslines, and cinematic tension. It's the heaviest type of DnB.",
     characteristics: ['Complex sound design bass', 'Precision drum programming', 'Dark, sci-fi atmospheres', 'Technical production', 'Heavy sub-bass pressure'],
     forYouIf: 'You love heavy bass, detailed sound design, and dark, futuristic vibes.',
-    artists: 'Noisia, Mefjus, DnB Doctor',
+    artists: 'Noisia, Mefjus',
+    roster: true,
     listenLink: '/neurofunk-dnb',
   },
   {
@@ -294,6 +295,11 @@ export default function TypesOfDnbPage() {
               <li>{bpmOf[t.slug]} BPM</li>
               <li>{t.mood}</li>
               {t.artists && <li>{t.artists}</li>}
+              {'roster' in t && t.roster && (
+                <li>
+                  <Link href="/artists">DnB Doctor roster</Link>
+                </li>
+              )}
             </ul>
             <p>{t.description}</p>
             <div className={styles.box}>

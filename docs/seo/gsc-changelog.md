@@ -1,5 +1,11 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – interné odkazy z guide stránok na artistov a newsletter
+- Zdieľaný blok „Hear it now“ (GuideReleases) na /what-is-drum-and-bass, /types-of-dnb, /how-to-produce-neurofunk, /neurofunk-dnb: mená artistov pri releasoch sú odkazy na /artists/{slug} (ak sú na rosteri), pridané „All artists →“ a riadok s odkazom na /newsletter. Predtým guide stránky neodkazovali na žiadneho konkrétneho artistu ani na newsletter.
+- /neurofunk-dnb sekcia Artists & labels: nový zoznam „On the DnB Doctor roster“ (GuideRoster – 12 artistov s najviac releasmi, dynamicky z DB), tlačidlo vedie na /artists.
+- /types-of-dnb Neurofunk: chip „DnB Doctor roster“ → /artists (namiesto textu „DnB Doctor“ medzi artistami).
+- Review: ~1. 12. 2026 (kliky/zobrazenia /artists/*).
+
 ## 2026-10-21 – /albums a /music-packs
 - Baseline (GSC 19. 7.–18. 10. 2026): /albums 13 kl / 773 zobr / 1,68 % / poz. 13,4; /music-packs 1 / 114 / 0,88 % / 35,8.
 - Dopyty: `new drum and bass albums` 54 (poz. 8,4), `album drum and bass` 43 (18,9), `dnb album` 20 (9,2), `drum and bass album` 17, `dnb albums` 16; `neurofunk sound packs` 58 (18,5 – zámer = samply).

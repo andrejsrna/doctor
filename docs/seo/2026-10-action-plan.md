@@ -73,7 +73,7 @@ Spoločný „guide“ layout (hero s outline nadpisom, TOC, sekcie, FAQ, CTA na
 - [x] (2026-10-21) **/news/junodownload-is-shutting-down** – doplniť „Juno Download alternatives“ sekciu (Beatport, Bandcamp, Traxsource) + odkazy na naše releasy.
 
 ### P4 – Interné prelinkovanie
-- [ ] Guide stránky → konkrétne releasy/artisti (neurofunk → katalóg), sample packs, newsletter.
+- [x] (2026-10-21) Guide stránky → konkrétne releasy/artisti (neurofunk → katalóg), sample packs, newsletter.
 - [x] (2026-10-21) Artist stránky (emzee 1 017 zobr, dylemma) – meta description z bio, odkaz na najnovší release.
 
 ## Merateľné ciele (review 4–6 týždňov po nasadení)

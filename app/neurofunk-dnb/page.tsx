@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { spotifyPlaylistUrl, dnbDoctorSpotifyPlaylists } from '@/app/components/data/spotifyPlaylists'
-import { GuideFaq, GuideReleases, GuideSection as Section, PUBLISHER, faqJsonLd } from '@/app/components/guide/Guide'
+import { GuideFaq, GuideReleases, GuideRoster, GuideSection as Section, PUBLISHER, faqJsonLd } from '@/app/components/guide/Guide'
 import styles from '@/app/components/guide/guide.module.css'
 
 export const revalidate = 3600
@@ -310,12 +310,16 @@ export default function NeurofunkDnbPage() {
             <li key={l}>{l}</li>
           ))}
         </ul>
+        <h3 className={styles.boxTitle} style={{ marginTop: '2.4rem' }}>
+          On the DnB Doctor roster
+        </h3>
+        <GuideRoster />
         <div className={styles.ctas}>
           <Link href="/neurofunk-labels" className={styles.btnGhost}>
             Neurofunk labels guide <span aria-hidden="true">→</span>
           </Link>
-          <Link href="/core-artists" className={styles.btnGhost}>
-            DnB Doctor artists
+          <Link href="/artists" className={styles.btnGhost}>
+            All DnB Doctor artists <span aria-hidden="true">→</span>
           </Link>
         </div>
       </Section>
