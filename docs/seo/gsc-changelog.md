@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – redizajn /neurofunk-spotify
+- Guide šablóna (rovnaká ako /neurofunk-dnb): server-rendered, quick answer, 6 sekcií, FAQ.
+- Title: "Neurofunk Playlists on Spotify: 6 Best Neurofunk DnB Playlists"; description bez neplatného tvrdenia "updated weekly".
+- Overené playlisty (Spotify oEmbed): 2× DnB Doctor + Eatbrain, NDBM, Julez, Wendie Dufi. Odstránených 6 ťažkých embedov (1 ostal, lazy).
+- JSON-LD: Article, ItemList, FAQPage, BreadcrumbList. Interné odkazy: /neurofunk-dnb, /submit-demo, /how-to-produce-neurofunk, /sample-packs, /neurofunk-dnb-mixes, /artists.
+- Review ~1. 12. 2026.
+
 ## 2026-10-21 – nová stránka /dnb-bpm
 - Dôvod (GSC 19. 7.–18. 10. 2026): klaster BPM = 42 dopytov / 39 542 zobr / 2 kl; `dnb bpm` 38 062 zobr, poz. 7,7. Dopyty dopadali na /what-is-drum-and-bass (63k zobr, CTR 0,02 %), ktorá BPM rieši len jednou sekciou.
 - /dnb-bpm: title „DnB BPM: What BPM Is Drum and Bass? (174 BPM Explained)“; quick answer (174 / 170–176 / halftime ~87 / 345 ms), prečo 174, tabuľka BPM podľa podžánrov, halftime a double-time (animovaný groove), DnB vs iné žánre, história tempa, delay časy pri 174 BPM, tipy pre DJ, releasy, FAQ (6) + Article/FAQPage/Breadcrumb JSON-LD.
