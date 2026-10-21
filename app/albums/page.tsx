@@ -6,7 +6,7 @@ export const revalidate = 300
 
 const URL = 'https://dnbdoctor.com/albums'
 const DESCRIPTION =
-  'Neurofunk drum and bass albums from DnB Doctor: artist LPs like Asana – Raketa, yearly compilations and continuous label mixes. Preview, stream or buy.'
+  'Neurofunk drum and bass albums from DnB Doctor: the Asana – Raketa LP, yearly compilations and continuous label mixes. Preview, stream or buy.'
 
 export const metadata: Metadata = {
   title: { absolute: 'Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor' },
