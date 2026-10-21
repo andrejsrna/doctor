@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – nová stránka /dnb-bpm
+- Dôvod (GSC 19. 7.–18. 10. 2026): klaster BPM = 42 dopytov / 39 542 zobr / 2 kl; `dnb bpm` 38 062 zobr, poz. 7,7. Dopyty dopadali na /what-is-drum-and-bass (63k zobr, CTR 0,02 %), ktorá BPM rieši len jednou sekciou.
+- /dnb-bpm: title „DnB BPM: What BPM Is Drum and Bass? (174 BPM Explained)“; quick answer (174 / 170–176 / halftime ~87 / 345 ms), prečo 174, tabuľka BPM podľa podžánrov, halftime a double-time (animovaný groove), DnB vs iné žánre, história tempa, delay časy pri 174 BPM, tipy pre DJ, releasy, FAQ (6) + Article/FAQPage/Breadcrumb JSON-LD.
+- Tabuľka BPM podľa podžánrov je zdieľaná (`app/components/guide/bpm.ts`) s /what-is-drum-and-bass, aby čísla nedivergovali. Sekcia BPM na /what-is-drum-and-bass odkazuje na /dnb-bpm; odkaz z /types-of-dnb presmerovaný z #bpm na /dnb-bpm; pridané do footeru (Learn) a sitemap (0,8).
+- Riziko: kanibalizácia s /what-is-drum-and-bass. Ak po 4–6 týždňoch Google stále zobrazuje pre `dnb bpm` /what-is-drum-and-bass, odstrániť „BPM“ z jej title.
+- Review: ~1. 12. 2026.
+
 ## 2026-10-21 – interné odkazy z guide stránok na artistov a newsletter
 - Zdieľaný blok „Hear it now“ (GuideReleases) na /what-is-drum-and-bass, /types-of-dnb, /how-to-produce-neurofunk, /neurofunk-dnb: mená artistov pri releasoch sú odkazy na /artists/{slug} (ak sú na rosteri), pridané „All artists →“ a riadok s odkazom na /newsletter. Predtým guide stránky neodkazovali na žiadneho konkrétneho artistu ani na newsletter.
 - /neurofunk-dnb sekcia Artists & labels: nový zoznam „On the DnB Doctor roster“ (GuideRoster – 12 artistov s najviac releasmi, dynamicky z DB), tlačidlo vedie na /artists.

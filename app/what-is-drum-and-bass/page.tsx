@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { GuideFaq, GuideReleases, GuideSection as Section, PUBLISHER, faqJsonLd } from '@/app/components/guide/Guide'
 import styles from '@/app/components/guide/guide.module.css'
+import { DNB_BPM } from '@/app/components/guide/bpm'
 
 export const revalidate = 3600
 
@@ -38,15 +39,6 @@ const TOC = [
   ['#faq', 'FAQ'],
 ] as const
 
-const BPM = [
-  { name: 'Drum & Bass', bpm: '170–176', note: 'Most modern tracks sit at 174' },
-  { name: 'Liquid', bpm: '170–176', note: 'Same tempo, smoother and melodic' },
-  { name: 'Neurofunk', bpm: '172–176', note: 'Dark, technical, usually 174' },
-  { name: 'Jump-Up', bpm: '172–176', note: 'Bouncy, rave-focused' },
-  { name: 'Techstep', bpm: '170–180', note: 'Minimal, industrial' },
-  { name: 'Halftime', bpm: '170–175', note: 'Drums feel like ~85–87 BPM' },
-  { name: 'Jungle', bpm: '160–175', note: 'Older, breakbeat-heavy roots' },
-]
 
 const SUBGENRES = [
   { name: 'Liquid DnB', description: 'Smooth, melodic, emotional', artists: 'Netsky, LSB' },
@@ -250,7 +242,7 @@ export default function WhatIsDrumAndBassPage() {
               </tr>
             </thead>
             <tbody>
-              {BPM.map((r) => (
+              {DNB_BPM.map((r) => (
                 <tr key={r.name}>
                   <th scope="row">{r.name}</th>
                   <td className={styles.bpm}>{r.bpm}</td>
@@ -260,6 +252,9 @@ export default function WhatIsDrumAndBassPage() {
             </tbody>
           </table>
         </div>
+        <p className={styles.note}>
+          Why 174, halftime, DnB vs other genres and delay times for producers: <Link href="/dnb-bpm">DnB BPM explained</Link>.
+        </p>
       </Section>
 
       <Section id="meaning" n="02" label="Meaning & DNA">

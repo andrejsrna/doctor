@@ -283,7 +283,7 @@ export default function TypesOfDnbPage() {
           </table>
         </div>
         <p className={styles.note}>
-          What does 174 BPM actually mean? See <Link href="/what-is-drum-and-bass#bpm">DnB BPM explained</Link>.
+          What does 174 BPM actually mean? See <Link href="/dnb-bpm">DnB BPM explained</Link>.
         </p>
       </GuideSection>
 
