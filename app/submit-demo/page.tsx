@@ -165,7 +165,7 @@ export default async function SubmitDemoPage() {
       </section>
 
       {/* ---------- faq ---------- */}
-      <section className={styles.faq} aria-labelledby="faq-title">
+      <section id="faq" className={styles.faq} aria-labelledby="faq-title">
         <div className={styles.faqHead}>
           <p className={styles.label}>02 / Artist collaboration FAQ</p>
           <h2 id="faq-title" className={styles.h2}>

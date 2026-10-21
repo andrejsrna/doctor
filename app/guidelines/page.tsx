@@ -171,9 +171,9 @@ const PLUGINS = [
   ['Rift', 'Minimal Audio', 'Distortion Plugin', 'https://www.minimal.audio/products/rift'],
   ['Pro Q4', 'Fabfilter', 'EQ Plugin', 'https://www.fabfilter.com/products/pro-q-4-equalizer-plug-in'],
   ['Ableton Live Lite', 'Ableton', 'DAW', 'https://www.ableton.com/en/live/'],
-  ['Plugin Boutique', 'Plugin Boutique', 'Plugin Store', 'https://www.pluginboutique.com/'],
+  ['Plugin Boutique', 'Plugin Boutique', 'Plugin Store', 'https://www.pluginboutique.com/?a_aid=69dac828ced75'],
   ['Vital', 'Vital Audio', 'Free Synth Plugin', 'https://vital.audio/'],
-  ['Loopmasters', 'Loopmasters', 'Sample Pack Store', 'https://www.loopmasters.com/search?utf8=%E2%9C%93&q=neurofunk'],
+  ['Loopmasters', 'Loopmasters', 'Sample Pack Store', 'https://www.loopmasters.com/search?utf8=%E2%9C%93&q=neurofunk&a_aid=69dac828ced75'],
   ['Movement', 'Output', 'FX Engine', 'https://output.com/products/movement'],
 ] as const
 
@@ -360,7 +360,10 @@ export default function GuidelinesPage() {
         </h2>
         <ul className={styles.list}>
           <li>We prefer exclusive releases but may consider non-exclusives if the track fits</li>
-          <li>If accepted, we&apos;ll discuss contract, royalties, and release schedule</li>
+          <li>
+            If accepted, we&apos;ll discuss contract, a fixed fee per track, and release schedule —{' '}
+            <Link href="/submit-demo#faq">why a fixed fee</Link>
+          </li>
           <li>Follow our socials for updates &amp; inspiration</li>
         </ul>
         <ul className={styles.chips} aria-label="DnB Doctor on social media" style={{ marginTop: '1.4rem' }}>
@@ -427,7 +430,7 @@ export default function GuidelinesPage() {
           <ul className={styles.tiles} style={FIT}>
             {PLUGINS.map(([name, maker, type, href]) => (
               <li key={name}>
-                <a href={href} target="_blank" rel="noopener noreferrer">
+                <a href={href} target="_blank" rel={href.includes('a_aid=') ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}>
                   <span className={styles.tileTag}>{type}</span>
                   <h4 className={own.tileH}>{name} ↗</h4>
                   <p>{maker}</p>
