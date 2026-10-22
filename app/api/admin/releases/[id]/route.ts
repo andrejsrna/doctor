@@ -63,7 +63,6 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     if (newSlug && newSlug !== oldSlug) revalidatePath(`/music/${newSlug}`)
     revalidatePath(`/music`)
     revalidatePath(`/`)
-    revalidatePath(`/new-fans`)
     revalidatePath(`/api/releases`)
     if (newSlug) revalidatePath(`/api/releases/${newSlug}`)
   } catch (e) {

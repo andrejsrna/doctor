@@ -27,7 +27,6 @@ const COLUMNS = [
     title: 'Label',
     links: [
       { href: '/about', text: 'About us' },
-      { href: '/core-artists', text: 'Core artists' },
       { href: '/albums', text: 'DnB albums' },
       { href: '/newsletter', text: 'Newsletter' },
       { href: '/contact', text: 'Contact' },

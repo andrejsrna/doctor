@@ -61,14 +61,14 @@ export default async function ArtistsPage() {
 
         <div className={styles.intro}>
           <p className={styles.lede}>
-            Building catalogs over time. See what it means to be a <strong>CORE ARTIST</strong> at DnB Doctor.
+            Building catalogs over time — producers who help shape the <strong>sound, the image and the direction</strong> of DnB Doctor.
           </p>
           <div className={styles.actions}>
-            <Link href="/core-artists" className={styles.primary}>
-              Core artists <FaArrowRight aria-hidden="true" />
+            <Link href="/submit-demo" className={styles.primary}>
+              Submit demo <FaArrowRight aria-hidden="true" />
             </Link>
-            <Link href="/submit-demo" className={styles.ghost}>
-              Submit demo
+            <Link href="/music" className={styles.ghost}>
+              Releases
             </Link>
           </div>
         </div>
@@ -180,8 +180,8 @@ export default async function ArtistsPage() {
           <Link href="/submit-demo" className={styles.primary}>
             Submit your demo <FaArrowRight aria-hidden="true" />
           </Link>
-          <Link href="/core-artists" className={styles.ghost}>
-            What is a core artist
+          <Link href="/contact" className={styles.ghost}>
+            Contact
           </Link>
         </div>
       </section>

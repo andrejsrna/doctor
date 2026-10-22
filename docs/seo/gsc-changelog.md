@@ -1,5 +1,13 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-22 – redizajn /neurofunk-labels + zrušenie /core-artists, /new-fans
+- Baseline GSC (19. 7.–18. 10.) /neurofunk-labels: 13 klikov, 569 impr, pos 8,6; "neurofunk labels" 53 impr pos 2,5, "dnb labels"/"dnb record labels" ~57 impr pos ~9.
+- Pred: client-rendered (framer-motion), bez vlastného title/canonical (Google videl "DnB Doctor | Neurofunk Label").
+- Po: server-rendered guide šablóna, title "Neurofunk Labels: From Eatbrain to the Underground (2020s)", quick answer, Annin text zachovaný, 4 FAQ + Article/FAQPage/Breadcrumb JSON-LD, odkazy na profily artistov a /submit-demo, /guidelines, /neurofunk-spotify.
+- Odstránená neoveriteľná veta "Austria … releases from Overtune, Asom, Reality, and Virus" (Overtune/Asom nie sú v DB, Reality je track Max Shade).
+- /core-artists → 308 /artists (zmazané z sitemapy a footera; /artists CTA prepojené na submit-demo/contact). /new-fans → 308 / (zmazané aj NewToNeurofunk, ArtistCardsGrid, revalidatePath).
+- Review ~1. 12. 2026.
+
 ## 2026-10-21 – redizajn /drum-and-bass-history
 - Baseline GSC (19. 7.–18. 10.): 7 klikov, 1 759 impr, CTR 0,40 %, pos 10,0. Hlavné dopyty: "when did drum and bass start" (114), "when was dnb invented" (57), "when did dnb start" (51), "where was dnb invented" (31), "history of dnb/drum and bass" (~60), "jungle vs liquid" (~45, pos ~5).
 - Pred: client-rendered (framer-motion), title "Drum and Bass History: From Jungle Raves to Global Movement (1990–2025)" (zastaraný rok), bez JSON-LD, bez FAQ.

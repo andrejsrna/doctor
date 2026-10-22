@@ -82,7 +82,6 @@ export async function POST(request: NextRequest) {
   try {
     // New content affects homepage hero/featured and lists
     revalidatePath(`/`)
-    revalidatePath(`/new-fans`)
     revalidatePath(`/music`)
     // Single page and APIs
     if (created.slug) {
@@ -144,7 +143,6 @@ export async function PATCH(request: NextRequest) {
     // Listings and home/landing pages using latest/featured music
     revalidatePath(`/music`)
     revalidatePath(`/`)
-    revalidatePath(`/new-fans`)
     // API endpoints consumed by clients
     revalidatePath(`/api/releases`)
     if (newSlug) revalidatePath(`/api/releases/${newSlug}`)
