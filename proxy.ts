@@ -3,6 +3,7 @@ import { getSessionCookie } from "better-auth/cookies";
 
 const redirects = [
     { from: "/x3a-go", to: "/music/x3a-go" },
+    { from: "/history-of-drum-and-bass", to: "/drum-and-bass-history" },
     { from: "/yehor-hold-me-ep", to: "/music/yehor-hold-me-ep" },
     { from: "/warp-fa2e-bubble-gun-ep", to: "/music/warp-fa2e-bubble-gun-ep" },
     {

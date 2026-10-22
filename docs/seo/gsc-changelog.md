@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-21 – redizajn /drum-and-bass-history
+- Baseline GSC (19. 7.–18. 10.): 7 klikov, 1 759 impr, CTR 0,40 %, pos 10,0. Hlavné dopyty: "when did drum and bass start" (114), "when was dnb invented" (57), "when did dnb start" (51), "where was dnb invented" (31), "history of dnb/drum and bass" (~60), "jungle vs liquid" (~45, pos ~5).
+- Pred: client-rendered (framer-motion), title "Drum and Bass History: From Jungle Raves to Global Movement (1990–2025)" (zastaraný rok), bez JSON-LD, bez FAQ.
+- Po: title "When Did Drum and Bass Start? History of DnB (1990s–Today)", quick answer (kedy/kde/korene/názov), timeline 12 kľúčových dátumov, 5 FAQ (kedy, kde, kto, jungle vs liquid, Amen break) + Article/FAQPage/Breadcrumb JSON-LD, sitemap 0.6→0.8, 308 /history-of-drum-and-bass → /drum-and-bass-history.
+- Opravy faktov: Yehor (Záporožie, UA) nebol "Russia neurofunk movement" → "Eastern Europe neurofunk wave"; Ed Rush & Optical doplnení k neurofunku (Wormhole 1998); Let It Roll "world's largest" → "one of the world's largest".
+- Review ~1. 12. 2026.
+
 ## 2026-10-21 – redizajn /recommended-tools
 - Baseline GSC (19. 7.–18. 10.): 0 klikov, 26 impr, pos 10.7.
 - Pred: client-rendered (framer-motion), tenký obsah, len 5 dlaždíc.

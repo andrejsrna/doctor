@@ -1,0 +1,103 @@
+/* Page-specific bits on top of the shared guide styles. */
+
+/* key-dates timeline: year column + rail with a dot per milestone */
+.timeline {
+  position: relative;
+  margin: 1.8rem 0 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 6.6rem;
+  width: 1px;
+  background: linear-gradient(var(--c-green), var(--c-purple));
+}
+
+.timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.6rem 1fr;
+  gap: 2rem;
+  padding: 0.75rem 0;
+}
+
+.timeline li::after {
+  content: '';
+  position: absolute;
+  top: 1.15rem;
+  left: calc(6.6rem - 4px);
+  width: 9px;
+  height: 9px;
+  background: #0b0b0f;
+  border: 2px solid var(--c-green);
+}
+
+.timeline time {
+  font-family: var(--disp);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: right;
+  color: #fff;
+}
+
+.timeline p {
+  margin: 0 !important;
+  font-size: 0.98rem !important;
+  line-height: 1.6 !important;
+}
+
+/* inline artist links inside a tile (tiles make every <a> a block) */
+.inline a {
+  display: inline !important;
+  height: auto !important;
+  color: var(--c-green) !important;
+}
+
+/* era header: period kicker above the h2 */
+.period {
+  margin: 0 0 0.4rem !important;
+  font-family: var(--mono);
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-purple) !important;
+}
+
+.unites {
+  margin: 2rem 0 0 !important;
+  font-family: var(--disp);
+  font-size: clamp(2rem, 5vw, 3.4rem) !important;
+  font-weight: 800;
+  line-height: 1 !important;
+  text-transform: uppercase;
+  color: var(--c-green) !important;
+}
+
+@media (max-width: 640px) {
+  .timeline::before {
+    left: 0.3rem;
+  }
+
+  .timeline li {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding-left: 1.6rem;
+  }
+
+  .timeline li::after {
+    top: 1.05rem;
+    left: calc(0.3rem - 4px);
+  }
+
+  .timeline time {
+    text-align: left;
+    font-size: 1.3rem;
+  }
+}

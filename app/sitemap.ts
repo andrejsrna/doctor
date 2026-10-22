@@ -93,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ['/neurofunk-dnb', 'monthly', 0.8],
         ['/dnb-bpm', 'monthly', 0.8],
         ['/neurofunk-spotify', 'monthly', 0.6],
-        ['/drum-and-bass-history', 'monthly', 0.6],
+        ['/drum-and-bass-history', 'monthly', 0.8],
         ['/recommended-tools', 'monthly', 0.5],
       ] as const
     ).map(([path, changeFrequency, priority]) => ({ url: `${baseUrl}${path}`, lastModified: new Date(), changeFrequency, priority })),
