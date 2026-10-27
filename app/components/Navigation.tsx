@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
-import { FaBandcamp, FaDiscord, FaFacebookF, FaInstagram, FaSearch, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
+import { FaBandcamp, FaDiscord, FaFacebookF, FaInstagram, FaSearch, FaSoundcloud, FaSpotify, FaUser, FaYoutube } from 'react-icons/fa'
 import { SiBeatport } from 'react-icons/si'
 import SearchModal from './SearchModal'
 import CartDrawer from './shop/CartDrawer'
@@ -244,6 +244,9 @@ export default function Navigation() {
                 <FaSearch size={15} aria-hidden="true" />
                 <span className={styles.searchLabel} aria-hidden="true">Search</span>
               </button>
+              <Link href="/account" className={`${styles.search} ${styles.account}`} aria-label="My account" onClick={closeMenus} data-active={pathname === '/account' ? 'true' : undefined}>
+                <FaUser size={13} aria-hidden="true" />
+              </Link>
               <CartDrawer buttonClassName={`${styles.search} ${styles.cart}`} />
             </div>
           </div>
@@ -292,6 +295,9 @@ export default function Navigation() {
                   </div>
                 ))}
               </div>
+              <Link href="/account" className={styles.mobileAccount} onClick={closeMenus} aria-current={pathname === '/account' ? 'page' : undefined}>
+                <FaUser size={13} aria-hidden="true" /> My account <span aria-hidden="true">→</span>
+              </Link>
               <div className={styles.mobileFooter}>
                 <p className={styles.megaLabel}>Follow &amp; stream</p>
                 <PlatformLinks />

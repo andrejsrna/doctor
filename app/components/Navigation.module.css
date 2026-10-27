@@ -235,6 +235,40 @@
   position: relative;
 }
 
+/* Account lives in the mobile menu below desktop width, keeping the mobile bar to search + cart. */
+.account {
+  display: none;
+}
+
+.account[data-active] {
+  color: var(--c-green);
+  border-color: rgb(57 255 20 / 55%);
+}
+
+.mobileAccount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  color: #e8e8ec;
+  font-family: var(--hero-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mobileAccount span {
+  margin-left: auto;
+  color: var(--c-green);
+}
+
+.mobileAccount:hover,
+.mobileAccount[aria-current] {
+  border-color: var(--c-green);
+  color: #fff;
+}
+
 .cart[data-count] {
   color: var(--c-green);
   border-color: rgb(57 255 20 / 55%);
@@ -421,6 +455,10 @@
 
 /* ---- desktop ---- */
 @media (min-width: 1280px) {
+  .account {
+    display: inline-flex;
+  }
+
   .header {
     --collapse: 108px;
   }
