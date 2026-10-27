@@ -57,7 +57,9 @@ const SEP = /(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+vs\.?\s+)/i
 
 /** Split a credit into names and separators, marking names that are on the DnB Doctor roster. */
 function credit(text: string, roster: Roster) {
-  return text.split(SEP).map((part) => ({ part, artist: SEP.test(part) ? undefined : roster.get(part.trim().toLowerCase()) }))
+  // "OTT (UK)" → roster "OTT": a trailing country/alias tag in parentheses still resolves to the artist.
+  const find = (name: string) => roster.get(name) ?? roster.get(name.replace(/\s*\([^)]*\)$/, ''))
+  return text.split(SEP).map((part) => ({ part, artist: SEP.test(part) ? undefined : find(part.trim().toLowerCase()) }))
 }
 
 /** One tracklist line → timestamp + two halves; roster names linked on the side that is clearly the artist credit. */
