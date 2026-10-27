@@ -119,6 +119,45 @@ export default function TermsPage() {
               </p>
             </section>
 
+            <section id="digital-products" className="scroll-mt-32">
+              <h2>6a. Digital Products (Sample Packs &amp; Tracks)</h2>
+              <p>
+                Digital products on this website are sold by <strong>Andrej Srna</strong>, Sokolská 11, 811 04 Bratislava,
+                Slovakia, as a private individual (contact:{' '}
+                <a href="mailto:dnbdoctor1@gmail.com" className="text-purple-500 hover:text-purple-400">dnbdoctor1@gmail.com</a>).
+                The seller is not a VAT payer; prices shown are final.
+              </p>
+              <ul>
+                <li>
+                  <strong>Payment &amp; delivery:</strong> payment is made by card through Stripe. After a successful payment you
+                  receive a download link by email; your purchases also stay available in{' '}
+                  <a href="/account" className="text-purple-500 hover:text-purple-400">My account</a> (sign in with the email
+                  used at checkout). A sales receipt (invoice) is issued and emailed automatically.
+                </li>
+                <li>
+                  <strong>Right of withdrawal:</strong> before payment you expressly agree that delivery of the digital content
+                  starts immediately and acknowledge that you thereby lose the 14-day right of withdrawal once the download is
+                  made available.
+                </li>
+                <li>
+                  <strong>Sample licence:</strong> sounds from our sample packs are licensed to you royalty-free for use in your
+                  own music productions, including commercially released tracks, remixes, DJ sets and video soundtracks. You may
+                  not resell, share, upload or redistribute the samples on their own or as part of another sample pack, library,
+                  preset bank or similar product. The licence is personal and non-transferable.
+                </li>
+                <li>
+                  <strong>Tracks:</strong> purchased tracks are for personal listening and DJ use. Any other use requires a separate
+                  licence.
+                </li>
+                <li>
+                  <strong>Problems with your download:</strong> if a file is damaged, incomplete or does not match its description,
+                  email{' '}
+                  <a href="mailto:dnbdoctor1@gmail.com" className="text-purple-500 hover:text-purple-400">dnbdoctor1@gmail.com</a>{' '}
+                  with your order number. We will fix it, provide a replacement or refund you.
+                </li>
+              </ul>
+            </section>
+
             <section>
               <h2>7. Content Usage</h2>
               <p>

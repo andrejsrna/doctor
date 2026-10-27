@@ -8,6 +8,7 @@ import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import { withBeatportAffiliate } from '@/lib/affiliates'
+import { offerForRelease } from '@/lib/shop/catalog'
 import { plainTitle, primaryArtist, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 
 export const revalidate = 300
@@ -294,6 +295,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           youtubeUrl={release.youtubeMusic || undefined}
           soundcloudUrl={release.soundcloud || undefined}
           gumroadUrl={release.gumroad || undefined}
+          offer={await offerForRelease(release.id)}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
           storyHtml={safeContent || undefined}

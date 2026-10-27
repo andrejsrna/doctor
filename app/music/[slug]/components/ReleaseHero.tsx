@@ -12,6 +12,7 @@ import type { StreamingLink } from '@/app/types/release'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import styles from './release.module.css'
 import { shortDate } from '@/app/utils/shortDate'
+import BuyButton, { type BuyOffer } from '@/app/components/shop/BuyButton'
 
 const SignalField = dynamic(() => import('@/app/components/hero/SignalField'), { ssr: false })
 
@@ -33,6 +34,7 @@ interface ReleaseHeroProps {
   youtubeUrl?: string
   soundcloudUrl?: string
   gumroadUrl?: string
+  offer?: BuyOffer | null
   releaseType?: 'NORMAL' | 'FREE_DOWNLOAD'
   streamingLinks?: StreamingLink[]
   storyHtml?: string
@@ -183,7 +185,7 @@ function FreeDownloadForm({ slug }: { slug: string }) {
 export default function ReleaseHero(props: ReleaseHeroProps) {
   const {
     slug, artist, title, fullTitle, coverUrl, artworkUrl, typeLabel, catalogue, publishedAt, index, total,
-    beatportUrl, youtubeUrl, soundcloudUrl, gumroadUrl, releaseType, streamingLinks = [], storyHtml, prev, next,
+    beatportUrl, youtubeUrl, soundcloudUrl, gumroadUrl, offer, releaseType, streamingLinks = [], storyHtml, prev, next,
   } = props
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLElement>(null)
@@ -229,7 +231,8 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
 
   // One ordered list of exits: buy first, then streaming by priority.
   const access: { name: string; url: string; icon: StreamingLink['icon']; deprecated?: boolean }[] = []
-  if (gumroadUrl) access.push({ name: 'Gumroad', url: gumroadUrl, icon: 'download' })
+  // Sold on-site: the native Buy button replaces the Gumroad exit.
+  if (gumroadUrl && !offer) access.push({ name: 'Gumroad', url: gumroadUrl, icon: 'download' })
   if (beatportUrl) access.push({ name: 'Beatport', url: beatportUrl, icon: '/beatport.svg' })
   streamingLinks
     .filter((l) => !!l.url && !['beatport', 'youtube'].includes(l.name.toLowerCase()))
@@ -237,7 +240,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
     .forEach((l) => access.push({ name: l.name, url: l.url!, icon: l.icon, deprecated: l.deprecated }))
   if (youtubeUrl) access.push({ name: 'YouTube', url: youtubeUrl, icon: 'youtube' })
 
-  const primary = isFree ? undefined : access.find((a) => !a.deprecated)
+  const primary = isFree || offer ? undefined : access.find((a) => !a.deprecated)
   const ticker = `${artist ? `${artist} — ` : ''}${title}`
   const pad = (n: number) => String(n).padStart(3, '0')
 
@@ -283,6 +286,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
               </h1>
 
               <div className={styles.actions}>
+                {offer && !isFree && <BuyButton offer={offer} className={styles.primary} />}
                 {primary && (
                   <a className={styles.primary} href={primary.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handleOut(primary.name, primary.url, e)}>
                     <span className={styles.ico}><PlatformIcon icon={primary.icon} /></span>

@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { magicLink } from "better-auth/plugins/magic-link";
+import { sendMagicLinkEmail } from "../../lib/shop/emails";
 import { prisma } from "../../lib/prisma";
 
 function isLocalhostEnv() {
@@ -43,5 +45,15 @@ export const auth = betterAuth({
     },
   },
   secret: process.env.BETTER_AUTH_SECRET,
-  plugins: [nextCookies()],
+  plugins: [
+    // Buyers sign in to My account by email link; first use creates a plain USER account (no staff access).
+    magicLink({
+      expiresIn: 60 * 15,
+      storeToken: "hashed",
+      sendMagicLink: async ({ email, url }) => {
+        await sendMagicLinkEmail(email, url);
+      },
+    }),
+    nextCookies(),
+  ],
 });

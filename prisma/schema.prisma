@@ -291,6 +291,7 @@ model Release {
   streamingClicks    StreamingClick[]
   downloadTokens     ReleaseDownloadToken[]
   artistReleasePlans ArtistReleasePlan[]
+  product            Product?
 
   @@index([publishedAt])
   @@index([slug])
@@ -569,4 +570,85 @@ model ShopOrder {
   @@index([status])
   @@index([createdAt])
   @@index([stripePaymentIntentId])
+}
+
+
+enum ProductType {
+  SAMPLE_PACK
+  TRACK
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  REFUNDED
+  CANCELED
+}
+
+enum InvoiceState {
+  PENDING
+  ISSUED
+  FAILED
+}
+
+/// A digital product sold through Stripe Checkout. Files live under a random, unlisted R2 key and are only streamed to paid orders.
+model Product {
+  id         String      @id @default(cuid())
+  slug       String      @unique
+  type       ProductType @default(SAMPLE_PACK)
+  title      String
+  priceCents Int
+  currency   String      @default("eur")
+  active     Boolean     @default(false)
+  fileKey    String?
+  fileName   String?
+  fileSize   Int?
+  releaseId  String?     @unique
+  release    Release?    @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Order {
+  id                    String       @id @default(cuid())
+  status                OrderStatus  @default(PENDING)
+  email                 String?
+  customerName          String?
+  billingAddress        Json?
+  taxIds                Json?
+  currency              String       @default("eur")
+  amountTotal           Int
+  stripeSessionId       String?      @unique
+  stripePaymentIntentId String?      @unique
+  withdrawalConsentAt   DateTime
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  emailSentAt           DateTime?
+  invoiceState          InvoiceState @default(PENDING)
+  invoiceNumber         String?      @unique
+  invoiceUrl            String?
+  invoiceAttempts       Int          @default(0)
+  invoiceError          String?
+  items                 OrderItem[]
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  title         String
+  priceCents    Int
+  downloadCount Int     @default(0)
+
+  @@index([orderId])
+  @@index([productId])
 }

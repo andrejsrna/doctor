@@ -239,6 +239,9 @@ export default function Footer() {
             <Link href="/terms">Terms &amp; conditions</Link>
           </li>
           <li>
+            <Link href="/account">My account</Link>
+          </li>
+          <li>
             <button type="button" onClick={openCookieSettings}>
               Cookie settings
             </button>

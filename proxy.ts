@@ -209,7 +209,7 @@ const redirects = [
 
   function addCacheControlHeaders(response: NextResponse, path: string): NextResponse {
     try {
-      if (path.startsWith("/admin") || path.startsWith("/api/admin") || path.startsWith("/api/auth")) {
+      if (path.startsWith("/admin") || path.startsWith("/api/admin") || path.startsWith("/api/auth") || path.startsWith("/api/shop") || path.startsWith("/api/stripe") || path.startsWith("/account") || path.startsWith("/checkout")) {
         response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
         response.headers.set("Pragma", "no-cache");
         response.headers.set("Expires", "0");

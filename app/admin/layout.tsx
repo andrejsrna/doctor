@@ -1,10 +1,14 @@
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { staffSession } from "@/app/lib/roles";
 import AdminHeaderClient from "./components/AdminHeaderClient";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const hdrs = await headers();
   const session = await auth.api.getSession({ headers: hdrs }).catch(() => null);
+  // Shop customers have sessions too; the admin shell is staff-only.
+  if (session && !(await staffSession(hdrs, ["ADMIN", "EDITOR"]).catch(() => null))) redirect("/account");
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       <div className="border-b border-purple-500/20 bg-black/50 pt-4 shadow-2xl backdrop-blur-sm">

@@ -84,6 +84,16 @@ export default function PrivacyPolicyPage() {
             </section>
 
             <section>
+              <h2>Purchases of Digital Products</h2>
+              <p>
+                When you buy a sample pack or track, Andrej Srna, Sokolská 11, 811 04 Bratislava (the seller), processes your name, email, billing
+                address and order details to deliver the download, give you access in My account and issue an invoice. Card
+                payments are handled by Stripe; we never receive your full card details. Invoices are kept for the period
+                required by accounting law (10 years in Slovakia).
+              </p>
+            </section>
+
+            <section>
               <h2>Your Rights</h2>
               <p>You have the right to:</p>
               <ul>

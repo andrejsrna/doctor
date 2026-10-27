@@ -5,6 +5,7 @@ interface EmailParams {
   subject: string;
   html: string;
   text: string;
+  attachments?: { filename: string; content: Buffer; contentType?: string }[];
 }
 
 const transporter = nodemailer.createTransport({
