@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { FaBandcamp, FaDiscord, FaFacebookF, FaInstagram, FaSearch, FaSoundcloud, FaSpotify, FaYoutube } from 'react-icons/fa'
 import { SiBeatport } from 'react-icons/si'
 import SearchModal from './SearchModal'
+import CartDrawer from './shop/CartDrawer'
 import { displayFont, monoFont } from './brandFonts'
 import styles from './Navigation.module.css'
 
@@ -243,6 +244,7 @@ export default function Navigation() {
                 <FaSearch size={15} aria-hidden="true" />
                 <span className={styles.searchLabel} aria-hidden="true">Search</span>
               </button>
+              <CartDrawer buttonClassName={`${styles.search} ${styles.cart}`} />
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import BuyButton, { type BuyOffer } from '@/app/components/shop/BuyButton'
+import AddToCartButton from '@/app/components/shop/AddToCartButton'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { formatBytes, type PackManifest } from '@/lib/shop/pack'
 import PackPlayer from './PackPlayer'
@@ -92,6 +93,7 @@ export default function SamplePackView({
                 </div>
                 <div className={styles.buyActions}>
                   <BuyButton offer={offer} className={styles.buy} />
+                  <AddToCartButton offer={offer} className={styles.addCart} />
                   {m && audioFiles > 0 && (
                     <a className={styles.listen} href="#sounds">
                       Hear the sounds <span aria-hidden="true">↓</span>

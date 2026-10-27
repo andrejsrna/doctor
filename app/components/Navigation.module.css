@@ -231,6 +231,15 @@
   display: none;
 }
 
+.cart {
+  position: relative;
+}
+
+.cart[data-count] {
+  color: var(--c-green);
+  border-color: rgb(57 255 20 / 55%);
+}
+
 /* ---- burger ---- */
 .burger {
   position: relative;

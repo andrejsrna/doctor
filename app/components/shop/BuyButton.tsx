@@ -4,7 +4,20 @@ import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { FaShoppingCart } from 'react-icons/fa'
 
-export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; currency?: string }
+export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; amountCents?: number; currency?: string; image?: string | null; href?: string | null }
+
+/** EU digital content consent; shared by Buy now and the cart. */
+export function DeliveryConsent({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <label className="flex cursor-pointer gap-3 text-sm leading-snug">
+      <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-[#39ff14]" checked={checked} onChange={(e) => onChange(e.target.checked)} disabled={disabled} />
+      <span>
+        I want the download delivered immediately and acknowledge that I lose my 14-day right of withdrawal once delivery begins. I agree to the{' '}
+        <Link href="/terms#digital-products" className="text-[#39ff14] underline" target="_blank">terms and sample licence</Link>.
+      </span>
+    </label>
+  )
+}
 
 /** Buy trigger + consent dialog. EU law requires express consent to immediate delivery of digital content before checkout. */
 export default function BuyButton({ offer, className, label }: { offer: BuyOffer; className?: string; label?: string }) {
@@ -61,13 +74,7 @@ export default function BuyButton({ offer, className, label }: { offer: BuyOffer
             <li>Invoice emailed automatically</li>
             <li>No account needed. Secure card payment by Stripe</li>
           </ul>
-          <label className="flex cursor-pointer gap-3 text-sm leading-snug">
-            <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-[#39ff14]" checked={consent} onChange={(e) => setConsent(e.target.checked)} disabled={busy} />
-            <span>
-              I want the download delivered immediately and acknowledge that I lose my 14-day right of withdrawal once delivery begins. I agree to the{' '}
-              <Link href="/terms#digital-products" className="text-[#39ff14] underline" target="_blank">terms and sample licence</Link>.
-            </span>
-          </label>
+          <DeliveryConsent checked={consent} onChange={setConsent} disabled={busy} />
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
           <div className="flex flex-wrap gap-3">
             <button

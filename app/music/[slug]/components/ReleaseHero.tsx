@@ -13,6 +13,7 @@ import { displayFont, monoFont } from '@/app/components/brandFonts'
 import styles from './release.module.css'
 import { shortDate } from '@/app/utils/shortDate'
 import BuyButton, { type BuyOffer } from '@/app/components/shop/BuyButton'
+import AddToCartButton from '@/app/components/shop/AddToCartButton'
 
 const SignalField = dynamic(() => import('@/app/components/hero/SignalField'), { ssr: false })
 
@@ -287,6 +288,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
 
               <div className={styles.actions}>
                 {offer && !isFree && <BuyButton offer={offer} className={styles.primary} />}
+                {offer && !isFree && <AddToCartButton offer={offer} className={styles.secondary} />}
                 {primary && (
                   <a className={styles.primary} href={primary.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handleOut(primary.name, primary.url, e)}>
                     <span className={styles.ico}><PlatformIcon icon={primary.icon} /></span>

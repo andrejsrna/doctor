@@ -46,3 +46,17 @@ test('invoice address lines skip empty Stripe fields', () => {
   assert.deepEqual(addressLines({ line1: 'Main St 1', line2: null, postal_code: '10115', city: 'Berlin', state: '', country: 'DE' }), ['Main St 1', '10115 Berlin', 'DE'])
   assert.deepEqual(addressLines(null), [])
 })
+
+test('cart: checkout body → unique valid slugs, single-product body still accepted', async () => {
+  const { parseProductSlugs, withItem, cartTotal, CART_MAX } = await import('../lib/shop/cart')
+  assert.deepEqual(parseProductSlugs({ product: 'yehor-sample-pack' }), ['yehor-sample-pack'])
+  assert.deepEqual(parseProductSlugs({ products: ['a-pack', ' a-pack ', 'b-track'] }), ['a-pack', 'b-track'])
+  assert.equal(parseProductSlugs({ products: [] }), null)
+  assert.equal(parseProductSlugs({ products: ['ok', 'Bad Slug'] }), null)
+  assert.equal(parseProductSlugs({ products: Array.from({ length: CART_MAX + 1 }, (_, i) => `p-${i}`) }), null)
+  assert.equal(parseProductSlugs({}), null)
+  const item = (slug: string, amountCents: number) => ({ slug, title: slug, price: '', amountCents, currency: 'eur' })
+  const cart = withItem(withItem(withItem([], item('a', 1000)), item('b', 149)), item('a', 1000))
+  assert.deepEqual(cart.map((i) => i.slug), ['a', 'b'])
+  assert.equal(cartTotal(cart), 1149)
+})

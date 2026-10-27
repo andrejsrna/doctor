@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { retrieveCheckoutSession, stripeConfigured } from '@/lib/shop/stripe'
 import { fulfilSession } from '@/lib/shop/orders'
 import { issueInvoice } from '@/lib/shop/invoices'
+import ClearCart from './ClearCart'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'Thank you | DnB Doctor', robots: { index: false, follow: false } }
@@ -15,6 +16,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   let state: 'paid' | 'processing' | 'unknown' = 'unknown'
   let email: string | null = null
   let items: string[] = []
+  let paidSlugs: string[] = []
 
   if (session_id && /^cs_[A-Za-z0-9_]+$/.test(session_id) && stripeConfigured()) {
     try {
@@ -25,9 +27,10 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         if (r.status === 'paid') await issueInvoice(String(session.metadata?.orderId))
         state = 'paid'
       } else if (session.status === 'complete') state = 'processing'
-      const order = await prisma.order.findUnique({ where: { stripeSessionId: session_id }, include: { items: { select: { title: true } } } })
+      const order = await prisma.order.findUnique({ where: { stripeSessionId: session_id }, include: { items: { select: { title: true, product: { select: { slug: true } } } } } })
       email = order?.email ?? session.customer_details?.email ?? null
       items = order?.items.map((i) => i.title) ?? []
+      if (state === 'paid') paidSlugs = order?.items.map((i) => i.product.slug) ?? []
     } catch (e) {
       console.error('[shop] success page', e instanceof Error ? e.message : e)
     }
@@ -35,6 +38,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
 
   return (
     <main className={shell}>
+      {paidSlugs.length > 0 && <ClearCart slugs={paidSlugs} />}
       <p className="font-mono text-xs uppercase tracking-[0.25em] text-[#39ff14]">{state === 'paid' ? 'Payment received' : state === 'processing' ? 'Payment processing' : 'Checkout'}</p>
       <h1 className="mt-3 text-4xl font-bold uppercase leading-none text-white md:text-6xl">{state === 'unknown' ? 'Order status' : 'Thank you'}</h1>
       {state === 'paid' && (

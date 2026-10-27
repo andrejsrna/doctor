@@ -198,6 +198,30 @@
   border-color: var(--g);
 }
 
+.addCart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.95rem 1.2rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  background: rgb(0 0 0 / 35%);
+  color: #fff;
+  font: 700 0.75rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: border-color 160ms, background 160ms;
+}
+
+.addCart:hover {
+  border-color: var(--v);
+  background: rgb(155 94 255 / 18%);
+}
+
+.addCart[data-in-cart] {
+  border-color: rgb(57 255 20 / 55%);
+  color: var(--g);
+}
+
 .perks {
   display: flex;
   flex-wrap: wrap;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createCheckoutSession, stripeConfigured } from '@/lib/shop/stripe'
 import { SITE } from '@/lib/shop/emails'
+import { parseProductSlugs } from '@/lib/shop/cart'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,53 +11,66 @@ const noStore = { 'Cache-Control': 'no-store' }
 export async function POST(request: NextRequest) {
   if (!stripeConfigured()) return NextResponse.json({ error: 'Shop is not available yet' }, { status: 503, headers: noStore })
 
-  let body: { product?: unknown; consent?: unknown }
+  let body: { product?: unknown; products?: unknown; consent?: unknown }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400, headers: noStore })
   }
-  const slug = typeof body.product === 'string' ? body.product.trim().slice(0, 120) : ''
-  if (!/^[a-z0-9-]+$/.test(slug)) return NextResponse.json({ error: 'Unknown product' }, { status: 400, headers: noStore })
+  // One product (Buy now) or the whole cart (`products`).
+  const slugs = parseProductSlugs(body)
+  if (!slugs) return NextResponse.json({ error: 'Unknown product' }, { status: 400, headers: noStore })
   // EU digital content: the buyer must expressly agree to immediate delivery and acknowledge losing the withdrawal right.
   if (body.consent !== true) return NextResponse.json({ error: 'Please confirm immediate delivery to continue' }, { status: 400, headers: noStore })
 
-  const product = await prisma.product.findUnique({ where: { slug }, include: { release: { select: { slug: true, coverImageUrl: true } } } })
-  if (!product || !product.active || !product.fileKey) return NextResponse.json({ error: 'This product is not for sale' }, { status: 404, headers: noStore })
+  const found = await prisma.product.findMany({ where: { slug: { in: slugs } }, include: { release: { select: { slug: true, coverImageUrl: true } } } })
+  const bySlug = new Map(found.map((p) => [p.slug, p]))
+  const invalid = slugs.filter((s) => {
+    const p = bySlug.get(s)
+    return !p || !p.active || !p.fileKey
+  })
+  if (invalid.length) {
+    // The cart removes these and lets the buyer continue with the rest.
+    const error = slugs.length === 1 ? 'This product is not for sale' : 'Some items are no longer available and were removed from your cart'
+    return NextResponse.json({ error, invalid }, { status: slugs.length === 1 ? 404 : 409, headers: noStore })
+  }
+  const products = slugs.map((s) => bySlug.get(s)!)
+  const currency = products[0].currency
+  if (products.some((p) => p.currency !== currency)) return NextResponse.json({ error: 'Items in different currencies cannot be paid together' }, { status: 400, headers: noStore })
 
-  // Price always comes from the DB, never from the client.
+  // Prices always come from the DB, never from the client.
   const order = await prisma.order.create({
     data: {
-      amountTotal: product.priceCents,
-      currency: product.currency,
+      amountTotal: products.reduce((sum, p) => sum + p.priceCents, 0),
+      currency,
       withdrawalConsentAt: new Date(),
-      items: { create: { productId: product.id, title: product.title, priceCents: product.priceCents } },
+      items: { create: products.map((p) => ({ productId: p.id, title: p.title, priceCents: p.priceCents })) },
     },
   })
 
-  const back = product.release ? `${SITE}/music/${product.release.slug}` : SITE
+  const single = products.length === 1 ? products[0] : null
+  const back = single?.release ? `${SITE}/music/${single.release.slug}` : `${SITE}/music?cart=open`
+  const summary = single ? single.title : `${products.length} items: ${products.map((p) => p.title).join(', ')}`.slice(0, 300)
   try {
     const session = await createCheckoutSession(
       {
         mode: 'payment',
-        line_items: [
-          {
-            quantity: 1,
-            price_data: {
-              currency: product.currency,
-              unit_amount: product.priceCents,
-              product_data: {
-                name: product.title,
-                description: 'Digital download',
-                ...(product.release?.coverImageUrl?.startsWith('https://') ? { images: [product.release.coverImageUrl] } : {}),
-              },
+        line_items: products.map((product) => ({
+          quantity: 1,
+          price_data: {
+            currency: product.currency,
+            unit_amount: product.priceCents,
+            product_data: {
+              name: product.title,
+              description: 'Digital download',
+              ...(product.release?.coverImageUrl?.startsWith('https://') ? { images: [product.release.coverImageUrl] } : {}),
             },
           },
-        ],
+        })),
         billing_address_collection: 'required',
         tax_id_collection: { enabled: true },
         metadata: { orderId: order.id },
-        payment_intent_data: { metadata: { orderId: order.id }, description: `DnB Doctor — ${product.title}` },
+        payment_intent_data: { metadata: { orderId: order.id }, description: `DnB Doctor — ${summary}` },
         custom_text: {
           submit: { message: 'Digital download, delivered immediately by email and in My account. You agreed to immediate delivery and lose the right of withdrawal once delivery begins.' },
         },
