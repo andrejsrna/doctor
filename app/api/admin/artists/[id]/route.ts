@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { auth } from "@/app/lib/auth"
+import { staffSession } from '@/app/lib/roles'
 
 function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -14,7 +14,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
 }
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
   const params = await ctx.params
   const data = await request.json()
@@ -36,7 +36,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
 }
 
 export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
   const params = await ctx.params
   await prisma.artist.delete({ where: { id: params.id } })

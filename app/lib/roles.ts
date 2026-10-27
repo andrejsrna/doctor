@@ -14,6 +14,14 @@ export async function getRequestUser(request: NextRequest) {
   })
 }
 
+/** Session for staff-only routes: null unless the signed-in user has one of `roles` (checked in the DB, not the cookie). */
+export async function staffSession(headers: Headers, roles: AppRole[] = ["ADMIN"]) {
+  const session = await auth.api.getSession({ headers })
+  if (!session?.user?.id) return null
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true } })
+  return user && roles.includes(user.role as AppRole) ? session : null
+}
+
 export async function requireRole(request: NextRequest, roles: AppRole[]) {
   const user = await getRequestUser(request)
   if (!user) {

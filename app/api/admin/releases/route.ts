@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
-import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
+import { staffSession } from '@/app/lib/roles'
 
 function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -13,7 +13,7 @@ function nullable<T>(value: T | null | undefined) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
 
   const { searchParams } = new URL(request.url)
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
   validateAdminOrigin(request)
   const data = await request.json()
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
   validateAdminOrigin(request)
   const { id, ...data } = await request.json()
@@ -153,7 +153,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return unauthorized()
   validateAdminOrigin(request)
   const { searchParams } = new URL(request.url)

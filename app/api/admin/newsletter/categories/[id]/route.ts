@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/app/lib/auth";
+import { staffSession } from '@/app/lib/roles'
 
 function json(res: unknown, init?: ResponseInit) {
   const r = NextResponse.json(res, init);
@@ -12,7 +12,7 @@ function json(res: unknown, init?: ResponseInit) {
 
 export async function PATCH(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: _req.headers });
+    const session = await staffSession(_req.headers, ['ADMIN']);
     if (!session?.user) return json({ error: "Unauthorized" }, { status: 401 });
 
     const origin = _req.headers.get("origin");
@@ -76,7 +76,7 @@ export async function PATCH(_req: NextRequest, ctx: { params: Promise<{ id: stri
 
 export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession({ headers: _req.headers });
+    const session = await staffSession(_req.headers, ['ADMIN']);
     if (!session?.user) return json({ error: "Unauthorized" }, { status: 401 });
 
     const origin = _req.headers.get("origin");

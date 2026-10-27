@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import type { Prisma } from "@prisma/client"
-import { auth } from "@/app/lib/auth"
+import { staffSession } from '@/app/lib/roles'
 
 const demoFeedbackSelect = {
   id: true,
@@ -21,7 +21,7 @@ const demoFeedbackSelect = {
 type DemoFeedbackItemRaw = Prisma.DemoFeedbackGetPayload<{ select: typeof demoFeedbackSelect }>
 
 export async function GET(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)

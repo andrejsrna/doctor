@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/app/lib/auth";
 import { validateAdminOriginPermissive } from "@/app/lib/adminUtils";
+import { staffSession } from '@/app/lib/roles'
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -12,7 +12,7 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const categories = await prisma.category.findMany({
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     validateAdminOriginPermissive(request);

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { auth } from "@/app/lib/auth"
 import { validateAdminOrigin } from "@/app/lib/adminUtils"
+import { staffSession } from '@/app/lib/roles'
 
 function getS3() {
   const endpoint = process.env.R2_ENDPOINT
@@ -23,7 +23,7 @@ function cleanFileName(name: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers })
+  const session = await staffSession(request.headers, ['ADMIN'])
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   validateAdminOrigin(request)
 

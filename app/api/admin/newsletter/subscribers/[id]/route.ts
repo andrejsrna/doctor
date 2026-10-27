@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/app/lib/auth";
 import { validateAdminOriginPermissive } from "@/app/lib/adminUtils";
+import { staffSession } from '@/app/lib/roles'
 
 function addNoCacheHeaders(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
@@ -15,7 +15,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) {
       const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       return addNoCacheHeaders(response);
@@ -88,7 +88,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) {
       const response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       return addNoCacheHeaders(response);

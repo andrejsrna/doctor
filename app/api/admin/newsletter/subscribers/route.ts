@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/app/lib/auth";
 import { validateAdminOriginPermissive } from "@/app/lib/adminUtils";
+import { staffSession } from '@/app/lib/roles'
 
 interface CreateSubscriberData {
   email: string;
@@ -44,7 +44,7 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { searchParams } = new URL(request.url);
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: request.headers });
+    const session = await staffSession(request.headers, ['ADMIN']);
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     validateAdminOriginPermissive(request);
