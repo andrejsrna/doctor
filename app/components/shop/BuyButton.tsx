@@ -44,7 +44,8 @@ export default function BuyButton({ offer, className }: { offer: BuyOffer; class
       <dialog
         ref={ref}
         aria-labelledby="buy-title"
-        className="m-auto w-[min(92vw,30rem)] border border-white/15 bg-[#0b0b0f] p-0 text-[#e8e8ec] backdrop:bg-black/80"
+        // pointer-events-auto: the release hero sets pointer-events:none and the dialog would inherit it (checkbox unclickable).
+        className="pointer-events-auto m-auto w-[min(92vw,30rem)] border border-white/15 bg-[#0b0b0f] p-0 text-[#e8e8ec] backdrop:bg-black/80"
         onClick={(e) => e.target === ref.current && !busy && ref.current?.close()}
       >
         <div className="space-y-5 p-6">
