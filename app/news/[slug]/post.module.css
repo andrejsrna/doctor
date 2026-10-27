@@ -675,6 +675,24 @@
   color: #fff;
 }
 
+/* track title → release page: stays white so artist links keep the accent */
+.tt a.trackLink {
+  color: #fff;
+  border-bottom: 1px dashed rgb(255 255 255 / 35%);
+}
+
+.tt a.trackLink::after {
+  content: ' →';
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.8em;
+}
+
+.tt a.trackLink:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
+}
+
 .tracks li:hover .tn {
   color: var(--accent);
 }

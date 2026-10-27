@@ -55,6 +55,16 @@ type Roster = Map<string, { name: string; slug: string }>
 
 const SEP = /(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+vs\.?\s+)/i
 
+type ReleaseIndex = Map<string, string>
+const trackKey = (s: string) => plainTitle(s).toLowerCase().replace(/[‘’]/g, "'").replace(/\s+[-–—]\s+/g, ' - ').replace(/\s+/g, ' ').trim()
+
+/** "Artist - Title" (either order) → /music/<slug> when a release carries exactly that title. */
+function releaseFor(line: string, releases: ReleaseIndex) {
+  const k = trackKey(line)
+  const flipped = k.split(' - ')
+  return releases.get(k) ?? (flipped.length === 2 ? releases.get(`${flipped[1]} - ${flipped[0]}`) : undefined) ?? null
+}
+
 /** Split a credit into names and separators, marking names that are on the DnB Doctor roster. */
 function credit(text: string, roster: Roster) {
   // "OTT (UK)" → roster "OTT": a trailing country/alias tag in parentheses still resolves to the artist.
@@ -63,12 +73,16 @@ function credit(text: string, roster: Roster) {
 }
 
 /** One tracklist line → timestamp + two halves; roster names linked on the side that is clearly the artist credit. */
-function parseTrack(raw: string, roster: Roster) {
+function parseTrack(raw: string, roster: Roster, releases: ReleaseIndex) {
   let line = raw.trim().replace(/^\d{1,3}\s*[.)]\s*/, '')
   const time = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+/)?.[1] ?? null
   if (time) line = line.slice(time.length).trim()
+  // Optional release link at the end of the line ("… - /music/slug" or the full dnbdoctor.com URL); only our own catalogue.
+  const link = line.match(/\s+(?:[-–—|]\s+)?(?:https?:\/\/(?:www\.)?dnbdoctor\.com)?(\/music\/[a-z0-9-]+)\/?$/i)
+  if (link) line = line.slice(0, link.index).trim()
+  const href = link ? link[1].toLowerCase() : releaseFor(line, releases)
   const cut = line.search(/\s+[-–—]\s+|\s+-(?=\S)|(?<=\S)-\s+/)
-  if (cut < 0) return { time, a: credit(line, new Map()), b: null }
+  if (cut < 0) return { time, href, a: credit(line, new Map()), b: null }
   const left = line.slice(0, cut).trim()
   const right = line.slice(cut).replace(/^\s*[-–—]\s*/, '').trim()
   const l = credit(left, roster)
@@ -78,8 +92,8 @@ function parseTrack(raw: string, roster: Roster) {
   const rh = hits(r)
   const plain = (c: ReturnType<typeof credit>) => c.map((x) => ({ part: x.part, artist: undefined }))
   // normalise to title first, artist credit second (lists mix "Title - Artist" and "Artist - Title")
-  if (lh > rh) return { time, a: plain(r), b: l }
-  return { time, a: plain(l), b: rh > lh ? r : plain(r) }
+  if (lh > rh) return { time, href, a: plain(r), b: l }
+  return { time, href, a: plain(l), b: rh > lh ? r : plain(r) }
 }
 
 function Credit({ parts }: { parts: { part: string; artist?: { name: string; slug: string } }[] }) {
@@ -143,7 +157,7 @@ async function load(slug: string) {
 
   const card = { slug: true, title: true, coverImageUrl: true, publishedAt: true, categories: true } as const
   const at = post.publishedAt ?? post.createdAt
-  const [newer, older, related, roster] = await Promise.all([
+  const [newer, older, related, roster, releases] = await Promise.all([
     prisma.news.findFirst({ where: { publishedAt: { gt: at } }, orderBy: { publishedAt: 'asc' }, select: card }),
     prisma.news.findFirst({ where: { publishedAt: { lt: at } }, orderBy: { publishedAt: 'desc' }, select: card }),
     prisma.news.findMany({
@@ -153,8 +167,16 @@ async function load(slug: string) {
       select: card,
     }),
     post.tracklist ? prisma.artist.findMany({ select: { name: true, slug: true } }) : Promise.resolve([]),
+    post.tracklist ? prisma.release.findMany({ select: { title: true, slug: true } }) : Promise.resolve([]),
   ])
-  return { post, newer, older, related, roster: new Map(roster.map((a) => [a.name.toLowerCase(), a])) as Roster }
+  return {
+    post,
+    newer,
+    older,
+    related,
+    roster: new Map(roster.map((a) => [a.name.toLowerCase(), a])) as Roster,
+    releases: new Map(releases.map((r) => [trackKey(r.title), `/music/${r.slug}`])) as ReleaseIndex,
+  }
 }
 
 export async function generateStaticParams() {
@@ -172,7 +194,7 @@ export default async function NewsPostPage({ params }: PageProps) {
   const { slug } = await params
   const data = await load(slug)
   if (!data) notFound()
-  const { post, newer, older, related, roster } = data
+  const { post, newer, older, related, roster, releases } = data
 
   const url = `${SITE}/news/${slug}`
   const title = plainTitle(post.title)
@@ -191,7 +213,7 @@ export default async function NewsPostPage({ params }: PageProps) {
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean)
-    .map((l) => parseTrack(l, roster))
+    .map((l) => parseTrack(l, roster, releases))
   const rosterInMix = new Map<string, { name: string; slug: string }>()
   for (const t of tracks) for (const p of [...t.a, ...(t.b ?? [])]) if (p.artist) rosterInMix.set(p.artist.slug, p.artist)
 
@@ -316,7 +338,13 @@ export default async function NewsPostPage({ params }: PageProps) {
                     <span className={styles.tn}>{t.time ?? String(i + 1).padStart(2, '0')}</span>
                     <span className={styles.tt}>
                       <span className={styles.ta}>
-                        <Credit parts={t.a} />
+                        {t.href ? (
+                          <Link href={t.href} className={styles.trackLink}>
+                            <Credit parts={t.a} />
+                          </Link>
+                        ) : (
+                          <Credit parts={t.a} />
+                        )}
                       </span>
                       {t.b && (
                         <span className={styles.tb}>
