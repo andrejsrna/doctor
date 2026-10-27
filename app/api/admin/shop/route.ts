@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       title,
       slug,
       priceCents: price,
-      type: body.type === 'TRACK' ? ('TRACK' as const) : ('SAMPLE_PACK' as const),
+      type: body.type === 'TRACK' || body.type === 'RELEASE' ? (body.type as 'TRACK' | 'RELEASE') : ('SAMPLE_PACK' as const),
       active: Boolean(body.active),
       releaseId,
       ...(body.fileKey ? { fileKey: String(body.fileKey), fileName: String(body.fileName || 'download.zip'), fileSize: Number(body.fileSize) || null } : {}),
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       }
       return NextResponse.json({ product }, { headers: noStore })
     } catch (e) {
-      if ((e as { code?: string }).code === 'P2002') return err(409, 'Slug or release is already used by another product')
+      if ((e as { code?: string }).code === 'P2002') return err(409, 'Slug is already used by another product')
       throw e
     }
   }

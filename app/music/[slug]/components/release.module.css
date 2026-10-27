@@ -255,6 +255,79 @@
   background: rgb(155 94 255 / 20%);
 }
 
+/* EP/album tracks sold one by one */
+.tracksBuy {
+  margin-top: 1.4rem;
+  max-width: 34rem;
+}
+
+.tracksLabel {
+  margin: 0 0 0.5rem;
+  font: 700 0.7rem/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-green);
+}
+
+.trackList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.trackList li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+.trackNo {
+  font: 600 0.7rem/1 var(--mono);
+  color: rgb(255 255 255 / 45%);
+}
+
+.trackName {
+  overflow: hidden;
+  color: #fff;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackPrice {
+  font: 600 0.8rem/1 var(--mono);
+  color: rgb(255 255 255 / 80%);
+}
+
+.trackAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  background: rgb(11 11 15 / 55%);
+  color: #fff;
+  font: 700 0.68rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: border-color 160ms, background 160ms;
+}
+
+.trackAdd:hover {
+  border-color: var(--c-purple);
+  background: rgb(155 94 255 / 20%);
+}
+
+.trackAdd[data-in-cart] {
+  border-color: rgb(57 255 20 / 55%);
+  color: var(--c-green);
+}
+
 .ghost {
   padding-inline: 0.5rem;
   color: rgb(255 255 255 / 70%);

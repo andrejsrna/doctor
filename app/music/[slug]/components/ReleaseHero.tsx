@@ -36,6 +36,8 @@ interface ReleaseHeroProps {
   soundcloudUrl?: string
   gumroadUrl?: string
   offer?: BuyOffer | null
+  /** EP/album tracks sold one by one. */
+  trackOffers?: BuyOffer[]
   releaseType?: 'NORMAL' | 'FREE_DOWNLOAD'
   streamingLinks?: StreamingLink[]
   storyHtml?: string
@@ -186,7 +188,7 @@ function FreeDownloadForm({ slug }: { slug: string }) {
 export default function ReleaseHero(props: ReleaseHeroProps) {
   const {
     slug, artist, title, fullTitle, coverUrl, artworkUrl, typeLabel, catalogue, publishedAt, index, total,
-    beatportUrl, youtubeUrl, soundcloudUrl, gumroadUrl, offer, releaseType, streamingLinks = [], storyHtml, prev, next,
+    beatportUrl, youtubeUrl, soundcloudUrl, gumroadUrl, offer, trackOffers = [], releaseType, streamingLinks = [], storyHtml, prev, next,
   } = props
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLElement>(null)
@@ -287,7 +289,13 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
               </h1>
 
               <div className={styles.actions}>
-                {offer && !isFree && <BuyButton offer={offer} className={styles.primary} />}
+                {offer && !isFree && (
+                  <BuyButton
+                    offer={offer}
+                    className={styles.primary}
+                    label={offer.type === 'RELEASE' ? `Buy ${typeLabel} WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
+                  />
+                )}
                 {offer && !isFree && <AddToCartButton offer={offer} className={styles.secondary} />}
                 {primary && (
                   <a className={styles.primary} href={primary.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handleOut(primary.name, primary.url, e)}>
@@ -309,6 +317,22 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                   </a>
                 )}
               </div>
+
+              {!isFree && trackOffers.length > 0 && (
+                <div className={styles.tracksBuy}>
+                  <p className={styles.tracksLabel}>{offer ? 'Or pick single tracks' : 'Buy tracks'} · WAV</p>
+                  <ol className={styles.trackList}>
+                    {trackOffers.map((t, i) => (
+                      <li key={t.productSlug}>
+                        <span className={styles.trackNo} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                        <span className={styles.trackName}>{t.title.replace(/\s*\(WAV\)$/, '').replace(/^.+? - /, '')}</span>
+                        <span className={styles.trackPrice}>{t.price}</span>
+                        <AddToCartButton offer={t} className={styles.trackAdd} />
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
             </div>
 
             <a

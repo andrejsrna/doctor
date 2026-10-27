@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 
 type Product = {
-  id: string; slug: string; type: 'SAMPLE_PACK' | 'TRACK'; title: string; priceCents: number; active: boolean
+  id: string; slug: string; type: 'SAMPLE_PACK' | 'TRACK' | 'RELEASE'; title: string; priceCents: number; active: boolean
   fileKey: string | null; fileName: string | null; fileSize: number | null; releaseId: string | null
   release: { title: string; slug: string } | null; _count: { orderItems: number }
 }
@@ -14,7 +14,7 @@ type Order = {
   items: { title: string; downloadCount: number }[]
 }
 type Release = { id: string; title: string; slug: string; categories: string[] }
-type Form = { id?: string; title: string; slug: string; price: string; type: 'SAMPLE_PACK' | 'TRACK'; active: boolean; releaseId: string; fileKey?: string; fileName?: string; fileSize?: number; currentFile?: string | null }
+type Form = { id?: string; title: string; slug: string; price: string; type: 'SAMPLE_PACK' | 'TRACK' | 'RELEASE'; active: boolean; releaseId: string; fileKey?: string; fileName?: string; fileSize?: number; currentFile?: string | null }
 
 const emptyForm: Form = { title: '', slug: '', price: '10', type: 'SAMPLE_PACK', active: false, releaseId: '' }
 const inputStyle = 'w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-green-500'
@@ -114,7 +114,7 @@ export default function ShopAdminPage() {
         {loading ? <p className="mt-4 text-gray-400">Loading...</p> : products.length === 0 ? <p className="mt-4 text-gray-400">No products yet. Add the first one on the right.</p> :
           <ul className="mt-4 divide-y divide-gray-800">{products.map(p => <li key={p.id} className="flex items-start justify-between gap-3 py-4">
             <div className="min-w-0"><h3 className="font-semibold">{p.title}</h3>
-              <p className="text-sm text-gray-400">{eur(p.priceCents)} · {p.type === 'TRACK' ? 'Track' : 'Sample pack'} · {p._count.orderItems} sold</p>
+              <p className="text-sm text-gray-400">{eur(p.priceCents)} · {p.type === 'TRACK' ? 'Track' : p.type === 'RELEASE' ? 'EP / album' : 'Sample pack'} · {p._count.orderItems} sold</p>
               <p className="truncate text-xs text-gray-500">{p.release ? `Shown on /music/${p.release.slug}` : 'Not linked to a release page'}{p.fileName ? ` · ${p.fileName} ${mb(p.fileSize)}` : ' · no file'}</p></div>
             <div className="flex shrink-0 items-center gap-2"><span className={`rounded px-2 py-1 text-xs ${p.active ? 'bg-green-900 text-green-200' : 'bg-gray-800 text-gray-300'}`}>{p.active ? 'On sale' : 'Hidden'}</span><button className={buttonStyle} disabled={busy} onClick={() => edit(p)}>Edit</button></div>
           </li>)}</ul>}
@@ -132,7 +132,7 @@ export default function ShopAdminPage() {
           <label className="block text-sm sm:col-span-2">Slug<input required pattern="[a-z0-9-]{3,80}" className={inputStyle + ' mt-2'} value={form.slug} disabled={busy} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} /></label>
           <label className="block text-sm">Price (EUR)<input required type="number" min="1" max="1000" step="0.01" className={inputStyle + ' mt-2'} value={form.price} disabled={busy} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} /></label>
         </div>
-        <label className="block text-sm">Type<select className={inputStyle + ' mt-2'} value={form.type} disabled={busy} onChange={e => setForm(f => ({ ...f, type: e.target.value as Form['type'] }))}><option value="SAMPLE_PACK">Sample pack</option><option value="TRACK">Track</option></select></label>
+        <label className="block text-sm">Type<select className={inputStyle + ' mt-2'} value={form.type} disabled={busy} onChange={e => setForm(f => ({ ...f, type: e.target.value as Form['type'] }))}><option value="SAMPLE_PACK">Sample pack</option><option value="TRACK">Track</option><option value="RELEASE">EP / album (ZIP)</option></select></label>
 
         <div onDragOver={e => { e.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)}
           onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) upload(f) }}

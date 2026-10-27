@@ -291,7 +291,7 @@ model Release {
   streamingClicks    StreamingClick[]
   downloadTokens     ReleaseDownloadToken[]
   artistReleasePlans ArtistReleasePlan[]
-  product            Product?
+  products           Product[]
 
   @@index([publishedAt])
   @@index([slug])
@@ -576,6 +576,8 @@ model ShopOrder {
 enum ProductType {
   SAMPLE_PACK
   TRACK
+  /// Whole EP / album as one ZIP.
+  RELEASE
 }
 
 enum OrderStatus {
@@ -603,11 +605,15 @@ model Product {
   fileKey    String?
   fileName   String?
   fileSize   Int?
-  releaseId  String?     @unique
+  releaseId  String?
   release    Release?    @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+  /// Order on the release page: 0 = the release itself (pack / EP bundle), 1.. = tracks.
+  position   Int         @default(0)
   orderItems OrderItem[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+
+  @@index([releaseId])
 }
 
 model Order {

@@ -8,7 +8,7 @@ import { sanitizeHtml } from '@/app/utils/sanitize'
 import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import { withBeatportAffiliate } from '@/lib/affiliates'
-import { offerForRelease } from '@/lib/shop/catalog'
+import { offersForRelease } from '@/lib/shop/catalog'
 import { loadPackManifest } from '@/lib/shop/pack'
 import SamplePackView, { packFaq } from './components/pack/SamplePackView'
 import { plainTitle, primaryArtist, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
@@ -186,7 +186,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   }
 
   // Paid sample packs get their own storefront layout instead of the music release hero.
-  const offer = await offerForRelease(release.id)
+  const { main: offer, tracks: trackOffers } = await offersForRelease(release.id)
   const isPack = !!offer && offer.type === 'SAMPLE_PACK' && release.releaseType !== 'FREE_DOWNLOAD'
   const pack = isPack ? await loadPackManifest(slug) : null
   const packArtist = isPack && release.artistName
@@ -342,6 +342,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           soundcloudUrl={release.soundcloud || undefined}
           gumroadUrl={release.gumroad || undefined}
           offer={offer}
+          trackOffers={trackOffers}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
           storyHtml={safeContent || undefined}
