@@ -9,6 +9,8 @@ import { getArtworkImageUrl, getReleaseImageUrl } from '@/app/utils/index'
 import ReleaseViewTracker from './components/ReleaseViewTracker'
 import { withBeatportAffiliate } from '@/lib/affiliates'
 import { offerForRelease } from '@/lib/shop/catalog'
+import { loadPackManifest } from '@/lib/shop/pack'
+import SamplePackView, { packFaq } from './components/pack/SamplePackView'
 import { plainTitle, primaryArtist, splitTitle, typeLabel } from '@/app/components/hero/releaseMeta'
 
 export const revalidate = 300
@@ -173,7 +175,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   const profile = release.artistName
     ? await prisma.artist.findFirst({
         where: { name: { equals: primaryArtist(release.artistName), mode: 'insensitive' } },
-        select: { slug: true },
+        select: { slug: true, name: true, imageUrl: true },
       })
     : null
   const byArtist = {
@@ -182,6 +184,14 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     genre: 'Neurofunk',
     ...(profile && { url: `https://dnbdoctor.com/artists/${profile.slug}` }),
   }
+
+  // Paid sample packs get their own storefront layout instead of the music release hero.
+  const offer = await offerForRelease(release.id)
+  const isPack = !!offer && offer.type === 'SAMPLE_PACK' && release.releaseType !== 'FREE_DOWNLOAD'
+  const pack = isPack ? await loadPackManifest(slug) : null
+  const packArtist = isPack && release.artistName
+    ? { name: profile?.name ?? primaryArtist(release.artistName), slug: profile?.slug ?? null, imageUrl: profile?.imageUrl ?? null }
+    : null
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -260,6 +270,31 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     }),
   }
 
+  const packJsonLd = isPack && offer ? [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: safeTitle,
+      description: cleanDescription,
+      image: imageUrl || undefined,
+      url: `https://dnbdoctor.com/music/${slug}`,
+      category: 'Sample pack',
+      brand: { '@type': 'Brand', name: 'DnB Doctor' },
+      offers: {
+        '@type': 'Offer',
+        url: `https://dnbdoctor.com/music/${slug}`,
+        price: offer.amount.toFixed(2),
+        priceCurrency: offer.currency,
+        availability: 'https://schema.org/InStock',
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: packFaq(pack).map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+    },
+  ] : null
+
   return (
     <section className="relative">
       {(artworkUrl || imageUrl) && (
@@ -277,8 +312,19 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
         <noscript>
           <div className="px-4 py-6 text-center text-gray-300">Enable JavaScript to view this page.</div>
         </noscript>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(packJsonLd ?? jsonLd) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+        {isPack && offer ? (
+          <SamplePackView
+            slug={slug}
+            title={plainTitle(release.title)}
+            coverUrl={imageUrl || undefined}
+            offer={offer}
+            manifest={pack}
+            artist={packArtist}
+            storyHtml={safeContent || undefined}
+          />
+        ) : (
         <ReleaseHero
           slug={slug}
           artist={display.artist}
@@ -295,13 +341,14 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           youtubeUrl={release.youtubeMusic || undefined}
           soundcloudUrl={release.soundcloud || undefined}
           gumroadUrl={release.gumroad || undefined}
-          offer={await offerForRelease(release.id)}
+          offer={offer}
           releaseType={release.releaseType}
           streamingLinks={streamingLinks}
           storyHtml={safeContent || undefined}
           prev={adjacent(prevRelease)}
           next={adjacent(nextRelease)}
         />
+        )}
 
         <ReleaseOutro
           slug={slug}

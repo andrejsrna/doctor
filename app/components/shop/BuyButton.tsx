@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { FaShoppingCart } from 'react-icons/fa'
 
-export type BuyOffer = { productSlug: string; title: string; price: string }
+export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; currency?: string }
 
 /** Buy trigger + consent dialog. EU law requires express consent to immediate delivery of digital content before checkout. */
-export default function BuyButton({ offer, className }: { offer: BuyOffer; className?: string }) {
+export default function BuyButton({ offer, className, label }: { offer: BuyOffer; className?: string; label?: string }) {
+  const titleId = useId()
   const ref = useRef<HTMLDialogElement>(null)
   const [consent, setConsent] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -39,11 +40,11 @@ export default function BuyButton({ offer, className }: { offer: BuyOffer; class
   return (
     <>
       <button type="button" className={className} onClick={() => ref.current?.showModal()}>
-        <FaShoppingCart aria-hidden="true" /> Buy · {offer.price}
+        <FaShoppingCart aria-hidden="true" /> {label ?? `Buy · ${offer.price}`}
       </button>
       <dialog
         ref={ref}
-        aria-labelledby="buy-title"
+        aria-labelledby={titleId}
         // pointer-events-auto: the release hero sets pointer-events:none and the dialog would inherit it (checkbox unclickable).
         className="pointer-events-auto m-auto w-[min(92vw,30rem)] border border-white/15 bg-[#0b0b0f] p-0 text-[#e8e8ec] backdrop:bg-black/80"
         onClick={(e) => e.target === ref.current && !busy && ref.current?.close()}
@@ -51,7 +52,7 @@ export default function BuyButton({ offer, className }: { offer: BuyOffer; class
         <div className="space-y-5 p-6">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#39ff14]">Digital download</p>
-            <h2 id="buy-title" className="mt-2 text-2xl font-bold uppercase leading-tight text-white">{offer.title}</h2>
+            <h2 id={titleId} className="mt-2 text-2xl font-bold uppercase leading-tight text-white">{offer.title}</h2>
             <p className="mt-1 text-lg text-white">{offer.price}</p>
           </div>
           <ul className="space-y-1 text-sm text-gray-300">
