@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from 'react'
 import { displayFont as display, monoFont as mono } from '../brandFonts'
 import { FaSpotify } from 'react-icons/fa'
 import PreviewPlayer from '../PreviewPlayer'
+import BuyButton, { type BuyOffer } from '../shop/BuyButton'
+import AddToCartButton from '../shop/AddToCartButton'
 import styles from './hero.module.css'
 import { shortDate } from '@/app/utils/shortDate'
 
@@ -59,7 +61,7 @@ function Countdown({ target }: { target: string }) {
   )
 }
 
-export default function HeroStage({ release, incoming }: { release: HeroRelease; incoming: HeroIncoming[] }) {
+export default function HeroStage({ release, incoming, offer = null }: { release: HeroRelease; incoming: HeroIncoming[]; offer?: BuyOffer | null }) {
   const rootRef = useRef<HTMLElement>(null)
   const slotRef = useRef<HTMLAnchorElement>(null)
   const [glReady, setGlReady] = useState(false)
@@ -107,8 +109,18 @@ export default function HeroStage({ release, incoming }: { release: HeroRelease;
             </h1>
 
             <div className={styles.actions}>
+              {offer && (
+                <>
+                  <BuyButton
+                    offer={offer}
+                    className={styles.primary}
+                    label={offer.type === 'RELEASE' ? `Buy ${release.typeLabel} WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
+                  />
+                  <AddToCartButton offer={offer} className={styles.secondary} />
+                </>
+              )}
               {release.spotify && (
-                <a className={styles.primary} href={release.spotify} target="_blank" rel="noopener noreferrer">
+                <a className={offer ? styles.secondary : styles.primary} href={release.spotify} target="_blank" rel="noopener noreferrer">
                   <FaSpotify aria-hidden="true" />
                   Play on Spotify
                 </a>

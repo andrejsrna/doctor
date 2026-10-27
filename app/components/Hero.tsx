@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { withBeatportAffiliate } from '@/lib/affiliates'
 import HeroStage, { type HeroIncoming, type HeroRelease } from './hero/HeroStage'
 import { splitTitle, typeLabel } from './hero/releaseMeta'
+import { offersForRelease } from '@/lib/shop/catalog'
 
 export default async function Hero() {
   const release = await prisma.release.findFirst({
@@ -48,7 +49,7 @@ export default async function Hero() {
   const startOfToday = new Date()
   startOfToday.setUTCHours(0, 0, 0, 0)
 
-  const [calendarMatch, upcoming] = await Promise.all([
+  const [calendarMatch, upcoming, offers] = await Promise.all([
     prisma.releaseCalendarEntry.findFirst({
       where: { OR: [{ releaseId: release.id }, { title: { equals: release.title, mode: 'insensitive' } }] },
       select: { catalogueNumber: true },
@@ -59,6 +60,7 @@ export default async function Hero() {
       take: 3,
       select: { id: true, title: true, catalogueNumber: true, releaseDate: true },
     }),
+    offersForRelease(release.id),
   ])
 
   const { artist, title } = splitTitle(release.title, release.artistName)
@@ -92,5 +94,5 @@ export default async function Hero() {
       }
     })
 
-  return <HeroStage release={heroRelease} incoming={incoming} />
+  return <HeroStage release={heroRelease} incoming={incoming} offer={offers.main} />
 }
