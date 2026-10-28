@@ -293,7 +293,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                   <BuyButton
                     offer={offer}
                     className={styles.primary}
-                    label={offer.type === 'RELEASE' ? `Buy ${typeLabel} WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
+                    label={offer.type === 'RELEASE' ? `Buy ${typeLabel === "EP" || typeLabel === "Album" ? `${typeLabel} ` : ""}WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
                   />
                 )}
                 {offer && !isFree && <AddToCartButton offer={offer} className={styles.secondary} />}

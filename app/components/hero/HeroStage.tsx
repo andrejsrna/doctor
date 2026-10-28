@@ -114,7 +114,7 @@ export default function HeroStage({ release, incoming, offer = null }: { release
                   <BuyButton
                     offer={offer}
                     className={styles.primary}
-                    label={offer.type === 'RELEASE' ? `Buy ${release.typeLabel} WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
+                    label={offer.type === 'RELEASE' ? `Buy ${release.typeLabel === "EP" || release.typeLabel === "Album" ? `${release.typeLabel} ` : ""}WAV · ${offer.price}` : offer.type === 'TRACK' ? `Buy WAV · ${offer.price}` : undefined}
                   />
                   <AddToCartButton offer={offer} className={styles.secondary} />
                 </>

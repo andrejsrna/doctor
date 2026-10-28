@@ -23,6 +23,16 @@ function r2() {
 
 export async function GET(request: NextRequest) {
   if (!(await staffSession(request.headers))) return err(401, 'Unauthorized')
+  // Release editor: just that release's products.
+  const releaseId = request.nextUrl.searchParams.get('releaseId')
+  if (releaseId) {
+    const products = await prisma.product.findMany({
+      where: { releaseId },
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+      include: { _count: { select: { orderItems: true } } },
+    })
+    return NextResponse.json({ products, config: { stripe: stripeConfigured() } }, { headers: noStore })
+  }
   const [products, orders, releases] = await Promise.all([
     prisma.product.findMany({ orderBy: { createdAt: 'desc' }, include: { release: { select: { title: true, slug: true } }, _count: { select: { orderItems: true } } } }),
     prisma.order.findMany({ orderBy: { createdAt: 'desc' }, take: 100, include: { items: { select: { title: true, downloadCount: true } } } }),
@@ -66,6 +76,7 @@ export async function POST(request: NextRequest) {
       type: body.type === 'TRACK' || body.type === 'RELEASE' ? (body.type as 'TRACK' | 'RELEASE') : ('SAMPLE_PACK' as const),
       active: Boolean(body.active),
       releaseId,
+      ...(Number.isInteger(Number(body.position)) && body.position !== undefined && body.position !== null ? { position: Math.max(0, Math.min(999, Number(body.position))) } : {}),
       ...(body.fileKey ? { fileKey: String(body.fileKey), fileName: String(body.fileName || 'download.zip'), fileSize: Number(body.fileSize) || null } : {}),
     }
     if (data.active && !(body.fileKey || (body.id && (await prisma.product.findUnique({ where: { id: String(body.id) } }))?.fileKey))) {
@@ -85,6 +96,16 @@ export async function POST(request: NextRequest) {
       if ((e as { code?: string }).code === 'P2002') return err(409, 'Slug is already used by another product')
       throw e
     }
+  }
+
+  if (action === 'deleteProduct') {
+    const product = await prisma.product.findUnique({ where: { id: String(body.id || '') }, include: { release: { select: { slug: true } }, _count: { select: { orderItems: true } } } })
+    if (!product) return err(404, 'Product not found')
+    // Sold products stay so buyers keep their downloads; hide them instead.
+    if (product._count.orderItems > 0) return err(409, 'This product has orders. Deactivate it instead of deleting.')
+    await prisma.product.delete({ where: { id: product.id } })
+    if (product.release) revalidatePath(`/music/${product.release.slug}`)
+    return NextResponse.json({ ok: true }, { headers: noStore })
   }
 
   if (action === 'resendEmail' || action === 'issueInvoice') {

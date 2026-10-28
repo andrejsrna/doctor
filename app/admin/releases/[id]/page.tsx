@@ -18,6 +18,7 @@ import {
   ReleaseSchema,
   ReleaseFormValues
 } from "../../../components/releases"
+import ReleaseShopPanel from "../components/ReleaseShopPanel"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{ id: string }>()
@@ -226,6 +227,10 @@ export default function ReleaseDetailPage() {
         onSave={save}
         slug={values.slug}
       />
+
+      {values.releaseType !== "FREE_DOWNLOAD" && (
+        <ReleaseShopPanel releaseId={id} releaseSlug={values.slug} releaseTitle={values.title} />
+      )}
 
       <section className="border border-purple-500/30 rounded-xl p-4 bg-black/40">
         <div className="flex items-center justify-between mb-3">
