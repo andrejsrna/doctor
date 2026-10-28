@@ -69,6 +69,16 @@ const ITEMS: Item[] = [
   { release: 'zleesyn-run', tracks: [{ title: 'ZleeSyn - Run', match: 'Run' }] },
   { release: 'dmd-blind-descent', tracks: [{ title: 'D.M.D - Blind Descent', match: 'D.M.D---Blind-Descent' }] },
   { release: 'corbix-tribe', tracks: [{ title: 'Corbix - Tribe', match: 'Corbix---Tribe' }] },
+  // Masters uploaded directly to demos/ (no upload prefix).
+  { release: 'daccatta-from-the-shadows', tracks: [{ title: 'DACCATTA - From The Shadows', match: 'DACCATTA - FROM THE SHADOWS' }] },
+  { release: 'jape-bassline-pressure', tracks: [{ title: 'Jape - Bassline Pressure', match: 'JAPE - BASSLINE PRESSURE' }] },
+  { release: 'daccatta-racer', tracks: [{ title: 'DACCATTA - Racer', match: 'DACCATTA - Racer' }] },
+  { release: 'warp-fa2e-drilling-rig', tracks: [{ title: 'Warp Fa2e - Drilling Rig', match: 'Warp Fa2e - Drilling Rig' }] },
+  { release: 'virus-synthy-tell-the-truth', tracks: [{ title: 'VIRUS & Syn:Thy - Tell the Truth', match: 'VIRUS & Syn-Thy – Tell the Truth' }] },
+  { release: 'zekjungle-bricker', tracks: [{ title: 'Zekjungle - Bricker', match: 'Zekjungle - BRICKER' }] },
+  { release: 'damo-false-dawn', tracks: [{ title: 'Damo - False Dawn', match: 'Damo - False Dawn' }] },
+  { release: 'gouki-raging-demon', tracks: [{ title: 'Gouki - Raging Demon', match: 'Gouki - Raging Demon' }] },
+  { release: 'yehor-was-broke', tracks: [{ title: 'YEHOR - Was Broke', match: 'YEHOR - Was Broke' }] },
 
   // EPs: track order follows Bandcamp.
   { release: 'daccatta-basshead-ep', ep: true, tracks: [
