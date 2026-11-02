@@ -39,7 +39,8 @@ function Extra({ kind, items }: { kind: CollectionKind; items: CollectionItem[] 
           </p>
           {items.length > 0 && (
             <p>
-              The collection currently holds {items.length} {items.length === 1 ? 'album' : 'albums'}: {list(0)}. Every release page links to the stores and
+              The collection currently holds {items.length} {items.length === 1 ? 'album' : 'albums and compilations'}, including the label&apos;s{' '}
+              <Link href="/music-packs">music packs</Link>: {list(0)}. Every release page links to the stores and
               streaming services that carry it, and the artists behind the tracks are on the <Link href="/artists">DnB Doctor roster</Link>.
             </p>
           )}

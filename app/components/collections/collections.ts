@@ -21,6 +21,8 @@ export type CollectionItem = {
 type Config = {
   /** DB category name */
   category: string
+  /** other DB categories also listed here (albums also show the label's music packs) */
+  include?: string[]
   path: string
   tab: string
   kicker: string
@@ -36,13 +38,14 @@ type Config = {
 export const COLLECTIONS: Record<CollectionKind, Config> = {
   albums: {
     category: 'Albums',
+    include: ['Music Packs'],
     path: '/albums',
     tab: 'Albums & LPs',
     kicker: 'Complete Collections & Full-Length Releases',
     h1: ['New Drum and Bass', 'Albums'],
     lede: 'Full-length drum and bass albums, LPs and label compilations from DnB Doctor — neurofunk front to back. Preview every album here and stream or buy it from its release page.',
     listTitle: ['Latest', 'DnB Albums'],
-    listLede: 'Artist LPs, yearly compilations and continuous label mixes, newest first.',
+    listLede: 'Artist LPs, label music packs, yearly compilations and continuous label mixes, newest first.',
     noun: ['album', 'albums'],
     itemType: 'MusicAlbum',
   },
@@ -130,7 +133,7 @@ export async function loadCollections(): Promise<Record<CollectionKind, Collecti
       },
     })
     for (const r of rows) {
-      const kinds = KINDS.filter((k) => r.categories.includes(COLLECTIONS[k].category))
+      const kinds = KINDS.filter((k) => [COLLECTIONS[k].category, ...(COLLECTIONS[k].include ?? [])].some((c) => r.categories.includes(c)))
       const { artist, title } = splitTitle(plainTitle(r.title), r.artistName ? plainTitle(r.artistName) : null)
       for (const k of kinds) {
         empty[k].push({
