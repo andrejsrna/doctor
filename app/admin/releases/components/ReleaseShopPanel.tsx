@@ -10,6 +10,8 @@ type Product = {
 }
 type Uploaded = { fileKey: string; fileName: string; fileSize: number }
 type Row = { title: string; price: string; active: boolean; position: string; file?: Uploaded }
+type Match = { key: string; size: number; lastModified: string | null; sameSize: boolean; sameName: boolean; usedBy: string[] }
+type Found = { file: File; matches: Match[]; apply: (u: Uploaded) => void }
 
 const TYPES: { value: ProductType; label: string; price: string }[] = [
   { value: 'TRACK', label: 'Track (WAV)', price: '1.50' },
@@ -44,6 +46,32 @@ async function uploadFile(file: File, onProgress: (pct: number) => void): Promis
   return { fileKey: key, fileName, fileSize: size }
 }
 
+function FoundPanel({ found, busy, onUse, onUpload, onCancel }: { found: Found; busy: boolean; onUse: (key: string) => void; onUpload: () => void; onCancel: () => void }) {
+  return (
+    <div className="mt-2 rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-sm" role="status">
+      <p className="mb-2 font-semibold text-yellow-200">“{found.file.name}” ({mb(found.file.size)}) may already be on R2:</p>
+      <ul className="space-y-2">
+        {found.matches.map((m) => (
+          <li key={m.key} className="flex flex-wrap items-center justify-between gap-2 rounded border border-gray-800 bg-black/40 px-3 py-2">
+            <span className="min-w-0 flex-1">
+              <span className="block break-all font-mono text-xs text-gray-200">{m.key}</span>
+              <span className="text-xs text-gray-400">
+                {mb(m.size)}{m.lastModified ? ` · ${m.lastModified.slice(0, 10)}` : ''} · {m.sameSize && m.sameName ? 'same name and size' : m.sameSize ? 'same size' : 'same name, different size'}
+                {m.usedBy.length > 0 && ` · used by: ${m.usedBy.join(', ')}`}
+              </span>
+            </span>
+            <button type="button" className={`${btn} border-green-600 text-green-300`} disabled={busy} onClick={() => onUse(m.key)}>Use this file</button>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button type="button" className={btn} disabled={busy} onClick={onUpload}>Upload anyway</button>
+        <button type="button" className={btn} disabled={busy} onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  )
+}
+
 function DropZone({ label, accept, disabled, progress, onFile }: { label: string; accept: string; disabled?: boolean; progress: number | null; onFile: (f: File) => void }) {
   const ref = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -75,6 +103,8 @@ export default function ReleaseShopPanel({ releaseId, releaseSlug, releaseTitle 
   const [stripe, setStripe] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [progress, setProgress] = useState<Record<string, number | null>>({})
+  const [found, setFound] = useState<Record<string, Found | null>>({})
+  const [checking, setChecking] = useState<string | null>(null)
   const [type, setType] = useState<ProductType>('TRACK')
   const [draft, setDraft] = useState<Row>({ title: '', price: '1.50', active: true, position: '' })
 
@@ -101,6 +131,31 @@ export default function ReleaseShopPanel({ releaseId, releaseSlug, releaseTitle 
     const audio = /\.(wav|aiff?|flac|mp3)$/i.test(file.name)
     if (!/\.(zip|rar|7z|wav|aiff?|flac|mp3)$/i.test(file.name)) return toast.error('Upload a WAV/AIFF/FLAC or ZIP file')
     if (type === 'TRACK' && id === 'new' && !audio) toast('A ZIP for a single track? Pick “EP / album” if it is the whole release.')
+    setFound((f) => ({ ...f, [id]: null }))
+    setChecking(id)
+    try {
+      const { matches } = await post({ action: 'findExisting', name: file.name, size: file.size })
+      if (matches?.length) return setFound((f) => ({ ...f, [id]: { file, matches, apply } }))
+    } catch (e) { toast.error(e instanceof Error ? `R2 check failed: ${e.message}` : 'R2 check failed') }
+    finally { setChecking(null) }
+    await send(id, file, apply)
+  }
+
+  async function pickExisting(id: string, key: string) {
+    const f = found[id]
+    if (!f) return
+    setChecking(id)
+    try {
+      const u: Uploaded = await post({ action: 'useExisting', key })
+      f.apply(u)
+      setFound((s) => ({ ...s, [id]: null }))
+      toast.success(`Using ${u.fileName} from R2 (${mb(u.fileSize)}), no upload needed`)
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Could not use that file') }
+    finally { setChecking(null) }
+  }
+
+  async function send(id: string, file: File, apply: (u: Uploaded) => void) {
+    setFound((f) => ({ ...f, [id]: null }))
     setProgress((p) => ({ ...p, [id]: 0 }))
     try {
       const u = await uploadFile(file, (pct) => setProgress((p) => ({ ...p, [id]: pct })))
@@ -173,13 +228,16 @@ export default function ReleaseShopPanel({ releaseId, releaseSlug, releaseTitle 
                   <label className="text-xs text-gray-400">Order<input className={input} inputMode="numeric" value={r.position} onChange={(e) => setRow(p.id, { position: e.target.value.replace(/\D/g, '') })} /></label>
                 </div>
                 <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                  <DropZone label="Replace file: drop or click" accept=".wav,.aif,.aiff,.flac,.zip" disabled={busy !== null} progress={progress[p.id] ?? null} onFile={(f) => upload(p.id, f, (u) => setRow(p.id, { file: u }))} />
+                  <DropZone label={checking === p.id ? 'Checking R2 for this file…' : 'Replace file: drop or click'} accept=".wav,.aif,.aiff,.flac,.zip" disabled={busy !== null || checking !== null} progress={progress[p.id] ?? null} onFile={(f) => upload(p.id, f, (u) => setRow(p.id, { file: u }))} />
                   <div className="flex flex-wrap items-center gap-2">
                     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={r.active} onChange={(e) => setRow(p.id, { active: e.target.checked })} /> Active</label>
                     <button type="button" className={`${btn} border-green-600 text-green-300`} disabled={busy !== null} onClick={() => saveRow(p)}>{busy === p.id ? 'Saving…' : 'Save'}</button>
                     <button type="button" className={`${btn} text-red-300`} disabled={busy !== null || p._count.orderItems > 0} title={p._count.orderItems > 0 ? 'Sold products can only be deactivated' : undefined} onClick={() => remove(p)}>Delete</button>
                   </div>
                 </div>
+                {found[p.id] && (
+                  <FoundPanel found={found[p.id]!} busy={checking !== null} onUse={(key) => pickExisting(p.id, key)} onUpload={() => send(p.id, found[p.id]!.file, found[p.id]!.apply)} onCancel={() => setFound((f) => ({ ...f, [p.id]: null }))} />
+                )}
               </li>
             )
           })}
@@ -199,9 +257,9 @@ export default function ReleaseShopPanel({ releaseId, releaseSlug, releaseTitle 
         </div>
         <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <DropZone
-            label={draft.file ? `${draft.file.fileName} · ${mb(draft.file.fileSize)} (drop another to replace)` : type === 'TRACK' ? 'Drop the WAV here or click to choose' : 'Drop the ZIP here or click to choose'}
+            label={checking === 'new' ? 'Checking R2 for this file…' : draft.file ? `${draft.file.fileName} · ${mb(draft.file.fileSize)} (drop another to replace)` : type === 'TRACK' ? 'Drop the WAV here or click to choose' : 'Drop the ZIP here or click to choose'}
             accept={type === 'TRACK' ? '.wav,.aif,.aiff,.flac' : '.zip,.rar,.7z'}
-            disabled={busy !== null}
+            disabled={busy !== null || checking !== null}
             progress={progress.new ?? null}
             onFile={(f) => upload('new', f, (u) => setDraft((d) => ({ ...d, file: u, title: d.title || (type === 'TRACK' ? `${f.name.replace(/\.[^.]+$/, '').replace(/_/g, ' ')} (WAV)` : d.title) })))}
           />
@@ -210,6 +268,9 @@ export default function ReleaseShopPanel({ releaseId, releaseSlug, releaseTitle 
             <button type="button" className={`${btn} border-green-600 text-green-300`} disabled={busy !== null || !draft.file || progress.new != null} onClick={add}>{busy === 'new' ? 'Adding…' : 'Add product'}</button>
           </div>
         </div>
+        {found.new && (
+          <FoundPanel found={found.new} busy={checking !== null} onUse={(key) => pickExisting('new', key)} onUpload={() => send('new', found.new!.file, found.new!.apply)} onCancel={() => setFound((f) => ({ ...f, new: null }))} />
+        )}
         <p className="mt-2 text-xs text-gray-500">Tracks of an EP/album are listed under the bundle on the release page; a single with one track shows “Buy WAV”.</p>
       </div>
     </section>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'node:crypto'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { CopyObjectCommand, HeadObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { prisma } from '@/lib/prisma'
 import { staffSession } from '@/app/lib/roles'
@@ -19,6 +19,15 @@ function r2() {
   const bucket = process.env.R2_BUCKET || process.env.R2_BUCKET_NAME
   if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) return null
   return { bucket, client: new S3Client({ region: 'auto', endpoint, forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } }) }
+}
+
+const FILE_EXT = /\.(zip|rar|7z|wav|aiff?|flac|mp3)$/i
+/** File name without folders, upload prefixes (`<ts>-<rand>-`, `mailout-<ts>-`), case or punctuation. */
+function normName(path: string) {
+  return (path.split('/').pop() || '')
+    .replace(/^(?:mailout-\d{10,}-|\d{10,}-[a-z0-9]{8,13}-)/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9.]+/g, '')
 }
 
 export async function GET(request: NextRequest) {
@@ -60,6 +69,50 @@ export async function POST(request: NextRequest) {
     const key = `shop/products/${randomUUID()}/${fileName.replace(/\s+/g, '-')}`
     const uploadUrl = await getSignedUrl(s3.client, new PutObjectCommand({ Bucket: s3.bucket, Key: key, ContentType: 'application/octet-stream' }), { expiresIn: 3600 })
     return NextResponse.json({ uploadUrl, key, fileName, size }, { headers: noStore })
+  }
+
+  if (action === 'findExisting') {
+    // Before uploading: is this file already in the bucket (an earlier upload, or a master under demos/)?
+    const s3 = r2()
+    if (!s3) return err(501, 'Storage not configured')
+    const size = Number(body.size || 0)
+    const want = normName(String(body.name || ''))
+    const objects: { key: string; size: number; lastModified: string | null }[] = []
+    let token: string | undefined
+    do {
+      const page = await s3.client.send(new ListObjectsV2Command({ Bucket: s3.bucket, ContinuationToken: token }))
+      for (const o of page.Contents ?? []) {
+        if (!o.Key || !FILE_EXT.test(o.Key)) continue
+        const sameSize = !!size && o.Size === size
+        if (sameSize || (want && normName(o.Key) === want)) objects.push({ key: o.Key, size: o.Size ?? 0, lastModified: o.LastModified?.toISOString() ?? null })
+      }
+      token = page.NextContinuationToken
+    } while (token)
+    const products = await prisma.product.findMany({ where: { fileKey: { in: objects.map((o) => o.key) } }, select: { fileKey: true, title: true } })
+    const matches = objects
+      .map((o) => ({ ...o, sameSize: !!size && o.size === size, sameName: !!want && normName(o.key) === want, usedBy: products.filter((p) => p.fileKey === o.key).map((p) => p.title) }))
+      .sort((a, b) => Number(b.sameSize && b.sameName) - Number(a.sameSize && a.sameName) || Number(b.sameSize) - Number(a.sameSize))
+      .slice(0, 5)
+    return NextResponse.json({ matches }, { headers: noStore })
+  }
+
+  if (action === 'useExisting') {
+    const s3 = r2()
+    if (!s3) return err(501, 'Storage not configured')
+    const source = String(body.key || '')
+    if (!FILE_EXT.test(source) || source.includes('..')) return err(400, 'Not a product file')
+    const head = await s3.client.send(new HeadObjectCommand({ Bucket: s3.bucket, Key: source })).catch(() => null)
+    if (!head?.ContentLength) return err(404, 'File not found in storage')
+    if (head.ContentLength > 5 * 1024 ** 3) return err(413, 'File too large to copy (max 5 GB)')
+    const original = source.split('/').pop()!
+    const fileName = original.replace(/^(?:mailout-\d{10,}-|\d{10,}-[a-z0-9]{8,13}-)/, '').replace(/[^\w.\- ]/g, '-')
+    // Product files live in their own private folder, so deleting a demo/release asset never breaks a purchase.
+    let key = source
+    if (!source.startsWith('shop/products/')) {
+      key = `shop/products/${randomUUID()}/${fileName.replace(/\s+/g, '-')}`
+      await s3.client.send(new CopyObjectCommand({ Bucket: s3.bucket, Key: key, CopySource: `${s3.bucket}/${encodeURIComponent(source).replace(/%2F/g, '/')}` }))
+    }
+    return NextResponse.json({ fileKey: key, fileName, fileSize: head.ContentLength }, { headers: noStore })
   }
 
   if (action === 'saveProduct') {
