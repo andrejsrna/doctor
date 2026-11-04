@@ -13,7 +13,7 @@ interface PageProps { params: Promise<{ id: string }> }
 
 const NEWS_CATEGORIES = ["Artist Interviews", "Streaming", "Press", "General", "Mixes"]
 
-interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; youtubeUrl?: string | null; soundcloudUrl?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; mixArtistId?: string | null; relatedArtistName?: string | null; publishedAt?: string | null; categories: string[] }
+interface NewsItem { id: string; slug: string; title: string; content?: string | null; coverImageUrl?: string | null; scsc?: string | null; youtubeUrl?: string | null; soundcloudUrl?: string | null; tracklist?: string | null; mixDownloadUrl?: string | null; mixDownloadKey?: string | null; mixArtistId?: string | null; relatedArtistName?: string | null; djLinks?: string | null; publishedAt?: string | null; categories: string[] }
 interface ArtistOption { id: string; name: string; slug: string; imageUrl?: string | null }
 
 export default function NewsDetailPage({ params }: PageProps) {
@@ -213,6 +213,17 @@ export default function NewsDetailPage({ params }: PageProps) {
         <div>
           <label className="text-sm text-gray-400">Related Artist Name</label>
           <input value={item.relatedArtistName || ''} onChange={e => setItem({ ...item, relatedArtistName: e.target.value })} className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded" />
+        </div>
+        <div className="md:col-span-2">
+          <label className="text-sm text-gray-400">DJ links (for Mixes)</label>
+          <textarea
+            value={item.djLinks || ''}
+            onChange={e => setItem({ ...item, djLinks: e.target.value })}
+            rows={3}
+            placeholder={'https://soundcloud.com/dj-name\nhttps://www.instagram.com/dj-name'}
+            className="w-full px-3 py-2 bg-black/50 border border-purple-500/30 rounded font-mono text-sm"
+          />
+          <p className="mt-1 text-xs text-gray-500">One URL per line. Shown in the article sidebar under the DJ name (Related Artist Name) when no roster artist is linked.</p>
         </div>
         <div className="md:col-span-2">
           <label className="text-sm text-gray-400">Tracklist (for Mixes)</label>

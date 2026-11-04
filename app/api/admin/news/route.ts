@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     mixDownloadKey: data.mixDownloadKey || null,
     mixArtistId: data.mixArtistId || null,
     relatedArtistName: data.relatedArtistName || null,
+    djLinks: data.djLinks || null,
     publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
     categories,
   } })
@@ -88,6 +89,7 @@ export async function PATCH(request: NextRequest) {
     mixDownloadKey: data.mixDownloadKey ?? undefined,
     mixArtistId: data.mixArtistId === '' ? null : data.mixArtistId ?? undefined,
     relatedArtistName: data.relatedArtistName ?? undefined,
+    djLinks: data.djLinks ?? undefined,
     publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
     categories,
   } })

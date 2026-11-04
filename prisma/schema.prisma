@@ -522,6 +522,7 @@ model News {
   mixArtistId       String?
   mixArtist         Artist?   @relation("NewsMixArtist", fields: [mixArtistId], references: [id], onDelete: SetNull)
   relatedArtistName String?
+  djLinks           String? // mix DJ profile links, one URL per line (sidebar)
   publishedAt       DateTime?
   categories        String[]  @default([])
   createdAt         DateTime  @default(now())

@@ -22,13 +22,44 @@ export const revalidate = 300
 const SITE = 'https://dnbdoctor.com'
 
 const CHANNELS = [
-  { name: 'Spotify playlist', href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9' },
+  { name: 'Label playlist', href: 'https://open.spotify.com/playlist/2GD72ly17HcWc9OAEtdUBP' },
+  { name: 'Monthly neurofunk', href: 'https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15?si=d7b3b3cd778940f9' },
   { name: 'YouTube', href: 'https://www.youtube.com/@dnbdoctor1' },
   { name: 'Discord', href: 'https://discord.gg/GE2HWFdgXG' },
   { name: 'Instagram', href: 'https://www.instagram.com/dnbdoctor' },
 ]
 
 /* ---------------- helpers ---------------- */
+
+const PLATFORMS: [RegExp, string][] = [
+  [/soundcloud\.com$/, 'SoundCloud'],
+  [/instagram\.com$/, 'Instagram'],
+  [/facebook\.com$/, 'Facebook'],
+  [/spotify\.com$/, 'Spotify'],
+  [/youtube\.com$|youtu\.be$/, 'YouTube'],
+  [/bandcamp\.com$/, 'Bandcamp'],
+  [/beatport\.com$/, 'Beatport'],
+  [/mixcloud\.com$/, 'Mixcloud'],
+  [/tiktok\.com$/, 'TikTok'],
+]
+
+/** "https://soundcloud.com/dj_shottes" → { platform: 'SoundCloud', handle: 'dj_shottes' } */
+function djLinks(raw: string | null) {
+  return (raw || '')
+    .split(/\s+/)
+    .filter((s) => /^https?:\/\//i.test(s))
+    .flatMap((href) => {
+      try {
+        const u = new URL(href)
+        const host = u.hostname.replace(/^www\./, '')
+        const platform = PLATFORMS.find(([re]) => re.test(host))?.[1] ?? host
+        const handle = u.pathname.split('/').filter(Boolean)[0] ?? ''
+        return [{ href, platform, handle: handle.endsWith('.php') ? '' : handle }]
+      } catch {
+        return []
+      }
+    })
+}
 
 const toText = (html: string) =>
   plainTitle(html.replace(/<\/(p|h\d|li|div|figcaption)>|<br\s*\/?>/gi, ' '))
@@ -249,6 +280,7 @@ export default async function NewsPostPage({ params }: PageProps) {
   const download = isMix && post.mixDownloadUrl ? post.mixDownloadUrl : null
   const dlExt = download?.split('?')[0].split('.').pop()?.toUpperCase()
   const mixer = post.mixArtist?.name || post.relatedArtistName || null
+  const dj = djLinks(post.djLinks)
 
   const jsonLd = [
     {
@@ -420,6 +452,25 @@ export default async function NewsPostPage({ params }: PageProps) {
                   </a>
                 )}
               </p>
+            </div>
+          )}
+
+          {!post.mixArtist && (mixer || dj.length > 0) && (
+            <div className={styles.card}>
+              <p className={styles.label}>{isMix ? 'Behind the decks' : 'Artist'}</p>
+              {mixer && <p className={styles.artistName}>{mixer}</p>}
+              {dj.length > 0 && (
+                <ul className={styles.channels}>
+                  {dj.map((l) => (
+                    <li key={l.href}>
+                      <a href={l.href} target="_blank" rel="noopener noreferrer">
+                        {l.platform}
+                        {l.handle && <span className={styles.muted}> /{l.handle}</span>} <span aria-hidden="true">↗</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
