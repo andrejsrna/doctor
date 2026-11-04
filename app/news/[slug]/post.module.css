@@ -850,6 +850,11 @@
   color: var(--c-green);
 }
 
+.handle {
+  margin-left: 0.6em;
+  color: rgb(255 255 255 / 40%);
+}
+
 .allMixes {
   display: flex;
   justify-content: space-between;

@@ -464,8 +464,11 @@ export default async function NewsPostPage({ params }: PageProps) {
                   {dj.map((l) => (
                     <li key={l.href}>
                       <a href={l.href} target="_blank" rel="noopener noreferrer">
-                        {l.platform}
-                        {l.handle && <span className={styles.muted}> /{l.handle}</span>} <span aria-hidden="true">↗</span>
+                        <span>
+                          {l.platform}
+                          {l.handle && <span className={styles.handle}>/{l.handle}</span>}
+                        </span>{' '}
+                        <span aria-hidden="true">↗</span>
                       </a>
                     </li>
                   ))}
