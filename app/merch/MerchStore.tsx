@@ -4,6 +4,8 @@ import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore }
 import Image from 'next/image'
 import { FaShoppingBag, FaTimes } from 'react-icons/fa'
 import { MERCH_COUNTRIES, MERCH_MAX_QTY, variantLabel, type MerchLine, type MerchProduct } from '@/lib/shop/merchShared'
+import { MERCH_COPY } from './copy'
+import s from './merch.module.css'
 
 // Merch bag: its own localStorage key (physical goods + shipping can't share a Stripe session with downloads).
 const KEY = 'dnbd-merch-bag'
@@ -64,13 +66,41 @@ export default function MerchStore({ products }: { products: MerchProduct[] }) {
   }
 
   const count = bag.reduce((s, l) => s + l.q, 0)
+  // Garments with a back print get a full-width spread; everything else (headwear) goes in the grid.
+  const garments = products.filter((p) => p.backImage)
+  const rest = products.filter((p) => !p.backImage)
   return (
     <>
-      <div className="mt-14 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((p, i) => (
-          <ProductCard key={p.id} product={p} priority={i < 3} onAdd={add} />
-        ))}
-      </div>
+      {garments.length > 0 && (
+        <section id="shop" aria-labelledby="merch-garments" className={`${s.wrap} ${s.section}`}>
+          <div className={s.sectionHead}>
+            <div>
+              <p className={s.eyebrow}>Front crest · back artwork</p>
+              <h2 id="merch-garments" className={s.h2}>The garments</h2>
+            </div>
+            <p className={s.sectionNote}>Tap Back print to see the full artwork. Both pieces carry the same heart-speaker design, so you can match the crew.</p>
+          </div>
+          {garments.map((p, i) => (
+            <ProductCard key={p.id} product={p} priority={i === 0} onAdd={add} layout="feature" />
+          ))}
+        </section>
+      )}
+      {rest.length > 0 && (
+        <section id={garments.length ? 'headwear' : 'shop'} aria-labelledby="merch-headwear" className={`${s.wrap} ${s.section}`}>
+          <div className={s.sectionHead}>
+            <div>
+              <p className={s.eyebrow}>Crest up front</p>
+              <h2 id="merch-headwear" className={s.h2}>Headwear</h2>
+            </div>
+            <p className={s.sectionNote}>Three ways to wear the crest, from the open-air bucket to the winter beanie.</p>
+          </div>
+          <div className={s.grid}>
+            {rest.map((p) => (
+              <ProductCard key={p.id} product={p} priority={false} onAdd={add} layout="card" />
+            ))}
+          </div>
+        </section>
+      )}
       <button
         type="button"
         onClick={openBag}
@@ -84,7 +114,7 @@ export default function MerchStore({ products }: { products: MerchProduct[] }) {
   )
 }
 
-function ProductCard({ product: p, priority, onAdd }: { product: MerchProduct; priority: boolean; onAdd: (v: number) => void }) {
+function ProductCard({ product: p, priority, onAdd, layout }: { product: MerchProduct; priority: boolean; onAdd: (v: number) => void; layout: 'feature' | 'card' }) {
   const single = p.variants.length === 1
   const [selected, setSelected] = useState<number | null>(single ? p.variants[0].id : null)
   const [side, setSide] = useState<'front' | 'back'>('front')
@@ -93,68 +123,88 @@ function ProductCard({ product: p, priority, onAdd }: { product: MerchProduct; p
   const price = variant?.priceCents ?? p.minPriceCents
   const varies = p.variants.some((v) => v.priceCents !== p.minPriceCents)
   const img = side === 'back' && p.backImage ? p.backImage : p.image
-  const sizeGroup = useId()
+  const copy = MERCH_COPY[p.slug]
+  const blank = p.blank?.replace(/\s*\|.*$/, '')
+  const feature = layout === 'feature'
 
   return (
-    <article id={p.slug} className="scroll-mt-32">
-      <div className="relative aspect-square overflow-hidden border border-white/10 bg-[#15151b]">
-        {img && <Image src={img} alt={`${p.name}, ${side} view`} fill sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" className={side === 'back' ? 'object-contain px-6 pb-16 pt-6' : 'object-cover'} priority={priority} />}
+    <article id={p.slug} className={feature ? s.feature : s.card}>
+      <div className={s.media} data-side={side}>
+        {img && (
+          <Image
+            src={img}
+            alt={`${p.name}, ${side === 'back' ? 'back print' : 'front'} view`}
+            fill
+            sizes={feature ? '(min-width:960px) 55vw, 100vw' : '(min-width:960px) 33vw, 100vw'}
+            priority={priority}
+          />
+        )}
+        {copy && <span className={s.code}>{copy.code}</span>}
         {p.backImage && (
-          <div className="absolute bottom-3 left-3 flex border border-white/20 bg-black/70 font-mono text-[11px] uppercase tracking-widest backdrop-blur" role="group" aria-label="Product view">
-            {(['front', 'back'] as const).map((s) => (
-              <button key={s} type="button" onClick={() => setSide(s)} aria-pressed={side === s} className={`px-3 py-2 ${side === s ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>
-                {s === 'back' ? 'Back print' : 'Front'}
+          <div className={s.views} role="group" aria-label="Product view">
+            {(['front', 'back'] as const).map((v) => (
+              <button key={v} type="button" onClick={() => setSide(v)} aria-pressed={side === v}>
+                {v === 'back' ? 'Back print' : 'Front'}
               </button>
             ))}
           </div>
         )}
       </div>
-      <div className="mt-5 flex items-baseline justify-between gap-4">
-        <h2 className="text-2xl font-bold uppercase leading-tight text-white">{p.name}</h2>
-        <p className="shrink-0 font-mono text-lg text-white">{!variant && varies ? 'from ' : ''}{money(price, p.currency)}</p>
-      </div>
-      {p.blank && <p className="mt-1 text-sm text-gray-400">{p.blank.replace(/\s*\|.*$/, '')}</p>}
 
-      {!single && (
-        <fieldset className="mt-4">
-          <legend id={sizeGroup} className="font-mono text-xs uppercase tracking-[0.2em] text-gray-400">Size</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {p.variants.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                disabled={!v.available}
-                onClick={() => {
-                  setSelected(v.id)
-                  setHint(false)
-                }}
-                aria-pressed={selected === v.id}
-                className={`min-w-12 border px-3 py-2 font-mono text-sm ${selected === v.id ? 'border-[#39ff14] bg-[#39ff14] text-black' : 'border-white/25 text-white hover:border-white'} disabled:cursor-not-allowed disabled:opacity-30 disabled:line-through`}
-              >
-                {v.size ?? variantLabel(v)}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-      )}
-      <button
-        type="button"
-        onClick={() => (selected ? onAdd(selected) : setHint(true))}
-        className="mt-4 w-full border border-[#39ff14] px-5 py-3 font-mono text-sm font-bold uppercase tracking-widest text-[#39ff14] transition-colors hover:bg-[#39ff14] hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-      >
-        Add to bag
-      </button>
-      {hint && <p role="alert" className="mt-2 text-sm text-[#ff004d]">Choose a size first.</p>}
-      {p.details.length > 0 && (
-        <details className="mt-4 text-sm text-gray-300">
-          <summary className="cursor-pointer font-mono text-xs uppercase tracking-[0.2em] text-gray-400 hover:text-white">Material &amp; fit</summary>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            {p.details.map((d) => (
+      <div className={s.info}>
+        {feature && blank && <p className={s.eyebrow}>{blank}</p>}
+        <h3 className={s.name}>{p.name}</h3>
+        {copy && <p className={s.tagline}>{copy.tagline}</p>}
+        {copy && <p className={s.pitch}>{copy.pitch}</p>}
+        {(copy || p.details.length > 0) && (
+          <ul className={s.specs}>
+            {copy && <li>{copy.print}</li>}
+            {(feature ? p.details : p.details.slice(0, 3)).map((d) => (
               <li key={d}>{d}</li>
             ))}
           </ul>
-        </details>
-      )}
+        )}
+
+        <div className={s.buy}>
+          <div className={s.priceRow}>
+            <p className={s.price}>
+              {!variant && varies && <small>from</small>}
+              {money(price, p.currency)}
+            </p>
+            {!feature && blank && <p className={s.blank}>{blank}</p>}
+          </div>
+          {!single && (
+            <fieldset className={s.sizes}>
+              <legend>Size</legend>
+              <div className={s.sizeList}>
+                {p.variants.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    className={s.size}
+                    disabled={!v.available}
+                    onClick={() => {
+                      setSelected(v.id)
+                      setHint(false)
+                    }}
+                    aria-pressed={selected === v.id}
+                  >
+                    {v.size ?? variantLabel(v)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          )}
+          <button type="button" className={s.add} onClick={() => (selected ? onAdd(selected) : setHint(true))}>
+            Add to bag{variant && !single ? ` · ${variant.size ?? variantLabel(variant)}` : ''}
+          </button>
+          {hint && (
+            <p role="alert" className={s.hint}>
+              Choose a size first.
+            </p>
+          )}
+        </div>
+      </div>
     </article>
   )
 }
