@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
+// Short links for descriptions (YouTube, SoundCloud, socials). Temporary (307) on purpose:
+// the target can change without browsers caching the old one.
+const shortLinks = [
+    { from: "/playlist", to: "https://open.spotify.com/playlist/2GD72ly17HcWc9OAEtdUBP" },
+    { from: "/monthly", to: "https://open.spotify.com/playlist/5VPtC2C3IO8r9oFT3Jzj15" },
+];
+
 const redirects = [
     { from: "/x3a-go", to: "/music/x3a-go" },
     { from: "/history-of-drum-and-bass", to: "/drum-and-bass-history" },
@@ -172,6 +179,8 @@ const redirects = [
     try {
       const originalPath = request.nextUrl.pathname;
       const path = normalizePath(originalPath);
+      const shortLink = shortLinks.find((r) => r.from === path);
+      if (shortLink) return NextResponse.redirect(shortLink.to, 307);
       const redirect = redirects.find((r) => normalizePath(r.from) === path);
 
       if (redirect) {
