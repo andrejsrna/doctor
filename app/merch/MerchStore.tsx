@@ -118,23 +118,30 @@ function ProductCard({ product: p, priority, onAdd, layout }: { product: MerchPr
   const single = p.variants.length === 1
   const [selected, setSelected] = useState<number | null>(single ? p.variants[0].id : null)
   const copy = MERCH_COPY[p.slug]
-  const [side, setSide] = useState<'photo' | 'front' | 'back'>(copy?.photo ? 'photo' : 'front')
+  // Views: own lifestyle photos when the product has them, otherwise the Printful front/back mockups.
+  const views: { key: string; src: string | null; alt: string; label: string }[] = copy?.photos?.length
+    ? copy.photos.map((ph) => ({ key: ph.src, src: ph.src, alt: ph.alt, label: ph.label }))
+    : [
+        { key: 'front', src: p.image, alt: `${p.name}, front view`, label: 'Front' },
+        ...(p.backImage ? [{ key: 'back', src: p.backImage, alt: `${p.name}, back print view`, label: 'Back print' }] : []),
+      ]
+  const [viewKey, setViewKey] = useState(views[0].key)
+  const view = views.find((v) => v.key === viewKey) ?? views[0]
+  const img = view.src
   const [hint, setHint] = useState(false)
   const variant = p.variants.find((v) => v.id === selected) ?? null
   const price = variant?.priceCents ?? p.minPriceCents
   const varies = p.variants.some((v) => v.priceCents !== p.minPriceCents)
-  const img = side === 'photo' && copy?.photo ? copy.photo.src : side === 'back' && p.backImage ? p.backImage : p.image
-  const views = [...(copy?.photo ? (['photo'] as const) : []), 'front' as const, ...(p.backImage ? (['back'] as const) : [])]
   const blank = p.blank?.replace(/\s*\|.*$/, '')
   const feature = layout === 'feature'
 
   return (
     <article id={p.slug} className={feature ? s.feature : s.card}>
-      <div className={s.media} data-side={side}>
+      <div className={s.media} data-side={copy?.photos?.length ? 'photo' : view.key}>
         {img && (
           <Image
             src={img}
-            alt={side === 'photo' && copy?.photo ? copy.photo.alt : `${p.name}, ${side === 'back' ? 'back print' : 'front'} view`}
+            alt={view.alt}
             fill
             sizes={feature ? '(min-width:960px) 55vw, 100vw' : '(min-width:960px) 33vw, 100vw'}
             priority={priority}
@@ -144,8 +151,8 @@ function ProductCard({ product: p, priority, onAdd, layout }: { product: MerchPr
         {views.length > 1 && (
           <div className={s.views} role="group" aria-label="Product view">
             {views.map((v) => (
-              <button key={v} type="button" onClick={() => setSide(v)} aria-pressed={side === v}>
-                {v === 'back' ? 'Back print' : v === 'photo' ? 'Worn' : 'Front'}
+              <button key={v.key} type="button" onClick={() => setViewKey(v.key)} aria-pressed={view.key === v.key}>
+                {v.label}
               </button>
             ))}
           </div>
@@ -339,7 +346,7 @@ function Bag({ dialogRef, products, lines, openBag }: { dialogRef: React.RefObje
                 const { p, v } = byVariant.get(l.v)!
                 return (
                   <li key={l.v} className="flex items-center gap-4 py-4">
-                    {p.image ? <Image src={p.image} alt="" width={64} height={64} className="h-16 w-16 shrink-0 object-cover" /> : <span className="h-16 w-16 shrink-0 bg-white/5" aria-hidden="true" />}
+                    {(MERCH_COPY[p.slug]?.photos?.[0]?.src ?? p.image) ? <Image src={MERCH_COPY[p.slug]?.photos?.[0]?.src ?? p.image!} alt="" width={64} height={64} className="h-16 w-16 shrink-0 object-cover" /> : <span className="h-16 w-16 shrink-0 bg-white/5" aria-hidden="true" />}
                     <div className="min-w-0 flex-1">
                       <p className="m-0 truncate font-bold text-white">{p.name}</p>
                       <p className="m-0 text-sm text-gray-400">{variantLabel(v)}</p>

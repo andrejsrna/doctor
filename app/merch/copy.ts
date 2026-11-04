@@ -10,8 +10,8 @@ export type MerchCopy = {
   pitch: string
   /** Print method and placement, shown above the Printful material list */
   print: string
-  /** Optional lifestyle photo (public path) shown as the main image, before the Printful mockups */
-  photo?: { src: string; alt: string }
+  /** Optional lifestyle photos (public paths). When set they replace the Printful mockups; the first is the main image. */
+  photos?: { src: string; alt: string; label: string }[]
 }
 
 export const MERCH_COPY: Record<string, MerchCopy> = {
@@ -28,7 +28,10 @@ export const MERCH_COPY: Record<string, MerchCopy> = {
     pitch:
       'A light, breathable mesh jersey that keeps up when the room hits thirty degrees and the drop lands. The same crest on the chest and the same heart-speaker artwork across the back, with an extended length that stays put when you move. The tee for long sets, festival weekends and the session after.',
     print: 'Crest on the chest, full-size artwork across the back',
-    photo: { src: '/merch/doc-tee-worn.webp', alt: 'DnB Doctor tee worn from the back, showing the heart-speaker artwork' },
+    photos: [
+      { src: '/merch/doc-tee-worn.webp', alt: 'DnB Doctor tee worn from the back, showing the heart-speaker artwork', label: 'Back' },
+      { src: '/merch/doc-tee-worn-front.webp', alt: 'DnB Doctor tee worn from the front, with the crest on the chest', label: 'Front' },
+    ],
   },
   'doc-beanie': {
     code: 'DOC-BN',
