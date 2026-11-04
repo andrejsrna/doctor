@@ -56,9 +56,15 @@ type Roster = Map<string, { name: string; slug: string }>
 const SEP = /(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+vs\.?\s+)/i
 
 type ReleaseIndex = Map<string, string>
-const trackKey = (s: string) => plainTitle(s).toLowerCase().replace(/[‘’]/g, "'").replace(/\s+[-–—]\s+/g, ' - ').replace(/\s+/g, ' ').trim()
+// Spacing/punctuation-insensitive halves, so "Dive In To The Night" in a tracklist still finds the release "Dive Into The Night".
+const compact = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+const trackKey = (s: string) =>
+  plainTitle(s)
+    .split(/\s+[-–—]\s+/)
+    .map(compact)
+    .join(' - ')
 
-/** "Artist - Title" (either order) → /music/<slug> when a release carries exactly that title. */
+/** "Artist - Title" (either order) → /music/<slug> when a release carries that title. */
 function releaseFor(line: string, releases: ReleaseIndex) {
   const k = trackKey(line)
   const flipped = k.split(' - ')
