@@ -306,6 +306,7 @@
 }
 
 .media[data-side='photo'] img { object-position: 50% 28%; }
+.card .media[data-side='photo'] img { object-position: 50% 4%; }
 
 .media[data-side='back'] img {
   object-fit: contain;
