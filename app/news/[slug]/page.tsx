@@ -55,20 +55,43 @@ type Roster = Map<string, { name: string; slug: string }>
 
 const SEP = /(\s*,\s*|\s+&\s+|\s+x\s+|\s+(?:ft|feat)\.?\s+|\s+vs\.?\s+)/i
 
-type ReleaseIndex = Map<string, string>
-// Spacing/punctuation-insensitive halves, so "Dive In To The Night" in a tracklist still finds the release "Dive Into The Night".
+type ReleaseIndex = { title: string; artists: string[]; href: string }[]
+// Spacing/punctuation-insensitive, so "Dive In To The Night" still finds "Dive Into The Night" and "O&P" equals "O & P".
 const compact = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
-const trackKey = (s: string) =>
-  plainTitle(s)
-    .split(/\s+[-–—]\s+/)
-    .map(compact)
-    .join(' - ')
+const DASH = /\s+[-–—]\s+/
+const names = (s: string) => s.split(SEP).filter((p) => !SEP.test(p)).map(compact).filter(Boolean)
+const songTitle = (s: string) => compact(s.replace(/\s*\(original mix\)/gi, ''))
 
-/** "Artist - Title" (either order) → /music/<slug> when a release carries that title. */
+/** Release "Artist A & Artist B - Title" → matchable entry. */
+function releaseEntry(title: string, slug: string) {
+  const t = plainTitle(title)
+  const cut = t.search(DASH)
+  const artists = cut < 0 ? [] : names(t.slice(0, cut))
+  return { title: songTitle(cut < 0 ? t : t.slice(cut).replace(/^\s*[-–—]\s*/, '')), artists, href: `/music/${slug}` }
+}
+
+/**
+ * Tracklist line (either "Title - Artist" or "Artist - Title") → /music/<slug>.
+ * The title must match exactly (remix/VIP tags included, "(Original Mix)" ignored) and one credit must
+ * contain the other, so "Bass Cannon - Asana" finds "Asana & Yehor - Bass Cannon" but a remix never hits the original.
+ */
 function releaseFor(line: string, releases: ReleaseIndex) {
-  const k = trackKey(line)
-  const flipped = k.split(' - ')
-  return releases.get(k) ?? (flipped.length === 2 ? releases.get(`${flipped[1]} - ${flipped[0]}`) : undefined) ?? null
+  const parts = plainTitle(line).split(DASH)
+  if (parts.length < 2) return null
+  const options = [
+    { artists: names(parts[0]), title: songTitle(parts.slice(1).join(' - ')) },
+    { artists: names(parts[parts.length - 1]), title: songTitle(parts.slice(0, -1).join(' - ')) },
+  ]
+  for (const o of options) {
+    if (!o.title || !o.artists.length) continue
+    const hits = releases.filter((r) => {
+      if (r.title !== o.title || !r.artists.length) return false
+      const within = (a: string[], b: string[]) => a.every((x) => b.includes(x))
+      return within(o.artists, r.artists) || within(r.artists, o.artists)
+    })
+    if (hits.length === 1) return hits[0].href
+  }
+  return null
 }
 
 /** Split a credit into names and separators, marking names that are on the DnB Doctor roster. */
@@ -181,7 +204,7 @@ async function load(slug: string) {
     older,
     related,
     roster: new Map(roster.map((a) => [a.name.toLowerCase(), a])) as Roster,
-    releases: new Map(releases.map((r) => [trackKey(r.title), `/music/${r.slug}`])) as ReleaseIndex,
+    releases: releases.map((r) => releaseEntry(r.title, r.slug)) as ReleaseIndex,
   }
 }
 
