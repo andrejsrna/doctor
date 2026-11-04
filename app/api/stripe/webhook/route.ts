@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyWebhook, type CheckoutSession } from '@/lib/shop/stripe'
 import { fulfilSession, markExpired, markRefunded } from '@/lib/shop/orders'
 import { issueInvoice, retryPendingInvoices } from '@/lib/shop/invoices'
+import { fulfilMerchSession, isMerchSession, markMerchExpired, markMerchRefunded, retryMerch, type MerchSession } from '@/lib/shop/merch'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +24,11 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed':
       case 'checkout.session.async_payment_succeeded':
       {
+        // Merch (Printful) sessions carry metadata.kind = 'merch' and have their own order table.
+        if (isMerchSession(obj as unknown as CheckoutSession)) {
+          await fulfilMerchSession(obj as unknown as MerchSession)
+          break
+        }
         const r = await fulfilSession(obj as unknown as CheckoutSession)
         // Invoice failures never fail the webhook: the order stays PENDING-invoice and is retried.
         if (r.status === 'paid') await issueInvoice(String((obj as { metadata?: { orderId?: string } }).metadata?.orderId))
@@ -31,9 +37,13 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.expired':
       case 'checkout.session.async_payment_failed':
         await markExpired(String(obj.id))
+        await markMerchExpired(String(obj.id))
         break
       case 'charge.refunded':
-        if (typeof obj.payment_intent === 'string') await markRefunded(obj.payment_intent, obj.amount_refunded === obj.amount)
+        if (typeof obj.payment_intent === 'string') {
+          await markRefunded(obj.payment_intent, obj.amount_refunded === obj.amount)
+          await markMerchRefunded(obj.payment_intent, obj.amount_refunded === obj.amount)
+        }
         break
     }
   } catch (e) {
@@ -42,5 +52,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Handler failed' }, { status: 500 })
   }
   await retryPendingInvoices().catch(() => 0)
+  await retryMerch().catch(() => 0)
   return NextResponse.json({ received: true })
 }

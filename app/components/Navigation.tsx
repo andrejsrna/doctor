@@ -30,10 +30,11 @@ const musicGroups = [
     ],
   },
   {
-    label: 'For producers',
+    label: 'Shop',
     items: [
       { title: 'Music packs', href: '/music-packs' },
       { title: 'Sample packs', href: '/sample-packs' },
+      { title: 'Merch', href: '/merch' },
     ],
   },
   {

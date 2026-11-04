@@ -101,6 +101,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'files.cdn.printful.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'printify.com',
         pathname: '/**',
       },

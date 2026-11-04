@@ -17,6 +17,16 @@ export function downloadToken(itemId: string, now = Date.now(), days = DOWNLOAD_
   return `${itemId}.${exp}.${sign(`${itemId}.${exp}`)}`
 }
 
+/** Shared secret for the Printful webhook URL (`?token=`): Printful v1 webhooks are unsigned. */
+export const printfulWebhookToken = () => createHmac('sha256', secret()).update('printful-webhook').digest('base64url')
+
+export function verifyPrintfulWebhookToken(token: string | null) {
+  if (!token) return false
+  const expected = Buffer.from(printfulWebhookToken())
+  const got = Buffer.from(token)
+  return got.length === expected.length && timingSafeEqual(got, expected)
+}
+
 /** Returns the order item id when the token is genuine and unexpired, otherwise null. */
 export function verifyDownloadToken(token: string, now = Date.now()): string | null {
   const [itemId, expRaw, sig] = token.split('.')

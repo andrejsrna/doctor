@@ -28,6 +28,38 @@ export function addressLines(a: Address | null | undefined) {
   return [a.line1, a.line2, [city, a.state].filter(Boolean).join(', '), a.country].filter((x): x is string => Boolean(x && x.trim()))
 }
 
+type ScrmInvoiceInput = {
+  orderId: string
+  paidAt: Date
+  paymentReference: string | null
+  currency: string
+  customer: { name: string | null; email: string | null; addressLines: string[]; vatId: string | null }
+  items: { description: string; quantity: number; unitPrice: number }[]
+}
+
+/** Ask SCRM for the invoice (idempotent per source + orderId there). Throws on failure. */
+export async function requestScrmInvoice(input: ScrmInvoiceInput) {
+  const res = await fetch(`${process.env.SCRM_URL!.replace(/\/$/, '')}/api/integrations/shop/invoices`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.SCRM_SHOP_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...input, source: 'dnbdoctor', paidAt: input.paidAt.toISOString(), currency: input.currency.toUpperCase() }),
+    signal: AbortSignal.timeout(20000),
+    cache: 'no-store',
+  })
+  const json = (await res.json().catch(() => ({}))) as { number?: string; pdfBase64?: string; error?: string }
+  if (!res.ok || !json.number || !json.pdfBase64) throw new Error(json.error || `SCRM ${res.status}`)
+  return { number: json.number, pdfBase64: json.pdfBase64 }
+}
+
+/** Keep a private copy of the invoice PDF in R2. */
+export async function storeInvoicePdf(orderId: string, invoice: { number: string; pdfBase64: string }) {
+  const pdf = Buffer.from(invoice.pdfBase64, 'base64')
+  const key = `shop/invoices/${orderId}/faktura-${invoice.number}.pdf`
+  const { client, bucket } = r2()
+  await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: pdf, ContentType: 'application/pdf' }))
+  return { pdf, key }
+}
+
 /** Issue (or re-fetch) the SCRM invoice for a paid order, keep the PDF, email it. Never throws. */
 export async function issueInvoice(orderId: string): Promise<{ ok: boolean; number?: string; error?: string }> {
   const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true } })
@@ -37,33 +69,20 @@ export async function issueInvoice(orderId: string): Promise<{ ok: boolean; numb
 
   try {
     const taxIds = Array.isArray(order.taxIds) ? (order.taxIds as { type: string; value: string }[]) : []
-    const res = await fetch(`${process.env.SCRM_URL!.replace(/\/$/, '')}/api/integrations/shop/invoices`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.SCRM_SHOP_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId: order.id,
-        source: 'dnbdoctor',
-        paidAt: order.paidAt.toISOString(),
-        paymentReference: order.stripePaymentIntentId,
-        currency: order.currency.toUpperCase(),
-        customer: {
-          name: order.customerName || order.email,
-          email: order.email,
-          addressLines: addressLines(order.billingAddress as Address | null),
-          vatId: taxIds.find((t) => t.type === 'eu_vat')?.value ?? null,
-        },
-        items: order.items.map((i) => ({ description: `${i.title} (digitálny produkt na stiahnutie)`, quantity: 1, unitPrice: i.priceCents / 100 })),
-      }),
-      signal: AbortSignal.timeout(20000),
-      cache: 'no-store',
+    const json = await requestScrmInvoice({
+      orderId: order.id,
+      paidAt: order.paidAt,
+      paymentReference: order.stripePaymentIntentId,
+      currency: order.currency,
+      customer: {
+        name: order.customerName || order.email,
+        email: order.email,
+        addressLines: addressLines(order.billingAddress as Address | null),
+        vatId: taxIds.find((t) => t.type === 'eu_vat')?.value ?? null,
+      },
+      items: order.items.map((i) => ({ description: `${i.title} (digitálny produkt na stiahnutie)`, quantity: 1, unitPrice: i.priceCents / 100 })),
     })
-    const json = (await res.json().catch(() => ({}))) as { number?: string; pdfBase64?: string; error?: string }
-    if (!res.ok || !json.number || !json.pdfBase64) throw new Error(json.error || `SCRM ${res.status}`)
-
-    const pdf = Buffer.from(json.pdfBase64, 'base64')
-    const key = `shop/invoices/${order.id}/faktura-${json.number}.pdf`
-    const { client, bucket } = r2()
-    await client.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: pdf, ContentType: 'application/pdf' }))
+    const { pdf, key } = await storeInvoicePdf(order.id, json)
     await prisma.order.update({
       where: { id: order.id },
       data: { invoiceState: 'ISSUED', invoiceNumber: json.number, invoiceUrl: key, invoiceError: null, invoiceAttempts: { increment: 1 } },

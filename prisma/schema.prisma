@@ -572,7 +572,6 @@ model ShopOrder {
   @@index([stripePaymentIntentId])
 }
 
-
 enum ProductType {
   SAMPLE_PACK
   TRACK
@@ -657,4 +656,73 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+enum MerchFulfilment {
+  /// Waiting for payment or for the Printful order to be created.
+  PENDING
+  /// Created in Printful as a draft; confirm it in the Printful dashboard (PRINTFUL_CONFIRM is off).
+  DRAFT
+  /// Confirmed in Printful, in production.
+  SUBMITTED
+  SHIPPED
+  FAILED
+  CANCELED
+}
+
+/// A physical (print-on-demand) merch order: paid through Stripe Checkout, produced and shipped by Printful.
+model MerchOrder {
+  id                    String           @id @default(cuid())
+  status                OrderStatus      @default(PENDING)
+  email                 String?
+  customerName          String?
+  shippingAddress       Json?
+  country               String
+  currency              String           @default("eur")
+  itemsCents            Int
+  shippingCents         Int
+  amountTotal           Int
+  shippingRate          String
+  shippingName          String?
+  stripeSessionId       String?          @unique
+  stripePaymentIntentId String?          @unique
+  paidAt                DateTime?
+  refundedAt            DateTime?
+  emailSentAt           DateTime?
+  fulfilment            MerchFulfilment  @default(PENDING)
+  printfulOrderId       Int?             @unique
+  printfulAttempts      Int              @default(0)
+  printfulError         String?
+  trackingNumber        String?
+  trackingUrl           String?
+  carrier               String?
+  shippedAt             DateTime?
+  invoiceState          InvoiceState     @default(PENDING)
+  invoiceNumber         String?          @unique
+  invoiceUrl            String?
+  invoiceAttempts       Int              @default(0)
+  invoiceError          String?
+  items                 MerchOrderItem[]
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MerchOrderItem {
+  id            String     @id @default(cuid())
+  orderId       String
+  order         MerchOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  /// Printful sync variant id (store product variant).
+  syncVariantId BigInt
+  title         String
+  size          String?
+  color         String?
+  imageUrl      String?
+  quantity      Int
+  unitCents     Int
+
+  @@index([orderId])
 }

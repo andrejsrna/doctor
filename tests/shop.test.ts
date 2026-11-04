@@ -60,3 +60,24 @@ test('cart: checkout body → unique valid slugs, single-product body still acce
   assert.deepEqual(cart.map((i) => i.slug), ['a', 'b'])
   assert.equal(cartTotal(cart), 1149)
 })
+
+test('merch cart lines are merged, bounded and validated', async () => {
+  const { parseMerchLines, isMerchCountry } = await import('../lib/shop/merchShared')
+  assert.deepEqual(parseMerchLines([{ v: 5, q: 2 }, { v: 5, q: 9 }, { v: 7, q: 1 }]), [{ v: 5, q: 10 }, { v: 7, q: 1 }])
+  assert.equal(parseMerchLines([]), null)
+  assert.equal(parseMerchLines([{ v: 5, q: 0 }]), null)
+  assert.equal(parseMerchLines([{ v: -1, q: 1 }]), null)
+  assert.equal(parseMerchLines([{ v: 5, q: 11 }]), null)
+  assert.equal(parseMerchLines('x'), null)
+  assert.equal(isMerchCountry('SK'), true)
+  assert.equal(isMerchCountry('RU'), false)
+})
+
+test('printful webhook token is required and exact', async () => {
+  process.env.SHOP_SECRET ||= 'test-secret'
+  const { printfulWebhookToken, verifyPrintfulWebhookToken } = await import('../lib/shop/tokens')
+  const t = printfulWebhookToken()
+  assert.equal(verifyPrintfulWebhookToken(t), true)
+  assert.equal(verifyPrintfulWebhookToken(null), false)
+  assert.equal(verifyPrintfulWebhookToken(t.slice(0, -1) + (t.endsWith('a') ? 'b' : 'a')), false)
+})

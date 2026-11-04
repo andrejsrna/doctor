@@ -40,6 +40,55 @@ export async function sendOrderEmail(to: string, order: { id: string; currency: 
   await sendEmail({ to, subject: 'Your DnB Doctor download', html, text: htmlToText(html) })
 }
 
+export type MerchMailLine = { title: string; quantity: number; unitCents: number }
+type MerchMailOrder = { id: string; currency: string; amountTotal: number; shippingCents: number; shippingName: string | null; customerName: string | null }
+
+function merchTable(order: MerchMailOrder, lines: MerchMailLine[]) {
+  const row = (label: string, value: string, strong = false) =>
+    `<tr><td style="padding:10px 0;border-bottom:1px solid #26262e;${strong ? 'color:#fff;font-weight:700' : ''}">${label}</td><td align="right" style="padding:10px 0;border-bottom:1px solid #26262e;white-space:nowrap;${strong ? 'color:#fff;font-weight:700' : ''}">${value}</td></tr>`
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${lines
+    .map((l) => row(`<strong style="color:#fff">${esc(l.title)}</strong>${l.quantity > 1 ? ` × ${l.quantity}` : ''}`, money(l.unitCents * l.quantity, order.currency)))
+    .join('')}${row(esc(order.shippingName || 'Shipping'), money(order.shippingCents, order.currency))}${row('Total', money(order.amountTotal, order.currency), true)}</table>`
+}
+
+/** Confirmation after payment: made-to-order notice, items, shipping address. */
+export async function sendMerchOrderEmail(to: string, order: MerchMailOrder, lines: MerchMailLine[], address: string[]) {
+  const html = shell(
+    'Order confirmed',
+    `<p style="margin:0 0 12px">Thanks for repping DnB Doctor. Your payment of <strong style="color:#fff">${money(order.amountTotal, order.currency)}</strong> was received.</p>
+${merchTable(order, lines)}
+<p style="margin:16px 0 4px;color:#8b8b96;font-family:'Courier New',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Ships to</p>
+<p style="margin:0">${[order.customerName, ...address].filter(Boolean).map((l) => esc(String(l))).join('<br>')}</p>
+<p style="margin:16px 0 0">Every piece is printed to order by our production partner. Production usually takes 2–5 business days; you'll get another email with the tracking link as soon as it ships.</p>
+<p style="margin:12px 0 0">Your invoice will follow in a separate email.</p>
+<p style="margin:12px 0 0;color:#8b8b96;font-size:13px">Order ${esc(order.id)}. Something wrong with the address or size? Reply to this email or write to info@dnbdoctor.com as soon as possible, before production starts.</p>`,
+  )
+  await sendEmail({ to, subject: 'Your DnB Doctor merch order', html, text: htmlToText(html) })
+}
+
+export async function sendMerchShippedEmail(to: string, order: { id: string }, tracking: { url: string | null; number: string | null; carrier: string | null }) {
+  const html = shell(
+    'Your merch is on the way',
+    `<p style="margin:0 0 18px">Your DnB Doctor order has shipped${tracking.carrier ? ` with ${esc(tracking.carrier)}` : ''}.${tracking.number ? ` Tracking number: <strong style="color:#fff">${esc(tracking.number)}</strong>.` : ''}</p>
+${tracking.url ? button(tracking.url, 'Track package') : ''}
+<p style="margin:18px 0 0;color:#8b8b96;font-size:13px">Order ${esc(order.id)}.</p>`,
+  )
+  await sendEmail({ to, subject: 'Your DnB Doctor merch has shipped', html, text: htmlToText(html) })
+}
+
+/** Internal notice for the label (ADMIN_EMAIL): new paid order and what happened in Printful. */
+export async function sendMerchAdminEmail(order: MerchMailOrder & { email: string | null }, lines: MerchMailLine[], printful: string) {
+  const to = process.env.ADMIN_EMAIL
+  if (!to) return
+  const html = shell(
+    'New merch order',
+    `<p style="margin:0 0 12px"><strong style="color:#fff">${esc(order.customerName || '')}</strong> ${esc(order.email || '')}</p>${merchTable(order, lines)}
+<p style="margin:16px 0 0">Printful: ${esc(printful)}</p>
+<div style="padding-top:16px">${button('https://www.printful.com/dashboard/default/orders', 'Open Printful orders')}</div>`,
+  )
+  await sendEmail({ to, subject: `[Merch] New order ${money(order.amountTotal, order.currency)}`, html, text: htmlToText(html) })
+}
+
 export function invoiceEmailHtml(number: string) {
   return shell(
     `Invoice ${esc(number)}`,
