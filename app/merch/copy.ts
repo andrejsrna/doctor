@@ -21,6 +21,10 @@ export const MERCH_COPY: Record<string, MerchCopy> = {
     pitch:
       '350 g organic cotton with a soft suede-touch finish, cut relaxed so it hangs right over anything. A small DnB Doctor crest on the chest, and across the whole back the heart-speaker artwork: an anatomical heart wired straight into a sub cone. Built for cold smoking areas, 6 a.m. walks home and every studio night in between.',
     print: 'Crest on the chest, full-size artwork across the back',
+    photos: [
+      { src: '/merch/doc-hoodie-worn.webp', alt: 'DnB Doctor hoodie worn from the back, showing the heart-speaker artwork', label: 'Back' },
+      { src: '/merch/doc-hoodie-worn-front.webp', alt: 'DnB Doctor hoodie worn from the front, with the crest on the chest', label: 'Front' },
+    ],
   },
   'doc-tee-basic': {
     code: 'DOC-TS',
@@ -38,17 +42,20 @@ export const MERCH_COPY: Record<string, MerchCopy> = {
     tagline: 'Winter rotation.',
     pitch: 'A cuffed knit beanie with the DnB Doctor crest stitched on the front. For winter festivals, cold queues outside the club and the walk home after close.',
     print: 'Embroidered crest on the front',
+    photos: [{ src: '/merch/doc-beanie-worn.webp', alt: 'DnB Doctor beanie worn, with the embroidered crest on the front', label: 'Worn' }],
   },
   'dnb-doc-bucket': {
     code: 'DOC-BK',
     tagline: 'Open-air cover.',
     pitch: 'The bucket hat for open-air stages, daylight after-parties and anyone who prefers to rave with their eyes in the shade. Black, with the crest on the front, in two sizes so it actually fits.',
     print: 'Crest printed on the front · sizes S/M and M/L',
+    photos: [{ src: '/merch/dnb-doc-bucket-worn.webp', alt: 'DnB Doctor bucket hat worn, with the crest on the front', label: 'Worn' }],
   },
   'doc-hat': {
     code: 'DOC-CP',
     tagline: 'Low profile, loud crest.',
     pitch: 'A classic dad hat in soft cotton twill: unstructured six-panel, curved brim, adjustable strap with an antique buckle and the DnB Doctor crest up front. Goes with everything, including the 4 a.m. look.',
     print: 'Crest printed on the front',
+    photos: [{ src: '/merch/doc-hat-worn.webp', alt: 'DnB Doctor dad hat worn, with the crest on the front', label: 'Worn' }],
   },
 }
