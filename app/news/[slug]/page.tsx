@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import parse, { type DOMNode, domToReact, Element } from 'html-react-parser'
+import parse, { type DOMNode, domToReact, Element, type HTMLReactParserOptions } from 'html-react-parser'
 import { prisma } from '@/lib/prisma'
 import { sanitizeHtml } from '@/lib/sanitize'
 import { plainTitle } from '@/app/components/hero/releaseMeta'
@@ -174,12 +174,12 @@ function Credit({ parts }: { parts: { part: string; artist?: { name: string; slu
 
 /** WordPress HTML → React: real headings (h1 demoted), optimised images, no inline styles. */
 function Body({ html }: { html: string }) {
-  return (
-    <>
-      {parse(sanitizeHtml(html), {
-        replace: (node) => {
+  // Same options all the way down: images nested in <figure>/<a> must also go through next/image,
+  // otherwise the raw WordPress <img srcset> (pointing at the dead admin.dnbdoctor.com uploads) wins.
+  const options: HTMLReactParserOptions = {
+    replace: (node) => {
           if (!(node instanceof Element)) return undefined
-          const kids = () => domToReact(node.children as DOMNode[])
+          const kids = () => domToReact(node.children as DOMNode[], options)
           if (node.name === 'img') {
             const { src, alt, width, height } = node.attribs
             const w = parseInt(width, 10)
@@ -200,10 +200,9 @@ function Body({ html }: { html: string }) {
           }
           if (node.attribs?.style) delete node.attribs.style
           return undefined
-        },
-      })}
-    </>
-  )
+    },
+  }
+  return <>{parse(sanitizeHtml(html), options)}</>
 }
 
 /* ---------------- data ---------------- */
@@ -211,7 +210,7 @@ function Body({ html }: { html: string }) {
 async function load(slug: string) {
   const post = await prisma.news.findUnique({
     where: { slug },
-    include: { mixArtist: { select: { slug: true, name: true, bio: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true } } },
+    include: { mixArtist: { select: { slug: true, name: true, bio: true, imageUrl: true, soundcloud: true, spotify: true, instagram: true, facebook: true } } },
   })
   if (!post) return null
 
@@ -291,9 +290,12 @@ export default async function NewsPostPage({ params }: PageProps) {
       datePublished: date.toISOString(),
       dateModified: post.updatedAt.toISOString(),
       ...(post.coverImageUrl && { image: [post.coverImageUrl] }),
-      author: post.mixArtist
-        ? { '@type': 'Person', name: post.mixArtist.name, url: `${SITE}/artists/${post.mixArtist.slug}` }
-        : { '@type': 'Organization', name: 'DnB Doctor', url: SITE },
+      author:
+        post.mixArtist && isMix
+          ? { '@type': 'Person', name: post.mixArtist.name, url: `${SITE}/artists/${post.mixArtist.slug}` }
+          : { '@type': 'Organization', name: 'DnB Doctor', url: SITE },
+      // interviews/features: the linked artist is the subject, not the author
+      ...(post.mixArtist && !isMix && { about: { '@type': 'Person', name: post.mixArtist.name, url: `${SITE}/artists/${post.mixArtist.slug}` } }),
       publisher: { '@type': 'Organization', name: 'DnB Doctor', url: SITE, logo: { '@type': 'ImageObject', url: `${SITE}/logo-1.png` } },
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
       articleSection: category,
@@ -340,7 +342,7 @@ export default async function NewsPostPage({ params }: PageProps) {
             </h1>
             {mixer && (
               <p className={styles.byline}>
-                {isMix ? 'Mixed by' : 'By'}{' '}
+                {isMix ? 'Mixed by' : post.mixArtist ? 'Featuring' : 'By'}{' '}
                 {post.mixArtist ? <Link href={`/artists/${post.mixArtist.slug}`}>{mixer}</Link> : <strong>{mixer}</strong>}
               </p>
             )}
@@ -449,6 +451,11 @@ export default async function NewsPostPage({ params }: PageProps) {
                 {post.mixArtist.instagram && (
                   <a href={post.mixArtist.instagram} target="_blank" rel="noopener noreferrer">
                     Instagram
+                  </a>
+                )}
+                {post.mixArtist.facebook && (
+                  <a href={post.mixArtist.facebook} target="_blank" rel="noopener noreferrer">
+                    Facebook
                   </a>
                 )}
               </p>
