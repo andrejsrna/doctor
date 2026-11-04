@@ -117,13 +117,14 @@ export default function MerchStore({ products }: { products: MerchProduct[] }) {
 function ProductCard({ product: p, priority, onAdd, layout }: { product: MerchProduct; priority: boolean; onAdd: (v: number) => void; layout: 'feature' | 'card' }) {
   const single = p.variants.length === 1
   const [selected, setSelected] = useState<number | null>(single ? p.variants[0].id : null)
-  const [side, setSide] = useState<'front' | 'back'>('front')
+  const copy = MERCH_COPY[p.slug]
+  const [side, setSide] = useState<'photo' | 'front' | 'back'>(copy?.photo ? 'photo' : 'front')
   const [hint, setHint] = useState(false)
   const variant = p.variants.find((v) => v.id === selected) ?? null
   const price = variant?.priceCents ?? p.minPriceCents
   const varies = p.variants.some((v) => v.priceCents !== p.minPriceCents)
-  const img = side === 'back' && p.backImage ? p.backImage : p.image
-  const copy = MERCH_COPY[p.slug]
+  const img = side === 'photo' && copy?.photo ? copy.photo.src : side === 'back' && p.backImage ? p.backImage : p.image
+  const views = [...(copy?.photo ? (['photo'] as const) : []), 'front' as const, ...(p.backImage ? (['back'] as const) : [])]
   const blank = p.blank?.replace(/\s*\|.*$/, '')
   const feature = layout === 'feature'
 
@@ -133,18 +134,18 @@ function ProductCard({ product: p, priority, onAdd, layout }: { product: MerchPr
         {img && (
           <Image
             src={img}
-            alt={`${p.name}, ${side === 'back' ? 'back print' : 'front'} view`}
+            alt={side === 'photo' && copy?.photo ? copy.photo.alt : `${p.name}, ${side === 'back' ? 'back print' : 'front'} view`}
             fill
             sizes={feature ? '(min-width:960px) 55vw, 100vw' : '(min-width:960px) 33vw, 100vw'}
             priority={priority}
           />
         )}
         {copy && <span className={s.code}>{copy.code}</span>}
-        {p.backImage && (
+        {views.length > 1 && (
           <div className={s.views} role="group" aria-label="Product view">
-            {(['front', 'back'] as const).map((v) => (
+            {views.map((v) => (
               <button key={v} type="button" onClick={() => setSide(v)} aria-pressed={side === v}>
-                {v === 'back' ? 'Back print' : 'Front'}
+                {v === 'back' ? 'Back print' : v === 'photo' ? 'Worn' : 'Front'}
               </button>
             ))}
           </div>

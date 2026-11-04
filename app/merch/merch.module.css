@@ -305,6 +305,8 @@
   transition: opacity 0.25s;
 }
 
+.media[data-side='photo'] img { object-position: 50% 28%; }
+
 .media[data-side='back'] img {
   object-fit: contain;
   padding: 7% 12% 15%;

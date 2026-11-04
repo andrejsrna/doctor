@@ -58,7 +58,7 @@ export default async function MerchPage() {
             '@type': 'Product',
             name: p.name,
             description: MERCH_COPY[p.slug]?.pitch,
-            image: p.image ?? undefined,
+            image: [MERCH_COPY[p.slug]?.photo ? `https://dnbdoctor.com${MERCH_COPY[p.slug]!.photo!.src}` : null, p.image].filter(Boolean),
             brand: { '@type': 'Brand', name: 'DnB Doctor' },
             offers: {
               '@type': 'AggregateOffer',

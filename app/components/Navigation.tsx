@@ -15,7 +15,7 @@ const menuItems = [
   { title: 'Artists', href: '/artists' },
   { title: 'News', href: '/news' },
   { title: 'About', href: '/about' },
-  { title: 'Newsletter', href: '/newsletter' },
+  { title: 'Merch', href: '/merch' },
   { title: 'Submit demo', href: '/submit-demo' },
 ]
 
