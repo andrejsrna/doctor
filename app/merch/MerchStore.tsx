@@ -254,6 +254,7 @@ function Bag({ dialogRef, products, lines, openBag }: { dialogRef: React.RefObje
   }
 
   const shipping = quote && quote.country === country ? quote.shipping : null
+  const pending = loading || Boolean(country && !shipping && !error)
   const total = itemsCents + (shipping?.cents ?? 0)
   const eta = shipping?.minDays && shipping.maxDays ? `${shipping.minDays}–${shipping.maxDays} days after production` : null
 
@@ -329,7 +330,7 @@ function Bag({ dialogRef, products, lines, openBag }: { dialogRef: React.RefObje
                 <div className="flex justify-between"><dt className="text-gray-400">Items</dt><dd className="font-mono text-white">{money(itemsCents, currency)}</dd></div>
                 <div className="flex justify-between">
                   <dt className="text-gray-400">Shipping{eta ? <span className="block text-xs text-gray-500">{eta}</span> : null}</dt>
-                  <dd className="font-mono text-white">{loading ? '…' : shipping ? money(shipping.cents, currency) : '—'}</dd>
+                  <dd className="font-mono text-white">{pending ? '…' : shipping ? money(shipping.cents, currency) : '—'}</dd>
                 </div>
                 <div className="flex items-baseline justify-between pt-2">
                   <dt className="font-mono text-xs uppercase tracking-[0.2em] text-gray-400">Total</dt>
@@ -340,10 +341,10 @@ function Bag({ dialogRef, products, lines, openBag }: { dialogRef: React.RefObje
               <button
                 type="button"
                 onClick={checkout}
-                disabled={busy || loading || !country || !shipping}
+                disabled={busy || pending || !country || !shipping}
                 className="w-full bg-[#39ff14] px-5 py-4 font-mono text-sm font-bold uppercase tracking-widest text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
-                {busy ? 'Opening checkout...' : !country ? 'Choose country to continue' : `Checkout · ${money(total, currency)}`}
+                {busy ? 'Opening checkout...' : !country ? 'Choose country to continue' : pending ? 'Calculating shipping…' : `Checkout · ${money(total, currency)}`}
               </button>
               <p className="text-center text-xs text-gray-400">Secure card payment by Stripe. Made to order, ships in 2–5 business days plus delivery.</p>
             </div>
