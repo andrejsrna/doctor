@@ -604,6 +604,171 @@
   color: #fff;
 }
 
+button.dlBtn {
+  border: 0;
+  cursor: pointer;
+}
+
+button.dlBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+button.dlBtn:disabled:hover {
+  background: var(--c-green);
+  color: #050505;
+}
+
+.dlForm {
+  display: grid;
+  gap: 0.7rem;
+  flex: 1 1 22rem;
+  max-width: 34rem;
+}
+
+.dlRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.dlInput {
+  flex: 1 1 13rem;
+  min-width: 0;
+  padding: 0.95rem 1rem;
+  background: #000;
+  border: 1px solid rgb(57 255 20 / 45%);
+  border-radius: 0;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+
+.dlInput::placeholder {
+  color: rgb(255 255 255 / 30%);
+}
+
+.dlCheck {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 70%);
+}
+
+.dlCheck input {
+  margin-top: 0.15rem;
+  accent-color: var(--c-green);
+}
+
+.dlCheck a {
+  color: var(--c-green);
+}
+
+.dlMsg {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--c-green);
+}
+
+.dlMsg[data-state='error'] {
+  color: var(--c-crimson);
+}
+
+.hp {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- from this mix (label releases + merch) ---------- */
+.fromMix {
+  min-width: 0;
+}
+
+.fmGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fmCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+  padding-bottom: 0.8rem;
+  border: 1px solid var(--line);
+  background: rgb(8 6 14 / 70%);
+  color: #fff;
+  text-decoration: none;
+  transition: border-color 150ms;
+}
+
+.fmCard:hover {
+  border-color: var(--c-green);
+}
+
+.fmCard[data-merch]:hover {
+  border-color: var(--c-crimson);
+}
+
+.fmImg {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  margin-bottom: 0.4rem;
+  overflow: hidden;
+  background: #050505;
+}
+
+.fmImg img {
+  object-fit: cover;
+}
+
+.fmTitle,
+.fmMeta,
+.fmCta {
+  padding: 0 0.8rem;
+}
+
+.fmTitle {
+  font-family: var(--disp);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.fmMeta {
+  font-size: 0.8rem;
+  color: rgb(255 255 255 / 55%);
+}
+
+.fmCta {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-green);
+}
+
+.fmCard[data-merch] .fmCta {
+  color: var(--c-crimson);
+}
+
 /* ---------- tracklist ---------- */
 .tlHead {
   display: flex;

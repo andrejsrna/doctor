@@ -9,6 +9,11 @@ import { plainTitle } from '@/app/components/hero/releaseMeta'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import NewsMedia from './NewsMedia'
 import ShareBar from './ShareBar'
+import MixDownloadForm from './MixDownloadForm'
+import { getReleaseImageUrl } from '@/app/utils'
+import { offerForRelease } from '@/lib/shop/catalog'
+import { listMerch } from '@/lib/shop/printful'
+import { MERCH_COPY } from '@/app/merch/copy'
 import styles from './post.module.css'
 import { shortDate } from '@/app/utils/shortDate'
 import { soundcloudSrc, youtubeId } from '../media'
@@ -207,6 +212,49 @@ function Body({ html }: { html: string }) {
 
 /* ---------------- data ---------------- */
 
+const MIX_SHOP_MAX = 8
+const MERCH_PICK = ['doc-tee-basic', 'doc-hoodie']
+
+/** Label releases played in the mix (in tracklist order) with their shop offer, plus one merch piece. */
+async function mixShop(hrefs: string[]) {
+  const slugs = [...new Set(hrefs.map((h) => h.replace(/^\/music\//, '')))].slice(0, MIX_SHOP_MAX)
+  const [rows, merch] = await Promise.all([
+    slugs.length
+      ? prisma.release.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true, title: true, coverImageUrl: true, coverImageKey: true } })
+      : Promise.resolve([]),
+    listMerch().catch(() => []),
+  ])
+  const bySlug = new Map(rows.map((r) => [r.slug, r]))
+  const releases = await Promise.all(
+    slugs
+      .map((s) => bySlug.get(s))
+      .filter((r): r is NonNullable<typeof r> => !!r)
+      .map(async (r) => {
+        const t = plainTitle(r.title)
+        const cut = t.search(DASH)
+        const offer = await offerForRelease(r.id).catch(() => null)
+        return {
+          slug: r.slug,
+          title: cut < 0 ? t : t.slice(cut).replace(/^\s*[-–—]\s*/, ''),
+          artists: cut < 0 ? '' : t.slice(0, cut).trim(),
+          image: getReleaseImageUrl(r) ?? null,
+          price: offer?.price ?? null,
+        }
+      }),
+  )
+  const pick = MERCH_PICK.map((s) => merch.find((m) => m.slug === s)).find(Boolean) ?? merch[0]
+  const tee = pick
+    ? {
+        slug: pick.slug,
+        name: pick.name,
+        tagline: MERCH_COPY[pick.slug]?.tagline ?? null,
+        image: MERCH_COPY[pick.slug]?.photos?.[0]?.src ?? pick.image,
+        price: new Intl.NumberFormat('en-IE', { style: 'currency', currency: pick.currency.toUpperCase() }).format(pick.minPriceCents / 100),
+      }
+    : null
+  return { releases, merch: tee }
+}
+
 async function load(slug: string) {
   const post = await prisma.news.findUnique({
     where: { slug },
@@ -278,6 +326,7 @@ export default async function NewsPostPage({ params }: PageProps) {
 
   const download = isMix && post.mixDownloadUrl ? post.mixDownloadUrl : null
   const dlExt = download?.split('?')[0].split('.').pop()?.toUpperCase()
+  const shop = isMix ? await mixShop(tracks.flatMap((t) => (t.href ? [t.href] : []))) : null
   const mixer = post.mixArtist?.name || post.relatedArtistName || null
   const dj = djLinks(post.djLinks)
 
@@ -376,11 +425,9 @@ export default async function NewsPostPage({ params }: PageProps) {
                 <h2 id="dl-title" className={styles.h3}>
                   Take the full mix offline.
                 </h2>
-                <p className={styles.muted}>Keep it ready for the road, the studio or late-night listening.</p>
+                <p className={styles.muted}>Keep it ready for the road, the studio or late-night listening. We email you the link.</p>
               </div>
-              <a href={download} download className={styles.dlBtn}>
-                <span aria-hidden="true">↓</span> Download {dlExt && dlExt.length <= 4 ? dlExt : 'mix'}
-              </a>
+              <MixDownloadForm slug={slug} format={dlExt && dlExt.length <= 4 ? dlExt : 'mix'} />
             </section>
           )}
 
@@ -418,6 +465,43 @@ export default async function NewsPostPage({ params }: PageProps) {
                   </li>
                 ))}
               </ol>
+            </section>
+          )}
+
+          {shop && (shop.releases.length > 0 || shop.merch) && (
+            <section className={styles.fromMix} aria-labelledby="fm-title">
+              <div className={styles.tlHead}>
+                <h2 id="fm-title" className={styles.label}>
+                  {shop.releases.length > 0 ? 'Tracks from this mix on DnB Doctor' : 'Wear the label'}
+                </h2>
+                {shop.releases.length > 0 && <span className={styles.muted}>Stream or own the WAV</span>}
+              </div>
+              <ul className={styles.fmGrid}>
+                {shop.releases.map((r) => (
+                  <li key={r.slug}>
+                    <Link href={`/music/${r.slug}`} className={styles.fmCard}>
+                      <span className={styles.fmImg}>
+                        {r.image && <Image src={r.image} alt="" fill sizes="(max-width: 600px) 45vw, 200px" />}
+                      </span>
+                      <span className={styles.fmTitle}>{r.title}</span>
+                      {r.artists && <span className={styles.fmMeta}>{r.artists}</span>}
+                      <span className={styles.fmCta}>{r.price ? `Buy WAV · ${r.price}` : 'Listen'} →</span>
+                    </Link>
+                  </li>
+                ))}
+                {shop.merch && (
+                  <li>
+                    <Link href={`/merch#${shop.merch.slug}`} className={styles.fmCard} data-merch>
+                      <span className={styles.fmImg}>
+                        {shop.merch.image && <Image src={shop.merch.image} alt="" fill sizes="(max-width: 600px) 45vw, 200px" />}
+                      </span>
+                      <span className={styles.fmTitle}>{shop.merch.name}</span>
+                      {shop.merch.tagline && <span className={styles.fmMeta}>{shop.merch.tagline}</span>}
+                      <span className={styles.fmCta}>Merch · from {shop.merch.price} →</span>
+                    </Link>
+                  </li>
+                )}
+              </ul>
             </section>
           )}
         </div>
