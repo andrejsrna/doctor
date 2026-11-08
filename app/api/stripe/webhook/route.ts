@@ -20,6 +20,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const obj = event.data.object
+    // The Stripe account is shared with NJK Music (metadata.site = 'njkmusic'): never touch its sessions.
+    if ((obj as { metadata?: { site?: string } }).metadata?.site === 'njkmusic') return NextResponse.json({ received: true, ignored: true })
     switch (event.type) {
       case 'checkout.session.completed':
       case 'checkout.session.async_payment_succeeded':
