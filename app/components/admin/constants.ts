@@ -81,6 +81,12 @@ export const navigationItems = [
     description: "Sample Packs & Orders"
   },
   {
+    name: "Orders & Revenue",
+    href: "/admin/shop/orders",
+    icon: FaChartLine,
+    description: "Shop Sales Stats"
+  },
+  {
     name: "Legacy Feedback",
     href: "/admin/feedback",
     icon: FaNewspaper,

@@ -103,6 +103,7 @@ export default function ShopAdminPage() {
       <span className={`rounded-full px-3 py-1 ${config.stripe ? 'bg-green-900 text-green-200' : 'bg-yellow-900 text-yellow-200'}`}>Stripe {config.stripe ? 'connected' : 'not configured: buy buttons hidden'}</span>
       <span className={`rounded-full px-3 py-1 ${config.scrm ? 'bg-green-900 text-green-200' : 'bg-yellow-900 text-yellow-200'}`}>SCRM invoices {config.scrm ? 'connected' : 'not configured'}</span>
       {paid.length > 0 && <span className="rounded-full bg-gray-800 px-3 py-1 text-gray-200">{paid.length} paid · {eur(paid.reduce((s, o) => s + o.amountTotal, 0))}</span>}
+      <Link href="/admin/shop/orders" className="rounded-full border border-green-600 px-3 py-1 text-green-200 hover:bg-green-900/40">Orders & revenue stats</Link>
     </div>
 
     {error && <div role="alert" className="rounded-lg border border-red-500/40 p-4 text-red-300">{error}</div>}
