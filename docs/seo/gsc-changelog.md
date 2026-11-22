@@ -1,5 +1,13 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-10-22 – /types-of-dnb: Dancefloor + artisti a labely
+- Baseline GSC (19. 7.–18. 10.): 132 klikov, 26 135 impr, CTR 0,51 %, pos 7,3.
+- Pridaný typ Dancefloor DnB (sekcia, tabuľka, quick answer, FAQ „What is dancefloor DnB?“); title/description 6 → 7 typov. Dancefloor pridaný aj do zdieľaného `bpm.ts` (172–176) → zobrazí sa aj na /dnb-bpm a /what-is-drum-and-bass.
+- Každý typ má blok „Where to start“ (artisti + labely). Halftime predtým nemal žiadnych artistov.
+- Kontrola faktov: BPM v tabuľke a FAQ z `bpm.ts` (predtým 160–180 / „174“ natvrdo, nesúhlasilo s /dnb-bpm); Liquid „Often 160-180 BPM“ → „Same ~174 BPM“; Jungle „chopped and screwed“ (hip-hop technika spomaľovania) → „chopped, rearranged breakbeats“; Neurofunk „the heaviest“ → „one of the darkest and most technical“; datePublished podľa gitu 2026-05-01.
+- Odkazy `/music?category=liquid|jump-up|jungle|techstep|halftime` nič nefiltrovali → nahradené kontextovými (história, /dnb-bpm, /neurofunk-labels).
+- Review ~1. 12. 2026.
+
 ## 2026-10-22 – redizajn /neurofunk-labels + zrušenie /core-artists, /new-fans
 - Baseline GSC (19. 7.–18. 10.) /neurofunk-labels: 13 klikov, 569 impr, pos 8,6; "neurofunk labels" 53 impr pos 2,5, "dnb labels"/"dnb record labels" ~57 impr pos ~9.
 - Pred: client-rendered (framer-motion), bez vlastného title/canonical (Google videl "DnB Doctor | Neurofunk Label").

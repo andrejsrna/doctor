@@ -2,6 +2,7 @@
 export const DNB_BPM = [
   { name: 'Drum & Bass', bpm: '170–176', note: 'Most modern tracks sit at 174' },
   { name: 'Liquid', bpm: '170–176', note: 'Same tempo, smoother and melodic' },
+  { name: 'Dancefloor', bpm: '172–176', note: 'Polished, big-room festival sound' },
   { name: 'Neurofunk', bpm: '172–176', note: 'Dark, technical, usually 174' },
   { name: 'Jump-Up', bpm: '172–176', note: 'Bouncy, rave-focused' },
   { name: 'Techstep', bpm: '170–180', note: 'Minimal, industrial' },
