@@ -13,6 +13,14 @@ const redirects = [
     { from: "/history-of-drum-and-bass", to: "/drum-and-bass-history" },
     { from: "/core-artists", to: "/artists" },
     { from: "/new-fans", to: "/" },
+    // Old WordPress URLs still reported as 404 in GSC (Nov 2026)
+    { from: "/what-is-dnb-music", to: "/what-is-drum-and-bass" },
+    { from: "/what-is-dn-b-the-only-guide-you-need", to: "/what-is-drum-and-bass" },
+    { from: "/drum-and-bass-music", to: "/what-is-drum-and-bass" },
+    { from: "/dnb-doctor-about", to: "/about" },
+    { from: "/dnb-spotify", to: "/neurofunk-spotify" },
+    { from: "/how-to-produce-nom-bass", to: "/how-to-produce-neurofunk" },
+    { from: "/how-produce-neurofunk", to: "/how-to-produce-neurofunk" },
     { from: "/yehor-hold-me-ep", to: "/music/yehor-hold-me-ep" },
     { from: "/warp-fa2e-bubble-gun-ep", to: "/music/warp-fa2e-bubble-gun-ep" },
     {

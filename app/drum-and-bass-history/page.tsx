@@ -91,6 +91,11 @@ const FAQ = [
       'No single person. It grew out of a scene: DJs like Fabio & Grooverider, and producers such as Goldie, LTJ Bukem, Roni Size, DJ Hype and Shy FX shaped the first wave.',
   },
   {
+    question: 'What was the first drum and bass song?',
+    answer:
+      'There is no agreed “first” track — the sound evolved out of jungle step by step. Often-cited early landmarks are Rufige Kru’s (Goldie) “Terminator” from 1992 and LTJ Bukem’s “Music” from 1993, and Roni Size & Reprazent’s “New Forms” (1997) took drum and bass to the mainstream.',
+  },
+  {
     question: 'What is the difference between jungle and liquid DnB?',
     answer: `Jungle is the original early-’90s sound: chopped breakbeats like the Amen, reggae and dub basslines, ragga vocals. Liquid, named around 2000, is smooth and melodic, with soulful vocals, pads and clean rolling drums. Jungle sits around ${bpm('Jungle')} BPM, liquid around ${bpm('Liquid')} BPM.`,
   },

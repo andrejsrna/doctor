@@ -1,5 +1,14 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – quick wins z novembrového plánu (krok 1)
+- Plán: `docs/seo/2026-11-action-plan.md` (GSC 20. 8. – 19. 11.).
+- 308 pre 7 starých WP URL hlásených v GSC ako 404: /what-is-dnb-music, /what-is-dn-b-the-only-guide-you-need, /drum-and-bass-music → /what-is-drum-and-bass; /dnb-doctor-about → /about; /dnb-spotify → /neurofunk-spotify; /how-to-produce-nom-bass, /how-produce-neurofunk → /how-to-produce-neurofunk.
+- /news/junodownload-is-shutting-down (DB, záloha `backups/news-juno-2026-11-22.json`): title „Juno Download Has Shut Down…“, úvod „Juno Download (junodownload.com) has closed.“ Baseline: `juno download` 155 zobr. / poz. 32, `juno downloads` 51 / 21,8.
+- /neurofunk-labels title „Neurofunk & DnB Labels: …“ (`dnb label(s)` poz. 6–8, `dnb record labels` 9,3).
+- /albums title „Drum and Bass Albums & EPs: …“ (`drum and bass album` poz. ~19).
+- /drum-and-bass-history FAQ „What was the first drum and bass song?“ (`first drum and bass song` 22 zobr. / poz. 9,5).
+- Review ~15. 12. 2026.
+
 ## 2026-11-22 – /what-is-drum-and-bass: zámer „dnb meaning“
 - Baseline (GSC 19. 7.–18. 10., ešte pred redizajnom 20. 10.): 15 kl / 63 462 zobr / CTR 0,02 % / poz. 7,9. Zobrazenia ťahali `dnb bpm` (38 k, 0 kl – odpoveď priamo v SERP, od 21. 10. ich má /dnb-bpm) a `dnb meaning` (16 k).
 - `dnb meaning` má zmiešaný zámer (SERP: Urban Dictionary, Wiktionary – kriket „did not bat“, betting „draw no bet“, AcronymFinder, Wikipedia). Pridaná sekcia „What does DnB mean?“ ako prvá (pred BPM) + box „Other meanings of DNB“ (DNB medical India, cricket, betting, DNB banka) a FAQ „What does DnB mean?“, „What does drum and bass sound like?“.

@@ -9,11 +9,11 @@ const DESCRIPTION =
   'Neurofunk drum and bass albums from DnB Doctor: the Asana – Raketa LP, yearly compilations and continuous label mixes. Preview, stream or buy.'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor' },
+  title: { absolute: 'Drum and Bass Albums & EPs: New Neurofunk DnB LPs | DnB Doctor' },
   description: DESCRIPTION,
   alternates: { canonical: URL },
   openGraph: {
-    title: 'Drum and Bass Albums: New Neurofunk DnB LPs | DnB Doctor',
+    title: 'Drum and Bass Albums & EPs: New Neurofunk DnB LPs | DnB Doctor',
     description: DESCRIPTION,
     url: URL,
     siteName: 'DnB Doctor',

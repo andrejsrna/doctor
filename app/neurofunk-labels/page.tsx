@@ -8,7 +8,7 @@ import styles from '@/app/components/guide/guide.module.css'
 export const revalidate = 3600
 
 const URL = 'https://dnbdoctor.com/neurofunk-labels'
-const TITLE = 'Neurofunk Labels: From Eatbrain to the Underground (2020s)'
+const TITLE = 'Neurofunk & DnB Labels: From Eatbrain to the Underground (2020s)'
 const DESCRIPTION =
   'The neurofunk label landscape today: legacy houses like Eatbrain and Blackout, plus the independent DnB labels driving the genre — Darkshire, DnB Doctor and more.'
 
