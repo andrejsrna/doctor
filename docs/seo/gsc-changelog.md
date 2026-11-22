@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – intro + FAQ na /music a /artists (body 3 a 4 novembrového plánu)
+- Baseline GSC: `new drum and bass releases` 178 / 9,6, `dnb releases` 111 / 9,5, `new dnb releases` 78 / 8,9, `latest dnb releases` 52 / 9,2, `new drum and bass songs 2026` 70 / 8,5; `neurofunk artists` 277 / 8,5, `neurofunk artist` 115 / 15,6, `neurofunk dnb artists` 49 / 5,6, `best neurofunk artists` 48 / 6,9.
+- Nový zdieľaný server komponent `app/components/SeoAbout.tsx` (intro + FAQ accordion, FAQPage JSON-LD).
+- /music: lede s „new drum and bass releases“; pod zoznamom H2 „New DnB releases“ s dynamickými faktami z DB (najnovší release + dátum, počet za 90 dní a tento rok), odkazy na /albums, /artists, /neurofunk-dnb-mixes, /what-is-drum-and-bass, /types-of-dnb; 3 FAQ.
+- /artists: lede s „neurofunk artists“; H2 „Neurofunk artists“ (scéna = rovnaké mená ako /neurofunk-dnb, roster dynamicky), FAQ „Who are the best neurofunk artists?“ + 2 ďalšie; /neurofunk-dnb#artists tlačidlo → „Neurofunk artists on DnB Doctor“.
+- Review ~15. 1. 2027.
+
 ## 2026-11-22 – nová stránka /dnb-drum-patterns (bod B novembrového plánu)
 - Medzera: GB (search.andrejsrna.sk) `drum and bass drum patterns` 90, `dnb drum pattern` 60, `drum and bass drum pattern` 40, `dnb drum patterns` 30, `drum and bass (beat) pattern(s)` ~90; GSC `dnb structure` 22 / poz. 8,3, `drum and bass time signature` 18 / 8,8, `dnb patterns` 3 / 5,7. Žiadna vlastná stránka.
 - Title „DnB Drum Patterns: Two-Step, Rollers, Halftime & Amen (Interactive)“. Interaktívny 16-step prehrávač (`app/components/guide/PatternPlayer.tsx`, Web Audio, editovateľné kroky, tempo 160–180, vždy hrá len jeden), 4 patterny, štruktúra tracku (tabuľka), tipy, FAQ 6× + FAQPage JSON-LD. Amen = prvý takt v bežnom prepise (kick 1, 3, 11, 12; snare 5, 13; ghost 8, 10, 16).

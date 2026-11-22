@@ -74,11 +74,14 @@ export default function MusicCatalog({
   categories,
   artists,
   since,
+  about,
 }: {
   releases: CatalogRelease[]
   categories: CatalogCategory[]
   artists: number
   since: number | null
+  /** server-rendered intro + FAQ shown under the list */
+  about?: React.ReactNode
 }) {
   const [cat, setCat] = useState('')
   const [query, setQuery] = useState('')
@@ -221,8 +224,8 @@ export default function MusicCatalog({
               <span className={styles.outline}>New Releases</span>
             </h1>
             <p className={styles.lede}>
-              Discover the latest drum and bass tracks updated daily. Stream new DnB releases, fresh neurofunk music, and the hottest tracks from top
-              artists.
+              New drum and bass releases from DnB Doctor, newest first: neurofunk singles, EPs and albums from the label&apos;s artists. Preview
+              every track here, then stream it or buy it.
             </p>
             <dl className={styles.stats}>
               <div>
@@ -481,6 +484,8 @@ export default function MusicCatalog({
           filtered.length > 0 && <p className={styles.end}>End of transmission · {filtered.length} of {releases.length}</p>
         )}
       </section>
+
+      {about}
 
       {/* ---------- collections ---------- */}
       <nav className={styles.collections} aria-labelledby="collections-title">

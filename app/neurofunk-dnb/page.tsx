@@ -319,7 +319,7 @@ export default function NeurofunkDnbPage() {
             Neurofunk labels guide <span aria-hidden="true">→</span>
           </Link>
           <Link href="/artists" className={styles.btnGhost}>
-            All DnB Doctor artists <span aria-hidden="true">→</span>
+            Neurofunk artists on DnB Doctor <span aria-hidden="true">→</span>
           </Link>
         </div>
       </Section>

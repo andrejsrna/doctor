@@ -1,0 +1,105 @@
+.about {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: clamp(2rem, 5vw, 4rem);
+  max-width: var(--max, 1440px);
+  margin: 0 auto;
+  padding: clamp(3rem, 6vw, 5rem) var(--pad, clamp(1rem, 4vw, 3rem));
+  border-top: 1px solid var(--line, rgb(255 255 255 / 12%));
+  color: #fff;
+}
+
+.h2 {
+  margin: 0 0 1.2rem;
+  font-family: var(--disp, sans-serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.h2 span {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #fff;
+}
+
+.prose p {
+  margin: 0 0 1.1rem;
+  max-width: 44rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 72%);
+}
+
+.prose a,
+.faq a {
+  display: inline;
+  color: #39ff14;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  color: #fff;
+}
+
+.prose strong {
+  color: #fff;
+}
+
+.label {
+  margin: 0 0 0.6rem;
+  font-family: var(--mono, monospace);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #39ff14;
+}
+
+.faq {
+  align-self: start;
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line, rgb(255 255 255 / 12%));
+}
+
+.faq details:first-of-type {
+  border-top: 1px solid var(--line, rgb(255 255 255 / 12%));
+}
+
+.faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  font-family: var(--disp, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: '+';
+  flex: none;
+  color: #39ff14;
+}
+
+.faq details[open] summary::after {
+  content: '−';
+}
+
+.faq details p {
+  margin: 0;
+  padding: 0 0 1.1rem;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 72%);
+}

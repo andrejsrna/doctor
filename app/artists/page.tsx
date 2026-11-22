@@ -6,6 +6,10 @@ import { getRosterArtists, type RosterArtist } from '@/lib/artistRoster'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { plainTitle, splitTitle } from '@/app/components/hero/releaseMeta'
 import styles from './artists.module.css'
+import SeoAbout, { faqLd, type FaqItem } from '@/app/components/SeoAbout'
+
+/** Same scene names as the /neurofunk-dnb artists section. */
+const SCENE = ['Noisia', 'Phace', 'Mefjus', 'Black Sun Empire', 'Ed Rush & Optical', 'Gydra', 'Joe Ford']
 
 export const revalidate = 600
 
@@ -28,19 +32,40 @@ async function load() {
 export default async function ArtistsPage() {
   const { artists, total, releases } = await load()
   const newest = artists[0]
+  const newestNames = artists.slice(0, 3).map((a) => a.name)
+  const list = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : (names[0] ?? ''))
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'DnB Doctor neurofunk artists',
-    numberOfItems: artists.length,
-    itemListElement: artists.map((a, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      url: `https://dnbdoctor.com/artists/${a.slug}`,
-      name: a.name,
-    })),
-  }
+  const faq: FaqItem[] = [
+    {
+      question: 'Who are the best neurofunk artists?',
+      answer: `Names most often cited as the reference points of neurofunk are ${list(SCENE)}. On the DnB Doctor label you can also discover newer producers such as ${list(newestNames)}.`,
+    },
+    {
+      question: 'Which artists are on the DnB Doctor roster?',
+      answer: `DnB Doctor currently lists ${total} neurofunk and drum & bass artists${newestNames.length ? `, the newest being ${list(newestNames)}` : ''}. Each profile lists the artist's DnB Doctor releases.`,
+    },
+    {
+      question: 'How can a producer join DnB Doctor?',
+      answer:
+        'Send unreleased neurofunk or drum & bass tracks through the demo form. DnB Doctor signs producers for the long run: releases, artwork, promo and a catalog that grows with the artist.',
+    },
+  ]
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'DnB Doctor neurofunk artists',
+      numberOfItems: artists.length,
+      itemListElement: artists.map((a, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://dnbdoctor.com/artists/${a.slug}`,
+        name: a.name,
+      })),
+    },
+    faqLd(faq),
+  ]
 
   return (
     <div className={`${styles.root} ${displayFont.variable} ${monoFont.variable}`}>
@@ -61,7 +86,8 @@ export default async function ArtistsPage() {
 
         <div className={styles.intro}>
           <p className={styles.lede}>
-            Building catalogs over time — producers who help shape the <strong>sound, the image and the direction</strong> of DnB Doctor.
+            The neurofunk artists and drum &amp; bass producers of DnB Doctor — building catalogs over time and shaping the{' '}
+            <strong>sound, the image and the direction</strong> of the label.
           </p>
           <div className={styles.actions}>
             <Link href="/submit-demo" className={styles.primary}>
@@ -125,7 +151,9 @@ export default async function ArtistsPage() {
                     <span className={styles.index} aria-hidden="true">
                       {pad(i + 1)}
                     </span>
-                    <span className={styles.count}>{a.releases ? `${a.releases} release${a.releases === 1 ? '' : 's'}` : 'New signing'}</span>
+                    <span className={styles.count}>
+                      {a.releases ? `${a.releases} release${a.releases === 1 ? '' : 's'}` : 'New signing'}
+                    </span>
 
                     <div className={styles.body}>
                       <h3 className={styles.name}>
@@ -168,14 +196,34 @@ export default async function ArtistsPage() {
         )}
       </section>
 
+      <SeoAbout
+        id="about-artists"
+        faq={faq}
+        title={
+          <>
+            Neurofunk <span>artists</span>
+          </>
+        }
+      >
+        <p>
+          <strong>Neurofunk artists</strong> make the dark, technical side of drum and bass: precise two-step drums at 174 BPM and heavily
+          designed, modulated basslines. The scene&apos;s reference names include {list(SCENE)} — more about them in the{' '}
+          <Link href="/neurofunk-dnb#artists">neurofunk guide</Link>.
+        </p>
+        <p>
+          The {total} producers above are the DnB Doctor roster
+          {newestNames.length > 0 && <>, newest first — currently {list(newestNames)}</>}. Open a profile for their releases, or browse
+          every track in <Link href="/music">new drum and bass releases</Link>. Labels with a similar sound are collected in{' '}
+          <Link href="/neurofunk-labels">neurofunk &amp; DnB labels</Link>.
+        </p>
+      </SeoAbout>
+
       <section className={styles.outro} aria-labelledby="join-title">
         <p className={styles.kicker}>Open channel {'//'} demos welcome</p>
         <h2 id="join-title" className={styles.outroTitle}>
           <span className={styles.outline}>Your name</span> <span>here next?</span>
         </h2>
-        <p className={styles.outroText}>
-          We sign producers for the long run — releases, artwork, promo and a catalog that grows with you.
-        </p>
+        <p className={styles.outroText}>We sign producers for the long run — releases, artwork, promo and a catalog that grows with you.</p>
         <div className={styles.actions}>
           <Link href="/submit-demo" className={styles.primary}>
             Submit your demo <FaArrowRight aria-hidden="true" />
