@@ -1,0 +1,194 @@
+.guide {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+}
+
+.block {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------- compare table ---------- */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+}
+
+.table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.table th,
+.table td {
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.table thead th {
+  font-family: var(--disp);
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  background: rgb(155 94 255 / 8%);
+}
+
+.table thead a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.table thead a:hover {
+  color: var(--c-green);
+}
+
+.table tbody th {
+  width: 9rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-green);
+}
+
+.table td {
+  color: rgb(255 255 255 / 78%);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* ---------- loops / one-shots / serum ---------- */
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1rem;
+}
+
+.topic {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  background: rgb(155 94 255 / 5%);
+}
+
+.no {
+  font-family: var(--disp);
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--c-purple);
+}
+
+.topic h2 {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: 1.9rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.topic p,
+.licence p,
+.faq p {
+  margin: 0;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 72%);
+}
+
+.topic a,
+.licence a,
+.note a {
+  color: var(--c-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.topic a:hover,
+.licence a:hover,
+.note a:hover {
+  color: #fff;
+}
+
+/* ---------- licence ---------- */
+.licence {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c-green);
+}
+
+/* ---------- faq ---------- */
+.faq {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  font-family: var(--disp);
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: '+';
+  flex: none;
+  color: var(--c-green);
+}
+
+.faq details[open] summary::after {
+  content: '−';
+}
+
+.faq details p {
+  max-width: 62rem;
+  padding: 0 0 1.2rem;
+}
+
+.note {
+  margin: 0;
+  color: rgb(255 255 255 / 60%);
+}

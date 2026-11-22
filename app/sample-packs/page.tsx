@@ -5,9 +5,9 @@ import { countMixes, loadCollections } from '@/app/components/collections/collec
 export const revalidate = 300
 
 const URL = 'https://dnbdoctor.com/sample-packs'
-const TITLE = 'Free Neurofunk Sample Pack & DnB Samples'
+const TITLE = 'Free Neurofunk Sample Pack: Loops, One-Shots & Serum Presets'
 const DESCRIPTION =
-  'Download a free neurofunk sample pack from DnB Doctor, plus artist packs: bass loops, drum loops, one-shots and Serum presets for drum & bass producers.'
+  'Free neurofunk sample pack: 60 royalty-free 24-bit WAVs at 174 BPM — bass loops, drum loops, tops and bass one-shots. Plus the Yehor DnB sample pack with 11 Serum presets.'
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | DnB Doctor` },

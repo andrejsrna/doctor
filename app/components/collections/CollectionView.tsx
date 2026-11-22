@@ -2,9 +2,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { displayFont, monoFont } from '@/app/components/brandFonts'
 import { shortDate } from '@/app/utils/shortDate'
-import { producerLinks } from '@/lib/affiliates'
 import { COLLECTIONS, KINDS, MIXES_PATH, type CollectionItem, type CollectionKind } from './collections'
 import { PreviewButton, StoreLink } from './CollectionClient'
+import SamplePackGuide, { samplePacksFaqJsonLd } from './SamplePackGuide'
 import styles from './collections.module.css'
 
 const SITE = 'https://dnbdoctor.com'
@@ -82,37 +82,9 @@ function Extra({ kind, items }: { kind: CollectionKind; items: CollectionItem[] 
     )
   }
   if (kind === 'sample-packs') {
-    const features = [
-      ['Rolling Basslines', 'High-quality neurofunk bass samples with complex modulation, perfect for creating the signature rolling basslines that define the genre.'],
-      ['Complex Drums', 'Professional drum loops and one-shots featuring intricate patterns, tight kicks, and crisp snares engineered for neurofunk productions.'],
-      ['Dark Atmospheres', 'Atmospheric pads, industrial textures, and sci-fi soundscapes that create the dark, technical aesthetic of neurofunk music.'],
-    ]
     return (
-      <section className={styles.extra} aria-labelledby="extra-title">
-        <h2 id="extra-title" className={styles.h2}>
-          Professional <span className={styles.outline}>Neurofunk Samples</span>
-        </h2>
-        <ol className={styles.features}>
-          {features.map(([t, d], i) => (
-            <li key={t}>
-              <span className={styles.featureNo}>0{i + 1}</span>
-              <h3>{t}</h3>
-              <p>{d}</p>
-            </li>
-          ))}
-        </ol>
-        <div className={styles.tools}>
-          <p className={styles.label}>Get More Samples &amp; Tools</p>
-          <div className={styles.toolLinks}>
-            {producerLinks.map((l) => (
-              <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer sponsored">
-                <strong>{l.name}</strong>
-                <span>{l.tagline}</span>
-              </a>
-            ))}
-          </div>
-          <p className={styles.disclose}>Some links are affiliate links. We may earn a commission at no extra cost to you.</p>
-        </div>
+      <section className={styles.extra} aria-label="Sample pack guide">
+        <SamplePackGuide />
       </section>
     )
   }
@@ -180,6 +152,7 @@ export default function CollectionView({ kind, all, mixes }: { kind: CollectionK
         { '@type': 'ListItem', position: 3, name: c.tab, item: url },
       ],
     },
+    ...(kind === 'sample-packs' ? [samplePacksFaqJsonLd] : []),
   ]
 
   return (

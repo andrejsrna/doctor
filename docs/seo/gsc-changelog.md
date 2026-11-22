@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – /sample-packs redizajn (krok 3 novembrového plánu)
+- Baseline GSC (20. 8. – 19. 11.): `neurofunk sample pack` 145 zobr. / poz. 7,4 / CTR 8 %, `neurofunk samples` 126 / 14,6, `neurofunk loops` 93 / 17,6, `neurofunk sound packs` 58 / 19,4. GB: `dnb sample pack` 80, `drum and bass sample pack` 80, `free dnb sample packs` 70, `serum dnb` 80.
+- Title „Free Neurofunk Sample Pack: Loops, One-Shots & Serum Presets“, nový description s overenými číslami; H1 „Neurofunk Sample Packs“.
+- Nový server-rendered `SamplePackGuide` pod zoznamom: tabuľka free vs Yehor pack, H2 Neurofunk loops / Bass one-shots / Serum presets, licencia (zrkadlí Terms 6a), FAQ 6× + FAQPage JSON-LD. Generické „features“ (pady/atmosféry, ktoré free pack nemá) odstránené.
+- Overené fakty: free X-Mass ZIP = 60 WAV (15 bass loops, 15 drum loops, 15 tops, 15 bass one-shots), 24-bit/44,1 kHz, 174 BPM; Yehor pack podľa manifestu 28 súborov (6/5/6 WAV + 11 .fxp), 10 €.
+- Review ~15. 1. 2027.
+
 ## 2026-11-22 – nová stránka /liquid-dnb (krok 2 novembrového plánu)
 - Medzera: liquid dopyty mali v GSC (20. 8. – 19. 11.) ~1 100 zobr. a 1 klik bez vlastnej stránky – `what is liquid drum and bass?` 269 / poz. 7,7, `liquid dnb meaning` 190 / 8,1, `what is liquid dnb` 147 / 9,5, `liquid dnb vs dnb` 65 / 3,5, `liquid dnb bpm` 65 / 7,8, `jungle vs liquid dnb` 31 / 4,8. GB objemy (search.andrejsrna.sk): `liquid drum and bass` 500, `liquid dnb` 150.
 - Title „What Is Liquid DnB? Liquid Drum and Bass Explained (BPM, Artists)“; sekcie definícia, zvuk, liquid vs DnB (+ jungle vs liquid), pôvod (Fabio, „Liquid Funk“, Creative Source, 1999), artisti a labely, FAQ 6× (FAQPage JSON-LD). BPM z `bpm.ts`.
