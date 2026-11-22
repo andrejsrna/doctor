@@ -30,7 +30,7 @@ CTR klesá len preto, že rastú zero-click zobrazenia (`dnb bpm` 60 k, `dnb mea
 
 | # | Téma | Dáta | Návrh |
 |---|---|---|---|
-| A | **Liquid DnB** | GSC ~1 100 zobr./3 mes., 1 klik: `what is liquid drum and bass?` 269 / 7,7, `liquid dnb meaning` 190, `what is liquid dnb` 147, `liquid dnb vs dnb` 65 / **3,5**, `liquid dnb bpm` 65, `jungle vs liquid` ~50. GB: `liquid drum and bass` **500**, `liquid dnb` 150. | /liquid-dnb podľa vzoru /neurofunk-dnb (čo to je, BPM, liquid vs DnB, artisti/labely, FAQ). Najväčšia medzera. |
+| A | ✅ 2026-11-22 **Liquid DnB** | GSC ~1 100 zobr./3 mes., 1 klik: `what is liquid drum and bass?` 269 / 7,7, `liquid dnb meaning` 190, `what is liquid dnb` 147, `liquid dnb vs dnb` 65 / **3,5**, `liquid dnb bpm` 65, `jungle vs liquid` ~50. GB: `liquid drum and bass` **500**, `liquid dnb` 150. | /liquid-dnb podľa vzoru /neurofunk-dnb (čo to je, BPM, liquid vs DnB, artisti/labely, FAQ). Najväčšia medzera. |
 | B | **DnB drum patterns** | GB: `drum and bass drum patterns` 90, `dnb drum pattern` 60, `drum and bass drum pattern` 40, `dnb drum patterns` 30, `drum and bass (beat) pattern(s)` 90; GSC `dnb structure` 22, `drum and bass time signature` 18 | /dnb-drum-patterns s interaktívnym step gridom (komponent Steps už existuje), two-step, halftime, rollers, Amen; CTA na /sample-packs. Producentské publikum = najlepšia konverzia. |
 | C | Best DnB artists | GB: `drum and bass artists` **900**, `dnb artists` 150, `best drum and bass artists` 80 | Guide „Best Drum and Bass Artists by Style“ s prelinkom na roster. Konkurenčné (difficulty v dátach chýba). |
 | D | Jump-up | GB: `jump up dnb` 50, `jump up drum and bass` 50, `jump up dnb sample pack free download` 40, `what is jump up dnb` 20 | Nižšia priorita; najprv A a B. |

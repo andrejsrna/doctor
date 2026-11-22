@@ -1,5 +1,11 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – nová stránka /liquid-dnb (krok 2 novembrového plánu)
+- Medzera: liquid dopyty mali v GSC (20. 8. – 19. 11.) ~1 100 zobr. a 1 klik bez vlastnej stránky – `what is liquid drum and bass?` 269 / poz. 7,7, `liquid dnb meaning` 190 / 8,1, `what is liquid dnb` 147 / 9,5, `liquid dnb vs dnb` 65 / 3,5, `liquid dnb bpm` 65 / 7,8, `jungle vs liquid dnb` 31 / 4,8. GB objemy (search.andrejsrna.sk): `liquid drum and bass` 500, `liquid dnb` 150.
+- Title „What Is Liquid DnB? Liquid Drum and Bass Explained (BPM, Artists)“; sekcie definícia, zvuk, liquid vs DnB (+ jungle vs liquid), pôvod (Fabio, „Liquid Funk“, Creative Source, 1999), artisti a labely, FAQ 6× (FAQPage JSON-LD). BPM z `bpm.ts`.
+- Prelinkovanie: /types-of-dnb (Liquid „more“ → /liquid-dnb), /neurofunk-dnb (tabuľka Liquid), /what-is-drum-and-bass (tabuľka subžánrov: Liquid → /liquid-dnb, Neurofunk → /neurofunk-dnb), footer Learn, sitemap 0.8.
+- Review ~15. 1. 2027: ktorá URL rankuje na liquid dopyty, CTR.
+
 ## 2026-11-22 – quick wins z novembrového plánu (krok 1)
 - Plán: `docs/seo/2026-11-action-plan.md` (GSC 20. 8. – 19. 11.).
 - 308 pre 7 starých WP URL hlásených v GSC ako 404: /what-is-dnb-music, /what-is-dn-b-the-only-guide-you-need, /drum-and-bass-music → /what-is-drum-and-bass; /dnb-doctor-about → /about; /dnb-spotify → /neurofunk-spotify; /how-to-produce-nom-bass, /how-produce-neurofunk → /how-to-produce-neurofunk.

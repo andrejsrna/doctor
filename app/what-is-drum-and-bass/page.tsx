@@ -40,6 +40,9 @@ const TOC = [
 ] as const
 
 
+/** Subgenres with their own guide link there; the rest go to their /types-of-dnb section. */
+const GUIDE: Record<string, string> = { liquid: '/liquid-dnb', neurofunk: '/neurofunk-dnb' }
+
 /** Artists match the "Where to start" boxes on /types-of-dnb. */
 const SUBGENRES = [
   { slug: 'liquid', name: 'Liquid DnB', description: 'Smooth, melodic, emotional', artists: 'Calibre, LSB, Hybrid Minds' },
@@ -428,7 +431,7 @@ export default function WhatIsDrumAndBassPage() {
               {SUBGENRES.map((s) => (
                 <tr key={s.name}>
                   <th scope="row">
-                    <Link href={`/types-of-dnb#${s.slug}`}>{s.name}</Link>
+                    <Link href={GUIDE[s.slug] ?? `/types-of-dnb#${s.slug}`}>{s.name}</Link>
                   </th>
                   <td>{s.description}</td>
                   <td>{s.artists}</td>

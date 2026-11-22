@@ -57,7 +57,7 @@ const TYPES: DnbType[] = [
     forYouIf: 'You enjoy melodic electronic music, trance, or house and want an easy entry into DnB.',
     artists: ['Calibre', 'LSB', 'Hybrid Minds', 'Netsky'],
     labels: ['Hospital Records', 'Liquicity', 'Fokuz Recordings'],
-    more: { href: '/drum-and-bass-history#faq', text: 'Jungle vs liquid' },
+    more: { href: '/liquid-dnb', text: 'Liquid DnB guide' },
   },
   {
     slug: 'dancefloor',

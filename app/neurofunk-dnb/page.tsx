@@ -244,7 +244,7 @@ export default function NeurofunkDnbPage() {
               </tr>
               <tr>
                 <th scope="row">
-                  <Link href="/types-of-dnb#liquid" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  <Link href="/liquid-dnb" style={{ color: 'inherit', textDecoration: 'none' }}>
                     Liquid
                   </Link>
                 </th>
@@ -276,7 +276,7 @@ export default function NeurofunkDnbPage() {
           </table>
         </div>
         <p className={styles.note}>
-          All six styles compared: <Link href="/types-of-dnb">Types of DnB</Link>.
+          All seven styles compared: <Link href="/types-of-dnb">Types of DnB</Link>.
         </p>
 
         <h3 className={styles.boxTitle} style={{ marginTop: '2.4rem' }}>
