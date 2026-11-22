@@ -110,7 +110,8 @@ export default function SamplePackGuide() {
           <p>
             <strong>Bass loops</strong> are the heart of neurofunk: modulated, rolling basslines you can chop, resample and layer.{' '}
             <strong>Drum loops</strong> give you finished two-step grooves, and <strong>top loops</strong> add hats, shakers and
-            percussion on top of your own break. Everything is cut at 174 BPM, so loops lock to the grid without stretching.
+            percussion on top of your own break. Everything is cut at 174 BPM, so loops lock to the grid without stretching — see the{' '}
+            <Link href="/dnb-drum-patterns">DnB drum patterns</Link> they are built on.
           </p>
         </section>
         <section className={styles.topic} aria-labelledby="sp-shots">

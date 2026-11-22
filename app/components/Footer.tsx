@@ -40,6 +40,7 @@ const COLUMNS = [
       { href: '/neurofunk-labels', text: 'Neurofunk labels guide' },
       { href: '/types-of-dnb', text: 'Types of DnB' },
       { href: '/liquid-dnb', text: 'What is liquid DnB?' },
+      { href: '/dnb-drum-patterns', text: 'DnB drum patterns' },
       { href: '/what-is-drum-and-bass', text: 'What is drum and bass?' },
       { href: '/dnb-bpm', text: 'DnB BPM explained' },
       { href: '/drum-and-bass-history', text: 'History of drum and bass' },

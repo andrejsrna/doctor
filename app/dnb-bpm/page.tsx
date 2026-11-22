@@ -300,6 +300,10 @@ export default function DnbBpmPage() {
           The reverse works too: an 87 BPM hip-hop beat played over 174 BPM drums is <strong>double-time</strong>. That is why
           rap and DnB fit together so easily, and why DJs can move from hip-hop to DnB without touching the tempo.
         </p>
+        <p>
+          Want to hear them? Play and edit the two-step, rollers, halftime and Amen grooves in{' '}
+          <Link href="/dnb-drum-patterns">DnB drum patterns</Link>.
+        </p>
       </Section>
 
       <Section id="genres" n="04" label="DnB vs other genres">

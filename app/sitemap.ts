@@ -92,6 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ['/bulk-sale', 'monthly', 0.6],
         ['/neurofunk-dnb', 'monthly', 0.8],
         ['/liquid-dnb', 'monthly', 0.8],
+        ['/dnb-drum-patterns', 'monthly', 0.7],
         ['/dnb-bpm', 'monthly', 0.8],
         ['/neurofunk-spotify', 'monthly', 0.6],
         ['/drum-and-bass-history', 'monthly', 0.8],

@@ -1,5 +1,11 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – nová stránka /dnb-drum-patterns (bod B novembrového plánu)
+- Medzera: GB (search.andrejsrna.sk) `drum and bass drum patterns` 90, `dnb drum pattern` 60, `drum and bass drum pattern` 40, `dnb drum patterns` 30, `drum and bass (beat) pattern(s)` ~90; GSC `dnb structure` 22 / poz. 8,3, `drum and bass time signature` 18 / 8,8, `dnb patterns` 3 / 5,7. Žiadna vlastná stránka.
+- Title „DnB Drum Patterns: Two-Step, Rollers, Halftime & Amen (Interactive)“. Interaktívny 16-step prehrávač (`app/components/guide/PatternPlayer.tsx`, Web Audio, editovateľné kroky, tempo 160–180, vždy hrá len jeden), 4 patterny, štruktúra tracku (tabuľka), tipy, FAQ 6× + FAQPage JSON-LD. Amen = prvý takt v bežnom prepise (kick 1, 3, 11, 12; snare 5, 13; ghost 8, 10, 16).
+- Prelinkovanie: /how-to-produce-neurofunk (sekcia drums), /dnb-bpm (halftime), /sample-packs (Neurofunk loops), footer Learn, sitemap 0.7.
+- Review ~15. 1. 2027.
+
 ## 2026-11-22 – /sample-packs redizajn (krok 3 novembrového plánu)
 - Baseline GSC (20. 8. – 19. 11.): `neurofunk sample pack` 145 zobr. / poz. 7,4 / CTR 8 %, `neurofunk samples` 126 / 14,6, `neurofunk loops` 93 / 17,6, `neurofunk sound packs` 58 / 19,4. GB: `dnb sample pack` 80, `drum and bass sample pack` 80, `free dnb sample packs` 70, `serum dnb` 80.
 - Title „Free Neurofunk Sample Pack: Loops, One-Shots & Serum Presets“, nový description s overenými číslami; H1 „Neurofunk Sample Packs“.

@@ -245,7 +245,8 @@ export default function HowToProduceNeurofunkPage() {
         <p>
           Start simple: one solid <strong>two-bar loop</strong> with a snare on 2 and 4, then add subtle ghost hits and
           cymbal variations. Use <strong>sample layering</strong> and <strong>transient shaping</strong> to make drums hit
-          hard without clipping.
+          hard without clipping. Hear and edit the basic grooves in the interactive{' '}
+          <Link href="/dnb-drum-patterns">DnB drum patterns</Link> guide.
         </p>
         <div className={styles.box}>
           <h3 className={styles.boxTitle}>Build your drum library</h3>
