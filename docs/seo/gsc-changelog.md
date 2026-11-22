@@ -1,5 +1,12 @@
 # DnB Doctor – GSC changelog (nasadené zmeny)
 
+## 2026-11-22 – /what-is-drum-and-bass: zámer „dnb meaning“
+- Baseline (GSC 19. 7.–18. 10., ešte pred redizajnom 20. 10.): 15 kl / 63 462 zobr / CTR 0,02 % / poz. 7,9. Zobrazenia ťahali `dnb bpm` (38 k, 0 kl – odpoveď priamo v SERP, od 21. 10. ich má /dnb-bpm) a `dnb meaning` (16 k).
+- `dnb meaning` má zmiešaný zámer (SERP: Urban Dictionary, Wiktionary – kriket „did not bat“, betting „draw no bet“, AcronymFinder, Wikipedia). Pridaná sekcia „What does DnB mean?“ ako prvá (pred BPM) + box „Other meanings of DNB“ (DNB medical India, cricket, betting, DNB banka) a FAQ „What does DnB mean?“, „What does drum and bass sound like?“.
+- Title „DnB Meaning: What Is Drum and Bass? Sound, BPM & Subgenres“; description začína „DnB means drum and bass…“.
+- Konzistencia: tempo všade 174 / 170–176 (predtým 160–180 v texte vs. 170–176 v tabuľke); éra „By the 2000s“ → „From the late ’90s on“ + Dancefloor a Halftime; tabuľka subžánrov 5 → 7 s artistami zhodnými s /types-of-dnb a odkazmi na kotvy; odstránené „influenced trap“ a vágne „North America resurgence“ → Netherlands & Belgium (Noisia, Black Sun Empire, Rampage).
+- Review: ~1. 1. 2027 – porovnať query `dnb meaning` (CTR) a či `dnb bpm` prešlo na /dnb-bpm.
+
 ## 2026-10-22 – /types-of-dnb: Dancefloor + artisti a labely
 - Baseline GSC (19. 7.–18. 10.): 132 klikov, 26 135 impr, CTR 0,51 %, pos 7,3.
 - Pridaný typ Dancefloor DnB (sekcia, tabuľka, quick answer, FAQ „What is dancefloor DnB?“); title/description 6 → 7 typov. Dancefloor pridaný aj do zdieľaného `bpm.ts` (172–176) → zobrazí sa aj na /dnb-bpm a /what-is-drum-and-bass.

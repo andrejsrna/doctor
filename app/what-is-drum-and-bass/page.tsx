@@ -10,9 +10,9 @@ import { DNB_BPM } from '@/app/components/guide/bpm'
 export const revalidate = 3600
 
 const URL = 'https://dnbdoctor.com/what-is-drum-and-bass'
-const TITLE = 'What Is DnB? Meaning, BPM & Subgenres of Drum and Bass'
+const TITLE = 'DnB Meaning: What Is Drum and Bass? Sound, BPM & Subgenres'
 const DESCRIPTION =
-  'What is DnB? Drum and Bass is fast breakbeat electronic music at 160–180 BPM (usually 174). Meaning, BPM by subgenre, origins, liquid vs neurofunk and a beginner FAQ.'
+  'DnB means drum and bass: fast breakbeat electronic music at ~174 BPM, born in early-’90s UK. How it sounds, subgenres, artists to start with, and other meanings of DNB.'
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} | DnB Doctor` },
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
 }
 
 const TOC = [
+  ['#meaning', 'Meaning'],
   ['#bpm', 'BPM'],
-  ['#meaning', 'Meaning & DNA'],
   ['#origins', 'Origins'],
   ['#modern-sound', 'Modern sound'],
   ['#subgenres', 'Subgenres'],
@@ -40,12 +40,15 @@ const TOC = [
 ] as const
 
 
+/** Artists match the "Where to start" boxes on /types-of-dnb. */
 const SUBGENRES = [
-  { name: 'Liquid DnB', description: 'Smooth, melodic, emotional', artists: 'Netsky, LSB' },
-  { name: 'Neurofunk', description: 'Dark, futuristic, mechanical', artists: 'Noisia, Mefjus, DnB Doctor' },
-  { name: 'Jump-Up', description: 'Playful, heavy, rave-ready', artists: 'DJ Hazard, Macky Gee' },
-  { name: 'Techstep', description: 'Minimal, robotic', artists: 'Ed Rush & Optical' },
-  { name: 'Jungle', description: 'Organic, breakbeat-driven', artists: 'Shy FX, Congo Natty' },
+  { slug: 'liquid', name: 'Liquid DnB', description: 'Smooth, melodic, emotional', artists: 'Calibre, LSB, Hybrid Minds' },
+  { slug: 'dancefloor', name: 'Dancefloor', description: 'Big, polished, festival-ready', artists: 'Sub Focus, Dimension, Wilkinson' },
+  { slug: 'neurofunk', name: 'Neurofunk', description: 'Dark, futuristic, mechanical', artists: 'Noisia, Mefjus, Phace' },
+  { slug: 'jump-up', name: 'Jump-Up', description: 'Playful, bouncy, rave-ready', artists: 'DJ Hazard, Macky Gee' },
+  { slug: 'techstep', name: 'Techstep', description: 'Minimal, robotic, industrial', artists: 'Ed Rush & Optical, Bad Company' },
+  { slug: 'jungle', name: 'Jungle', description: 'Organic, breakbeat-driven', artists: 'Shy FX, Congo Natty' },
+  { slug: 'halftime', name: 'Halftime', description: 'Heavy, slower-feeling groove', artists: 'Ivy Lab, Alix Perez' },
 ]
 
 const ERA = [
@@ -53,13 +56,23 @@ const ERA = [
   ['Neurofunk', 'dark, technical, cinematic'],
   ['Jump-Up', 'aggressive, playful, built for clubs'],
   ['Techstep', 'industrial, robotic, minimal'],
+  ['Dancefloor', 'big, polished, festival-ready'],
+  ['Halftime', 'heavy, slower-feeling groove at 174 BPM'],
+] as const
+
+/** "dnb meaning" searches are mixed-intent; answer the other meanings in one line instead of losing the click. */
+const OTHER_MEANINGS = [
+  ['Medicine (India)', 'Diplomate of National Board — a postgraduate medical qualification'],
+  ['Cricket', '“Did not bat” on a scorecard'],
+  ['Sports betting', '“Draw no bet” — your stake comes back if the match is a draw'],
+  ['Banking', 'DNB, Norway’s largest financial group'],
 ] as const
 
 const SCENES = [
   ['United Kingdom', 'the birthplace, home of Hospital, RAM, Metalheadz'],
-  ['Czech Republic', 'Let It Roll & DnB Doctor generation'],
+  ['Netherlands & Belgium', 'neurofunk powerhouses Noisia and Black Sun Empire, Rampage in Antwerp'],
+  ['Czech Republic', 'Let It Roll festival and a new generation of labels like DnB Doctor'],
   ['New Zealand', 'vibrant live scene, artists like The Upbeats'],
-  ['North America', 'neurofunk and liquid resurgence'],
 ] as const
 
 const GLOSSARY = [
@@ -72,12 +85,24 @@ const GLOSSARY = [
 ] as const
 
 const FAQ = [
-  { question: 'What does DnB stand for?', answer: 'DnB means "Drum and Bass" — a fast, bass-driven electronic music genre.' },
+  {
+    question: 'What does DnB mean?',
+    answer:
+      'In music, DnB (also written D&B or drum ’n’ bass) means drum and bass — a fast, bass-driven electronic genre built on breakbeats at around 174 BPM. Outside music, DNB can also mean Diplomate of National Board (an Indian medical qualification), “did not bat” in cricket or “draw no bet” in sports betting.',
+  },
+  {
+    question: 'What does drum and bass sound like?',
+    answer:
+      'Fast, syncopated breakbeat drums at ~174 BPM over a deep sub-bass and a moving mid-bass. Depending on the style it can be melodic and soulful (liquid), huge and euphoric (dancefloor), or dark and technical (neurofunk).',
+  },
   {
     question: "What's the difference between Jungle and DnB?",
     answer: 'Jungle uses more reggae-inspired basslines and samples, while DnB tends to sound more polished and modern.',
   },
-  { question: 'What BPM is Drum and Bass?', answer: 'Usually between 160–180 BPM, most tracks sit around 174 BPM.' },
+  {
+    question: 'What BPM is Drum and Bass?',
+    answer: 'Most drum and bass is 174 BPM, usually within 170–176. Older jungle can sit lower (~160–170), and halftime tracks keep 174 BPM but feel like ~87.',
+  },
   {
     question: 'What is halftime in DnB?',
     answer:
@@ -124,7 +149,7 @@ export default function WhatIsDrumAndBassPage() {
       description: DESCRIPTION,
       image: ['https://dnbdoctor.com/og-image.jpg'],
       mainEntityOfPage: URL,
-      dateModified: '2026-10-20',
+      dateModified: '2026-11-22',
       author: { '@type': 'Organization', name: 'DnB Doctor', url: 'https://dnbdoctor.com' },
       publisher: PUBLISHER,
     },
@@ -163,7 +188,7 @@ export default function WhatIsDrumAndBassPage() {
           </h1>
           <p className={styles.lede}>
             Drum and Bass — often shortened to <strong>DnB</strong> — is a <strong>high-energy electronic music genre</strong>{' '}
-            defined by <strong>fast breakbeats (160–180 BPM, often ~174)</strong>, deep basslines, and complex rhythmic
+            defined by <strong>fast breakbeats (around 174 BPM)</strong>, deep basslines, and complex rhythmic
             structures.
           </p>
           <ul className={styles.toc} aria-label="In this guide">
@@ -196,7 +221,7 @@ export default function WhatIsDrumAndBassPage() {
             <div>
               <dt>Tempo</dt>
               <dd>
-                174 BPM<small>range 160–180</small>
+                174 BPM<small>usually 170–176</small>
               </dd>
             </div>
             <div>
@@ -223,13 +248,60 @@ export default function WhatIsDrumAndBassPage() {
         </aside>
       </header>
 
-      <Section id="bpm" n="01" label="Tempo">
+      <Section id="meaning" n="01" label="Meaning">
+        <h2 className={styles.h2}>
+          What does <em>DnB</em> mean?
+        </h2>
+        <p>
+          <strong>DnB stands for drum and bass</strong> — also written <strong>D&amp;B</strong>, <strong>DNB</strong> or{' '}
+          <strong>drum &apos;n&apos; bass</strong>. It is a genre of electronic dance music that grew out of the UK rave and
+          jungle scene in the early &apos;90s, built on fast, syncopated breakbeats and heavy basslines.
+        </p>
+        <p>
+          At its core, Drum and Bass is about <strong>rhythmic precision</strong> and <strong>bass energy</strong>. While
+          techno and house focus on steady four-on-the-floor beats, DnB uses <strong>syncopated breakbeats</strong> —
+          chopped, swung drum patterns that create tension and movement.
+        </p>
+        <div className={styles.box}>
+          <h3 className={styles.boxTitle}>Typical features</h3>
+          <ul className={styles.list}>
+            <li>
+              Tempo around <strong>174 BPM</strong>
+            </li>
+            <li>
+              Chopped <strong>breakbeats</strong> (the <strong>Amen break</strong> is the classic), <strong>Reese bass</strong>{' '}
+              and deep <strong>sub-bass layers</strong>
+            </li>
+            <li>
+              Emphasis on <strong>sound design</strong> and <strong>mix clarity</strong>
+            </li>
+          </ul>
+        </div>
+        <blockquote className={styles.quote}>
+          The name itself says it all: <strong>Drums and Bass</strong> are the foundation — everything else (melodies,
+          atmospheres, vocals) serves the rhythm.
+        </blockquote>
+        <div className={styles.box}>
+          <h3 className={styles.boxTitle}>Other meanings of DNB</h3>
+          <dl className={styles.tiles} style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(20rem, 1fr))' }}>
+            {OTHER_MEANINGS.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className={styles.note}>On this site, DnB always means drum and bass.</p>
+        </div>
+      </Section>
+
+      <Section id="bpm" n="02" label="Tempo">
         <h2 className={styles.h2}>
           What BPM is <em>DnB?</em>
         </h2>
         <p>
-          Usually between <strong>160–180 BPM</strong>, most tracks sit around <strong>174 BPM</strong>. That is about 40%
-          faster than a typical house track (~124 BPM), which is why DnB drums feel so urgent.
+          Most tracks sit at <strong>174 BPM</strong>, usually within <strong>170–176</strong> (older jungle can drop to
+          ~160). That is about 40% faster than a typical house track (~124 BPM), which is why DnB drums feel so urgent.
         </p>
         <div className={styles.tableWrap}>
           <table className={styles.table}>
@@ -257,35 +329,6 @@ export default function WhatIsDrumAndBassPage() {
         </p>
       </Section>
 
-      <Section id="meaning" n="02" label="Meaning & DNA">
-        <h2 className={styles.h2}>
-          The meaning of <em>DnB</em>
-        </h2>
-        <p>
-          At its core, Drum and Bass is about <strong>rhythmic precision</strong> and <strong>bass energy</strong>. While
-          techno and house focus on steady four-on-the-floor beats, DnB uses <strong>syncopated breakbeats</strong> —
-          chopped, swung drum patterns that create tension and movement.
-        </p>
-        <div className={styles.box}>
-          <h3 className={styles.boxTitle}>Typical features</h3>
-          <ul className={styles.list}>
-            <li>
-              Tempo between <strong>160–180 BPM</strong>
-            </li>
-            <li>
-              Heavy use of <strong>Amen break</strong>, <strong>Reese bass</strong>, and <strong>sub-bass layers</strong>
-            </li>
-            <li>
-              Emphasis on <strong>sound design</strong> and <strong>mix clarity</strong>
-            </li>
-          </ul>
-        </div>
-        <blockquote className={styles.quote}>
-          The name itself says it all: <strong>Drums and Bass</strong> are the foundation — everything else (melodies,
-          atmospheres, vocals) serves the rhythm.
-        </blockquote>
-      </Section>
-
       <Section id="origins" n="03" label="Origins">
         <h2 className={styles.h2}>
           From jungle to <em data-tone="purple">DnB</em>
@@ -296,8 +339,8 @@ export default function WhatIsDrumAndBassPage() {
           <strong>LTJ Bukem</strong>, and <strong>Roni Size</strong> shaped the first wave — merging{' '}
           <strong>breakbeats</strong>, <strong>dub basslines</strong>, and <strong>soulful samples</strong>.
         </p>
-        <p>By the 2000s, the genre diversified:</p>
-        <ul className={styles.tiles}>
+        <p>From the late &apos;90s on, the genre split into distinct styles:</p>
+        <ul className={styles.tiles} style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))' }}>
           {ERA.map(([name, text]) => (
             <li key={name}>
               <h3>{name}</h3>
@@ -384,7 +427,9 @@ export default function WhatIsDrumAndBassPage() {
             <tbody>
               {SUBGENRES.map((s) => (
                 <tr key={s.name}>
-                  <th scope="row">{s.name}</th>
+                  <th scope="row">
+                    <Link href={`/types-of-dnb#${s.slug}`}>{s.name}</Link>
+                  </th>
                   <td>{s.description}</td>
                   <td>{s.artists}</td>
                 </tr>
@@ -405,7 +450,7 @@ export default function WhatIsDrumAndBassPage() {
         </h2>
         <p>
           Drum and Bass has shaped not just club music but also <strong>film scores, video games, and advertising</strong>.
-          Its mix of <strong>intensity and precision</strong> influenced genres like dubstep, trap, and techno.
+          Its mix of <strong>intensity and precision</strong> fed directly into dubstep and the wider UK bass scene.
         </p>
         <p>
           The best way to understand it? <strong>Listen.</strong> Explore our latest releases below.
@@ -419,7 +464,7 @@ export default function WhatIsDrumAndBassPage() {
           Where to <em>start</em> listening
         </h2>
         <p>Drum and Bass is a big umbrella. The fastest way to “get it” is to pick a lane, then branch out.</p>
-        <ul className={styles.tiles}>
+        <ul className={styles.tiles} style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
           <li>
             <span className={styles.tileTag}>If you like melodies</span>
             <h3>Liquid DnB</h3>
@@ -431,7 +476,12 @@ export default function WhatIsDrumAndBassPage() {
             <p>Try Neurofunk — darker, technical, futuristic bass movement.</p>
           </li>
           <li>
-            <span className={styles.tileTag}>If you want club energy</span>
+            <span className={styles.tileTag}>If you want festival energy</span>
+            <h3>Dancefloor</h3>
+            <p>Try Dancefloor DnB — big synth leads, vocal hooks, main-stage drops.</p>
+          </li>
+          <li>
+            <span className={styles.tileTag}>If you want rave energy</span>
             <h3>Jump-Up</h3>
             <p>Go Jump-Up — bouncy drops, big hooks, rave-ready.</p>
           </li>
