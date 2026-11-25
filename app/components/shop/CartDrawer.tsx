@@ -7,6 +7,7 @@ import { FaShoppingCart, FaTimes } from 'react-icons/fa'
 import { CART_OPEN, cartTotal, formatMoney, removeFromCart } from '@/lib/shop/cart'
 import { useCart } from './AddToCartButton'
 import { DeliveryConsent } from './BuyButton'
+import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
 
 /** Header cart button + slide-in cart with one Stripe checkout for everything in it. */
 export default function CartDrawer({ buttonClassName }: { buttonClassName?: string }) {
@@ -48,6 +49,7 @@ export default function CartDrawer({ buttonClassName }: { buttonClassName?: stri
 
   async function checkout() {
     setBusy(true); setError('')
+    trackShop('begin_checkout', items.map(shopItem), { currency: currency.toUpperCase() })
     try {
       const res = await fetch('/api/shop/checkout', {
         method: 'POST',

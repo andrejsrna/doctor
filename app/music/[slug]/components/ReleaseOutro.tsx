@@ -390,8 +390,10 @@ function Stores() {
 }
 
 export default function ReleaseOutro({
-  slug, releaseId, moreArtist, shareUrl, shareTitle, relatedBy,
+  slug, releaseId, moreArtist, shareUrl, shareTitle, relatedBy, soldHere = false,
 }: {
+  /** The release is sold in our shop: skip the off-site store promos (Bandcamp bulk sale, DJ stores). */
+  soldHere?: boolean
   slug: string
   releaseId: string
   moreArtist: string
@@ -432,9 +434,9 @@ export default function ReleaseOutro({
         <Recommended slug={slug} />
         <NextDrop />
         <Spread url={shareUrl} title={shareTitle} />
-        <Bulk />
+        {!soldHere && <Bulk />}
         <Intel relatedBy={relatedBy} />
-        <Stores />
+        {!soldHere && <Stores />}
 
         <p className={styles.eot} aria-hidden="true">
           <span>End of transmission</span>

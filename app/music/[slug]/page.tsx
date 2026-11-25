@@ -193,6 +193,23 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
     ? { name: profile?.name ?? primaryArtist(release.artistName), slug: profile?.slug ?? null, imageUrl: profile?.imageUrl ?? null }
     : null
 
+  // Sold here: describe our own WAV offer (EUR). A price-0 Beatport offer used to tell Google the release was free.
+  const pageUrl = `https://dnbdoctor.com/music/${slug}`
+  const sellable = [offer, ...trackOffers].filter((o): o is NonNullable<typeof o> => !!o)
+  const offersLd = sellable.length > 1
+    ? {
+        '@type': 'AggregateOffer',
+        url: pageUrl,
+        lowPrice: Math.min(...sellable.map((o) => o.amount)).toFixed(2),
+        highPrice: Math.max(...sellable.map((o) => o.amount)).toFixed(2),
+        offerCount: sellable.length,
+        priceCurrency: sellable[0].currency,
+        availability: 'https://schema.org/InStock',
+      }
+    : sellable.length === 1
+      ? { '@type': 'Offer', url: pageUrl, price: sellable[0].amount.toFixed(2), priceCurrency: sellable[0].currency, availability: 'https://schema.org/InStock' }
+      : null
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -223,15 +240,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
       url: 'https://dnbdoctor.com',
       logo: 'https://dnbdoctor.com/logo-1.png',
     },
-    ...(release.beatport && { 
-      offers: {
-        '@type': 'Offer',
-        url: withBeatportAffiliate(release.beatport),
-        availability: 'https://schema.org/InStock',
-        price: '0',
-        priceCurrency: 'USD',
-      }
-    }),
+    ...(offersLd && { offers: offersLd }),
   } : {
     '@context': 'https://schema.org',
     '@type': 'MusicRecording',
@@ -259,15 +268,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
       url: 'https://dnbdoctor.com',
       logo: 'https://dnbdoctor.com/logo-1.png',
     },
-    ...(release.beatport && { 
-      offers: {
-        '@type': 'Offer',
-        url: withBeatportAffiliate(release.beatport),
-        availability: 'https://schema.org/InStock',
-        price: '0',
-        priceCurrency: 'USD',
-      }
-    }),
+    ...(offersLd && { offers: offersLd }),
   }
 
   const packJsonLd = isPack && offer ? [
@@ -358,6 +359,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
           shareUrl={`https://dnbdoctor.com/music/${slug}`}
           shareTitle={safeTitle}
           relatedBy={release.title}
+          soldHere={sellable.length > 0}
         />
       </div>
     </section>

@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { FaShoppingCart } from 'react-icons/fa'
+import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
 
 export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; amountCents?: number; currency?: string; type?: string; image?: string | null; href?: string | null }
 
@@ -39,6 +40,7 @@ export default function BuyButton({ offer, className, label }: { offer: BuyOffer
 
   async function checkout() {
     setBusy(true); setError('')
+    trackShop('begin_checkout', [shopItem(offer)], { currency: offer.currency })
     try {
       const res = await fetch('/api/shop/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product: offer.productSlug, consent }) })
       const data = await res.json().catch(() => ({}))

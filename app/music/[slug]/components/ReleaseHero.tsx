@@ -14,6 +14,7 @@ import styles from './release.module.css'
 import { shortDate } from '@/app/utils/shortDate'
 import BuyButton, { type BuyOffer } from '@/app/components/shop/BuyButton'
 import AddToCartButton from '@/app/components/shop/AddToCartButton'
+import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
 
 const SignalField = dynamic(() => import('@/app/components/hero/SignalField'), { ssr: false })
 
@@ -213,6 +214,26 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
     return () => ro.disconnect()
   }, [storyHtml])
 
+  const actionsRef = useRef<HTMLDivElement>(null)
+  const [showBar, setShowBar] = useState(false)
+  const soldHere = !!offer || trackOffers.length > 0
+
+  // GA4 view_item for releases sold here.
+  useEffect(() => {
+    const items = [offer, ...trackOffers].filter((o): o is BuyOffer => !!o).map(shopItem)
+    trackShop('view_item', items, { currency: offer?.currency ?? trackOffers[0]?.currency })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug])
+
+  // Mobile buy bar: shown once the hero buttons have scrolled out above the viewport.
+  useEffect(() => {
+    const el = actionsRef.current
+    if (!el || !offer || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(([e]) => setShowBar(!e.isIntersecting && e.boundingClientRect.top < 0))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [offer])
+
   const handleOut = (platform: string, href: string, e: React.MouseEvent) => {
     e.preventDefault()
     if (ENABLE_OUTBOUND_INTERSTITIAL && !getOutboundDismissed()) {
@@ -243,7 +264,18 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
     .forEach((l) => access.push({ name: l.name, url: l.url!, icon: l.icon, deprecated: l.deprecated }))
   if (youtubeUrl) access.push({ name: 'YouTube', url: youtubeUrl, icon: 'youtube' })
 
+  // Sold here: streaming first (to listen), other stores last, so they don't compete with our own buy button.
+  if (soldHere) {
+    const buy = (a: (typeof access)[number]) => (a.deprecated ? 2 : verbFor(a.name) === 'Buy' ? 1 : 0)
+    access.sort((a, b) => buy(a) - buy(b))
+  }
   const primary = isFree || offer ? undefined : access.find((a) => !a.deprecated)
+  // Bundle value: the EP/album costs less than its tracks bought one by one.
+  const tracksCents = trackOffers.reduce((s, t) => s + (t.amountCents ?? Math.round((t.amount ?? 0) * 100)), 0)
+  const bundleCents = offer?.amountCents ?? Math.round((offer?.amount ?? 0) * 100)
+  const bundleSaves = offer?.type === 'RELEASE' && trackOffers.length > 1 && tracksCents > bundleCents
+  const eur = (cents: number) => `€${(cents / 100).toFixed(2)}`
+  const shortTitle = title.length > 28 ? `${title.slice(0, 27)}…` : title
   const ticker = `${artist ? `${artist} — ` : ''}${title}`
   const pad = (n: number) => String(n).padStart(3, '0')
 
@@ -288,7 +320,7 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                 <span>{title}</span>
               </h1>
 
-              <div className={styles.actions}>
+              <div ref={actionsRef} className={styles.actions}>
                 {offer && !isFree && (
                   <BuyButton
                     offer={offer}
@@ -317,6 +349,29 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                   </a>
                 )}
               </div>
+
+              {soldHere && !isFree && (
+                <div className={styles.buyInfo}>
+                  {offer?.type === 'RELEASE' && trackOffers.length > 1 && (
+                    <p className={styles.bundleNote}>
+                      Full {typeLabel === 'EP' || typeLabel === 'Album' ? typeLabel : 'release'} · {trackOffers.length} tracks ·{' '}
+                      {bundleSaves ? (
+                        <>
+                          <b>{offer.price}</b> instead of <s>{eur(tracksCents)}</s>
+                        </>
+                      ) : (
+                        <b>{offer.price}</b>
+                      )}
+                    </p>
+                  )}
+                  <ul className={styles.trust}>
+                    <li>WAV</li>
+                    <li>Instant download</li>
+                    <li>Re-download anytime</li>
+                    <li>Secure checkout by Stripe</li>
+                  </ul>
+                </div>
+              )}
 
               {!isFree && trackOffers.length > 0 && (
                 <div className={styles.tracksBuy}>
@@ -484,6 +539,16 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
             </Link>
           ) : <span />}
         </nav>
+      )}
+
+      {offer && !isFree && (
+        <div className={styles.buyBar} data-show={showBar ? '' : undefined} inert={!showBar}>
+          <span className={styles.buyBarTitle}>
+            <b>{shortTitle}</b>
+            <span>WAV · {offer.price}</span>
+          </span>
+          <AddToCartButton offer={offer} className={styles.buyBarBtn} />
+        </div>
       )}
 
       <OutboundInterstitial

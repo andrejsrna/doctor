@@ -4,6 +4,7 @@ import { useSyncExternalStore } from 'react'
 import { FaCheck, FaPlus } from 'react-icons/fa'
 import { addToCart, openCart, readCart, serverCart, subscribeCart } from '@/lib/shop/cart'
 import type { BuyOffer } from './BuyButton'
+import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
 
 export const useCart = () => useSyncExternalStore(subscribeCart, readCart, serverCart)
 
@@ -28,6 +29,7 @@ export default function AddToCartButton({ offer, className }: { offer: BuyOffer;
             image: offer.image ?? null,
             href: offer.href ?? null,
           })
+          trackShop('add_to_cart', [shopItem(offer)], { currency: offer.currency })
         }
         openCart()
       }}
