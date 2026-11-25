@@ -28,6 +28,17 @@ export default function AddToCartButton({ offer, className }: { offer: BuyOffer;
             currency: (offer.currency ?? 'EUR').toLowerCase(),
             image: offer.image ?? null,
             href: offer.href ?? null,
+            bundle: offer.bundle
+              ? {
+                  slug: offer.bundle.productSlug,
+                  title: offer.bundle.title,
+                  price: offer.bundle.price,
+                  amountCents: offer.bundle.amountCents ?? Math.round((offer.bundle.amount ?? 0) * 100),
+                  currency: (offer.bundle.currency ?? 'EUR').toLowerCase(),
+                  image: offer.bundle.image ?? null,
+                  href: offer.bundle.href ?? null,
+                }
+              : null,
           })
           trackShop('add_to_cart', [shopItem(offer)], { currency: offer.currency })
         }

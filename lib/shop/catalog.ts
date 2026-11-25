@@ -15,6 +15,8 @@ export type BuyOffer = {
   href: string | null
   /** Public 45 s MP3 (TRACK products only), made by scripts/shop-track-previews.ts. */
   preview?: string | null
+  /** For a track of an EP/album: the whole release, offered as an upgrade in the cart. */
+  bundle?: Omit<BuyOffer, 'bundle' | 'preview'> | null
 }
 
 export type ReleaseOffers = {
@@ -52,7 +54,8 @@ export async function offersForRelease(releaseId: string): Promise<ReleaseOffers
       preview: p.type === 'TRACK' ? trackPreviewUrl(p.slug) : null,
     }))
     const main = offers.find((o) => o.type !== 'TRACK') ?? null
-    const tracks = offers.filter((o) => o.type === 'TRACK')
+    const bundle = main?.type === 'RELEASE' ? main : null
+    const tracks = offers.filter((o) => o.type === 'TRACK').map((t) => (bundle ? { ...t, bundle } : t))
     // A single's only track is the release itself; EPs/albums list their tracks next to the bundle.
     const multi = rows[0]?.release?.categories.some((c) => MULTI.has(c)) ?? false
     if (!main && tracks.length === 1 && !multi) return { main: tracks[0], tracks: [] }

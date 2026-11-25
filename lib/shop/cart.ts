@@ -9,6 +9,8 @@ export type CartItem = {
   currency: string
   image?: string | null
   href?: string | null
+  /** A track of an EP/album: the whole release, so the cart can offer the upgrade. */
+  bundle?: Omit<CartItem, 'bundle'> | null
 }
 
 export const CART_MAX = 20
@@ -28,7 +30,8 @@ export function parseProductSlugs(body: { product?: unknown; products?: unknown 
 
 export function withItem(items: CartItem[], item: CartItem) {
   if (items.some((i) => i.slug === item.slug)) return items
-  return [...items, item].slice(-CART_MAX)
+  // The whole release replaces any of its tracks already in the cart.
+  return [...items.filter((i) => i.bundle?.slug !== item.slug), item].slice(-CART_MAX)
 }
 
 export const cartTotal = (items: CartItem[]) => items.reduce((sum, i) => sum + i.amountCents, 0)

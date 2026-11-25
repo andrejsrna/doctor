@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaShoppingCart, FaTimes } from 'react-icons/fa'
-import { CART_OPEN, cartTotal, formatMoney, removeFromCart } from '@/lib/shop/cart'
+import { addToCart, CART_OPEN, cartTotal, formatMoney, removeFromCart, type CartItem } from '@/lib/shop/cart'
 import { useCart } from './AddToCartButton'
 import { DeliveryConsent } from './BuyButton'
 import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
@@ -46,6 +46,20 @@ export default function CartDrawer({ buttonClassName }: { buttonClassName?: stri
 
   const currency = items[0]?.currency ?? 'eur'
   const total = formatMoney(cartTotal(items), currency)
+
+  // Tracks of an EP/album whose whole release isn't in the cart: offer the swap.
+  const upgrades = Object.values(
+    items.reduce<Record<string, { bundle: NonNullable<CartItem['bundle']>; tracks: CartItem[] }>>((acc, i) => {
+      const b = i.bundle
+      if (b && !items.some((x) => x.slug === b.slug)) (acc[b.slug] ??= { bundle: b, tracks: [] }).tracks.push(i)
+      return acc
+    }, {}),
+  )
+  const upgrade = (u: (typeof upgrades)[number]) => {
+    removeFromCart(u.tracks.map((t) => t.slug))
+    addToCart(u.bundle)
+    trackShop('add_to_cart', [shopItem(u.bundle)], { currency: u.bundle.currency.toUpperCase() })
+  }
 
   async function checkout() {
     setBusy(true); setError('')
@@ -103,6 +117,22 @@ export default function CartDrawer({ buttonClassName }: { buttonClassName?: stri
             </div>
           ) : (
             <>
+              {upgrades.map((u) => {
+                const diff = u.bundle.amountCents - cartTotal(u.tracks)
+                return (
+                  <div key={u.bundle.slug} className="mx-6 mt-4 border border-[#39ff14]/40 bg-[#39ff14]/[0.06] p-4">
+                    <p className="m-0 font-mono text-xs uppercase tracking-[0.2em] text-[#39ff14]">Get the whole release</p>
+                    <p className="m-0 mt-1 font-bold text-white">{u.bundle.title.replace(/\s*\(WAV\)$/, '')}</p>
+                    <p className="m-0 mt-1 text-sm text-gray-300">
+                      You have {u.tracks.length} of its tracks. Swap them for every track at {u.bundle.price}
+                      {diff > 0 ? `, only ${formatMoney(diff, u.bundle.currency)} more.` : diff < 0 ? ` and save ${formatMoney(-diff, u.bundle.currency)}.` : ', same price.'}
+                    </p>
+                    <button type="button" onClick={() => upgrade(u)} disabled={busy} className="mt-3 bg-[#39ff14] px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-black hover:opacity-90 disabled:opacity-40">
+                      Swap for the full release
+                    </button>
+                  </div>
+                )
+              })}
               <ul className="flex-1 divide-y divide-white/10 overflow-y-auto px-6">
                 {items.map((i) => (
                   <li key={i.slug} className="flex items-center gap-4 py-4">
