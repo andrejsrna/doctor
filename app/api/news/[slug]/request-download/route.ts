@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/app/services/email'
 import { mixDownloadLink } from '@/lib/mixDownload'
+import { attributionFrom, sourceWithChannel } from '@/lib/attribution'
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
   } else {
     const category = await prisma.category.findFirst({ where: { name: { equals: 'Newsletter', mode: 'insensitive' } }, select: { id: true } })
     await prisma.subscriber.create({
-      data: { email, status: 'ACTIVE', source: tag, tags: ['mix-download', tag], categoryId: category?.id, notes: `Subscribed via mix download (${slug})` },
+      data: { email, status: 'ACTIVE', source: sourceWithChannel(tag, attributionFrom(request)), tags: ['mix-download', tag], categoryId: category?.id, notes: `Subscribed via mix download (${slug})` },
     })
   }
 

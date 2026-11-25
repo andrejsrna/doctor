@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { createCheckoutSession, stripeConfigured } from '@/lib/shop/stripe'
 import { SITE } from '@/lib/shop/emails'
 import { parseProductSlugs } from '@/lib/shop/cart'
+import { attributionFrom } from '@/lib/attribution'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       amountTotal: products.reduce((sum, p) => sum + p.priceCents, 0),
       currency,
       withdrawalConsentAt: new Date(),
+      attribution: attributionFrom(request) ?? undefined,
       items: { create: products.map((p) => ({ productId: p.id, title: p.title, priceCents: p.priceCents })) },
     },
   })

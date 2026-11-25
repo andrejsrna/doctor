@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { attributionFrom, sourceWithChannel } from "@/lib/attribution";
 import { sendFreeTrackEmail } from "@/app/services/brevo";
 
 interface SubscribeData {
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
         email: emailLower,
         name: name || undefined,
         status: "ACTIVE",
-        source: source || "website",
+        source: sourceWithChannel(source || "website", attributionFrom(request)),
         tags: group ? [group] : [],
         categoryId: newsletterCategoryId,
         notes: `Subscribed via ${source || 'website'} form`,

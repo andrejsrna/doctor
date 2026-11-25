@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
+import { attributionFrom, sourceWithChannel } from "@/lib/attribution"
 import { sendEmail } from "@/app/services/email"
 import crypto from "node:crypto"
 
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
         email,
         releaseId: release.id,
         expiresAt,
+        attribution: attributionFrom(request) ?? undefined,
       },
     }))
 
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ slug: 
       email,
       status: "ACTIVE",
       subscribedAt: now,
-      source: `free-download:${slug}`,
+      source: sourceWithChannel(`free-download:${slug}`, attributionFrom(request)),
       tags: ["free-download", `free-download:${slug}`],
     },
     update: {

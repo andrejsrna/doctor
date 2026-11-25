@@ -4,6 +4,7 @@ import { createCheckoutSession, stripeConfigured } from '@/lib/shop/stripe'
 import { SITE } from '@/lib/shop/emails'
 import { isMerchCountry, parseMerchLines } from '@/lib/shop/merchShared'
 import { priceLines, printfulConfigured, shippingQuote } from '@/lib/shop/printful'
+import { attributionFrom } from '@/lib/attribution'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
       amountTotal: itemsCents + shipping.cents,
       shippingRate: shipping.id,
       shippingName: shipping.name,
+      attribution: attributionFrom(request) ?? undefined,
       items: { create: priced.map((l) => ({ syncVariantId: BigInt(l.v), title: l.title, size: l.size, color: l.color, imageUrl: l.image, quantity: l.q, unitCents: l.unitCents })) },
     },
   })

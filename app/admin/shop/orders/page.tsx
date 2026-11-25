@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { staffSession } from '@/app/lib/roles'
+import { attributionLabel, channelOf, parseAttribution } from '@/lib/attribution'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Orders & revenue', robots: { index: false, follow: false } }
@@ -23,7 +24,12 @@ const pick = <T extends string>(v: string | string[] | undefined, allowed: reado
 type Row = {
   id: string; kind: 'digital' | 'merch'; status: string; date: Date; email: string | null; name: string | null
   total: number; shipping: number; items: { title: string; type: string; cents: number; qty: number; release?: { id: string; title: string; slug: string } | null }[]
-  invoice: string | null; note: string | null
+  invoice: string | null; note: string | null; source: string; sourceDetail: string
+}
+
+const source = (raw: unknown) => {
+  const a = parseAttribution(raw)
+  return { source: channelOf(a), sourceDetail: attributionLabel(a) }
 }
 
 async function load(since: Date | null): Promise<Row[]> {
@@ -35,13 +41,13 @@ async function load(since: Date | null): Promise<Row[]> {
   const rows: Row[] = [
     ...orders.map((o) => ({
       id: o.id, kind: 'digital' as const, status: o.status, date: o.paidAt ?? o.createdAt, email: o.email, name: o.customerName,
-      total: o.amountTotal, shipping: 0, invoice: o.invoiceNumber,
+      total: o.amountTotal, shipping: 0, invoice: o.invoiceNumber, ...source(o.attribution),
       items: o.items.map((i) => ({ title: i.title, type: i.product.type, cents: i.priceCents, qty: 1, release: i.product.release })),
       note: o.status === 'PAID' ? `${o.items.reduce((s, i) => s + i.downloadCount, 0)}× downloaded` : null,
     })),
     ...merch.map((o) => ({
       id: o.id, kind: 'merch' as const, status: o.status, date: o.paidAt ?? o.createdAt, email: o.email, name: o.customerName,
-      total: o.amountTotal, shipping: o.shippingCents, invoice: o.invoiceNumber,
+      total: o.amountTotal, shipping: o.shippingCents, invoice: o.invoiceNumber, ...source(o.attribution),
       items: o.items.map((i) => ({ title: [i.title, i.size, i.color].filter(Boolean).join(' · '), type: 'MERCH', cents: i.unitCents * i.quantity, qty: i.quantity })),
       note: o.status === 'PAID' ? `${o.fulfilment.toLowerCase()} · ${o.country}` : o.country,
     })),
@@ -216,8 +222,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
         <div className="flex flex-wrap gap-2">{STATUSES.map((st) => <Link key={st} href={href({ status: st })} className={chip(status === st)}>{st === 'ALL' ? 'All' : st.toLowerCase()}</Link>)}</div>
       </div>
       {list.length === 0 ? <p className="mt-4 text-sm text-gray-400">No orders in this period.</p> :
-        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Date</th><th>Type</th><th>Customer</th><th>Items</th><th className="text-right">Total</th><th className="pl-4">Status</th><th>Invoice</th></tr></thead>
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[880px] text-left text-sm">
+          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Date</th><th>Type</th><th>Customer</th><th>Items</th><th className="text-right">Total</th><th className="pl-4">Status</th><th>Source</th><th>Invoice</th></tr></thead>
           <tbody className="divide-y divide-gray-800">{list.map((o) => <tr key={o.id} className="align-top [&>td]:py-3">
             <td className="whitespace-nowrap pr-3 text-gray-300">{o.date.toLocaleString('sk-SK', { timeZone: 'Europe/Bratislava', dateStyle: 'short', timeStyle: 'short' })}</td>
             <td className="pr-3"><span className={`rounded px-2 py-0.5 text-xs ${o.kind === 'merch' ? 'bg-purple-900/70 text-purple-200' : 'bg-gray-800 text-gray-300'}`}>{o.kind}</span></td>
@@ -225,6 +231,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             <td className="pr-3">{o.items.map((i, n) => <div key={n}>{i.qty > 1 ? `${i.qty}× ` : ''}{i.title}</div>)}{o.note && <div className="text-xs text-gray-500">{o.note}</div>}</td>
             <td className="whitespace-nowrap pr-3 text-right">{eur(o.total)}{o.shipping > 0 && <div className="text-xs text-gray-500">incl. {eur(o.shipping)} shipping</div>}</td>
             <td className={`pl-4 pr-3 ${statusColor[o.status] || ''}`}>{o.status.toLowerCase()}</td>
+            <td className="pr-3 text-xs"><div className="text-gray-300">{o.source}</div>{o.sourceDetail && <div className="max-w-[180px] break-words text-gray-500">{o.sourceDetail}</div>}</td>
             <td className="text-gray-400">{o.invoice || '—'}</td>
           </tr>)}</tbody>
         </table></div>}

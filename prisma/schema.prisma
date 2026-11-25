@@ -318,6 +318,7 @@ model ReleaseDownloadToken {
   email     String
   expiresAt DateTime
   usedAt    DateTime?
+  attribution Json?
   createdAt DateTime  @default(now())
 
   releaseId String
@@ -628,6 +629,8 @@ model Order {
   stripeSessionId       String?      @unique
   stripePaymentIntentId String?      @unique
   withdrawalConsentAt   DateTime
+  /// Traffic source at checkout (lib/attribution.ts, last campaign touch within 30 days)
+  attribution           Json?
   paidAt                DateTime?
   refundedAt            DateTime?
   emailSentAt           DateTime?
@@ -685,6 +688,7 @@ model MerchOrder {
   amountTotal           Int
   shippingRate          String
   shippingName          String?
+  attribution           Json?
   stripeSessionId       String?          @unique
   stripePaymentIntentId String?          @unique
   paidAt                DateTime?

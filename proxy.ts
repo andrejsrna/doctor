@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { applyAttribution } from "@/lib/attribution";
 
 // Short links for descriptions (YouTube, SoundCloud, socials). Temporary (307) on purpose:
 // the target can change without browsers caching the old one.
@@ -260,7 +261,7 @@ const redirects = [
       }
       
       if (isPublicPath(path)) {
-        const response = NextResponse.next();
+        const response = applyAttribution(request, NextResponse.next());
         return addCacheControlHeaders(addSecurityHeaders(response), path);
       }
       
@@ -296,7 +297,7 @@ const redirects = [
         return addCacheControlHeaders(addSecurityHeaders(response), path);
       }
       
-      const response = NextResponse.next();
+      const response = applyAttribution(request, NextResponse.next());
       return addCacheControlHeaders(addSecurityHeaders(response), path);
       
     } catch (error) {

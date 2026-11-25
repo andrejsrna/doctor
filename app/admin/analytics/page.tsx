@@ -1,195 +1,180 @@
-"use client";
-export const dynamic = "force-dynamic";
+import Link from 'next/link'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { staffSession } from '@/app/lib/roles'
+import { CHANNELS, attributionLabel, channelOf, parseAttribution, type Attribution, type Channel } from '@/lib/attribution'
 
-import { motion } from "framer-motion";
-import { FaChartLine, FaChartBar, FaChartPie, FaChartArea } from "react-icons/fa";
+export const dynamic = 'force-dynamic'
+export const metadata = { title: 'Traffic sources', robots: { index: false, follow: false } }
 
-export default function AnalyticsPage() {
-  const stats = [
-    {
-      name: "Page Views",
-      value: "89.2K",
-      change: "+23%",
-      changeType: "positive",
-      icon: FaChartLine,
-      color: "green"
-    },
-    {
-      name: "Unique Visitors",
-      value: "12.4K",
-      change: "+15%",
-      changeType: "positive",
-      icon: FaChartBar,
-      color: "blue"
-    },
-    {
-      name: "Bounce Rate",
-      value: "34%",
-      change: "-8%",
-      changeType: "positive",
-      icon: FaChartPie,
-      color: "purple"
-    },
-    {
-      name: "Avg Session",
-      value: "4m 32s",
-      change: "+12%",
-      changeType: "positive",
-      icon: FaChartArea,
-      color: "yellow"
+const RANGES = { '7d': { label: 'Last 7 days', days: 7 }, '30d': { label: 'Last 30 days', days: 30 }, '90d': { label: 'Last 90 days', days: 90 }, all: { label: 'All time', days: 0 } } as const
+type RangeKey = keyof typeof RANGES
+
+const eur = (cents: number) => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+const pct = (n: number) => `${Math.round(n * 100)} %`
+const card = 'rounded-xl border border-gray-800 bg-gray-950/70 p-5'
+const chip = (on: boolean) => `rounded-full border px-3 py-1 text-xs ${on ? 'border-green-500 bg-green-900/60 text-green-100' : 'border-gray-700 text-gray-300 hover:bg-gray-800'}`
+const CHANNEL_COLOR: Record<Channel, string> = {
+  'Meta ads': 'bg-blue-900/70 text-blue-200',
+  'Google Ads': 'bg-yellow-900/60 text-yellow-200',
+  Newsletter: 'bg-green-900/60 text-green-200',
+  'Organic search': 'bg-teal-900/60 text-teal-200',
+  Social: 'bg-purple-900/70 text-purple-200',
+  Referral: 'bg-gray-800 text-gray-200',
+  Direct: 'bg-gray-900 text-gray-400',
+}
+const Badge = ({ c }: { c: Channel }) => <span className={`whitespace-nowrap rounded px-2 py-0.5 text-xs ${CHANNEL_COLOR[c]}`}>{c}</span>
+
+type Sale = { id: string; paid: boolean; total: number; date: Date; items: string[]; attr: Attribution | null }
+type Bucket = { orders: number; revenue: number; checkouts: number; downloads: number; subscribers: number }
+const empty = (): Bucket => ({ orders: 0, revenue: 0, checkouts: 0, downloads: 0, subscribers: 0 })
+
+/** Subscriber.source carries the channel as a " · Channel" suffix (lib/attribution.ts sourceWithChannel). */
+function subscriberChannel(source: string | null): Channel | null {
+  const c = source?.split(' · ').pop()
+  return c && (CHANNELS as readonly string[]).includes(c) ? (c as Channel) : null
+}
+
+export default async function TrafficSourcesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  if (!(await staffSession(await headers(), ['ADMIN']).catch(() => null))) redirect('/admin')
+  const sp = await searchParams
+  const range: RangeKey = (Object.keys(RANGES) as RangeKey[]).includes(sp.range as RangeKey) ? (sp.range as RangeKey) : '30d'
+  const days = RANGES[range].days
+  const since = days ? new Date(Date.now() - days * 86400_000) : null
+  const created = since ? { createdAt: { gte: since } } : {}
+
+  const [orders, merch, tokens, subs] = await Promise.all([
+    prisma.order.findMany({ where: created, select: { id: true, status: true, amountTotal: true, createdAt: true, paidAt: true, attribution: true, items: { select: { title: true } } } }),
+    prisma.merchOrder.findMany({ where: created, select: { id: true, status: true, amountTotal: true, createdAt: true, paidAt: true, attribution: true, items: { select: { title: true, quantity: true } } } }),
+    prisma.releaseDownloadToken.findMany({ where: created, select: { attribution: true, release: { select: { title: true, slug: true } } } }),
+    prisma.subscriber.findMany({ where: since ? { subscribedAt: { gte: since } } : {}, select: { source: true } }),
+  ])
+
+  const sales: Sale[] = [
+    ...orders.map((o) => ({ id: o.id, paid: o.status === 'PAID', total: o.amountTotal, date: o.paidAt ?? o.createdAt, items: o.items.map((i) => i.title), attr: parseAttribution(o.attribution) })),
+    ...merch.map((o) => ({ id: o.id, paid: o.status === 'PAID', total: o.amountTotal, date: o.paidAt ?? o.createdAt, items: o.items.map((i) => `${i.quantity > 1 ? `${i.quantity}× ` : ''}${i.title}`), attr: parseAttribution(o.attribution) })),
+  ].sort((a, b) => b.date.getTime() - a.date.getTime())
+
+  const byChannel = new Map<Channel, Bucket>(CHANNELS.map((c) => [c, empty()]))
+  const byCampaign = new Map<string, Bucket & { channel: Channel }>()
+  const campaignOf = (a: Attribution | null) => {
+    if (!a || !(a.source || a.gclid || a.fbclid)) return null
+    const key = attributionLabel(a)
+    if (!byCampaign.has(key)) byCampaign.set(key, { ...empty(), channel: channelOf(a) })
+    return byCampaign.get(key)!
+  }
+  for (const s of sales) {
+    for (const b of [byChannel.get(channelOf(s.attr))!, campaignOf(s.attr)]) {
+      if (!b) continue
+      b.checkouts++
+      if (s.paid) { b.orders++; b.revenue += s.total }
     }
-  ];
+  }
+  const freeByPack = new Map<string, { title: string; slug: string; n: Map<Channel, number> }>()
+  for (const t of tokens) {
+    const a = parseAttribution(t.attribution)
+    const ch = channelOf(a)
+    byChannel.get(ch)!.downloads++
+    const k = campaignOf(a)
+    if (k) k.downloads++
+    const p = freeByPack.get(t.release.slug) || { title: t.release.title, slug: t.release.slug, n: new Map<Channel, number>() }
+    p.n.set(ch, (p.n.get(ch) || 0) + 1)
+    freeByPack.set(t.release.slug, p)
+  }
+  let subsUnknown = 0
+  for (const s of subs) {
+    const ch = subscriberChannel(s.source)
+    if (ch) byChannel.get(ch)!.subscribers++
+    else subsUnknown++
+  }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-black/50 backdrop-blur-sm border border-yellow-500/20 rounded-xl shadow-2xl p-8"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-900/20 via-transparent to-purple-900/20 rounded-xl" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative">
-              <FaChartLine className="w-10 h-10 text-yellow-400" />
-              <FaChartBar className="w-5 h-5 text-purple-400 absolute -top-1 -right-1" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Analytics Dashboard</h1>
-              <p className="text-gray-400">Comprehensive site analytics and reports</p>
-            </div>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-lg text-gray-300 mb-4">
-                Track website performance, user behavior, and key metrics with detailed analytics.
-              </p>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <FaChartLine className="w-4 h-4" />
-                <span>Real-time data and insights</span>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4 text-center"
-              >
-                <FaChartLine className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-yellow-300">Analytics</div>
-                <div className="text-xs text-gray-400">Live</div>
-              </motion.div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4 text-center"
-              >
-                <FaChartBar className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-purple-300">Reports</div>
-                <div className="text-xs text-gray-400">Available</div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+  const paid = sales.filter((s) => s.paid)
+  const revenue = paid.reduce((n, s) => n + s.total, 0)
+  const tracked = paid.filter((s) => s.attr).length
+  const channels = CHANNELS.map((c) => [c, byChannel.get(c)!] as const).filter(([, b]) => b.checkouts || b.downloads || b.subscribers)
+  const campaigns = [...byCampaign.entries()].sort((a, b) => b[1].revenue - a[1].revenue || b[1].orders - a[1].orders || b[1].downloads - a[1].downloads || b[1].checkouts - a[1].checkouts)
+  const recent = paid.slice(0, 25)
 
-      {/* Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-      >
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          const colorClasses = {
-            green: "text-green-400 border-green-500/30 bg-green-900/30",
-            purple: "text-purple-400 border-purple-500/30 bg-purple-900/30",
-            blue: "text-blue-400 border-blue-500/30 bg-blue-900/30",
-            yellow: "text-yellow-400 border-yellow-500/30 bg-yellow-900/30"
-          };
-          
-          return (
-            <motion.div
-              key={stat.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              className={`bg-black/50 backdrop-blur-sm border rounded-xl p-6 ${colorClasses[stat.color as keyof typeof colorClasses]}`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium opacity-75">{stat.name}</p>
-                  <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                </div>
-                <Icon className="w-8 h-8 opacity-75" />
-              </div>
-              <div className="mt-4 flex items-center">
-                <span className={`text-sm font-medium ${
-                  stat.changeType === "positive" ? "text-green-400" : "text-red-400"
-                }`}>
-                  {stat.change}
-                </span>
-                <span className="text-xs opacity-75 ml-2">from last month</span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </motion.div>
-
-      {/* Placeholder Content */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-black/50 backdrop-blur-sm border border-yellow-500/20 rounded-xl shadow-2xl p-8"
-      >
-        <div className="text-center">
-          <FaChartLine className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Analytics Dashboard</h2>
-          <p className="text-gray-400 mb-6">
-            This section will contain comprehensive analytics including traffic analysis, 
-            user behavior tracking, conversion metrics, and detailed reporting tools.
-          </p>
-          <div className="grid md:grid-cols-4 gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="p-4 bg-yellow-900/30 border border-yellow-500/30 rounded-lg hover:bg-yellow-900/50 transition-colors"
-            >
-              <FaChartLine className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-              <div className="text-sm font-medium text-white">Traffic</div>
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="p-4 bg-blue-900/30 border border-blue-500/30 rounded-lg hover:bg-blue-900/50 transition-colors"
-            >
-              <FaChartBar className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <div className="text-sm font-medium text-white">Behavior</div>
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="p-4 bg-purple-900/30 border border-purple-500/30 rounded-lg hover:bg-purple-900/50 transition-colors"
-            >
-              <FaChartPie className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-              <div className="text-sm font-medium text-white">Conversions</div>
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="p-4 bg-green-900/30 border border-green-500/30 rounded-lg hover:bg-green-900/50 transition-colors"
-            >
-              <FaChartArea className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <div className="text-sm font-medium text-white">Reports</div>
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
+  return <div className="mx-auto max-w-6xl space-y-6 px-3 py-8 text-white sm:px-6">
+    <div>
+      <Link href="/admin" className="text-sm text-gray-400 hover:text-white">Back to admin</Link>
+      <h1 className="mt-3 text-3xl font-bold">Traffic sources</h1>
+      <p className="mt-2 max-w-3xl text-sm text-gray-400">
+        Which channel brought each order, free download and new subscriber: the last campaign link (utm_*, Google gclid, Facebook fbclid)
+        or external referrer within the visitor&apos;s last 30 days. Tracked from 26 Nov 2026; older rows count as Direct. Page views and sessions stay in GA4.
+      </p>
     </div>
-  );
-} 
+
+    <div className="flex flex-wrap gap-2">{(Object.keys(RANGES) as RangeKey[]).map((k) => <Link key={k} href={`/admin/analytics?range=${k}`} className={chip(range === k)}>{RANGES[k].label}</Link>)}</div>
+
+    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        ['Revenue', eur(revenue), `${paid.length} paid orders`],
+        ['Known source', paid.length ? pct(tracked / paid.length) : '—', `${tracked} of ${paid.length} paid orders`],
+        ['Free downloads', String(tokens.length), `${freeByPack.size} free releases`],
+        ['New subscribers', String(subs.length), `${subsUnknown} without channel info`],
+      ].map(([l, v, s]) => <div key={l} className={card}><p className="text-xs uppercase tracking-wide text-gray-400">{l}</p><p className="mt-2 text-2xl font-bold">{v}</p><p className="mt-1 text-xs text-gray-500">{s}</p></div>)}
+    </section>
+
+    <section className={card}>
+      <h2 className="text-lg font-semibold">By channel</h2>
+      {channels.length === 0 ? <p className="mt-4 text-sm text-gray-400">No data in this period.</p> :
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm">
+          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Channel</th><th className="text-right">Revenue</th><th className="text-right">Paid orders</th><th className="text-right">Checkouts</th><th className="text-right">Conversion</th><th className="text-right">Free downloads</th><th className="text-right">New subscribers</th></tr></thead>
+          <tbody className="divide-y divide-gray-800">{channels.map(([c, b]) => <tr key={c} className="[&>td]:py-2">
+            <td><Badge c={c} /></td>
+            <td className="text-right">{eur(b.revenue)}</td>
+            <td className="text-right text-gray-300">{b.orders}</td>
+            <td className="text-right text-gray-400">{b.checkouts}</td>
+            <td className="text-right text-gray-400">{b.checkouts ? pct(b.orders / b.checkouts) : '—'}</td>
+            <td className="text-right text-gray-300">{b.downloads || '—'}</td>
+            <td className="text-right text-gray-300">{b.subscribers || '—'}</td>
+          </tr>)}</tbody>
+        </table></div>}
+    </section>
+
+    <section className={card}>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="text-lg font-semibold">Campaigns and ads</h2>
+        <p className="text-xs text-gray-500">source / medium · utm_campaign · utm_content (the ad or email link)</p>
+      </div>
+      {campaigns.length === 0 ? <p className="mt-4 text-sm text-gray-400">No campaign traffic converted in this period yet.</p> :
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm">
+          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Campaign</th><th className="text-right">Revenue</th><th className="text-right">Paid</th><th className="text-right">Checkouts</th><th className="text-right">Free downloads</th></tr></thead>
+          <tbody className="divide-y divide-gray-800">{campaigns.map(([k, b]) => <tr key={k} className="[&>td]:py-2">
+            <td className="pr-3"><Badge c={b.channel} /> <span className="ml-1 text-gray-200">{k}</span></td>
+            <td className="text-right">{eur(b.revenue)}</td>
+            <td className="text-right text-gray-300">{b.orders}</td>
+            <td className="text-right text-gray-400">{b.checkouts}</td>
+            <td className="text-right text-gray-300">{b.downloads || '—'}</td>
+          </tr>)}</tbody>
+        </table></div>}
+    </section>
+
+    {freeByPack.size > 0 && <section className={card}>
+      <h2 className="text-lg font-semibold">Free downloads by channel</h2>
+      <ul className="mt-4 divide-y divide-gray-800 text-sm">{[...freeByPack.values()].map((p) => <li key={p.slug} className="flex flex-wrap items-center justify-between gap-2 py-2">
+        <Link href={`/music/${p.slug}`} target="_blank" className="hover:text-green-300">{p.title}</Link>
+        <span className="flex flex-wrap gap-1.5">{[...p.n.entries()].sort((a, b) => b[1] - a[1]).map(([c, n]) => <span key={c} className={`rounded px-2 py-0.5 text-xs ${CHANNEL_COLOR[c]}`}>{c} {n}</span>)}</span>
+      </li>)}</ul>
+    </section>}
+
+    <section className={card}>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="text-lg font-semibold">Latest paid orders</h2>
+        <Link href="/admin/shop/orders" className="text-xs text-gray-400 hover:text-white">All orders →</Link>
+      </div>
+      {recent.length === 0 ? <p className="mt-4 text-sm text-gray-400">No paid orders in this period.</p> :
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm">
+          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Date</th><th>Items</th><th className="text-right">Total</th><th className="pl-4">Source</th></tr></thead>
+          <tbody className="divide-y divide-gray-800">{recent.map((s) => <tr key={s.id} className="align-top [&>td]:py-2">
+            <td className="whitespace-nowrap pr-3 text-gray-300">{s.date.toLocaleString('sk-SK', { timeZone: 'Europe/Bratislava', dateStyle: 'short', timeStyle: 'short' })}</td>
+            <td className="pr-3">{s.items.map((t, i) => <div key={i}>{t}</div>)}</td>
+            <td className="whitespace-nowrap text-right">{eur(s.total)}</td>
+            <td className="pl-4"><Badge c={channelOf(s.attr)} /><div className="mt-1 text-xs text-gray-500">{attributionLabel(s.attr)}</div></td>
+          </tr>)}</tbody>
+        </table></div>}
+    </section>
+  </div>
+}
