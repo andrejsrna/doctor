@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { removeFromCart } from '@/lib/shop/cart'
 import { trackShop } from '@/app/utils/shopAnalytics'
+import { trackShopPurchase } from '@/app/utils/analytics'
 
 type Purchase = { id: string; currency: string; items: { slug: string; title: string; priceCents: number }[] } | null
 
@@ -30,6 +31,8 @@ export default function ClearCart({ slugs, purchase }: { slugs: string[]; purcha
       currency: p.currency,
       transaction_id: orderId,
     })
+    const value = p.items.reduce((s, i) => s + i.priceCents, 0) / 100
+    trackShopPurchase(orderId, value, p.currency, p.items.map((i) => i.slug))
   }, [orderId])
   return null
 }

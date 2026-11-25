@@ -127,6 +127,11 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
 
     const eventId = generateEventId()
 
+    // GTM / GA4: a click out to a stream or store (not a sale; real sales are `purchase`).
+    const w = window as unknown as { dataLayer?: unknown[] }
+    w.dataLayer = w.dataLayer || []
+    w.dataLayer.push({ event: 'StreamingClick', platform, ...(slug && { release_slug: slug }) })
+
     // Facebook Pixel
     if (hasMarketingConsent()) {
       import('react-facebook-pixel').then((ReactPixel) => {
@@ -134,7 +139,7 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
         if (pixelId && !('fbq' in window)) {
           ReactPixel.default.init(pixelId)
         }
-        ReactPixel.default.fbq('track', 'Purchase', {
+        ReactPixel.default.fbq('trackCustom', 'StreamingClick', {
           content_name: platform,
           content_type: 'streaming_click',
           content_category: 'Music',
@@ -165,6 +170,18 @@ export const trackStreamingClick = (platform: string, slug?: string) => {
     console.error('Tracking error:', error);
   }
 };
+
+/** Meta Pixel Purchase for a real shop order; eventID = order id so a later server-side event can deduplicate. */
+export const trackShopPurchase = (orderId: string, value: number, currency: string, ids: string[]) => {
+  if (typeof window === 'undefined' || !hasMarketingConsent()) return
+  import('react-facebook-pixel')
+    .then((ReactPixel) => {
+      const pixelId = process.env.NEXT_PUBLIC_FB_PIXEL_ID
+      if (pixelId && !('fbq' in window)) ReactPixel.default.init(pixelId)
+      ReactPixel.default.fbq('track', 'Purchase', { value, currency, content_type: 'product', content_ids: ids, num_items: ids.length }, { eventID: orderId })
+    })
+    .catch(() => null)
+}
 
 export const trackReleaseView = (slug: string, title?: string) => {
   if (typeof window === 'undefined') return

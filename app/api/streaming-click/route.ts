@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   await sendMetaCapiEvent({
     request,
-    eventName: "Purchase",
+    eventName: "StreamingClick",
     eventId: safeEventId,
     eventSourceUrl: safeEventSourceUrl,
     customData: {
@@ -55,8 +55,6 @@ export async function POST(request: NextRequest) {
       content_type: "streaming_click",
       content_category: "Music",
       content_ids: [safeSlug],
-      value: 0,
-      currency: "USD",
     },
   })
 

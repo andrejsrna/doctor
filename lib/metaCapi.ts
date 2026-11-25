@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 
-type MetaCapiEventName = 'ViewContent' | 'Purchase'
+type MetaCapiEventName = 'ViewContent' | 'Purchase' | 'StreamingClick'
 
 type MetaCapiSendParams = {
   request: NextRequest
