@@ -404,6 +404,29 @@
   white-space: nowrap;
 }
 
+.trackPlay {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgb(57 255 20 / 45%);
+  border-radius: 50%;
+  color: var(--c-green);
+  font-size: 0.7rem;
+  transition: background 160ms, color 160ms;
+}
+
+.trackPlay:hover,
+.trackPlay[data-on] {
+  background: var(--c-green);
+  color: #050505;
+}
+
+.trackPlay[data-error] {
+  border-color: rgb(255 255 255 / 20%);
+  color: rgb(255 255 255 / 35%);
+}
+
 .trackPrice {
   font: 600 0.8rem/1 var(--mono);
   color: rgb(255 255 255 / 80%);

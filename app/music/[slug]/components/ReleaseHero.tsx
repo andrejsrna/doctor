@@ -15,6 +15,7 @@ import { shortDate } from '@/app/utils/shortDate'
 import BuyButton, { type BuyOffer } from '@/app/components/shop/BuyButton'
 import AddToCartButton from '@/app/components/shop/AddToCartButton'
 import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
+import { PreviewButton } from '@/app/components/collections/CollectionClient'
 
 const SignalField = dynamic(() => import('@/app/components/hero/SignalField'), { ssr: false })
 
@@ -329,6 +330,9 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                   />
                 )}
                 {offer && !isFree && <AddToCartButton offer={offer} className={styles.secondary} />}
+                {offer?.preview && !isFree && (
+                  <PreviewButton src={offer.preview} slug={offer.productSlug} title={fullTitle} className={styles.secondary} location="release_hero" />
+                )}
                 {primary && (
                   <a className={styles.primary} href={primary.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handleOut(primary.name, primary.url, e)}>
                     <span className={styles.ico}><PlatformIcon icon={primary.icon} /></span>
@@ -379,7 +383,11 @@ export default function ReleaseHero(props: ReleaseHeroProps) {
                   <ol className={styles.trackList}>
                     {trackOffers.map((t, i) => (
                       <li key={t.productSlug}>
-                        <span className={styles.trackNo} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                        {t.preview ? (
+                          <PreviewButton src={t.preview} slug={t.productSlug} title={t.title.replace(/\s*\(WAV\)$/, '')} className={styles.trackPlay} location="release_tracks" iconOnly />
+                        ) : (
+                          <span className={styles.trackNo} aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                        )}
                         <span className={styles.trackName}>{t.title.replace(/\s*\(WAV\)$/, '').replace(/^.+? - /, '')}</span>
                         <span className={styles.trackPrice}>{t.price}</span>
                         <AddToCartButton offer={t} className={styles.trackAdd} />

@@ -6,7 +6,7 @@ import { trackEvent, trackStreamingClick } from '@/app/utils/analytics'
 import { withBeatportAffiliate } from '@/lib/affiliates'
 
 /** Preview toggle; starting one preview pauses any other on the page. */
-export function PreviewButton({ src, slug, title, className }: { src: string; slug: string; title: string; className?: string }) {
+export function PreviewButton({ src, slug, title, className, location = 'collections', iconOnly = false }: { src: string; slug: string; title: string; className?: string; location?: string; iconOnly?: boolean }) {
   const ref = useRef<HTMLAudioElement | null>(null)
   const [on, setOn] = useState(false)
   const [error, setError] = useState(false)
@@ -40,16 +40,25 @@ export function PreviewButton({ src, slug, title, className }: { src: string; sl
       setError(false)
       await ref.current.play()
       setOn(true)
-      trackEvent('preview_play', { content_type: 'release', content_name: title, item_id: slug, location: 'collections' })
+      trackEvent('preview_play', { content_type: 'release', content_name: title, item_id: slug, location })
     } catch {
       setError(true)
     }
   }
 
   return (
-    <button type="button" className={className} onClick={toggle} aria-pressed={on} data-on={on ? '' : undefined}>
+    <button
+      type="button"
+      className={className}
+      onClick={toggle}
+      aria-pressed={on}
+      data-on={on ? '' : undefined}
+      data-error={error ? '' : undefined}
+      aria-label={iconOnly ? `${error ? 'Preview unavailable' : on ? 'Pause preview' : 'Play preview'}: ${title}` : undefined}
+      title={iconOnly && error ? 'Preview unavailable' : undefined}
+    >
       {on ? <FaPause aria-hidden="true" /> : <FaPlay aria-hidden="true" />}
-      {error ? 'Preview unavailable' : on ? 'Pause' : 'Preview'}
+      {!iconOnly && (error ? 'Preview unavailable' : on ? 'Pause' : 'Preview')}
     </button>
   )
 }

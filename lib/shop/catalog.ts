@@ -13,6 +13,8 @@ export type BuyOffer = {
   type: 'SAMPLE_PACK' | 'TRACK' | 'RELEASE' | string
   image: string | null
   href: string | null
+  /** Public 45 s MP3 (TRACK products only), made by scripts/shop-track-previews.ts. */
+  preview?: string | null
 }
 
 export type ReleaseOffers = {
@@ -21,6 +23,9 @@ export type ReleaseOffers = {
   /** Individually sold tracks of an EP/album. */
   tracks: BuyOffer[]
 }
+
+const PUBLIC = (process.env.R2_PUBLIC_BASE_URL || '').replace(/\/$/, '')
+export const trackPreviewUrl = (productSlug: string) => (PUBLIC ? `${PUBLIC}/previews/tracks/${encodeURIComponent(productSlug)}.mp3` : null)
 
 const NONE: ReleaseOffers = { main: null, tracks: [] }
 const MULTI = new Set(["EP's", 'Albums'])
@@ -44,6 +49,7 @@ export async function offersForRelease(releaseId: string): Promise<ReleaseOffers
       type: p.type,
       image: p.release ? getReleaseImageUrl(p.release) || null : null,
       href: p.release ? `/music/${p.release.slug}` : null,
+      preview: p.type === 'TRACK' ? trackPreviewUrl(p.slug) : null,
     }))
     const main = offers.find((o) => o.type !== 'TRACK') ?? null
     const tracks = offers.filter((o) => o.type === 'TRACK')

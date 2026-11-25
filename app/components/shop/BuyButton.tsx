@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { FaShoppingCart } from 'react-icons/fa'
 import { shopItem, trackShop } from '@/app/utils/shopAnalytics'
 
-export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; amountCents?: number; currency?: string; type?: string; image?: string | null; href?: string | null }
+export type BuyOffer = { productSlug: string; title: string; price: string; amount?: number; amountCents?: number; currency?: string; type?: string; image?: string | null; href?: string | null; preview?: string | null }
 
 /** EU digital content consent; shared by Buy now and the cart. */
 export function DeliveryConsent({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
