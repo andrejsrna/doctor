@@ -45,6 +45,7 @@ export default function SamplePackView({
   title,
   coverUrl,
   offer,
+  extras = [],
   manifest,
   artist,
   storyHtml,
@@ -53,6 +54,7 @@ export default function SamplePackView({
   title: string
   coverUrl?: string
   offer: BuyOffer
+  extras?: BuyOffer[]
   manifest: PackManifest | null
   artist: PackArtist | null
   storyHtml?: string
@@ -99,7 +101,8 @@ export default function SamplePackView({
               <div id="pack-buy" className={styles.buyBox}>
                 <div className={styles.priceRow}>
                   <span className={styles.price}>{offer.price}</span>
-                  <span className={styles.priceNote}>Final price<br />Instant download</span>
+                  {offer.compareAt && <s className={styles.compareAt}>{offer.compareAt}</s>}
+                  <span className={styles.priceNote}>{offer.compareAt ? 'Launch price' : 'Final price'}<br />Instant download</span>
                 </div>
                 <div className={styles.buyActions}>
                   <BuyButton offer={offer} className={styles.buy} />
@@ -116,6 +119,20 @@ export default function SamplePackView({
                   <li>Card payment by Stripe</li>
                   <li>Re-download from <Link href="/account">My account</Link></li>
                 </ul>
+                {extras.map((x) => (
+                  <div key={x.productSlug} className={styles.bundle}>
+                    <p className={styles.bundleTitle}>
+                      <span className={styles.bundleTag}>Bundle</span> {x.title}
+                    </p>
+                    <div className={styles.bundleRow}>
+                      <span className={styles.bundlePrice}>
+                        {x.price} {x.compareAt && <s>{x.compareAt}</s>}
+                      </span>
+                      <BuyButton offer={x} className={styles.bundleBuy} label="Buy bundle" />
+                      <AddToCartButton offer={x} className={styles.addCart} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -278,6 +295,7 @@ export default function SamplePackView({
         </div>
         <div className={styles.final}>
           <span className={styles.price}>{offer.price}</span>
+          {offer.compareAt && <s className={styles.compareAt}>{offer.compareAt}</s>}
           <BuyButton offer={offer} className={styles.buy} label={`Get ${title}`} />
         </div>
       </section>

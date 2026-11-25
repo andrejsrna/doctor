@@ -146,6 +146,72 @@
   color: #fff;
 }
 
+.compareAt {
+  padding-bottom: 0.3rem;
+  font: 700 1.5rem/1 var(--disp);
+  color: rgb(255 255 255 / 45%);
+  text-decoration-color: #ff004d;
+  text-decoration-thickness: 2px;
+}
+
+.bundle {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgb(155 94 255 / 40%);
+}
+
+.bundleTitle {
+  margin: 0 0 0.7rem;
+  font: 600 0.8rem/1.4 var(--mono);
+  color: #fff;
+}
+
+.bundleTag {
+  margin-right: 0.4rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--v);
+  color: var(--v);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.bundleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.8rem;
+}
+
+.bundlePrice {
+  font: 800 1.8rem/1 var(--disp);
+  color: #fff;
+}
+
+.bundlePrice s {
+  margin-left: 0.3rem;
+  font-size: 1.1rem;
+  color: rgb(255 255 255 / 45%);
+  text-decoration-color: #ff004d;
+}
+
+.bundleBuy {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.95rem 1.2rem;
+  border: 1px solid var(--v);
+  background: rgb(155 94 255 / 22%);
+  color: #fff;
+  font: 700 0.75rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bundleBuy:hover {
+  background: rgb(155 94 255 / 40%);
+}
+
 .priceNote {
   padding-bottom: 0.25rem;
   font: 500 0.66rem/1.5 var(--mono);

@@ -7,6 +7,8 @@ export type BuyOffer = {
   productSlug: string
   title: string
   price: string
+  /** Regular price struck through next to `price` during a launch or sale. */
+  compareAt?: string | null
   amount: number
   amountCents: number
   currency: string
@@ -24,12 +26,14 @@ export type ReleaseOffers = {
   main: BuyOffer | null
   /** Individually sold tracks of an EP/album. */
   tracks: BuyOffer[]
+  /** Further non-track products of the release, e.g. a pack bundle (position 1..). */
+  extras: BuyOffer[]
 }
 
 const PUBLIC = (process.env.R2_PUBLIC_BASE_URL || '').replace(/\/$/, '')
 export const trackPreviewUrl = (productSlug: string) => (PUBLIC ? `${PUBLIC}/previews/tracks/${encodeURIComponent(productSlug)}.mp3` : null)
 
-const NONE: ReleaseOffers = { main: null, tracks: [] }
+const NONE: ReleaseOffers = { main: null, tracks: [], extras: [] }
 const MULTI = new Set(["EP's", 'Albums'])
 
 /** What a release page sells — empty until the shop is live, so the page keeps its existing store links. */
@@ -45,6 +49,7 @@ export async function offersForRelease(releaseId: string): Promise<ReleaseOffers
       productSlug: p.slug,
       title: p.title,
       price: money(p.priceCents, p.currency),
+      compareAt: p.compareAtCents && p.compareAtCents > p.priceCents ? money(p.compareAtCents, p.currency) : null,
       amount: p.priceCents / 100,
       amountCents: p.priceCents,
       currency: p.currency.toUpperCase(),
@@ -56,10 +61,11 @@ export async function offersForRelease(releaseId: string): Promise<ReleaseOffers
     const main = offers.find((o) => o.type !== 'TRACK') ?? null
     const bundle = main?.type === 'RELEASE' ? main : null
     const tracks = offers.filter((o) => o.type === 'TRACK').map((t) => (bundle ? { ...t, bundle } : t))
+    const extras = offers.filter((o) => o.type !== 'TRACK' && o !== main)
     // A single's only track is the release itself; EPs/albums list their tracks next to the bundle.
     const multi = rows[0]?.release?.categories.some((c) => MULTI.has(c)) ?? false
-    if (!main && tracks.length === 1 && !multi) return { main: tracks[0], tracks: [] }
-    return { main, tracks }
+    if (!main && tracks.length === 1 && !multi) return { main: tracks[0], tracks: [], extras }
+    return { main, tracks, extras }
   } catch {
     return NONE
   }

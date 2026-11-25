@@ -601,6 +601,8 @@ model Product {
   type       ProductType @default(SAMPLE_PACK)
   title      String
   priceCents Int
+  /// Optional regular price shown struck through next to priceCents (launch / sale price).
+  compareAtCents Int?
   currency   String      @default("eur")
   active     Boolean     @default(false)
   fileKey    String?

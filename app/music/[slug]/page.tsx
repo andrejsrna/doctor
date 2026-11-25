@@ -186,7 +186,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
   }
 
   // Paid sample packs get their own storefront layout instead of the music release hero.
-  const { main: offer, tracks: trackOffers } = await offersForRelease(release.id)
+  const { main: offer, tracks: trackOffers, extras: extraOffers } = await offersForRelease(release.id)
   const isPack = !!offer && offer.type === 'SAMPLE_PACK' && release.releaseType !== 'FREE_DOWNLOAD'
   const pack = isPack ? await loadPackManifest(slug) : null
   const packArtist = isPack && release.artistName
@@ -321,6 +321,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ slug: 
             title={plainTitle(release.title)}
             coverUrl={imageUrl || undefined}
             offer={offer}
+            extras={extraOffers}
             manifest={pack}
             artist={packArtist}
             storyHtml={safeContent || undefined}
