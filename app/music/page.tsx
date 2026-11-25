@@ -40,6 +40,7 @@ async function load() {
         beatport: true,
         spotify: true,
         releaseType: true,
+        products: { where: { active: true, fileKey: { not: null } }, select: { priceCents: true, currency: true } },
       },
     })
     const releases: CatalogRelease[] = rows.map((r) => {
@@ -56,6 +57,13 @@ async function load() {
         beatport: r.beatport,
         spotify: r.spotify,
         free: r.releaseType === 'FREE_DOWNLOAD',
+        // Lowest WAV price when the release is sold in our shop.
+        from: r.products.length
+          ? (() => {
+              const low = r.products.reduce((m, x) => (x.priceCents < m.priceCents ? x : m))
+              return new Intl.NumberFormat('en-IE', { style: 'currency', currency: low.currency.toUpperCase() }).format(low.priceCents / 100)
+            })()
+          : null,
       }
     })
     const tally = new Map<string, number>()

@@ -24,6 +24,8 @@ export type CatalogRelease = {
   beatport: string | null
   spotify: string | null
   free: boolean
+  /** Lowest WAV price in our shop, formatted; null when not sold here. */
+  from?: string | null
 }
 
 export type CatalogCategory = { slug: string; label: string; count: number }
@@ -416,6 +418,7 @@ export default function MusicCatalog({
                       </span>
                       <span className={styles.cardTitle}>{r.title}</span>
                       {r.artist && <span className={styles.cardArtist}>{r.artist}</span>}
+                      {r.from && !r.free && <span className={styles.cardPrice}>WAV from {r.from}</span>}
                     </Link>
                     {r.preview && (
                       <button

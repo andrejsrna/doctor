@@ -22,21 +22,21 @@ const pick = <T extends string>(v: string | string[] | undefined, allowed: reado
 
 type Row = {
   id: string; kind: 'digital' | 'merch'; status: string; date: Date; email: string | null; name: string | null
-  total: number; shipping: number; items: { title: string; type: string; cents: number; qty: number }[]
+  total: number; shipping: number; items: { title: string; type: string; cents: number; qty: number; release?: { id: string; title: string; slug: string } | null }[]
   invoice: string | null; note: string | null
 }
 
 async function load(since: Date | null): Promise<Row[]> {
   const where = since ? { createdAt: { gte: since } } : {}
   const [orders, merch] = await Promise.all([
-    prisma.order.findMany({ where, orderBy: { createdAt: 'desc' }, include: { items: { include: { product: { select: { type: true } } } } } }),
+    prisma.order.findMany({ where, orderBy: { createdAt: 'desc' }, include: { items: { include: { product: { select: { type: true, release: { select: { id: true, title: true, slug: true } } } } } } } }),
     prisma.merchOrder.findMany({ where, orderBy: { createdAt: 'desc' }, include: { items: true } }),
   ])
   const rows: Row[] = [
     ...orders.map((o) => ({
       id: o.id, kind: 'digital' as const, status: o.status, date: o.paidAt ?? o.createdAt, email: o.email, name: o.customerName,
       total: o.amountTotal, shipping: 0, invoice: o.invoiceNumber,
-      items: o.items.map((i) => ({ title: i.title, type: i.product.type, cents: i.priceCents, qty: 1 })),
+      items: o.items.map((i) => ({ title: i.title, type: i.product.type, cents: i.priceCents, qty: 1, release: i.product.release })),
       note: o.status === 'PAID' ? `${o.items.reduce((s, i) => s + i.downloadCount, 0)}× downloaded` : null,
     })),
     ...merch.map((o) => ({
@@ -62,7 +62,13 @@ function stats(rows: Row[]) {
 
   const byType = new Map<string, { cents: number; qty: number }>()
   const byProduct = new Map<string, { cents: number; qty: number; type: string }>()
+  // A release's bundle and its single tracks count together.
+  const byRelease = new Map<string, { cents: number; qty: number; title: string; slug: string; bundles: number; tracks: number }>()
   for (const r of paid) for (const i of r.items) {
+    if (i.release) {
+      const b = byRelease.get(i.release.id) || { cents: 0, qty: 0, title: i.release.title, slug: i.release.slug, bundles: 0, tracks: 0 }
+      byRelease.set(i.release.id, { ...b, cents: b.cents + i.cents, qty: b.qty + 1, bundles: b.bundles + (i.type === 'TRACK' ? 0 : 1), tracks: b.tracks + (i.type === 'TRACK' ? 1 : 0) })
+    }
     const t = byType.get(i.type) || { cents: 0, qty: 0 }
     byType.set(i.type, { cents: t.cents + i.cents, qty: t.qty + i.qty })
     const p = byProduct.get(i.title) || { cents: 0, qty: 0, type: i.type }
@@ -75,6 +81,7 @@ function stats(rows: Row[]) {
     conversion: decided ? paid.length / decided : 0, customers: perCustomer.size, repeat,
     byType: [...byType.entries()].sort((a, b) => b[1].cents - a[1].cents),
     top: [...byProduct.entries()].sort((a, b) => b[1].cents - a[1].cents || b[1].qty - a[1].qty).slice(0, 10),
+    releases: [...byRelease.entries()].sort((a, b) => b[1].cents - a[1].cents || b[1].qty - a[1].qty).slice(0, 15),
   }
 }
 
@@ -121,6 +128,11 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const months = monthly(ofKind(lastYear), now)
   const maxMonth = Math.max(1, ...months.map((m) => m.cents))
   const list = status === 'ALL' ? rows : rows.filter((r) => r.status === status)
+  // Clicks out to streams/stores are all-time counters (no dates), shown next to sales for context.
+  const clicks = new Map(
+    (await prisma.streamingClick.groupBy({ by: ['releaseId'], where: { releaseId: { in: s.releases.map(([id]) => id) } }, _sum: { count: true } }))
+      .map((c) => [c.releaseId, c._sum.count ?? 0]),
+  )
   const href = (p: Partial<{ range: string; kind: string; status: string }>) => {
     const q = new URLSearchParams({ range, kind, status, ...p })
     if (q.get('status') === 'ALL') q.delete('status')
@@ -178,6 +190,24 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
             <span className="shrink-0 text-gray-300">{eur(v.cents)} · {v.qty}×</span>
           </li>)}</ol>}
       </div>
+    </section>
+
+    <section className={card}>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-lg font-semibold">Top releases</h2>
+        <p className="text-xs text-gray-500">EP/album bundles and their single tracks together · clicks out = all-time stream/store clicks</p>
+      </div>
+      {s.releases.length === 0 ? <p className="mt-4 text-sm text-gray-400">No release sales in this period.</p> :
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
+          <thead className="text-xs uppercase text-gray-400"><tr><th className="py-2">Release</th><th className="text-right">Revenue</th><th className="text-right">Bundles</th><th className="text-right">Tracks</th><th className="text-right">Clicks out</th></tr></thead>
+          <tbody className="divide-y divide-gray-800">{s.releases.map(([id, v], i) => <tr key={id} className="[&>td]:py-2">
+            <td className="pr-3"><span className="mr-2 text-gray-500">{i + 1}.</span><Link href={`/music/${v.slug}`} className="hover:text-green-300" target="_blank">{v.title}</Link></td>
+            <td className="text-right">{eur(v.cents)}</td>
+            <td className="text-right text-gray-300">{v.bundles || '—'}</td>
+            <td className="text-right text-gray-300">{v.tracks || '—'}</td>
+            <td className="text-right text-gray-400">{clicks.get(id) ?? 0}</td>
+          </tr>)}</tbody>
+        </table></div>}
     </section>
 
     <section className={card}>

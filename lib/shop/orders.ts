@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import type { CheckoutSession } from './stripe'
 import { downloadToken } from './tokens'
 import { sendOrderEmail, SITE } from './emails'
+import { moreForOrder } from './recommend'
 
 export const normEmail = (e: string | null | undefined) => (e ? e.trim().toLowerCase() : null)
 
@@ -45,7 +46,8 @@ export async function sendReceipt(orderId: string) {
   const order = await prisma.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true } })
   if (order.status !== 'PAID' || !order.email) return false
   try {
-    await sendOrderEmail(order.email, order, order.items.map((i) => ({ title: i.title, priceCents: i.priceCents, downloadUrl: downloadUrl(i.id) })))
+    const more = await moreForOrder(order.id)
+    await sendOrderEmail(order.email, order, order.items.map((i) => ({ title: i.title, priceCents: i.priceCents, downloadUrl: downloadUrl(i.id) })), more)
     await prisma.order.update({ where: { id: order.id }, data: { emailSentAt: new Date() } })
     return true
   } catch (e) {

@@ -25,7 +25,23 @@ const button = (href: string, label: string) =>
 
 export type ReceiptLine = { title: string; priceCents: number; downloadUrl: string }
 
-export async function sendOrderEmail(to: string, order: { id: string; currency: string; amountTotal: number }, lines: ReceiptLine[]) {
+type MoreLine = { slug: string; title: string; artist: string; image: string | null; from: string }
+
+/** 'More from the artist' block under the receipt (plain links, small covers). */
+function moreBlock(more?: { heading: string; list: MoreLine[] } | null) {
+  if (!more?.list.length) return ''
+  const rows = more.list
+    .map((m) => {
+      const href = `${SITE}/music/${encodeURIComponent(m.slug)}`
+      const img = m.image ? `<td width="64" style="padding:10px 12px 10px 0;vertical-align:top"><a href="${esc(href)}"><img src="${esc(m.image)}" width="64" height="64" alt="" style="display:block;width:64px;height:64px;object-fit:cover"></a></td>` : ''
+      return `<tr>${img}<td style="padding:10px 0;vertical-align:top"><a href="${esc(href)}" style="color:#fff;font-weight:700;text-decoration:none">${esc(m.title)}</a><br><span style="color:#8b8b96">${esc(m.artist)}</span>${m.from ? `<br><span style="color:#39ff14;font-family:'Courier New',monospace;font-size:13px">WAV from ${esc(m.from)}</span>` : ''}</td></tr>`
+    })
+    .join('')
+  return `<p style="margin:28px 0 4px;padding-top:20px;border-top:1px solid #26262e;color:#39ff14;font-family:'Courier New',monospace;font-size:12px;letter-spacing:.15em;text-transform:uppercase">${esc(more.heading)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`
+}
+
+export async function sendOrderEmail(to: string, order: { id: string; currency: string; amountTotal: number }, lines: ReceiptLine[], more?: { heading: string; list: MoreLine[] } | null) {
   const items = lines
     .map((l) => `<tr><td style="padding:14px 0;border-bottom:1px solid #26262e"><strong style="color:#fff">${esc(l.title)}</strong><br><span style="color:#8b8b96">${money(l.priceCents, order.currency)}</span><div style="padding-top:12px">${button(l.downloadUrl, 'Download')}</div></td></tr>`)
     .join('')
@@ -35,7 +51,7 @@ export async function sendOrderEmail(to: string, order: { id: string; currency: 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
 <p style="margin:16px 0 0">These links work for 30 days. You can download your purchases at any time from <a href="${SITE}/account" style="color:#39ff14">My account</a> — sign in with this email address.</p>
 <p style="margin:12px 0 0">Your invoice will follow in a separate email.</p>
-<p style="margin:12px 0 0;color:#8b8b96;font-size:13px">Order ${esc(order.id)}. You agreed to immediate delivery of digital content and acknowledged that the right of withdrawal ends once delivery begins.</p>`,
+<p style="margin:12px 0 0;color:#8b8b96;font-size:13px">Order ${esc(order.id)}. You agreed to immediate delivery of digital content and acknowledged that the right of withdrawal ends once delivery begins.</p>${moreBlock(more)}`,
   )
   await sendEmail({ to, subject: 'Your DnB Doctor download', html, text: htmlToText(html) })
 }
