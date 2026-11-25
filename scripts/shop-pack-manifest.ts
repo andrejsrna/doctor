@@ -34,17 +34,22 @@ function walk(dir: string): string[] {
   })
 }
 
-/** "02 BASSLOOP Y B _174.wav" → key "B", bpm 174 */
-function parseName(file: string) {
+const PRESET_EXT = new Set(['fxp', 'fxb', 'serumpreset'])
+/** Trailing tempo token: "_174" (older packs) or " 174" (1xx only, so "LOOP 12" isn't read as a tempo). */
+const BPM_TAIL = /(?:_(\d{2,3})|\s(1\d\d))$/
+
+/** "02 BASSLOOP Y B _174.wav" → key "B", bpm 174; "DRUM LOOP 3 174.wav" → bpm 174; else the folder's "174". */
+function parseName(file: string, folder = '') {
   const stem = basename(file).replace(/\.[^.]+$/, '')
-  const bpm = Number(stem.match(/_(\d{2,3})$/)?.[1]) || null
+  const tail = stem.match(BPM_TAIL)
+  const bpm = Number(tail?.[1] || tail?.[2] || folder.match(/\b(1\d\d)\b/)?.[1]) || null
   const key = stem.split(/[\s_]+/).filter((t) => /^[A-G](?:#|b)?$/.test(t)).pop() ?? null
   return { stem, bpm, key }
 }
 
-function groupLabel(folder: string, kind: PackGroup['kind']) {
+function groupLabel(folder: string, kind: PackGroup['kind'], ext = '') {
   const f = folder.toLowerCase()
-  if (kind === 'preset') return 'Serum presets'
+  if (kind === 'preset') return ext === 'serumpreset' ? 'Serum 2 presets' : 'Serum presets'
   if (f.includes('bass')) return 'Bass loops'
   if (f.includes('drum')) return 'Drum loops'
   return 'Synths & pads'
@@ -87,17 +92,29 @@ function peaks(file: string): number[] {
     const groups = new Map<string, PackGroup>()
     const uploads: { key: string; body: Buffer; type: string }[] = []
     let audio: PackManifest['audio'] = null
+    let demo: PackManifest['demo'] = null
 
     for (const f of content) {
       const rel = relative(join(work, 'x'), f)
       const parts = rel.split('/')
       const folder = parts.length > 2 ? parts[parts.length - 2] : parts.length === 2 ? parts[0] : 'Files'
       const ext = f.split('.').pop()!.toLowerCase()
-      const kind: PackGroup['kind'] = ext === 'fxp' || ext === 'fxb' ? 'preset' : 'audio'
+      // A preview/demo WAV next to the folders is the pack's full demo: render it whole, keep it out of the loop groups.
+      if (parts.length <= 2 && /^(preview|demo)\b/i.test(basename(f)) && ext === 'wav' && !demo) {
+        const seconds = Number(JSON.parse(run('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'json', f]).toString()).format.duration)
+        const clip = Math.min(seconds, 120)
+        const out = join(work, 'demo.mp3')
+        run('ffmpeg', ['-v', 'error', '-y', '-i', f, '-t', String(clip), '-af', `afade=t=out:st=${Math.max(0, clip - 1)}:d=1`, '-ac', '2', '-b:a', '160k', out])
+        const key = `${prefix}/preview-demo.mp3`
+        uploads.push({ key, body: readFileSync(out), type: 'audio/mpeg' })
+        demo = { preview: `${base}/${key}`, seconds: Math.round(clip * 100) / 100, peaks: peaks(out) }
+        continue
+      }
+      const kind: PackGroup['kind'] = PRESET_EXT.has(ext) ? 'preset' : 'audio'
       const id = folder.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-      if (!groups.has(id)) groups.set(id, { id, folder, label: groupLabel(folder, kind), kind, items: [] })
-      const { stem, bpm, key } = parseName(f)
-      const item: PackItem = { name: basename(f), title: stem.replace(/_\d{2,3}$/, '').replace(/\s+/g, ' ').trim(), key, bpm, bytes: statSync(f).size }
+      if (!groups.has(id)) groups.set(id, { id, folder, label: groupLabel(folder, kind, ext), kind, items: [] })
+      const { stem, bpm, key } = parseName(f, folder)
+      const item: PackItem = { name: basename(f), title: stem.replace(BPM_TAIL, '').replace(/\s+/g, ' ').trim(), key, bpm, bytes: statSync(f).size }
 
       if (kind === 'audio') {
         const probe = JSON.parse(run('ffprobe', ['-v', 'error', '-show_entries', 'stream=sample_rate,bits_per_sample,channels:format=duration', '-of', 'json', f]).toString())
@@ -128,10 +145,12 @@ function peaks(file: string): number[] {
       abletonWarp: files.some((f) => f.endsWith('.asd')),
       audio,
       groups: ordered,
+      demo,
     }
     uploads.push({ key: `${prefix}/manifest.json`, body: Buffer.from(JSON.stringify(manifest)), type: 'application/json' })
 
     for (const g of ordered) console.log(`${g.label.padEnd(14)} ${g.items.length} × ${g.kind}  ${g.items.map((i) => `${i.title}${i.key ? ` [${i.key}]` : ''}${i.bars ? ` ${i.bars}b` : ''}`).join(', ')}`)
+    if (demo) console.log(`demo ${demo.seconds}s`)
     console.log(`files ${manifest.fileCount}, zip ${(manifest.zipBytes / 1e6).toFixed(1)} MB, audio ${JSON.stringify(audio)}, uploads ${uploads.length}`)
     if (!apply) return console.log('dry run — pass --apply to upload')
 

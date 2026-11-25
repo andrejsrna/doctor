@@ -1009,3 +1009,27 @@ a.stat:hover {
     animation: none;
   }
 }
+
+/* ================= PACK DEMO ================= */
+.demo {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 4%);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.demo figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: rgb(255 255 255 / 60%);
+  font-variant-numeric: tabular-nums;
+}
+
+.demo audio {
+  width: 100%;
+  color-scheme: dark;
+}

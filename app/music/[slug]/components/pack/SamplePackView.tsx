@@ -11,6 +11,16 @@ import styles from './pack.module.css'
 
 export type PackArtist = { name: string; slug: string | null; imageUrl: string | null }
 
+const presetExt = (g: PackManifest['groups'][number]) => g.items[0]?.name.split('.').pop() ?? 'fxp'
+
+/** "The .fxp presets need Xfer Serum." / "The .SerumPreset presets need Xfer Serum 2." */
+function presetNote(m: PackManifest | null) {
+  const exts = [...new Set(m?.groups.filter((g) => g.kind === 'preset').map(presetExt) ?? [])]
+  if (!exts.length) return ''
+  const serum2 = exts.some((e) => e.toLowerCase() === 'serumpreset')
+  return `The ${exts.map((e) => `.${e}`).join(' / ')} presets need Xfer Serum${serum2 && exts.length === 1 ? ' 2' : ''}. `
+}
+
 export const packFaq = (m: PackManifest | null) => [
   {
     q: 'Can I use these sounds in tracks I release?',
@@ -22,7 +32,7 @@ export const packFaq = (m: PackManifest | null) => [
   },
   {
     q: 'What do I need to use the pack?',
-    a: `${m?.audio ? `The loops are ${m.audio.bits}-bit / ${m.audio.sampleRate / 1000} kHz ${m.audio.format} files that work in any DAW. ` : ''}${m?.groups.some((g) => g.kind === 'preset') ? 'The .fxp presets need Xfer Serum. ' : ''}${m?.abletonWarp ? 'Ableton warp files (.asd) are included.' : ''}`.trim() || 'Any DAW that opens WAV files.',
+    a: `${m?.audio ? `The loops are ${m.audio.bits}-bit / ${m.audio.sampleRate / 1000} kHz ${m.audio.format} files that work in any DAW. ` : ''}${presetNote(m)}${m?.abletonWarp ? 'Ableton warp files (.asd) are included.' : ''}`.trim() || 'Any DAW that opens WAV files.',
   },
   {
     q: 'Is VAT included?',
@@ -94,7 +104,7 @@ export default function SamplePackView({
                 <div className={styles.buyActions}>
                   <BuyButton offer={offer} className={styles.buy} />
                   <AddToCartButton offer={offer} className={styles.addCart} />
-                  {m && audioFiles > 0 && (
+                  {m && (audioFiles > 0 || m.demo) && (
                     <a className={styles.listen} href="#sounds">
                       Hear the sounds <span aria-hidden="true">↓</span>
                     </a>
@@ -149,13 +159,19 @@ export default function SamplePackView({
       )}
 
       {/* ============ SOUNDS ============ */}
-      {m && audioFiles > 0 && (
+      {m && (audioFiles > 0 || m.demo) && (
         <section id="sounds" className={styles.section} aria-labelledby="sounds-title">
           <header className={styles.head}>
             <p className={styles.kicker}>01 // Audition</p>
             <h2 id="sounds-title" className={styles.h2}>Hear every loop</h2>
-            <p className={styles.sub}>All {audioFiles} loops are cut on the grid at 174 BPM. Hit play, switch on loop and the step clock shows where you are in the bar.</p>
+            <p className={styles.sub}>{m.demo ? 'Start with the full demo, then audition the loops one by one. ' : ''}{audioFiles > 0 && `All ${audioFiles} loops are cut on the grid at 174 BPM. Hit play, switch on loop and the step clock shows where you are in the bar.`}</p>
           </header>
+          {m.demo && (
+            <figure className={styles.demo}>
+              <figcaption><span className={styles.kicker}>Pack demo</span> {Math.floor(m.demo.seconds / 60)}:{String(Math.round(m.demo.seconds % 60)).padStart(2, '0')}</figcaption>
+              <audio controls preload="none" src={m.demo.preview} />
+            </figure>
+          )}
           <PackPlayer groups={m.groups} />
         </section>
       )}
@@ -172,7 +188,7 @@ export default function SamplePackView({
               <details key={g.id} open={gi === 0 || g.kind === 'preset'}>
                 <summary>
                   <span className={styles.folder}>{g.folder}/</span>
-                  <span>{g.items.length} {g.kind === 'preset' ? 'Serum presets (.fxp)' : `${g.items[0]?.name.split('.').pop()?.toUpperCase()} files`}</span>
+                  <span>{g.items.length} {g.kind === 'preset' ? `${g.label} (.${presetExt(g)})` : `${g.items[0]?.name.split('.').pop()?.toUpperCase()} files`}</span>
                 </summary>
                 <ul>
                   {g.items.map((it, i) => (

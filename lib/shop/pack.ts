@@ -21,6 +21,8 @@ export type PackManifest = {
   abletonWarp: boolean
   audio: { sampleRate: number; bits: number; channels: number; format: string } | null
   groups: PackGroup[]
+  /** Full-length pack demo (a root-level preview/demo WAV), rendered whole instead of as a 4-bar loop. */
+  demo?: { preview: string; seconds: number; peaks: number[] } | null
 }
 
 /** Public manifest written by scripts/shop-pack-manifest.ts; null when the pack hasn't been scanned yet. */
